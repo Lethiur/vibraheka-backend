@@ -8,13 +8,7 @@ public static class DependencyInjection
 {
     public static void AddWebServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-     
-
         builder.Services.AddHttpContextAccessor();
-        
-        builder.Services.AddRazorPages();
 
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -25,18 +19,6 @@ public static class DependencyInjection
         builder.Services.AddOpenApiDocument((configure, sp) =>
         {
             configure.Title = "VibraHeka API";
-
         });
-    }
-
-    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
-    {
-        var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
-        {
-            builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-        }
     }
 }

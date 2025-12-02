@@ -23,12 +23,9 @@
   <ItemGroup>
     <Folder Include="Common\Behaviours\" />
     <Folder Include="Common\Exceptions\" />
-    <Folder Include="Common\Interfaces\" />
     <Folder Include="Common\Mappings\" />
     <Folder Include="Common\Models\" />
-    <Folder Include="TodoItems\Commands\" />
-    <Folder Include="TodoItems\EventHandlers\" />
-    <Folder Include="TodoItems\Queries\" />
+    <Folder Include="Common\Security\" />
   </ItemGroup>
 
 </Project>
