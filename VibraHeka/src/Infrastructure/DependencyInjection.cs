@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Constants;
 using VibraHeka.Infrastructure.Persistence;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
@@ -25,9 +24,5 @@ public static class DependencyInjection
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonDynamoDB>();
-        builder.Services.AddAuthorization(options =>
-            options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
-        
-       
     }
 }

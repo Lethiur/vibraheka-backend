@@ -1,6 +1,6 @@
-﻿namespace VibraHeka.Infrastructure.Exceptions;
+﻿namespace VibraHeka.Application.Common.Exceptions;
 
-public class ApplicationException : Exception
+public class EAppException : Exception
 {
     /// <summary>
     /// The error code associated with the error
@@ -8,7 +8,7 @@ public class ApplicationException : Exception
     public string ErrorCode { get; private set; }
     
     /// <inheritdoc />
-    protected ApplicationException(string errorCode, string errorMessage) : base(errorMessage)
+    protected EAppException(string errorCode, string errorMessage) : base(errorMessage)
     {
         ErrorCode = errorCode;
     } 

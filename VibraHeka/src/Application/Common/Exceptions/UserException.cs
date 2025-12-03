@@ -1,6 +1,6 @@
-﻿namespace VibraHeka.Infrastructure.Exceptions;
+﻿namespace VibraHeka.Application.Common.Exceptions;
 
-public class UserException : ApplicationException
+public class UserException : EAppException
 {
     /// <summary>
     /// Represents the error code indicating that a user already exists in the system.
@@ -26,8 +26,15 @@ public class UserException : ApplicationException
     /// Represents the error code indicating that the provided verification code is invalid or does not meet the expected criteria.
     /// </summary>
     public const string InvalidVerificationCode = "E-004";
-    
+
+    /// <summary>
+    /// Represents the error code indicating that the provided email address is invalid or does not meet the expected format.
+    /// </summary>
     public const string InvalidEmail = "E-006";
+
+    /// <summary>
+    /// Represents the error code indicating that the provided full name is invalid or does not meet the required criteria.
+    /// </summary>
     public const string InvalidFullName = "E-007";
 
     /// <summary>

@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection.Middleware;
 using VibraHeka.Infrastructure;
+using VibraHeka.Web.Middleware;
 
 public class VibraHekaProgram
 {

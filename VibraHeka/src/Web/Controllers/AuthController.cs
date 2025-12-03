@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Users.Commands;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Controllers;
 
@@ -10,6 +10,13 @@ namespace VibraHeka.Web.Controllers;
 [Route("api/v1/auth")]
 public class AuthController(IMediator mediator)
 {
+    /// <summary>
+    /// Handles a user registration request by processing the provided registration details
+    /// and returning a result indicating success or failure.
+    /// </summary>
+    /// <param name="command">The command object containing the user's email, password, and full name.</param>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the registration process.
+    /// Success response contains the user ID, while failure response contains error details.</returns>
     [HttpPost("register")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -21,14 +28,8 @@ public class AuthController(IMediator mediator)
 
         if (!id.IsFailure)
         {
-            return new OkObjectResult(new { UserId = id.Value });
+            return new OkObjectResult(ResponseEntity.FromSuccess(id.Value));
         }
-        return new BadRequestObjectResult(id.Error);
-    }
-    
-    [HttpGet("test")]
-    public IActionResult Test()
-    {
-        return new OkObjectResult(new { UserId = "test" });
+        return new BadRequestObjectResult(ResponseEntity.FromError(id.Error));
     }
 }

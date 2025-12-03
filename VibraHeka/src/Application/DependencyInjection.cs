@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection.Common.Behaviours;
 using Microsoft.Extensions.Hosting;
+using VibraHeka.Application.Common.Behaviours;
 using VibraHeka.Application.Users.Commands;
 
 namespace Microsoft.Extensions.DependencyInjection;

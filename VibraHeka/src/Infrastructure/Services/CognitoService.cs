@@ -2,8 +2,8 @@
 using Amazon.CognitoIdentityProvider.Model;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
