@@ -1,28 +1,27 @@
-﻿using VibraHeka.Application.Common.Interfaces;
+﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Entities;
-
 namespace VibraHeka.Application.Users.Commands;
 
 public class RegisterUserCommandHandler(ICognitoService cognito, IUserRepository users)
-    : IRequestHandler<RegisterUserCommand, string>
+    : IRequestHandler<RegisterUserCommand, Result<string>>
 {
-    public async Task<string> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        if (await users.ExistsByEmailAsync(request.Email))
-            throw new Exception("El usuario ya existe, vaquero.");
-
-        var cognitoId = await cognito.RegisterUserAsync(request.Email, request.Password, request.FullName);
-
-        var user = new User
+        Result<string> cognitoId = await cognito.RegisterUserAsync(request.Email, request.Password, request.FullName);
+        
+        
+        return await cognitoId.Bind(async realCognitoId =>
         {
-            Id = Guid.NewGuid().ToString(),
-            Email = request.Email,
-            FullName = request.FullName,
-            CognitoId = cognitoId
-        };
+            User user = new User
+            {
+                Id = Guid.NewGuid().ToString(),
+                Email = request.Email,
+                FullName = request.FullName,
+                CognitoId = realCognitoId
+            };
 
-        await users.AddAsync(user);
-
-        return user.Id;
+            return await users.AddAsync(user);
+        });
     }
 }

@@ -17,6 +17,7 @@
       </Content>
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="CSharpFunctionalExtensions" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
       <PackageReference Include="Microsoft.NET.Test.Sdk" />

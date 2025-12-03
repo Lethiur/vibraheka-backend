@@ -1,5 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
+using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Entities;
 
@@ -7,18 +7,18 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 
 public class UserRepository(IDynamoDBContext context) : IUserRepository
 {
-    public async Task AddAsync(User user)
+    public async Task<Result<string>> AddAsync(User user)
     {
-        SaveConfig saveConfig = new SaveConfig()
+        SaveConfig saveConfig = new()
         {
             OverrideTableName = "VibraHeka-users",
-            
         };
         
         await context.SaveAsync(user, saveConfig);
+        return user.Id;
     }
 
-    public async Task<bool> ExistsByEmailAsync(string email)
+    public async Task<Result<bool>> ExistsByEmailAsync(string email)
     {
         QueryConfig queryConfig = new()
         {

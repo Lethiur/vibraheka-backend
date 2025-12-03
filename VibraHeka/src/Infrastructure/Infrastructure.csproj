@@ -9,6 +9,7 @@
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" />
     <PackageReference Include="AWSSDK.DynamoDBv2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
+    <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
@@ -23,6 +24,7 @@
   <ItemGroup>
     <Folder Include="Data\Configurations\" />
     <Folder Include="Data\Interceptors\" />
+    <Folder Include="Exceptions\" />
     <Folder Include="Identity\" />
   </ItemGroup>
 

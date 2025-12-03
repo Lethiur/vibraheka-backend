@@ -1,39 +1,56 @@
 ﻿using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class CognitoService : ICognitoService
+public class CognitoService(IConfiguration config) : ICognitoService
 {
-    private readonly AmazonCognitoIdentityProviderClient _client;
-    private readonly string _userPoolId;
-    private readonly string _clientId;
+    private readonly AmazonCognitoIdentityProviderClient _client = new();
+    private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
+    private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
-    public CognitoService(IConfiguration config)
+    public async Task<Result<string>> RegisterUserAsync(string email, string password, string fullName)
     {
-        _client = new AmazonCognitoIdentityProviderClient();
-        _userPoolId = config["Cognito:UserPoolId"] ?? "";
-        _clientId = config["Cognito:ClientId"] ?? "";
-    }
-
-    public async Task<string> RegisterUserAsync(string email, string password, string fullName)
-    {
-        var request = new SignUpRequest
+        try
         {
-            ClientId = _clientId,
-            Username = email,
-            Password = password,
-            UserAttributes = new List<AttributeType>
+            var request = new SignUpRequest
             {
-                new() {Name = "name", Value = fullName},
-                new() {Name = "email", Value = email}
-            }
-        };
+                ClientId = _clientId,
+                Username = email,
+                Password = password,
+                UserAttributes =
+                [
+                    new AttributeType { Name = "name", Value = fullName },
+                    new AttributeType { Name = "email", Value = email }
+                ]
+            };
 
-        var response = await _client.SignUpAsync(request);
+            var response = await _client.SignUpAsync(request);
 
-        return response.UserSub;
+            return response.UserSub;
+        }
+        catch (UsernameExistsException)
+        {
+            return  Result.Failure<string>(UserException.UserAlreadyExist);
+        }
+        catch (InvalidPasswordException)
+        {
+            // Handle invalid password
+            return Result.Failure<string>(UserException.InvalidPassword);
+        }
+        catch (InvalidParameterException)
+        {
+            // Handle invalid form data
+            return Result.Failure<string>(UserException.InvalidForm);
+        }
+        catch (Exception)
+        {
+            // Handle unexpected errors
+            return Result.Failure<string>(UserException.UnexpectedError);
+        }
     }
 }

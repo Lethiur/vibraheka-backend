@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Users.Commands;
 
@@ -15,8 +17,13 @@ public class AuthController(IMediator mediator)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] [Required] RegisterUserCommand command)
     {
-        var id = await mediator.Send(command);
-        return new OkObjectResult(new { UserId = id });
+        Result<string> id = await mediator.Send(command);
+
+        if (!id.IsFailure)
+        {
+            return new OkObjectResult(new { UserId = id.Value });
+        }
+        return new BadRequestObjectResult(id.Error);
     }
     
     [HttpGet("test")]

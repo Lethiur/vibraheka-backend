@@ -1,3 +1,5 @@
-﻿namespace VibraHeka.Application.Users.Commands;
+﻿using CSharpFunctionalExtensions;
 
-public record RegisterUserCommand(string Email, string Password, string FullName) : IRequest<string>;
+namespace VibraHeka.Application.Users.Commands;
+
+public record RegisterUserCommand(string Email, string Password, string FullName) : IRequest<Result<string>>;
