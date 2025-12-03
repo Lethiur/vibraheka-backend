@@ -77,10 +77,42 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "The status code should be BadRequest");
         
         // And: The response should contain the expected error message
-        var responseContent = await response.Content.ReadAsStringAsync();
+        string responseContent = await response.Content.ReadAsStringAsync();
 
         ResponseEntity responseObject = JsonConvert.DeserializeObject<ResponseEntity>(responseContent) ?? throw new DataException("The response content could not be deserialized to a ResponseEntity object.");
         Assert.That(responseObject.Content, Is.Null,$"The response should contain the error keyword '{expectedErrorKeyword}'. Actual response: {responseContent}");
         Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword));
     }
+    
+    [Test]
+    [DisplayName("Should not allow duplicate user registration")]
+    public async Task ShouldNotAllowDuplicateUserRegistration()
+    {
+        // Given: A valid user command
+        Faker faker = new();
+        string? email = faker.Internet.Email();
+        RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe");
+        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith");
+
+        // When: We register the user for the first time
+        HttpResponseMessage firstResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", firstCommand);
+
+        // Then: First registration should succeed
+        Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK), "First registration should succeed");
+
+        // When: We try to register the same email again
+        HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", duplicateCommand);
+
+        // Then: Second registration should fail
+        Assert.That(duplicateResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "Duplicate registration should fail");
+
+        // And: The response should indicate it's a duplicate email error
+        string responseContent = await duplicateResponse.Content.ReadAsStringAsync();
+
+        ResponseEntity responseObject = JsonConvert.DeserializeObject<ResponseEntity>(responseContent) ?? throw new DataException("The response content could not be deserialized to a ResponseEntity object.");
+        
+        Assert.That(responseObject.Content, Is.Null,$"The response should contain the error keyword 'E-000'. Actual response: {responseContent}");
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.UserAlreadyExist));
+    }
+    
 }
