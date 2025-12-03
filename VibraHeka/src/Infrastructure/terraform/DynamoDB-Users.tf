@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "users" {
-  name         = "therapy-users"
+resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
+  name         = "VibraHeka-users"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "Id"
 

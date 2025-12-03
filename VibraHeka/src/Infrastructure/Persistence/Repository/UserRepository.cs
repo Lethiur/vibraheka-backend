@@ -1,40 +1,32 @@
-﻿using Amazon.DynamoDBv2;
+﻿using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using Microsoft.Extensions.Configuration;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
 
-public class UserRepository : IUserRepository
+public class UserRepository(IDynamoDBContext context) : IUserRepository
 {
-    private readonly Table _table;
-
-    public UserRepository(IAmazonDynamoDB client, IConfiguration config)
-    {
-        TableBuilder builder = new TableBuilder(client, config["Dynamo:UsersTable"]);
-        _table = builder.Build();
-    }
-
     public async Task AddAsync(User user)
     {
-        var doc = new Document
+        SaveConfig saveConfig = new SaveConfig()
         {
-            ["Id"] = user.Id,
-            ["Email"] = user.Email,
-            ["FullName"] = user.FullName,
-            ["CognitoId"] = user.CognitoId
+            OverrideTableName = "VibraHeka-users",
+            
         };
-
-        await _table.PutItemAsync(doc);
+        
+        await context.SaveAsync(user, saveConfig);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email)
     {
-        QueryFilter filter = new();
-        filter.AddCondition("Email", QueryOperator.Equal, email);
-        var search = _table.Query(filter);
-        var results = await search.GetNextSetAsync();
-        return results.Count > 0;
+        QueryConfig queryConfig = new()
+        {
+            IndexName = "EmailIndex",
+            OverrideTableName = "VibraHeka-users",
+        };
+        
+        List<User>? results = await context.QueryAsync<User>(email, queryConfig).GetRemainingAsync();
+        return results?.Count > 0;
     }
 }
