@@ -19,4 +19,15 @@ public interface ICognitoService
     /// of the registered user in AWS Cognito, if successful.
     /// </returns>
     Task<Result<string>> RegisterUserAsync(string email, string password, string fullName);
+
+    /// <summary>
+    /// Asynchronously confirms a user's registration in AWS Cognito using the provided email and confirmation code.
+    /// </summary>
+    /// <param name="email">The email address of the user whose registration is being confirmed.</param>
+    /// <param name="confirmationCode">The confirmation code sent to the user's email address during the registration process.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> where T is <see cref="Unit"/>, indicating the success or failure of the confirmation process.
+    /// </returns>
+    Task<Result<Unit>> ConfirmUserAsync(string email, string confirmationCode);
 }
