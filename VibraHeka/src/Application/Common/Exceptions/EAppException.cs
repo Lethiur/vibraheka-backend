@@ -2,6 +2,9 @@
 
 public class EAppException : Exception
 {
+    
+    public const string UnknownError = "E-999";
+    
     /// <summary>
     /// The error code associated with the error
     /// </summary>

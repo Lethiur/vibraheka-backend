@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Net;
 using System.Net.Http.Json;
@@ -13,6 +12,8 @@ using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
+[TestFixture]
+[DisplayName("Register user acceptance tests")]
 public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]

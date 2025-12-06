@@ -17,6 +17,7 @@ public static class DependencyInjection
         builder.Services.AddSingleton<IAmazonDynamoDB>(_ =>
             new AmazonDynamoDBClient());
 
+        builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
         builder.Services.AddScoped<ICognitoService, CognitoService>();

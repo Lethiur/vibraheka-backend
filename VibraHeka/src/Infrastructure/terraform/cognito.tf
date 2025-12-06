@@ -1,5 +1,5 @@
-resource "aws_cognito_user_pool" "main" {
-  name = "therapy-user-pool"
+resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
+  name = "VH-user-pool-${terraform.workspace}"
 
   auto_verified_attributes = ["email"]
 
@@ -9,6 +9,22 @@ resource "aws_cognito_user_pool" "main" {
     required = true
   }
 
+  lambda_config {
+    kms_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
+    custom_email_sender {
+      lambda_arn     = module.CreateChallengeLambda.lambda_arn
+      lambda_version = "V1_0"
+    }
+  }
+  
+  tags = {
+    created : "terraform",
+    environment : terraform.workspace,
+    system: "VibraHeka",
+    service : "PAM",
+    dev : terraform.workspace != "prod"
+  }
+
   schema {
     name = "name"
     attribute_data_type = "String"
@@ -16,9 +32,9 @@ resource "aws_cognito_user_pool" "main" {
   }
 }
 
-resource "aws_cognito_user_pool_client" "app_client" {
-  name         = "therapy-client"
-  user_pool_id = aws_cognito_user_pool.main.id
+resource "aws_cognito_user_pool_client" "PAM_cognito_pool_client" {
+  name         = "VH-client"
+  user_pool_id = aws_cognito_user_pool.VibraHeka-main-pool.id
   generate_secret = false
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
@@ -27,10 +43,10 @@ resource "aws_cognito_user_pool_client" "app_client" {
 }
 
 output "user_pool_id" {
-  value = aws_cognito_user_pool.main.id
+  value = aws_cognito_user_pool.VibraHeka-main-pool.id
 }
 
 output "client_id" {
-  value = aws_cognito_user_pool_client.app_client.id
+  value = aws_cognito_user_pool_client.PAM_cognito_pool_client.id
 }
 

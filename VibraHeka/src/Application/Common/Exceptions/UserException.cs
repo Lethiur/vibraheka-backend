@@ -41,7 +41,27 @@ public class UserException : EAppException
     /// Represents the error code indicating that an unexpected error has occurred.
     /// </summary>
     public const string UnexpectedError = "E-005";
-    
+
+    /// <summary>
+    /// Represents the error code indicating that the user has exceeded the allowed number of attempts for a specific operation or action.
+    /// </summary>
+    public const string TooManyAttempts = "E-006";
+
+    /// <summary>
+    /// Represents the error code indicating that the user is not authorized to perform the requested operation.
+    /// </summary>
+    public const string NotAuthorized = "E-007";
+
+    /// <summary>
+    /// Represents the error code indicating that the provided confirmation code has expired.
+    /// </summary>
+    public const string ExpiredCode = "E-008";
+
+    /// <summary>
+    /// Represents the error code indicating that the provided verification code is incorrect or does not match the expected value.
+    /// </summary>
+    public const string WrongVerificationCode = "E-009";
+
     public UserException(string errorCode, string errorMessage) : base(errorCode, errorMessage)
     {
     }

@@ -8,7 +8,10 @@ resource "aws_dynamodb_table" "VibraHeka_PAM_verification_codes" {
     type = "S"
   }
   tags = {
-    "created" : "terraform", "environment" : terraform.workspace, "service" : "email-sending",
+    created : "terraform", 
+    environment : terraform.workspace,
+    system: "VibraHeka",
+    service : "PAM",
     dev : terraform.workspace != "prod"
   }
 }

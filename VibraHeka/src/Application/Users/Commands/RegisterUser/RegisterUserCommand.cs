@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Models.Results;
 
 namespace VibraHeka.Application.Users.Commands;
 
@@ -10,4 +11,4 @@ namespace VibraHeka.Application.Users.Commands;
 /// It is designed to be handled by an appropriate command handler,
 /// ensuring implementation details are managed separately.
 /// </remarks>
-public record RegisterUserCommand(string Email, string Password, string FullName) : IRequest<Result<string>>;
+public record RegisterUserCommand(string Email, string Password, string FullName) : IRequest<Result<UserRegistrationResult>>;
