@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="Common\Mappings\" />
-    <Folder Include="Common\Models\" />
     <Folder Include="Common\Security\" />
   </ItemGroup>
 

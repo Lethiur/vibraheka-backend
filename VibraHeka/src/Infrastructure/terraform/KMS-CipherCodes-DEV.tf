@@ -5,7 +5,8 @@ resource "aws_kms_key" "VibraHeka_PAM_cognito_kms" {
   tags = {
     created : "terraform",
     environment : terraform.workspace,
-    service : "Testing-PAM",
+    system: "VibraHeka",
+    service : "PAM",
     dev : terraform.workspace != "prod"
   }
 }
