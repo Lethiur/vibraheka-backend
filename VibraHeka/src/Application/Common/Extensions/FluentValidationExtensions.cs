@@ -21,7 +21,14 @@ public static class FluentValidationExtensions
 
         try
         {
-            return EmailRegex.IsMatch(email.Trim());
+            bool doesMatch = EmailRegex.IsMatch(email.Trim());
+            if (doesMatch)
+            {
+                return email.Trim().Length < 255;
+            }
+
+            return doesMatch;
+
         }
         catch
         {
