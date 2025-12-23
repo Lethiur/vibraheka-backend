@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Common.Behaviours;
 using VibraHeka.Application.Users.Commands;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace VibraHeka.Application;
 
 public static class DependencyInjection
 {

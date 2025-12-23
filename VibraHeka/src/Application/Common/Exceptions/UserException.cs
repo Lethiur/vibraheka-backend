@@ -62,6 +62,11 @@ public class UserException : EAppException
     /// </summary>
     public const string WrongVerificationCode = "E-009";
 
+    /// <summary>
+    /// Represents the error code indicating that the user's account has not been confirmed.
+    /// </summary>
+    public const string UserNotConfirmed = "E-010";
+    
     public UserException(string errorCode, string errorMessage) : base(errorCode, errorMessage)
     {
     }

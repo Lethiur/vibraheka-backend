@@ -1,4 +1,5 @@
-﻿using Amazon.CognitoIdentityProvider;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Application.Common.Models.Results;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
@@ -16,6 +18,13 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
     private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
+    /// <summary>
+    /// Registers a new user in the system by creating an account with the provided credentials and user information.
+    /// </summary>
+    /// <param name="email">The email address of the user to register.</param>
+    /// <param name="password">The password to set for the user's account.</param>
+    /// <param name="fullName">The full name of the user to associate with the account.</param>
+    /// <returns>A result containing the unique identifier of the registered user if the registration is successful, or an error in case of failure.</returns>
     public async Task<Result<string>> RegisterUserAsync(string email, string password, string fullName)
     {
         try
@@ -55,6 +64,55 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
             logger.LogError(E, "Unexpected error registering user");
             // Handle unexpected errors
             return Result.Failure<string>(UserException.UnexpectedError);
+        }
+    }
+
+    /// <summary>
+    /// Authenticates a user by validating the provided email and password against the Cognito user pool.
+    /// </summary>
+    /// <param name="email">The email address of the user attempting to authenticate.</param>
+    /// <param name="password">The password associated with the user's account.</param>
+    /// <returns>A result containing an <see cref="AuthenticationResult"/> with the user's ID, access token, and refresh token upon successful authentication, or an error in case of failure.</returns>
+    public async Task<Result<AuthenticationResult>> AuthenticateUserAsync(string email, string password)
+    {
+        try
+        {
+            var request = new AdminInitiateAuthRequest
+            {
+                UserPoolId = _userPoolId,
+                ClientId = _clientId,
+                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                AuthParameters = new Dictionary<string, string>
+                {
+                    { "USERNAME", email },
+                    { "PASSWORD", password }
+                }
+            };
+
+            var response = await _client.AdminInitiateAuthAsync(request);
+            
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
+            var userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
+
+            return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,response.AuthenticationResult.RefreshToken ));
+        }
+        catch (NotAuthorizedException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.InvalidPassword);
+        }
+        catch (UserNotFoundException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.UserNotFound);
+        }
+        catch (UserNotConfirmedException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.UserNotConfirmed);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error authenticating user {Email}", email);
+            return Result.Failure<AuthenticationResult>(UserException.UnexpectedError);
         }
     }
 

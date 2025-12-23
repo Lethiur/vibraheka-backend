@@ -110,6 +110,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     [TestCase("test@example.com", "123", UserException.InvalidVerificationCode)] // Code 3 chars
     [TestCase("test@example.com", "1234", UserException.InvalidVerificationCode)] // Code 4 chars
     [TestCase("test@example.com", "12345", UserException.InvalidVerificationCode)] // Code 5 chars (límite)
+    [TestCase("test@example.com", "test", UserException.InvalidVerificationCode)] // Code 5 chars (límite)
 
     // === EDGE CASES COMBINADOS ===
     [TestCase(null, null, $"{UserException.InvalidEmail} | {UserException.InvalidVerificationCode}")] 
@@ -136,5 +137,30 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
         Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword), 
             $"The response should contain the error keyword '{expectedErrorKeyword}'. Actual error: {responseObject.ErrorCode}");
+    }
+    
+    [Test]
+    [DisplayName("Should return BadRequest when verification code is numeric but incorrect")]
+    public async Task ShouldReturnBadRequestWhenVerificationCodeIsNumericButIncorrect()
+    {
+        // Given: A registered user and a command with a numeric but wrong code
+        Faker faker = new Faker();
+        string email = faker.Internet.Email();
+        string password = "Password123@";
+        string fullName = faker.Person.FullName;
+
+        await RegisterUser(fullName, email, password);
+        var command = new VerifyUserCommand(email, "123456");
+
+        // When: Calling the confirm endpoint
+        var response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", command);
+
+        // Then: Should return 400 BadRequest 
+        // El switch en tu controlador capturará el error devuelto por el servicio
+        ResponseEntity responseObject = await response.GetAsResponseEntity();
+        
+        Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.WrongVerificationCode),  
+            $"The response should contain the error keyword '{UserException.WrongVerificationCode}'. Actual error: {responseObject.ErrorCode}");
     }
 }

@@ -22,6 +22,7 @@ public partial class VerifyUserCommandValidator : AbstractValidator<VerifyUserCo
             .NotEmpty()
             .WithMessage(UserException.InvalidVerificationCode)
             .NotNull()
+            .Matches(@"^\d+$")
             .WithMessage(UserException.InvalidVerificationCode)
             .MinimumLength(6)
             .WithMessage(UserException.InvalidVerificationCode);
