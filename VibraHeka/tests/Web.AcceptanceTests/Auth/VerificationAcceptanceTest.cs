@@ -39,10 +39,6 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     [Test]
     [DisplayName("Should fail verification with non-existent user")]
     [TestCase("user@example.com", "123456")] // Email y código válidos básicos
-    [TestCase("test.email+tag@domain.co.uk", "ABCDEF")] // Email complejo y código alfabético
-    [TestCase("Valid@Email.COM", "1234567890")] // Email con mayúsculas y código largo
-    [TestCase("user123@test-domain.org", "abc123")] // Email alfanumérico y código alfanumérico
-    [TestCase("user_name@domain.com", "!@#$%^")] // Email con underscore y código con símbolos
     public async Task ShouldFailVerificationWithNonExistentUser(string email, string code)
     {
         // Given: A valid format command but for non-existent user

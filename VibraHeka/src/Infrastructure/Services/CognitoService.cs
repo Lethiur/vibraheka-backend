@@ -1,6 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Amazon;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -14,10 +17,33 @@ namespace VibraHeka.Infrastructure.Services;
 
 public class CognitoService(IConfiguration config, ILogger<CognitoService> logger) : ICognitoService
 {
-    private readonly AmazonCognitoIdentityProviderClient _client = new();
+    private readonly AmazonCognitoIdentityProviderClient _client = CreateClient(config);
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
     private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
+    
+    private static AmazonCognitoIdentityProviderClient CreateClient(IConfiguration config)
+    {
+        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config["AWS:Region"] ?? "eu-west-1");
+        string? profileName = config["AWS:Profile"];
+
+        if (!string.IsNullOrEmpty(profileName))
+        {
+            CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
+            if (chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
+            {
+                return new AmazonCognitoIdentityProviderClient(credentials, new AmazonCognitoIdentityProviderConfig 
+                { 
+                    RegionEndpoint = region 
+                });
+            }
+        }
+
+        return new AmazonCognitoIdentityProviderClient(new AmazonCognitoIdentityProviderConfig 
+        { 
+            RegionEndpoint = region 
+        });
+    }
     /// <summary>
     /// Registers a new user in the system by creating an account with the provided credentials and user information.
     /// </summary>
@@ -29,7 +55,7 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
     {
         try
         {
-            var request = new SignUpRequest
+            SignUpRequest request = new SignUpRequest
             {
                 ClientId = _clientId,
                 Username = email,
@@ -41,7 +67,7 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
                 ]
             };
 
-            var response = await _client.SignUpAsync(request);
+            SignUpResponse? response = await _client.SignUpAsync(request);
             logger.Log(LogLevel.Information, "User registered successfully: {UserSub}", response.UserSub);
             return response.UserSub;
         }
@@ -77,7 +103,7 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
     {
         try
         {
-            var request = new AdminInitiateAuthRequest
+            AdminInitiateAuthRequest request = new AdminInitiateAuthRequest
             {
                 UserPoolId = _userPoolId,
                 ClientId = _clientId,
@@ -89,11 +115,11 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
                 }
             };
 
-            var response = await _client.AdminInitiateAuthAsync(request);
+            AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request);
             
-            var handler = new JwtSecurityTokenHandler();
-            var jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
-            var userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
+            string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
 
             return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,response.AuthenticationResult.RefreshToken ));
         }

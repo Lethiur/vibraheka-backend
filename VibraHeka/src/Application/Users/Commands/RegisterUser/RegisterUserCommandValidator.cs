@@ -1,7 +1,7 @@
 ﻿using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions;
 
-namespace VibraHeka.Application.Users.Commands;
+namespace VibraHeka.Application.Users.Commands.RegisterUser;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {

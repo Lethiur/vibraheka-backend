@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Common.Behaviours;
 using VibraHeka.Application.Users.Commands;
+using VibraHeka.Application.Users.Commands.RegisterUser;
 
 namespace VibraHeka.Application;
 

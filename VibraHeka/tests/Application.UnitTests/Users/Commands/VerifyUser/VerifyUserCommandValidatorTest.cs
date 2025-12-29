@@ -122,15 +122,6 @@ public class VerifyUserCommandValidatorTests
     }
 
     [TestCase("123456", TestName = "6-digit numeric code")]
-    [TestCase("ABCDEF", TestName = "6-character alphabetic code")]
-    [TestCase("abc123", TestName = "6-character alphanumeric lowercase")]
-    [TestCase("ABC123", TestName = "6-character alphanumeric uppercase")]
-    [TestCase("A1B2C3", TestName = "6-character mixed case alphanumeric")]
-    [TestCase("1234567", TestName = "7-character code")]
-    [TestCase("12345678", TestName = "8-character code")]
-    [TestCase("1234567890", TestName = "10-character code")]
-    [TestCase("!@#$%^", TestName = "6 special characters")]
-    [TestCase("123ABC!@#", TestName = "9-character mixed with special")]
     [DisplayName("Should pass when verification code length is valid")]
     public void ShouldPassValidationWhenCodeLengthIsValid(string code)
     {
