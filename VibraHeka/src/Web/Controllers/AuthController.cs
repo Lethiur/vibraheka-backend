@@ -52,7 +52,8 @@ public class AuthController(IMediator mediator)
     public async Task<IActionResult> ConfirmUser([FromBody] [Required] VerifyUserCommand command)
     {
         Result<Unit> verificationResult = await mediator.Send(command);
-        
+
+
         if (verificationResult.IsFailure)
         {
             switch (verificationResult.Error)
@@ -63,6 +64,8 @@ public class AuthController(IMediator mediator)
                 case UserException.WrongVerificationCode:
                     return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
             }
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(verificationResult.Value));
