@@ -3,7 +3,8 @@ using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Models.Results;
-using VibraHeka.Application.Users.Commands;
+using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 
@@ -33,6 +34,7 @@ public class AuthController(IMediator mediator)
         {
             return new OkObjectResult(ResponseEntity.FromSuccess(id.Value));
         }
+
         return new BadRequestObjectResult(ResponseEntity.FromError(id.Error));
     }
 
@@ -50,11 +52,7 @@ public class AuthController(IMediator mediator)
     public async Task<IActionResult> ConfirmUser([FromBody] [Required] VerifyUserCommand command)
     {
         Result<Unit> verificationResult = await mediator.Send(command);
-        
-        if (!verificationResult.IsFailure)
-        {
-            return new OkObjectResult(ResponseEntity.FromSuccess(verificationResult.Value));
-        }
+
 
         if (verificationResult.IsFailure)
         {
@@ -63,9 +61,46 @@ public class AuthController(IMediator mediator)
                 case UserException.UserNotFound:
                     return new NotFoundObjectResult(ResponseEntity.FromError(verificationResult.Error));
                 case UserException.InvalidVerificationCode:
+                case UserException.WrongVerificationCode:
                     return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
             }
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
         }
-        return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(verificationResult.Value));
+    }
+
+    /// <summary>
+    /// Authenticates a user by processing the provided credentials and returning a result
+    /// indicating success or failure of the authentication process.
+    /// </summary>
+    /// <param name="command">The command object containing the user's email and password.</param>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the authentication attempt.
+    /// A successful response contains authentication details including user ID, access token, and
+    /// refresh token. An error response contains the relevant error details such as invalid credentials
+    /// or user not found.</returns>
+    [HttpPost("authenticate")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Authenticate([FromBody] [Required] AuthenticateUserCommand command)
+    {
+        Result<AuthenticationResult> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            switch (result.Error)
+            {
+                case UserException.UserNotFound:
+                case UserException.InvalidPassword:
+                    return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+                case UserException.UserNotConfirmed:
+                    return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            }
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 }

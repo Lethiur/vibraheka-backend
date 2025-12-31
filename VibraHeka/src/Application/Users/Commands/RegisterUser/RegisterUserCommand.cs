@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Models.Results;
 
-namespace VibraHeka.Application.Users.Commands;
+namespace VibraHeka.Application.Users.Commands.RegisterUser;
 
 /// <summary>
 /// Represents a command used to register a new user.

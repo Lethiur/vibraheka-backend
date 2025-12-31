@@ -1,26 +1,61 @@
-﻿using Amazon.CognitoIdentityProvider;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Amazon;
+using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Application.Common.Models.Results;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
 
 public class CognitoService(IConfiguration config, ILogger<CognitoService> logger) : ICognitoService
 {
-    private readonly AmazonCognitoIdentityProviderClient _client = new();
+    private readonly AmazonCognitoIdentityProviderClient _client = CreateClient(config);
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
     private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
+    
+    private static AmazonCognitoIdentityProviderClient CreateClient(IConfiguration config)
+    {
+        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config["AWS:Region"] ?? "eu-west-1");
+        string? profileName = config["AWS:Profile"];
+
+        if (!string.IsNullOrEmpty(profileName))
+        {
+            CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
+            if (chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
+            {
+                return new AmazonCognitoIdentityProviderClient(credentials, new AmazonCognitoIdentityProviderConfig 
+                { 
+                    RegionEndpoint = region 
+                });
+            }
+        }
+
+        return new AmazonCognitoIdentityProviderClient(new AmazonCognitoIdentityProviderConfig 
+        { 
+            RegionEndpoint = region 
+        });
+    }
+    /// <summary>
+    /// Registers a new user in the system by creating an account with the provided credentials and user information.
+    /// </summary>
+    /// <param name="email">The email address of the user to register.</param>
+    /// <param name="password">The password to set for the user's account.</param>
+    /// <param name="fullName">The full name of the user to associate with the account.</param>
+    /// <returns>A result containing the unique identifier of the registered user if the registration is successful, or an error in case of failure.</returns>
     public async Task<Result<string>> RegisterUserAsync(string email, string password, string fullName)
     {
         try
         {
-            var request = new SignUpRequest
+            SignUpRequest request = new SignUpRequest
             {
                 ClientId = _clientId,
                 Username = email,
@@ -32,7 +67,7 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
                 ]
             };
 
-            var response = await _client.SignUpAsync(request);
+            SignUpResponse? response = await _client.SignUpAsync(request);
             logger.Log(LogLevel.Information, "User registered successfully: {UserSub}", response.UserSub);
             return response.UserSub;
         }
@@ -55,6 +90,55 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
             logger.LogError(E, "Unexpected error registering user");
             // Handle unexpected errors
             return Result.Failure<string>(UserException.UnexpectedError);
+        }
+    }
+
+    /// <summary>
+    /// Authenticates a user by validating the provided email and password against the Cognito user pool.
+    /// </summary>
+    /// <param name="email">The email address of the user attempting to authenticate.</param>
+    /// <param name="password">The password associated with the user's account.</param>
+    /// <returns>A result containing an <see cref="AuthenticationResult"/> with the user's ID, access token, and refresh token upon successful authentication, or an error in case of failure.</returns>
+    public async Task<Result<AuthenticationResult>> AuthenticateUserAsync(string email, string password)
+    {
+        try
+        {
+            AdminInitiateAuthRequest request = new AdminInitiateAuthRequest
+            {
+                UserPoolId = _userPoolId,
+                ClientId = _clientId,
+                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                AuthParameters = new Dictionary<string, string>
+                {
+                    { "USERNAME", email },
+                    { "PASSWORD", password }
+                }
+            };
+
+            AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request);
+            
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
+            string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
+
+            return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,response.AuthenticationResult.RefreshToken ));
+        }
+        catch (NotAuthorizedException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.InvalidPassword);
+        }
+        catch (UserNotFoundException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.UserNotFound);
+        }
+        catch (UserNotConfirmedException)
+        {
+            return Result.Failure<AuthenticationResult>(UserException.UserNotConfirmed);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error authenticating user {Email}", email);
+            return Result.Failure<AuthenticationResult>(UserException.UnexpectedError);
         }
     }
 

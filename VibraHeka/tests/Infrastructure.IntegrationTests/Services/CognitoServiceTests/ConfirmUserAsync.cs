@@ -124,8 +124,12 @@ public class CognitoServiceConfirmUserTests : GenericCognitServiceTest
     [DisplayName("Should fail when code is not numeric")]
     public async Task ShouldReturnWrongVerificationCodeWhenCodeIsNotNumeric()
     {
+        // Given: A registered user
+        string email = GenerateUniqueEmail();
+        await RegisterUser(email);
+        
         // When: Trying to confirm with non-numeric code
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync("test@example.com", "testes");
+        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, "testes");
 
         // Then: Should fail with WrongVerificationCode
         Assert.That(result.IsFailure, Is.True);
@@ -146,6 +150,28 @@ public class CognitoServiceConfirmUserTests : GenericCognitServiceTest
         Assert.That(result.Error, Is.EqualTo(UserException.InvalidForm));
     }
 
+    #endregion
+    
+    #region ConfirmUserAsync - Wrong Code Cases
+
+    [Test]
+    [DisplayName("Should fail when code format is valid but code is incorrect")]
+    public async Task ShouldReturnWrongVerificationCodeWhenValidFormatCodeIsIncorrect()
+    {
+        // Given: A registered user in Cognito
+        string email = GenerateUniqueEmail();
+        await RegisterUser(email);
+
+        // When: We send a 6-digit numeric code that isn't the one Cognito generated
+        // This will trigger CodeMismatchException in the Cognito SDK
+        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, "999999");
+
+        // Then: The service should catch the AWS exception and return our domain error
+        Assert.That(result.IsFailure, Is.True, "The operation should fail");
+        Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode), 
+            "Should return WrongVerificationCode when the code does not match AWS records");
+    }
+    
     #endregion
 
     #region ConfirmUserAsync - Already Confirmed User

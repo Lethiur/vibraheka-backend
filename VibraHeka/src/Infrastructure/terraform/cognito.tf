@@ -37,8 +37,10 @@ resource "aws_cognito_user_pool_client" "PAM_cognito_pool_client" {
   user_pool_id = aws_cognito_user_pool.VibraHeka-main-pool.id
   generate_secret = false
   explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH"
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH", # Habilita ADMIN_NO_SRP_AUTH
+    "ALLOW_CUSTOM_AUTH",
+    "ALLOW_USER_PASSWORD_AUTH",       # Habilita USER_PASSWORD_AUTH
+    "ALLOW_REFRESH_TOKEN_AUTH"        # Necesario para usar Refresh Tokens
   ]
 }
 

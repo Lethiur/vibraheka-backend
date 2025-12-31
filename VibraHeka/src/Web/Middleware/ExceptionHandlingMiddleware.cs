@@ -39,9 +39,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
     /// <returns>A task that represents the asynchronous operation of writing the response.</returns>
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        string json = JsonSerializer.Serialize(ResponseEntity.FromError(exception.Message));
-        context.Response.ContentType = "application/json";
         context.Response.StatusCode = 400;
-        return context.Response.WriteAsync(json);
+        return context.Response.WriteAsJsonAsync(ResponseEntity.FromError(exception.Message));
     }
 }

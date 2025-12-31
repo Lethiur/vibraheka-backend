@@ -18,10 +18,10 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests
 public abstract class GenericCognitServiceTest
 {
     protected ICognitoService _cognitoService;
-    protected IConfiguration _configuration;
-    protected ILogger<CognitoService> _logger;
+    private IConfiguration _configuration;
+    private ILogger<CognitoService> _logger;
     protected Faker _faker;
-    protected VerificationCodesRepository _verificationCodeRepository;
+    private VerificationCodesRepository _verificationCodeRepository;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -56,7 +56,8 @@ public abstract class GenericCognitServiceTest
                 ["Dynamo:CodesTable"] = verificationCodesTable,
                 ["Cognito:UserPoolId"] = userPoolId,
                 ["Cognito:ClientId"] = clientId,
-                ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1"
+                ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1",
+                ["AWS:Profile"] = "Twingers"
             });
 
         return configBuilder.Build();
@@ -86,8 +87,8 @@ public abstract class GenericCognitServiceTest
     protected async Task<string> RegisterUser(string email)
     {
         // Given: A registered user
-        string password = "ValidPassword123!";
-        string fullName = "John Doe";
+        const string password = "ValidPassword123!";
+        const string fullName = "John Doe";
 
         Result<string> registerResult = await _cognitoService.RegisterUserAsync(email, password, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);

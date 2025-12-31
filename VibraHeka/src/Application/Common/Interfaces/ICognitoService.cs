@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Models.Results;
 
 namespace VibraHeka.Application.Common.Interfaces;
 
@@ -30,4 +31,12 @@ public interface ICognitoService
     /// The task result contains a <see cref="Result"/> where T is <see cref="Unit"/>, indicating the success or failure of the confirmation process.
     /// </returns>
     Task<Result<Unit>> ConfirmUserAsync(string email, string confirmationCode);
+
+    /// <summary>
+    /// Authenticates a user by validating the provided email and password against the Cognito user pool.
+    /// </summary>
+    /// <param name="email">The email address of the user attempting to authenticate.</param>
+    /// <param name="password">The password associated with the user's account.</param>
+    /// <returns>A result containing an <see cref="AuthenticationResult"/> with the user's ID, access token, and refresh token upon successful authentication, or an error in case of failure.</returns>
+    public Task<Result<AuthenticationResult>> AuthenticateUserAsync(string email, string password);
 }

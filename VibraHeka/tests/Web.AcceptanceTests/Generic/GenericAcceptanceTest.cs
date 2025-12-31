@@ -1,18 +1,12 @@
 using System.Net.Http.Json;
-using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.Runtime;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Models.Results;
-using VibraHeka.Application.Users.Commands;
+using VibraHeka.Application.Users.Commands.RegisterUser;
+using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Application.Users.Queries.GetCode;
 using VibraHeka.Domain.Entities;
-using Table = TechTalk.SpecFlow.Table;
 
 namespace VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -93,7 +87,9 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await Client.PatchAsync($"api/v1/users/{username}/confirm/with/{codeResult.Code}", null);
+        VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
+        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        patchAsJsonAsync.EnsureSuccessStatusCode();
         return userID;
     }
 }
