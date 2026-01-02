@@ -5,6 +5,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AuthenticateUser;
 
@@ -12,26 +13,32 @@ namespace VibraHeka.Application.UnitTests.Users.Commands.AuthenticateUser;
 public class AuthenticateUserCommandHandlerTest
 {
     private Mock<ICognitoService> _cognitoServiceMock;
+    private Mock<IUserRepository> _userRepositoryMock;
     private AuthenticateUserCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
     {
         _cognitoServiceMock = new Mock<ICognitoService>();
-        _handler = new AuthenticateUserCommandHandler(_cognitoServiceMock.Object);
+        _userRepositoryMock = new Mock<IUserRepository>();
+        
+        _handler = new AuthenticateUserCommandHandler(_cognitoServiceMock.Object, _userRepositoryMock.Object);
     }
 
     [Test]
     public async Task ShouldCallCognitoServiceWithCorrectParameters()
     {
         // Arrange
-        AuthenticateUserCommand command = new AuthenticateUserCommand ("test@example.com", "Password123!" );
+        AuthenticateUserCommand command = new("test@example.com", "Password123!" );
         Result<AuthenticationResult> expectedResult = Result.Success(new AuthenticationResult("userId", "access", "refresh"));
 
         _cognitoServiceMock
             .Setup(s => s.AuthenticateUserAsync(command.Email, command.Password))
             .ReturnsAsync(expectedResult);
 
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(Result.Of(new User()));
+        
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
 
@@ -47,12 +54,15 @@ public class AuthenticateUserCommandHandlerTest
     public async Task ShouldReturnFailure_WhenCognitoServiceFails()
     {
         // Arrange
-        AuthenticateUserCommand command = new AuthenticateUserCommand ("test@example.com", "Password123!" );
+        AuthenticateUserCommand command = new("test@example.com", "Password123!" );
         string expectedError = UserException.InvalidPassword;
 
         _cognitoServiceMock
             .Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Failure<AuthenticationResult>(expectedError));
+        
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(Result.Of(new User()));
 
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -61,4 +71,54 @@ public class AuthenticateUserCommandHandlerTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(expectedError));
     }
+
+    [Test]
+    public async Task ShouldPropagateErrorFromRepository()
+    {
+        // Given: Some mocking to return error
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(Result.Failure<User>(UserException.UserNotFound));
+        
+        _cognitoServiceMock.Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(Result.Success(new AuthenticationResult()));
+        
+        // And: Some command
+        AuthenticateUserCommand command = new("test@example.com", "Password123!" );
+        
+        // When: The command is invoked
+        Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
+        
+        // Then: Should return the error from the repository
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserException.UserNotFound));
+    }
+
+    [Test]
+    public async Task ShouldReturnRoleOfTheUser()
+    {
+        // Arrange
+        AuthenticateUserCommand command = new("test@example.com", "Password123!" );
+        Result<AuthenticationResult> expectedResult = Result.Success(new AuthenticationResult("userId", "access", "refresh"));
+
+        _cognitoServiceMock
+            .Setup(s => s.AuthenticateUserAsync(command.Email, command.Password))
+            .ReturnsAsync(expectedResult);
+
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(Result.Of(new User()
+            {
+                Role = UserRole.Therapist
+            }));
+        
+        // Act
+        Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value.Role, Is.EqualTo(expectedResult.Value.Role));
+        
+        _cognitoServiceMock.Verify(s => 
+            s.AuthenticateUserAsync(command.Email, command.Password), Times.Once);
+    }
+    
+    
 }

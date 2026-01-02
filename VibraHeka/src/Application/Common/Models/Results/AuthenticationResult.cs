@@ -1,6 +1,23 @@
-﻿namespace VibraHeka.Application.Common.Models.Results;
+﻿using VibraHeka.Domain.Entities;
 
-/// <summary>
-/// Represents the result of an authentication operation, providing the user ID, access token, and refresh token.
-/// </summary>
-public record AuthenticationResult(string UserID, string AccessToken, string RefreshToken);
+namespace VibraHeka.Application.Common.Models.Results;
+
+public class AuthenticationResult
+{
+    public string UserID { get; set; } = string.Empty;
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    
+    public UserRole Role { get; set; } = UserRole.User;
+
+    // Constructor vacío para permitir la creación en dos pasos
+    public AuthenticationResult() { }
+
+    // Constructor opcional por si quieres inicializarla de golpe en algún sitio
+    public AuthenticationResult(string userId, string accessToken, string refreshToken)
+    {
+        UserID = userId;
+        AccessToken = accessToken;
+        RefreshToken = refreshToken;
+    }
+}
