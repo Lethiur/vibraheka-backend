@@ -20,19 +20,21 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldAuthenticateAConfirmedUser()
     {
         // Given: A registered and confirmed user
-        Faker faker = new Faker();
-        string email = faker.Internet.Email();
-        await RegisterAndConfirmUser(faker.Person.FullName, email, "Password123@");
+      
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
 
         // When: The user is authenticated
-        AuthenticateUserCommand command = new(email, "Password123@");
+        AuthenticateUserCommand command = new(email, ThePassword);
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
 
         // Then: Should return a JWT token
         ResponseEntity token = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
         AuthenticationResult? result = token.GetContentAs<AuthenticationResult>();
         Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Role, Is.EqualTo(UserRole.User));
     }
+    
 
     #region Validation Tests
 
