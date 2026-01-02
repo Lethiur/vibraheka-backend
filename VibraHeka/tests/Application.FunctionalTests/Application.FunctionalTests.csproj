@@ -8,14 +8,6 @@
     <ItemGroup>
       <None Remove="appsettings.json" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="appsettings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
     <ItemGroup>
       <PackageReference Include="CSharpFunctionalExtensions" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
@@ -39,6 +31,10 @@
     
     <ItemGroup>
         <ProjectReference Include="..\..\src\Web\Web.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Admin\Commands\CreateTherapist\" />
     </ItemGroup>
 
 </Project>

@@ -6,7 +6,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Common.Models.Results;
-using VibraHeka.Application.Users.Commands;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Entities;
 

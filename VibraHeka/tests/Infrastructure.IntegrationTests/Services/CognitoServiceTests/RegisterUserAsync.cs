@@ -5,7 +5,7 @@ using VibraHeka.Application.Common.Exceptions;
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
 
 [TestFixture]
-public class RegisterUserAsync : GenericCognitServiceTest
+public class RegisterUserAsync : GenericCognitoServiceTest
 {
     
     [Test]

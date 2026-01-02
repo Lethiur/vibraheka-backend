@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -5,12 +6,15 @@ using VibraHeka.Application;
 using VibraHeka.Infrastructure;
 using VibraHeka.Web;
 using VibraHeka.Web.Middleware;
+using static System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler;
 
 public class VibraHekaProgram
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        DefaultInboundClaimTypeMap.Clear();
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend",
@@ -52,9 +56,27 @@ public class VibraHekaProgram
                     ClockSkew = TimeSpan.FromMinutes(2),
                     ValidateLifetime = true
                 };
+                
+                options.TokenValidationParameters.AudienceValidator = (audiences, securityToken, validationParameters) =>
+                {
+                    // Usamos el token que viene de la petición
+                    // En .NET moderno suele ser JsonWebToken
+                    if (securityToken is Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jwt)
+                    {
+                        var clientIdClaim = jwt.GetClaim("client_id")?.Value;
+                        return clientIdClaim == clientId;
+                    }
+                
+                    if (securityToken is JwtSecurityToken oldJwt)
+                    {
+                        return oldJwt.Payload.TryGetValue("client_id", out var cid) && cid.ToString() == clientId;
+                    }
+
+                    return false;
+                };
             });
         builder.AddInfrastructureServices(builder.Configuration);
-        var app = builder.Build();
+        WebApplication app = builder.Build();
         app.UseCors("AllowFrontend");
 
 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

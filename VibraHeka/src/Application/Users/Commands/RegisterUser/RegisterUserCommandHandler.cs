@@ -44,7 +44,7 @@ public class RegisterUserCommandHandler(ICognitoService cognito, IUserRepository
         {
             User user = new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id =realCognitoId,
                 Email = request.Email,
                 FullName = request.FullName,
                 CognitoId = realCognitoId

@@ -7,7 +7,7 @@ using VibraHeka.Domain.Entities;
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
 
 [TestFixture]
-public class AuthenticateUserTests : GenericCognitServiceTest
+public class AuthenticateUserTests : GenericCognitoServiceTest
 {
     private const string DefaultPassword = "ValidPassword123!";
 

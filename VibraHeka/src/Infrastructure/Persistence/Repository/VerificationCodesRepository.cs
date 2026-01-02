@@ -1,5 +1,4 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using VibraHeka.Application.Common.Interfaces;

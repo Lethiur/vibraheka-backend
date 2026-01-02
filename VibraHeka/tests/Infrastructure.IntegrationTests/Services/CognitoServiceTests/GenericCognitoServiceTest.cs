@@ -3,8 +3,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using CSharpFunctionalExtensions;
-using DotEnv.Core;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using VibraHeka.Application.Common.Interfaces;
@@ -15,19 +13,16 @@ using VibraHeka.Infrastructure.Services;
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
 
 [TestFixture]
-public abstract class GenericCognitServiceTest
+public abstract class GenericCognitoServiceTest : TestBase
 {
     protected ICognitoService _cognitoService;
-    private IConfiguration _configuration;
     private ILogger<CognitoService> _logger;
-    protected Faker _faker;
     private VerificationCodesRepository _verificationCodeRepository;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void OneTimeSetUpChild()
     {
-        new EnvLoader().Load();
-        _configuration = CreateTestConfiguration();
+        base.OneTimeSetUp();
         _logger = NullLogger<CognitoService>.Instance;
         _cognitoService = new CognitoService(_configuration, _logger);
         _faker = new Faker();
@@ -37,31 +32,7 @@ public abstract class GenericCognitServiceTest
             new VerificationCodesRepository(dynamoDbContext, _configuration);
     }
 
-    private static IConfiguration CreateTestConfiguration()
-    {
-        string userPoolId = Environment.GetEnvironmentVariable("TEST_COGNITO_USER_POOL_ID")
-                            ?? throw new InvalidOperationException(
-                                "COGNITO_USER_POOL_ID environment variable is required");
 
-        string clientId = Environment.GetEnvironmentVariable("TEST_COGNITO_CLIENT_ID")
-                          ?? throw new InvalidOperationException("COGNITO_CLIENT_ID environment variable is required");
-
-        string verificationCodesTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_CODES_TABLE")
-                                        ?? throw new InvalidOperationException(
-                                            "TEST_DYNAMO_CODES_TABLE environment variable is required");
-
-        var configBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Dynamo:CodesTable"] = verificationCodesTable,
-                ["Cognito:UserPoolId"] = userPoolId,
-                ["Cognito:ClientId"] = clientId,
-                ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1",
-                ["AWS:Profile"] = "Twingers"
-            });
-
-        return configBuilder.Build();
-    }
 
     protected string GenerateUniqueEmail(string prefix = "test-confirm@")
     {

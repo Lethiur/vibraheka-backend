@@ -1,5 +1,5 @@
 ﻿using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Extensions;
+using VibraHeka.Application.Common.Extensions.Validation;
 
 namespace VibraHeka.Application.Users.Commands.RegisterUser;
 
@@ -7,9 +7,9 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 {
     public RegisterUserCommandValidator()
     {
-        RuleFor(x => x.Email).Cascade(CascadeMode.Stop).NotEmpty().WithMessage(UserException.InvalidEmail).NotNull().WithMessage(UserException.InvalidEmail).ValidEmail()
-            .WithMessage(UserException.InvalidEmail);
-        RuleFor(x => x.Password).Cascade(CascadeMode.Stop).MinimumLength(6).WithMessage(UserException.InvalidPassword).NotNull().WithMessage(UserException.InvalidPassword);
+        RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
+        
+        RuleFor(x => x.Password).Cascade(CascadeMode.Stop).ValidPassword();
         RuleFor(x => x.FullName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
@@ -25,6 +25,5 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .WithMessage(UserException.InvalidFullName)
             .MinimumLength(3)
             .WithMessage(UserException.InvalidFullName);
-        
     }
 }

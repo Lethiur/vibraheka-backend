@@ -21,7 +21,12 @@ public class CognitoService(IConfiguration config, ILogger<CognitoService> logge
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
     private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
-    
+
+    /// <summary>
+    /// Creates an instance of the Amazon Cognito Identity Provider client configured with the specified AWS region and profile.
+    /// </summary>
+    /// <param name="config">The application configuration containing AWS settings, such as region and profile name.</param>
+    /// <returns>An instance of <see cref="AmazonCognitoIdentityProviderClient"/> initialized with the appropriate AWS credentials and region.</returns>
     private static AmazonCognitoIdentityProviderClient CreateClient(IConfiguration config)
     {
         RegionEndpoint? region = RegionEndpoint.GetBySystemName(config["AWS:Region"] ?? "eu-west-1");
