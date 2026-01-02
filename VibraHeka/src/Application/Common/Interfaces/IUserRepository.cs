@@ -29,4 +29,15 @@ public interface IUserRepository
     /// whether a user with the specified email exists in the repository.
     /// </returns>
     Task<Result<bool>> ExistsByEmailAsync(string email);
+
+    /// <summary>
+    /// Asynchronously retrieves a user by their unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to be retrieved.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result{T}"/> where T is a <see cref="User"/>
+    /// representing the user associated with the specified identifier, if found.
+    /// </returns>
+    Task<Result<User>> GetByIdAsync(string id);
 }

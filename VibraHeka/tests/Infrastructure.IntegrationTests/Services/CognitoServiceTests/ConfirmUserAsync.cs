@@ -7,7 +7,7 @@ using VibraHeka.Domain.Entities;
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
 
 [TestFixture]
-public class CognitoServiceConfirmUserTests : GenericCognitServiceTest
+public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 {
     #region ConfirmUserAsync - Success Cases
 

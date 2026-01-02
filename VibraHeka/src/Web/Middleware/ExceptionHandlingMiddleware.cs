@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using VibraHeka.Domain.Entities;
+﻿using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Middleware;
 

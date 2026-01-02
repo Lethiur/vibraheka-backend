@@ -3,7 +3,6 @@ using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Users.Commands;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.RegisterUser;

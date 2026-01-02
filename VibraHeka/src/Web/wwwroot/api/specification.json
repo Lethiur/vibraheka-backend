@@ -6,6 +6,39 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/v1/admin/addTherapist": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "Admin_CreateTherapist",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTherapistCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "tags": [
@@ -147,6 +180,18 @@
   },
   "components": {
     "schemas": {
+      "CreateTherapistCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "additionalProperties": {
