@@ -18,6 +18,7 @@ public class UserDBModel
     public string FullName { get; set; } = string.Empty;
     
     [DynamoDBProperty(typeof(EnumStringConverter<UserRole>))]
+    [DynamoDBGlobalSecondaryIndexHashKey("Role-Index")]
     public UserRole Role { get; set; } = UserRole.User;
     
     public static UserDBModel FromDomain(User user) => new()

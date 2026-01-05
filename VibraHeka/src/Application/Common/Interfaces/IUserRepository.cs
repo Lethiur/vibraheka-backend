@@ -40,4 +40,15 @@ public interface IUserRepository
     /// representing the user associated with the specified identifier, if found.
     /// </returns>
     Task<Result<User>> GetByIdAsync(string id);
+
+    /// <summary>
+    /// Asynchronously retrieves users from the repository with the specified role.
+    /// </summary>
+    /// <param name="role">The role of the users to retrieve.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="User"/> objects
+    /// corresponding to the specified role.
+    /// </returns>
+    Task<Result<IEnumerable<User>>> GetByRoleAsync(UserRole role);
 }

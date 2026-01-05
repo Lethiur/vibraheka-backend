@@ -8,7 +8,15 @@ resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
     attribute_data_type = "String"
     required = true
   }
-
+  
+  
+  email_configuration {
+    email_sending_account = "DEVELOPER"
+    from_email_address    = "VibraHeka <no-reply@vibraheka.com>"
+    source_arn            = aws_ses_domain_identity.VibraHeka_ses_domain.arn
+    reply_to_email_address = "support@vibraheka.com"
+  }
+  
   lambda_config {
     kms_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
     custom_email_sender {
@@ -37,10 +45,10 @@ resource "aws_cognito_user_pool_client" "PAM_cognito_pool_client" {
   user_pool_id = aws_cognito_user_pool.VibraHeka-main-pool.id
   generate_secret = false
   explicit_auth_flows = [
-    "ALLOW_ADMIN_USER_PASSWORD_AUTH", # Habilita ADMIN_NO_SRP_AUTH
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH", 
     "ALLOW_CUSTOM_AUTH",
-    "ALLOW_USER_PASSWORD_AUTH",       # Habilita USER_PASSWORD_AUTH
-    "ALLOW_REFRESH_TOKEN_AUTH"        # Necesario para usar Refresh Tokens
+    "ALLOW_USER_PASSWORD_AUTH",      
+    "ALLOW_REFRESH_TOKEN_AUTH"       
   ]
 }
 

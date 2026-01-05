@@ -69,4 +69,40 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
             return Result.Failure<User>(e.Message);
         }
     }
+
+    /// <summary>
+    /// Asynchronously retrieves users from the repository with the specified role.
+    /// </summary>
+    /// <param name="role">The role of the users to retrieve.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="User"/> objects
+    /// corresponding to the specified role.
+    /// </returns>
+    public async Task<Result<IEnumerable<User>>> GetByRoleAsync(UserRole role)
+    {
+        QueryConfig queryConfig = new()
+        {
+            IndexName = "Role-Index",
+            OverrideTableName = config["Dynamo:UsersTable"]
+        };
+
+        try
+        {
+            IAsyncSearch<UserDBModel>? search = context.QueryAsync<UserDBModel>(role, queryConfig);
+            List<UserDBModel>? models = await search.GetRemainingAsync();
+
+            if (models == null || models.Count == 0)
+            {
+                return Result.Success(Enumerable.Empty<User>());
+            }
+
+            return Result.Success(models.Select(m => m.ToDomain()));
+        }
+        catch (Exception e)
+        {
+            // Loguear el error 'e' sería ideal aquí
+            return Result.Failure<IEnumerable<User>>($"Error querying users by role: {e.Message}");
+        }
+    }
 }

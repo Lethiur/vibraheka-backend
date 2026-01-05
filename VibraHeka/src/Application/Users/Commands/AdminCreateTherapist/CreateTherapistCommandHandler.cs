@@ -3,7 +3,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
 /// <summary>
 /// Handles the command to create a new therapist user in the system.

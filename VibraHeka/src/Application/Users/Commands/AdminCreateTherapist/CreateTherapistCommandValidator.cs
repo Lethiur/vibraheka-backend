@@ -1,7 +1,7 @@
 ﻿using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions.Validation;
 
-namespace VibraHeka.Application.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
 /// <summary>
 /// Validator for the <c>CreateTherapistCommand</c> class.

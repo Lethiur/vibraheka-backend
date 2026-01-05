@@ -11,6 +11,8 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
     dev : terraform.workspace != "prod"
   }
 
+
+  
   attribute {
     name = "Id"
     type = "S"
@@ -21,9 +23,23 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
     type = "S"
   }
 
+  attribute {
+    name = "Role"
+    type = "S" # El conversor EnumStringConverter lo guarda como String
+  }
+
   global_secondary_index {
     name               = "EmailIndex"
     hash_key           = "Email"
-    projection_type    = "ALL"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["Id", "Email", "FullName", "Role"]
   }
+
+  global_secondary_index {
+    name               = "Role-Index"
+    hash_key           = "Role"
+    projection_type    = "INCLUDE"
+    non_key_attributes =  ["Id", "Email", "FullName"]
+  }
+  
 }

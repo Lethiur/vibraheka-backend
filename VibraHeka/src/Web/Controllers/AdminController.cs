@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Admin.Commands.CreateTherapist;
+using VibraHeka.Application.Admin.Queries.GetAllTherapists;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Controllers;
@@ -38,7 +39,34 @@ public class AdminController(IMediator mediator)
                     return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
             }
         }
-        
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    /// <summary>
+    /// Retrieves a list of all therapists accessible to the administrator.
+    /// </summary>
+    /// <returns>
+    /// An <c>IActionResult</c> representing the HTTP response. Returns a 200 OK response with a list
+    /// of therapists if the operation is successful. If the operation fails, returns a 400 Bad Request
+    /// response with the error details, or a 401 Unauthorized response if the user lacks sufficient authorization.
+    /// </returns>
+    [HttpGet]
+    [Authorize]
+    [Produces("application/json")]
+    public async Task<IActionResult> GetTherapists()
+    {
+        Result<IEnumerable<User>> result = await mediator.Send(new GetAllTherapistsQuery());
+
+        if (result.IsFailure)
+        {
+            switch (result.Error)
+            {
+                case UserException.NotAuthorized:
+                    return new UnauthorizedResult();
+                default:
+                    return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            }
+        }
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 }
