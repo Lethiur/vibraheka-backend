@@ -2,9 +2,9 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Admin;
@@ -28,7 +28,7 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
         
         // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(therapistEmail, TheFaker.Person.FullName));
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(therapistEmail, TheFaker.Person.FullName));
         
         // Then: The result should be 403
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -39,7 +39,7 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         
         // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(TheFaker.Internet.Email(), TheFaker.Person.FullName));
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(TheFaker.Internet.Email(), TheFaker.Person.FullName));
         
         // Then: The result should be 403
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -62,7 +62,7 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
         
         // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(TheFaker.Internet.Email(), TheFaker.Person.FullName));
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(TheFaker.Internet.Email(), TheFaker.Person.FullName));
         
         // Then: The result should be 200
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK));

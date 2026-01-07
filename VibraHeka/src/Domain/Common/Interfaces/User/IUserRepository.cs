@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.Common.Interfaces;
+namespace VibraHeka.Domain.Common.Interfaces.User;
 
 /// <summary>
 /// Defines the contract for user persistence operations in the application.
@@ -17,7 +17,7 @@ public interface IUserRepository
     /// The task result contains a <see cref="Result"/> where T is a string
     /// representing the unique identifier of the added user, if successful.
     /// </returns
-    Task<Result<string>> AddAsync(User user);
+    Task<Result<string>> AddAsync(Entities.User user);
 
     /// <summary>
     /// Asynchronously checks if a user exists in the repository by their email address.
@@ -39,7 +39,7 @@ public interface IUserRepository
     /// The task result contains a <see cref="Result{T}"/> where T is a <see cref="User"/>
     /// representing the user associated with the specified identifier, if found.
     /// </returns>
-    Task<Result<User>> GetByIdAsync(string id);
+    Task<Result<Entities.User>> GetByIdAsync(string id);
 
     /// <summary>
     /// Asynchronously retrieves users from the repository with the specified role.
@@ -50,5 +50,5 @@ public interface IUserRepository
     /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="User"/> objects
     /// corresponding to the specified role.
     /// </returns>
-    Task<Result<IEnumerable<User>>> GetByRoleAsync(UserRole role);
+    Task<Result<IEnumerable<Entities.User>>> GetByRoleAsync(UserRole role);
 }

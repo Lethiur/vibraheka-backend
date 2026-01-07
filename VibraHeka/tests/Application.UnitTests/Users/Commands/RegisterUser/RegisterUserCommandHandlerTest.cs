@@ -4,10 +4,10 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.RegisterUser;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.RegisterUser;
 
@@ -15,14 +15,14 @@ public class RegisterUserCommandHandlerTest
 {
     private IRequestHandler<RegisterUserCommand, Result<UserRegistrationResult>> _handler;
     private Mock<IUserRepository> _userRepositoryMock;
-    private Mock<ICognitoService> _cognitoServiceMock;
+    private Mock<IUserService> _cognitoServiceMock;
     private RegisterUserCommandValidator _validator;
 
     [SetUp]
     public void SetUp()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
-        _cognitoServiceMock = new Mock<ICognitoService>();
+        _cognitoServiceMock = new Mock<IUserService>();
         _validator = new RegisterUserCommandValidator();
 
         _handler = new RegisterUserCommandHandler(

@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 using Bogus;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;

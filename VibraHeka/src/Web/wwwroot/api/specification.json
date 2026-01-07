@@ -7,7 +7,7 @@
   },
   "paths": {
     "/api/v1/admin/addTherapist": {
-      "post": {
+      "put": {
         "tags": [
           "Admin"
         ],
@@ -24,6 +24,27 @@
           "required": true,
           "x-position": 1
         },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/therapists": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "Admin_GetTherapists",
         "responses": {
           "200": {
             "description": "",

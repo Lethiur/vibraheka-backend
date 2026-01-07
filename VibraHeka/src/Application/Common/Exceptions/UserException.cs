@@ -66,6 +66,11 @@ public class UserException : EAppException
     /// Represents the error code indicating that the user's account has not been confirmed.
     /// </summary>
     public const string UserNotConfirmed = "E-010";
+
+    /// <summary>
+    /// Represents the error code indicating that the provided user ID is invalid.
+    /// </summary>
+    public const string InvalidUserID = "E-011";
     
     public UserException(string errorCode, string errorMessage) : base(errorCode, errorMessage)
     {

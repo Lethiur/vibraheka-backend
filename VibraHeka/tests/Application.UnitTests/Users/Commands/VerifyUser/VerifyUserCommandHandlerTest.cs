@@ -3,20 +3,20 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Users.Commands.VerificationCode;
+using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.VerifyUser;
 
 public class VerifyUserCommandHandlerTest
 {
     private IRequestHandler<VerifyUserCommand, Result<Unit>> _handler;
-    private Mock<ICognitoService> _cognitoServiceMock;
+    private Mock<IUserService> _cognitoServiceMock;
 
     [SetUp]
     public void Setup()
     {
-        _cognitoServiceMock = new Mock<ICognitoService>();
+        _cognitoServiceMock = new Mock<IUserService>();
         _handler = new VerifyUserCommandHandler(_cognitoServiceMock.Object);
     }
     

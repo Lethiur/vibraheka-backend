@@ -2,24 +2,24 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AuthenticateUser;
 
 [TestFixture]
 public class AuthenticateUserCommandHandlerTest
 {
-    private Mock<ICognitoService> _cognitoServiceMock;
+    private Mock<IUserService> _cognitoServiceMock;
     private Mock<IUserRepository> _userRepositoryMock;
     private AuthenticateUserCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
     {
-        _cognitoServiceMock = new Mock<ICognitoService>();
+        _cognitoServiceMock = new Mock<IUserService>();
         _userRepositoryMock = new Mock<IUserRepository>();
         
         _handler = new AuthenticateUserCommandHandler(_cognitoServiceMock.Object, _userRepositoryMock.Object);

@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
@@ -14,7 +15,7 @@ namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 /// creation responsibilities to the underlying user repository and authentication service.
 /// </remarks>
 public class CreateTherapistCommandHandler(
-    ICognitoService CognitService,
+    IUserService CognitService,
     IUserRepository Repository,
     ICurrentUserService CurrentUserService,
     IPrivilegeService PrivilegeService)

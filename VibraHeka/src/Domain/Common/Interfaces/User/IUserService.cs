@@ -1,12 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Models.Results;
+using MediatR;
+using VibraHeka.Domain.Models.Results;
 
-namespace VibraHeka.Application.Common.Interfaces;
+namespace VibraHeka.Domain.Common.Interfaces.User;
 
 /// <summary>
 /// Defines the contract for interacting with the AWS Cognito authentication service.
 /// </summary>
-public interface ICognitoService
+public interface IUserService
 {
     /// <summary>
     /// Asynchronously registers a new user with the provided email, password, and full name using AWS Cognito.

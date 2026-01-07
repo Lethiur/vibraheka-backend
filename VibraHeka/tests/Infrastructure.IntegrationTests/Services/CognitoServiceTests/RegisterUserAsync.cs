@@ -18,7 +18,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = _faker.Person.FullName;
 
         // When: Registering the user
-        Result<string> result = await _cognitoService.RegisterUserAsync(email, password, fullName);
+        Result<string> result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success with UserSub
         Assert.That(result.IsSuccess, Is.True);
@@ -36,7 +36,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = "John Doe";
 
         // When: Registering the user
-        var result = await _cognitoService.RegisterUserAsync(email, password, fullName);
+        var result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -53,7 +53,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = "José María O'Connor-Smith";
 
         // When: Registering the user
-        var result = await _cognitoService.RegisterUserAsync(email, password, fullName);
+        var result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -71,7 +71,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         await RegisterUser(email);
     
         // When: Trying to register the same user again
-        Result<string> secondResult = await _cognitoService.RegisterUserAsync(email,"Password123@", "Hello policeman");
+        Result<string> secondResult = await _userService.RegisterUserAsync(email,"Password123@", "Hello policeman");
 
         // Then: Should fail with UserAlreadyExist error
         Assert.That(secondResult.IsFailure, Is.True);
@@ -90,7 +90,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
     public async Task ShouldReturnInvalidFormWhenRequiredFieldsAreEmptyOrNull(string? email, string? password, string? fullName)
     {
         // When: Trying to register with empty/null fields
-        var result = await _cognitoService.RegisterUserAsync(email!, password!, fullName!);
+        var result = await _userService.RegisterUserAsync(email!, password!, fullName!);
 
         // Then: Should fail with InvalidForm error (AWS treats empty fields as invalid parameters)
         Assert.That(result.IsFailure, Is.True);
@@ -111,7 +111,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = "John Doe";
 
         // When: Trying to register with invalid password
-        Result<string> result = await _cognitoService.RegisterUserAsync(email, invalidPassword, fullName);
+        Result<string> result = await _userService.RegisterUserAsync(email, invalidPassword, fullName);
 
         // Then: Should fail with InvalidPassword error
         Assert.That(result.IsFailure, Is.True);
@@ -129,7 +129,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string password = "ValidPassword123!";
 
         // When: Trying to register with invalid parameters
-        Result<string> result = await _cognitoService.RegisterUserAsync(email, password, fullName!);
+        Result<string> result = await _userService.RegisterUserAsync(email, password, fullName!);
 
         // Then: Should fail with InvalidForm error
         Assert.That(result.IsFailure, Is.True);
@@ -150,7 +150,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = new string('A', 200); // Very long name
 
         // When: Registering with long name
-        Result<string> result = await _cognitoService.RegisterUserAsync(email, password, fullName);
+        Result<string> result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should either succeed or fail gracefully
         Assert.That(result.Value, Is.Not.Null);
@@ -167,7 +167,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         {
             string email = $"concurrent{i}{_faker.Internet.Email()}";
 
-            tasks.Add(_cognitoService.RegisterUserAsync(
+            tasks.Add(_userService.RegisterUserAsync(
                 email,
                 "ValidPassword123!",
                 $"User {i}"));

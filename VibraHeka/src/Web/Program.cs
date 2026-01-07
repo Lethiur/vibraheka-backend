@@ -75,7 +75,7 @@ public class VibraHekaProgram
                     return false;
                 };
             });
-        builder.AddInfrastructureServices(builder.Configuration);
+        builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
         WebApplication app = builder.Build();
         app.UseCors("AllowFrontend");
 

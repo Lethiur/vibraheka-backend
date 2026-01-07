@@ -1,6 +1,6 @@
 ﻿using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.Common.Models.Results;
+namespace VibraHeka.Domain.Models.Results;
 
 public class AuthenticationResult
 {

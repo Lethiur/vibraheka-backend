@@ -23,7 +23,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
     
         // Then: The user should be confirmed successfully
-        Result<Unit> confirmResult = await _cognitoService.ConfirmUserAsync(email, codeFor.Value.Code);
+        Result<Unit> confirmResult = await _userService.ConfirmUserAsync(email, codeFor.Value.Code);
         Assert.That(confirmResult.IsSuccess, Is.True, "User confirmation should succeed");
     }
 
@@ -40,7 +40,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         string confirmationCode = "123456";
 
         // When: Trying to confirm non-existent user
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(nonExistentEmail, confirmationCode);
+        Result<Unit> result = await _userService.ConfirmUserAsync(nonExistentEmail, confirmationCode);
 
         // Then: Should fail with UserNotFound error
         Assert.That(result.IsFailure, Is.True);
@@ -56,7 +56,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         string confirmationCode = "123456";
 
         // When: Trying to confirm with invalid email
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(invalidEmail, confirmationCode);
+        Result<Unit> result = await _userService.ConfirmUserAsync(invalidEmail, confirmationCode);
 
         // Then: Should fail with UserNotFound error (Cognito treats malformed emails as not found)
         Assert.That(result.IsFailure, Is.True);
@@ -76,7 +76,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
 
         // When: Confirming with wrong code
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, "000000");
+        Result<Unit> result = await _userService.ConfirmUserAsync(email, "000000");
 
         // Then: Should fail with WrongVerificationCode error
         Assert.That(result.IsFailure, Is.True);
@@ -95,7 +95,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
     
         // When: Confirming with invalid code format
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, invalidCode);
+        Result<Unit> result = await _userService.ConfirmUserAsync(email, invalidCode);
 
         // Then: Should fail with WrongVerificationCode error
         Assert.That(result.IsFailure, Is.True);
@@ -113,7 +113,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
     public async Task ShouldReturnInvalidFormWhenEmailIsInvalid(string? email)
     {
         // When: Trying to confirm with invalid email
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email!, "123456");
+        Result<Unit> result = await _userService.ConfirmUserAsync(email!, "123456");
 
         // Then: Should fail with InvalidForm (Cognito treats empty/invalid emails as invalid parameters)
         Assert.That(result.IsFailure, Is.True);
@@ -129,7 +129,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
         
         // When: Trying to confirm with non-numeric code
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, "testes");
+        Result<Unit> result = await _userService.ConfirmUserAsync(email, "testes");
 
         // Then: Should fail with WrongVerificationCode
         Assert.That(result.IsFailure, Is.True);
@@ -143,7 +143,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
     public async Task ShouldReturnInvalidFormWhenCodeIsInvalid(string? code)
     {
         // When: Trying to confirm with invalid code
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync("test@example.com", code!);
+        Result<Unit> result = await _userService.ConfirmUserAsync("test@example.com", code!);
 
         // Then: Should fail with InvalidForm
         Assert.That(result.IsFailure, Is.True);
@@ -164,7 +164,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // When: We send a 6-digit numeric code that isn't the one Cognito generated
         // This will trigger CodeMismatchException in the Cognito SDK
-        Result<Unit> result = await _cognitoService.ConfirmUserAsync(email, "999999");
+        Result<Unit> result = await _userService.ConfirmUserAsync(email, "999999");
 
         // Then: The service should catch the AWS exception and return our domain error
         Assert.That(result.IsFailure, Is.True, "The operation should fail");
@@ -186,8 +186,8 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // When: The user is confirmed twice
         Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await _cognitoService.ConfirmUserAsync(email, codeFor.Value.Code);
-        Result<Unit> secondConfirmResult = await _cognitoService.ConfirmUserAsync(email, codeFor.Value.Code);
+        await _userService.ConfirmUserAsync(email, codeFor.Value.Code);
+        Result<Unit> secondConfirmResult = await _userService.ConfirmUserAsync(email, codeFor.Value.Code);
     
         // Then: The error should be NotAuthorized (Cognito does not allow confirming already confirmed users)
         Assert.That(secondConfirmResult.IsFailure, Is.True);
@@ -211,7 +211,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         for (int i = 0; i < 6; i++) // Exceed the typical limit
         {
-            attempts.Add(_cognitoService.ConfirmUserAsync(email, $"00000{i}"));
+            attempts.Add(_userService.ConfirmUserAsync(email, $"00000{i}"));
         }
 
         Result<Unit>[] results = await Task.WhenAll(attempts);
@@ -238,7 +238,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         for (int i = 0; i < 3; i++)
         {
-            tasks.Add(_cognitoService.ConfirmUserAsync(email, "123456"));
+            tasks.Add(_userService.ConfirmUserAsync(email, "123456"));
         }
 
         Result<Unit>[] results = await Task.WhenAll(tasks);

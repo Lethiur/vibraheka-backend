@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
 
@@ -21,10 +21,10 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         string email = GenerateUniqueEmail("test-auth-success@");
         await RegisterUser(email);
         Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await _cognitoService.ConfirmUserAsync(email, codeResult.Value.Code);
+        await _userService.ConfirmUserAsync(email, codeResult.Value.Code);
 
         // When: Attempting to authenticate
-        Result<AuthenticationResult> authResult = await _cognitoService.AuthenticateUserAsync(email, DefaultPassword);
+        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, DefaultPassword);
 
         // Then: Authentication should succeed and return tokens
         Assert.That(authResult.IsSuccess, Is.True);
@@ -45,7 +45,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         string email = $"ghost-{Guid.NewGuid()}@example.com";
 
         // When: Attempting to authenticate
-        Result<AuthenticationResult> authResult = await _cognitoService.AuthenticateUserAsync(email, DefaultPassword);
+        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, DefaultPassword);
 
         // Then: Should fail with UserNotFound error
         Assert.That(authResult.IsFailure, Is.True);
@@ -64,10 +64,10 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         string email = GenerateUniqueEmail("test-auth-wrong-pass@");
         await RegisterUser(email);
         Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await _cognitoService.ConfirmUserAsync(email, codeResult.Value.Code);
+        await _userService.ConfirmUserAsync(email, codeResult.Value.Code);
 
         // When: Attempting to authenticate with wrong password
-        Result<AuthenticationResult> authResult = await _cognitoService.AuthenticateUserAsync(email, "WrongPass123!");
+        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, "WrongPass123!");
 
         // Then: Should fail with InvalidPassword error
         Assert.That(authResult.IsFailure, Is.True);
@@ -89,7 +89,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
 
         // When: Attempting to authenticate
-        Result<AuthenticationResult> authResult = await _cognitoService.AuthenticateUserAsync(email, DefaultPassword);
+        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, DefaultPassword);
 
         // Then: Should fail with UserNotConfirmed error
         Assert.That(authResult.IsFailure, Is.True);
@@ -108,7 +108,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
     public async Task ShouldReturnUnexpectedErrorWhenParametersAreInvalid(string? email, string? password)
     {
         // When: Attempting to authenticate with invalid parameters
-        Result<AuthenticationResult> authResult = await _cognitoService.AuthenticateUserAsync(email!, password!);
+        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email!, password!);
 
         // Then: Should fail (AWS SDK usually throws for nulls, caught as UnexpectedError in your catch-all)
         Assert.That(authResult.IsFailure, Is.True);

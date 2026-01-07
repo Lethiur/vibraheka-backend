@@ -5,7 +5,7 @@ using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
@@ -15,16 +15,16 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests
 [TestFixture]
 public abstract class GenericCognitoServiceTest : TestBase
 {
-    protected ICognitoService _cognitoService;
-    private ILogger<CognitoService> _logger;
+    protected IUserService _userService;
+    private ILogger<UserService> _logger;
     private VerificationCodesRepository _verificationCodeRepository;
 
     [OneTimeSetUp]
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _logger = NullLogger<CognitoService>.Instance;
-        _cognitoService = new CognitoService(_configuration, _logger);
+        _logger = NullLogger<UserService>.Instance;
+        _userService = new UserService(_configuration, _logger);
         _faker = new Faker();
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
             new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
@@ -61,7 +61,7 @@ public abstract class GenericCognitoServiceTest : TestBase
         const string password = "ValidPassword123!";
         const string fullName = "John Doe";
 
-        Result<string> registerResult = await _cognitoService.RegisterUserAsync(email, password, fullName);
+        Result<string> registerResult = await _userService.RegisterUserAsync(email, password, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
         return registerResult.Value;
     }

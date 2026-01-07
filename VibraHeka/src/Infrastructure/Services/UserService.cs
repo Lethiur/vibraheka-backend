@@ -9,13 +9,13 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
+using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.Models.Results;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class CognitoService(IConfiguration config, ILogger<CognitoService> logger) : ICognitoService
+public class UserService(IConfiguration config, ILogger<UserService> logger) : IUserService
 {
     private readonly AmazonCognitoIdentityProviderClient _client = CreateClient(config);
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";

@@ -1,7 +1,8 @@
 ﻿using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Admin.Queries.GetAllTherapists;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Queries.AdminGetTherapists;
 

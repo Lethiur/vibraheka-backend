@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace VibraHeka.Application.Common.Interfaces;
+namespace VibraHeka.Domain.Common.Interfaces;
 
 /// <summary>
 /// Represents a service to provide details about the currently authenticated user.

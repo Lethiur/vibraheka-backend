@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Application.Common.Models.Results;
+﻿namespace VibraHeka.Domain.Models.Results;
 
 /// <summary>
 /// Represents the result of a user registration process.

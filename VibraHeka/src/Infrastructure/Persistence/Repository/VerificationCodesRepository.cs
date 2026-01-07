@@ -1,7 +1,7 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;

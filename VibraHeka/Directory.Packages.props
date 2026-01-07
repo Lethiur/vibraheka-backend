@@ -8,6 +8,7 @@
     <MicrosoftExtensionsVersion>10.0.0</MicrosoftExtensionsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Amazon.Extensions.Configuration.SystemsManager" Version="7.0.1" />
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="AutoMapper" Version="15.1.0" />
     <PackageVersion Include="AWSSDK.CognitoIdentityProvider" Version="4.0.4.5" />

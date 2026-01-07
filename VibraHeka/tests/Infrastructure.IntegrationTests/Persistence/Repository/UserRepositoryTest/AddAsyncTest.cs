@@ -6,7 +6,7 @@ using Bogus;
 using CSharpFunctionalExtensions;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
