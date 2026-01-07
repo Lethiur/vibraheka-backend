@@ -21,7 +21,7 @@ public class AdminController(IMediator mediator)
     /// with the created therapist's identifier. If the operation fails, returns a 400 Bad Request with the error details
     /// or a 401 Unauthorized if the user lacks appropriate authorization.
     /// </returns>
-    [HttpPost("addTherapist")]
+    [HttpPut("addTherapist")]
     [Authorize]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -50,7 +50,7 @@ public class AdminController(IMediator mediator)
     /// of therapists if the operation is successful. If the operation fails, returns a 400 Bad Request
     /// response with the error details, or a 401 Unauthorized response if the user lacks sufficient authorization.
     /// </returns>
-    [HttpGet]
+    [HttpGet("therapists")]
     [Authorize]
     [Produces("application/json")]
     public async Task<IActionResult> GetTherapists()
