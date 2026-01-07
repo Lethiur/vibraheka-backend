@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using VibraHeka.Application.Admin.Commands.CreateTherapist;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
 namespace VibraHeka.Application.UnitTests.Admin.Commands.CreateTherapist;
 

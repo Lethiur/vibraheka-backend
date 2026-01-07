@@ -2,9 +2,9 @@
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Admin.Commands.CreateTherapist;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.UnitTests.Admin.Commands.CreateTherapist;

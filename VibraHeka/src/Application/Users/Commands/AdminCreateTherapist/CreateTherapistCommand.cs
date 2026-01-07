@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace VibraHeka.Application.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
 /// <summary>
 /// Represents a command used to create a new therapist within the system.

@@ -19,12 +19,11 @@ public class AuthenticateUserCommandHandler(ICognitoService CognitoService, IUse
 
         return await authenticateUserAsync.Bind(async (result) =>
         {
-            return await UserRpository.GetByIdAsync(result.UserID)
-                .Map(user => 
-                {
-                    result.Role = user.Role;
-                    return result;
-                });
+            return (await UserRpository.GetByIdAsync(result.UserID)).Map(user =>
+            {
+                result.Role = user.Role;
+                return result;
+            });
         });
 
     }
