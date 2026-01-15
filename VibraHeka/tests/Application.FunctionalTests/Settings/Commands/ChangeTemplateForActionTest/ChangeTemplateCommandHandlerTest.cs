@@ -1,9 +1,7 @@
-﻿using Amazon.SimpleSystemsManagement;
-using Amazon.SimpleSystemsManagement.Model;
+﻿using CSharpFunctionalExtensions;
+using MediatR;
 using Moq;
 using NUnit.Framework;
-using CSharpFunctionalExtensions;
-using MediatR;
 using VibraHeka.Application.Common.Enums;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
@@ -11,9 +9,8 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Application.FunctionalTests.Settings.ChangeTemplateForActionTest;
+namespace VibraHeka.Application.FunctionalTests.Settings.Commands.ChangeTemplateForActionTest;
 
 [TestFixture]
 public class ChangeTemplateCommandHandlerTest

@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Application.Emails.CreateEmail;
+﻿namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 
 public class CreateEmailCommandHandler
 {

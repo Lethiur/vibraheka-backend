@@ -326,6 +326,79 @@ export class AuthClient implements IAuthClient {
     }
 }
 
+export interface ISettingsClient {
+    settings_ChangeTemplate(command: ChangeTemplateForActionCommand): Observable<void>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class SettingsClient implements ISettingsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    settings_ChangeTemplate(command: ChangeTemplateForActionCommand): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/settings/ChangeTemplate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSettings_ChangeTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSettings_ChangeTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSettings_ChangeTemplate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IVerificationCodeClient {
     verificationCode_Register(query: GetCodeQuery): Observable<FileResponse>;
 }
@@ -626,6 +699,52 @@ export class AuthenticateUserCommand implements IAuthenticateUserCommand {
 export interface IAuthenticateUserCommand {
     email?: string;
     password?: string;
+}
+
+export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {
+    templateID?: string;
+    action?: ActionType;
+
+    constructor(data?: IChangeTemplateForActionCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.templateID = _data["templateID"];
+            this.action = _data["action"];
+        }
+    }
+
+    static fromJS(data: any): ChangeTemplateForActionCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeTemplateForActionCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["templateID"] = this.templateID;
+        data["action"] = this.action;
+        return data;
+    }
+}
+
+export interface IChangeTemplateForActionCommand {
+    templateID?: string;
+    action?: ActionType;
+}
+
+export enum ActionType {
+    UserRegistered = 0,
+    UserVerification = 1,
+    PasswordReset = 2,
 }
 
 export class GetCodeQuery implements IGetCodeQuery {

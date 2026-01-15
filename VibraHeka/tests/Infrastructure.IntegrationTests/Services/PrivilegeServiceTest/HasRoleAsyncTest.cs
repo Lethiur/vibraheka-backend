@@ -12,7 +12,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeService;
+namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeServiceTest;
 
 [TestFixture]
 public class HasRoleAsyncTest : TestBase

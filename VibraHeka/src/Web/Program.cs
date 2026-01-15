@@ -1,12 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using VibraHeka.Application;
 using VibraHeka.Infrastructure;
-using VibraHeka.Web;
 using VibraHeka.Web.Middleware;
 using static System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler;
+
+namespace VibraHeka.Web;
 
 public class VibraHekaProgram
 {
@@ -23,7 +25,7 @@ public class VibraHekaProgram
                     policy.WithOrigins("http://localhost:5173") // La URL de tu frontend
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials(); // Importante si usas cookies o autenticación Windows
+                        .AllowCredentials(); 
                 });
         });
 // Add services to the container.
@@ -54,25 +56,22 @@ public class VibraHekaProgram
                     ValidAudience = clientId,
                     
                     ClockSkew = TimeSpan.FromMinutes(2),
-                    ValidateLifetime = true
-                };
-                
-                options.TokenValidationParameters.AudienceValidator = (audiences, securityToken, validationParameters) =>
-                {
-                    // Usamos el token que viene de la petición
-                    // En .NET moderno suele ser JsonWebToken
-                    if (securityToken is Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jwt)
+                    ValidateLifetime = true,
+                    AudienceValidator = (audiences, securityToken, validationParameters) =>
                     {
-                        string? clientIdClaim = jwt.GetClaim("client_id")?.Value;
-                        return clientIdClaim == clientId;
+                        switch (securityToken)
+                        {
+                            case JsonWebToken jwt:
+                                {
+                                    string? clientIdClaim = jwt.GetClaim("client_id")?.Value;
+                                    return clientIdClaim == clientId;
+                                }
+                            case JwtSecurityToken oldJwt:
+                                return oldJwt.Payload.TryGetValue("client_id", out object? cid) && cid.ToString() == clientId;
+                            default:
+                                return false;
+                        }
                     }
-                
-                    if (securityToken is JwtSecurityToken oldJwt)
-                    {
-                        return oldJwt.Payload.TryGetValue("client_id", out object? cid) && cid.ToString() == clientId;
-                    }
-
-                    return false;
                 };
             });
         builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);

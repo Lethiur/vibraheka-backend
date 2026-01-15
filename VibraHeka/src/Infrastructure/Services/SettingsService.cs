@@ -16,6 +16,7 @@ public class SettingsService(ISettingsRepository Repository) : ISettingsService
     /// Validates the provided email string and updates the template in the repository if valid.
     /// </summary>
     /// <param name="email">The new email template to be used for verification.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the tasks</param>
     /// <returns>A <see cref="Result{Unit}"/> indicating the success or failure of the operation,
     /// along with potential error details.</returns>
     public async Task<Result<Unit>> ChangeEmailForVerificationAsync(string email, CancellationToken cancellationToken)
