@@ -41,7 +41,7 @@ public class VerifyUserCommandHandlerTest
     {
         // Given: Some mocking to return error
         _cognitoServiceMock.Setup(service => service.ConfirmUserAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(Result.Failure<Unit>(UserException.UnexpectedError));
+            .ReturnsAsync(Result.Failure<Unit>(UserErrors.UnexpectedError));
         // When: User is confirmed
         Result<Unit> result = await _handler.Handle(new VerifyUserCommand("test", "test"), CancellationToken.None);
         
@@ -49,7 +49,7 @@ public class VerifyUserCommandHandlerTest
         Assert.That(result.IsSuccess, Is.False);
         
         // And: With the expected error
-        Assert.That(result.Error, Is.EqualTo(UserException.UnexpectedError));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));
         
         _cognitoServiceMock.Verify(service => service.ConfirmUserAsync("test","test"), Times.Once);
     }

@@ -48,12 +48,9 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
     [Test]
     public async Task ShouldAddTherapistIfLoggedInAsAdmin()
     {
-        // Given: A registered user
+        // Given: A registered admin
         string email = TheFaker.Internet.Email();
-        string userID = await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        
-        // And: Admin created
-        await PromoteToAdmin(TheFaker.Person.FullName, email, userID);
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
         
         // And: Authenticated
         AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);

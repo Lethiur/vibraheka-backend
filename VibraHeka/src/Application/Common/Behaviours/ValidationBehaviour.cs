@@ -1,4 +1,6 @@
-﻿namespace VibraHeka.Application.Common.Behaviours;
+﻿using FluentValidation.Results;
+
+namespace VibraHeka.Application.Common.Behaviours;
 
 /// <summary>
 /// Represents a pipeline behavior for request validation in the application.
@@ -34,9 +36,9 @@ public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRe
     {
         if (_validators.Any())
         {
-            var context = new ValidationContext<TRequest>(request);
+            ValidationContext<TRequest> context = new ValidationContext<TRequest>(request);
 
-            var errors = _validators
+            List<ValidationFailure> errors = _validators
                 .Select(v => v.Validate(context))
                 .SelectMany(r => r.Errors)
                 .Where(e => e != null)
@@ -44,7 +46,7 @@ public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRe
 
             if (errors.Count > 0)
             {
-                var errorMessage = string.Join(" | ", errors.Select(e => $"{e.ErrorMessage}"
+                string errorMessage = string.Join(" | ", errors.Select(e => $"{e.ErrorMessage}"
                 ));
 
                 throw new ValidationException(errorMessage);

@@ -16,6 +16,6 @@ public static class PasswordValidationExtension
     /// <returns>An IRuleBuilderOptions object containing the configured validation rules.</returns>
     public static IRuleBuilderOptions<T, string> ValidPassword<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
-        return ruleBuilder.NotEmpty().WithMessage(UserException.InvalidPassword).NotNull().WithMessage(UserException.InvalidPassword).MinimumLength(6).WithMessage(UserException.InvalidPassword);
+        return ruleBuilder.NotEmpty().WithMessage(UserErrors.InvalidPassword).NotNull().WithMessage(UserErrors.InvalidPassword).MinimumLength(6).WithMessage(UserErrors.InvalidPassword);
     }
 }

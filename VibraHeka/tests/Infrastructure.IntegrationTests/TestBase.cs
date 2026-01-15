@@ -40,7 +40,7 @@ public abstract class TestBase
         string templatesTable = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATE_TABLE")
                                 ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATE_TABLE environment variable is required");
 
-        var configBuilder = new ConfigurationBuilder()
+        IConfigurationBuilder configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Dynamo:CodesTable"] = verificationCodesTable,

@@ -39,15 +39,15 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     #region Validation Tests
 
     // === EMAIL VALIDATION TESTS ===
-    [TestCase("", DefaultPassword, UserException.InvalidEmail)]
-    [TestCase(null, DefaultPassword, UserException.InvalidEmail)]
-    [TestCase("   ", DefaultPassword, UserException.InvalidEmail)]
-    [TestCase("invalid-email", DefaultPassword, UserException.InvalidEmail)]
+    [TestCase("", DefaultPassword, UserErrors.InvalidEmail)]
+    [TestCase(null, DefaultPassword, UserErrors.InvalidEmail)]
+    [TestCase("   ", DefaultPassword, UserErrors.InvalidEmail)]
+    [TestCase("invalid-email", DefaultPassword, UserErrors.InvalidEmail)]
 
     // === PASSWORD VALIDATION TESTS ===
-    [TestCase("test@example.com", "", UserException.InvalidPassword)]
-    [TestCase("test@example.com", null, UserException.InvalidPassword)]
-    [TestCase("test@example.com", "12345", UserException.InvalidPassword)] // Menos de 6 caracteres
+    [TestCase("test@example.com", "", UserErrors.InvalidPassword)]
+    [TestCase("test@example.com", null, UserErrors.InvalidPassword)]
+    [TestCase("test@example.com", "12345", UserErrors.InvalidPassword)] // Menos de 6 caracteres
     [DisplayName("Should not allow authentication with wrong data format")]
     public async Task ShouldNotAllowAuthenticationWithWrongData(string? email, string? password,
         string expectedErrorKeyword)
@@ -89,7 +89,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // And: The error code should be UserNotConfirmed (E-003)
         ResponseEntity responseObject = await response.GetAsResponseEntity();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.UserNotConfirmed));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotConfirmed));
     }
 
 
@@ -107,7 +107,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
 
         ResponseEntity responseObject = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
 
         ResponseEntity responseObject = await response.GetAsResponseEntity();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.InvalidPassword));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
     }
 
     #endregion

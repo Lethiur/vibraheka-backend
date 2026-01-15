@@ -18,10 +18,4 @@ public interface ICurrentUserService
     /// Typically, this property is used to track or validate actions performed in the
     /// context of a particular user.
     string? UserId { get; }
-
-    /// Gets the claims principal of the currently authenticated user.
-    /// This property provides access to the security claims and identity associated with the
-    /// current user within the HTTP context, or null if no user is authenticated.
-    /// It is commonly used to retrieve claims or roles for authorization and other user-specific operations.
-    ClaimsPrincipal? Principals { get; }
 }

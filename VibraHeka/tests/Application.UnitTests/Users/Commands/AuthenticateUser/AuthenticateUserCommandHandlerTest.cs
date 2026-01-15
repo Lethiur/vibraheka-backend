@@ -55,7 +55,7 @@ public class AuthenticateUserCommandHandlerTest
     {
         // Arrange
         AuthenticateUserCommand command = new("test@example.com", "Password123!" );
-        string expectedError = UserException.InvalidPassword;
+        string expectedError = UserErrors.InvalidPassword;
 
         _cognitoServiceMock
             .Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>()))
@@ -77,7 +77,7 @@ public class AuthenticateUserCommandHandlerTest
     {
         // Given: Some mocking to return error
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Failure<User>(UserException.UserNotFound));
+            .ReturnsAsync(Result.Failure<User>(UserErrors.UserNotFound));
         
         _cognitoServiceMock.Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(Result.Success(new AuthenticationResult()));
         
@@ -89,7 +89,7 @@ public class AuthenticateUserCommandHandlerTest
         
         // Then: Should return the error from the repository
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]

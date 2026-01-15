@@ -46,7 +46,7 @@ public class AuthenticateUserCommandValidatorTest
 
         // Then
         result.ShouldHaveValidationErrorFor(x => x.Email)
-            .WithErrorMessage(UserException.InvalidEmail);
+            .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("invalid-email", TestName = "Email without @")]
@@ -63,7 +63,7 @@ public class AuthenticateUserCommandValidatorTest
 
         // Then
         result.ShouldHaveValidationErrorFor(x => x.Email)
-            .WithErrorMessage(UserException.InvalidEmail);
+            .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     #endregion
@@ -83,7 +83,7 @@ public class AuthenticateUserCommandValidatorTest
 
         // Then
         result.ShouldHaveValidationErrorFor(x => x.Password)
-            .WithErrorMessage(UserException.InvalidPassword);
+            .WithErrorMessage(UserErrors.InvalidPassword);
     }
 
     [Test]
@@ -98,7 +98,7 @@ public class AuthenticateUserCommandValidatorTest
 
         // Then
         result.ShouldHaveValidationErrorFor(x => x.Password)
-            .WithErrorMessage(UserException.InvalidPassword);
+            .WithErrorMessage(UserErrors.InvalidPassword);
     }
 
     #endregion

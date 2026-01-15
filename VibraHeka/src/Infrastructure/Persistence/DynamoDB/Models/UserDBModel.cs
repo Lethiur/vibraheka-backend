@@ -5,14 +5,14 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 [DynamoDBTable("TABLE_USERS")]
-public class UserDBModel
+public class UserDBModel : BaseAuditableDBModel
 {
     
     [DynamoDBHashKey]
     public string Id { get; set; } = string.Empty;
     [DynamoDBProperty]
     public string CognitoId { get; set; } = string.Empty; // Sub de Cognito
-    [DynamoDBProperty]
+    [DynamoDBGlobalSecondaryIndexHashKey("EmailIndex")]
     public string Email { get; set; } = string.Empty;
     [DynamoDBProperty]
     public string FullName { get; set; } = string.Empty;

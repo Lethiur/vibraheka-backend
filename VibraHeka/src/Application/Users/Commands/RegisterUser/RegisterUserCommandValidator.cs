@@ -13,17 +13,17 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.FullName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithMessage(UserException.InvalidFullName)
+            .WithMessage(UserErrors.InvalidFullName)
             .Must(value =>
             {
                 if (string.IsNullOrWhiteSpace(value))
                     return false;
             
-                var trimmed = value.Trim();
+                string trimmed = value.Trim();
                 return trimmed.Length >= 3;
             })
-            .WithMessage(UserException.InvalidFullName)
+            .WithMessage(UserErrors.InvalidFullName)
             .MinimumLength(3)
-            .WithMessage(UserException.InvalidFullName);
+            .WithMessage(UserErrors.InvalidFullName);
     }
 }

@@ -42,15 +42,17 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
         
         return await cognitoId.Bind(async realCognitoId =>
         {
-            User user = new()
+            User newUser = new()
             {
                 Id =realCognitoId,
                 Email = request.Email,
                 FullName = request.FullName,
-                CognitoId = realCognitoId
+                CognitoId = realCognitoId,
+                Created = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
             };
 
-            Result<string> addAsync = await users.AddAsync(user);
+            Result<string> addAsync = await users.AddAsync(newUser);
 
             return addAsync.Match(userId => Result.Success(new UserRegistrationResult(userId, true)), Result.Failure<UserRegistrationResult>);
         });

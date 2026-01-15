@@ -6,37 +6,39 @@ namespace VibraHeka.Web.AcceptanceTests.Generic;
 
 public static class HttpExtensions
 {
-    public static async Task<ResponseEntity> GetAsResponseEntityAndContentAs<T>(
-        this HttpResponseMessage responseMessage)
+    extension(HttpResponseMessage responseMessage)
     {
-        string stream = await responseMessage.Content.ReadAsStringAsync();
-
-        ResponseEntity res = JsonSerializer.Deserialize<ResponseEntity>(stream, new JsonSerializerOptions()
+        public async Task<ResponseEntity> GetAsResponseEntityAndContentAs<T>()
         {
-            PropertyNameCaseInsensitive = true
-        }) ?? throw new DataException($"There was a problem deserializing {stream}");
+            string stream = await responseMessage.Content.ReadAsStringAsync();
 
-        if (res.Content == null) return res;
+            ResponseEntity res = JsonSerializer.Deserialize<ResponseEntity>(stream, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? throw new DataException($"There was a problem deserializing {stream}");
 
-        T? entity = ((JsonElement)res.Content).Deserialize<T>(new JsonSerializerOptions
+            if (res.Content == null) return res;
+
+            T? entity = ((JsonElement)res.Content).Deserialize<T>(new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            res.Content = entity;
+            return res;
+        }
+
+        public async Task<ResponseEntity> GetAsResponseEntity()
         {
-            PropertyNameCaseInsensitive = true
-        });
+            string stream = await responseMessage.Content.ReadAsStringAsync();
 
-        res.Content = entity;
-        return res;
-    }
-
-    public static async Task<ResponseEntity> GetAsResponseEntity(this HttpResponseMessage responseMessage)
-    {
-        string stream = await responseMessage.Content.ReadAsStringAsync();
-
-        ResponseEntity? res = JsonSerializer.Deserialize<ResponseEntity>(stream, new JsonSerializerOptions()
-        {
-            PropertyNameCaseInsensitive = true
-        });
+            ResponseEntity? res = JsonSerializer.Deserialize<ResponseEntity>(stream, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
 
-        return res ?? throw new DataException($"There was a problem deserializing {stream}");
+            return res ?? throw new DataException($"There was a problem deserializing {stream}");
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace VibraHeka.Application.Common.Exceptions;
 
-public class UserException : EAppException
+public class UserErrors
 {
     /// <summary>
     /// Represents the error code indicating that a user already exists in the system.
@@ -71,8 +71,4 @@ public class UserException : EAppException
     /// Represents the error code indicating that the provided user ID is invalid.
     /// </summary>
     public const string InvalidUserID = "E-011";
-    
-    public UserException(string errorCode, string errorMessage) : base(errorCode, errorMessage)
-    {
-    }
 }

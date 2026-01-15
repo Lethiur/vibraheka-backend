@@ -50,13 +50,13 @@ public class UpdateVerificationEmailTemplateTest
         string emailTemplate = $"<html><body><h1>Verify your email</h1><p>{_faker.Lorem.Sentence()}</p></body></html>";
 
         // When: Updating the template in SSM
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate);
+        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
 
         // And: Verify the value was actually stored in AWS SSM
-        var response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
+        GetParameterResponse? response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
         Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate));
     }
 
@@ -65,16 +65,16 @@ public class UpdateVerificationEmailTemplateTest
     public async Task ShouldOverwriteExistingTemplate()
     {
         // Given: An initial template already in SSM
-        await _repository.UpdateVerificationEmailTemplateAsync("initial template");
+        await _repository.UpdateVerificationEmailTemplateAsync("initial template", CancellationToken.None);
         string newTemplate = "updated template " + _faker.Random.Guid();
 
         // When: Updating the same parameter
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(newTemplate);
+        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(newTemplate, CancellationToken.None);
 
         // Then: Should succeed and reflect the new value
         Assert.That(result.IsSuccess, Is.True);
         
-        var response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
+        GetParameterResponse? response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
         Assert.That(response.Parameter.Value, Is.EqualTo(newTemplate));
     }
 
@@ -90,7 +90,7 @@ public class UpdateVerificationEmailTemplateTest
         string largeTemplate = new string('A', 3000); 
 
         // When: Updating the template
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(largeTemplate);
+        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);
 
         // Then: Should return success if within limits
         Assert.That(result.IsSuccess, Is.True);

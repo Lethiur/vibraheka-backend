@@ -25,7 +25,7 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
 
   attribute {
     name = "Role"
-    type = "S" # El conversor EnumStringConverter lo guarda como String
+    type = "S"
   }
 
   global_secondary_index {

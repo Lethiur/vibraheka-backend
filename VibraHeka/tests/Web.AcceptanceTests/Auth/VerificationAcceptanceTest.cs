@@ -53,7 +53,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
             "Should return 404 Not Found when trying to verify a non-existent user");
         
         Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
     
     [Test]
@@ -80,39 +80,39 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
             "Should not return BadRequest for valid format but wrong code");
         
         Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserException.WrongVerificationCode));
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
     
     // === EMAIL TESTS ===
-    [TestCase("", "123456", UserException.InvalidEmail)] // Email vacío
-    [TestCase(null, "123456", UserException.InvalidEmail)] // Email null
-    [TestCase("   ", "123456", UserException.InvalidEmail)] // Email solo espacios
-    [TestCase("invalid-email", "123456", UserException.InvalidEmail)] // Email formato inválido
-    [TestCase("@domain.com", "123456", UserException.InvalidEmail)] // Email sin parte local
-    [TestCase("user@", "123456", UserException.InvalidEmail)] // Email sin dominio
-    [TestCase("user.domain.com", "123456", UserException.InvalidEmail)] // Email sin @
-    [TestCase("user@domain", "123456", UserException.InvalidEmail)] // Email sin TLD
-    [TestCase("user..test@domain.com", "123456", UserException.InvalidEmail)] // Email con doble punto
+    [TestCase("", "123456", UserErrors.InvalidEmail)] // Email vacío
+    [TestCase(null, "123456", UserErrors.InvalidEmail)] // Email null
+    [TestCase("   ", "123456", UserErrors.InvalidEmail)] // Email solo espacios
+    [TestCase("invalid-email", "123456", UserErrors.InvalidEmail)] // Email formato inválido
+    [TestCase("@domain.com", "123456", UserErrors.InvalidEmail)] // Email sin parte local
+    [TestCase("user@", "123456", UserErrors.InvalidEmail)] // Email sin dominio
+    [TestCase("user.domain.com", "123456", UserErrors.InvalidEmail)] // Email sin @
+    [TestCase("user@domain", "123456", UserErrors.InvalidEmail)] // Email sin TLD
+    [TestCase("user..test@domain.com", "123456", UserErrors.InvalidEmail)] // Email con doble punto
 
     // === CODE TESTS ===
-    [TestCase("test@example.com", "", UserException.InvalidVerificationCode)] // Code vacío
-    [TestCase("test@example.com", null, UserException.InvalidVerificationCode)] // Code null
-    [TestCase("test@example.com", "   ", UserException.InvalidVerificationCode)] // Code solo espacios
-    [TestCase("test@example.com", "\t", UserException.InvalidVerificationCode)] // Code solo tab
-    [TestCase("test@example.com", "\n", UserException.InvalidVerificationCode)] // Code solo salto de línea
-    [TestCase("test@example.com", "\r\n", UserException.InvalidVerificationCode)] // Code CRLF
-    [TestCase("test@example.com", "1", UserException.InvalidVerificationCode)] // Code 1 char
-    [TestCase("test@example.com", "12", UserException.InvalidVerificationCode)] // Code 2 chars
-    [TestCase("test@example.com", "123", UserException.InvalidVerificationCode)] // Code 3 chars
-    [TestCase("test@example.com", "1234", UserException.InvalidVerificationCode)] // Code 4 chars
-    [TestCase("test@example.com", "12345", UserException.InvalidVerificationCode)] // Code 5 chars (límite)
-    [TestCase("test@example.com", "test", UserException.InvalidVerificationCode)] // Code 5 chars (límite)
+    [TestCase("test@example.com", "", UserErrors.InvalidVerificationCode)] // Code vacío
+    [TestCase("test@example.com", null, UserErrors.InvalidVerificationCode)] // Code null
+    [TestCase("test@example.com", "   ", UserErrors.InvalidVerificationCode)] // Code solo espacios
+    [TestCase("test@example.com", "\t", UserErrors.InvalidVerificationCode)] // Code solo tab
+    [TestCase("test@example.com", "\n", UserErrors.InvalidVerificationCode)] // Code solo salto de línea
+    [TestCase("test@example.com", "\r\n", UserErrors.InvalidVerificationCode)] // Code CRLF
+    [TestCase("test@example.com", "1", UserErrors.InvalidVerificationCode)] // Code 1 char
+    [TestCase("test@example.com", "12", UserErrors.InvalidVerificationCode)] // Code 2 chars
+    [TestCase("test@example.com", "123", UserErrors.InvalidVerificationCode)] // Code 3 chars
+    [TestCase("test@example.com", "1234", UserErrors.InvalidVerificationCode)] // Code 4 chars
+    [TestCase("test@example.com", "12345", UserErrors.InvalidVerificationCode)] // Code 5 chars (límite)
+    [TestCase("test@example.com", "test", UserErrors.InvalidVerificationCode)] // Code 5 chars (límite)
 
     // === EDGE CASES COMBINADOS ===
-    [TestCase(null, null, $"{UserException.InvalidEmail} | {UserException.InvalidVerificationCode}")] 
-    [TestCase("", "", $"{UserException.InvalidEmail} | {UserException.InvalidVerificationCode}")] 
-    [TestCase("   ", "   ", $"{UserException.InvalidEmail} | {UserException.InvalidVerificationCode}")] 
-    [TestCase("invalid-email", "123", $"{UserException.InvalidEmail} | {UserException.InvalidVerificationCode}")] // Ambos inválidos
+    [TestCase(null, null, $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
+    [TestCase("", "", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
+    [TestCase("   ", "   ", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
+    [TestCase("invalid-email", "123", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] // Ambos inválidos
 
     [DisplayName("Should not allow verification with invalid data")]
     public async Task ShouldNotAllowVerificationWithInvalidData(string email, string code, string expectedErrorKeyword)
@@ -146,17 +146,17 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         string fullName = faker.Person.FullName;
 
         await RegisterUser(fullName, email, password);
-        var command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
 
         // When: Calling the confirm endpoint
-        var response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", command);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", command);
 
         // Then: Should return 400 BadRequest 
         // El switch en tu controlador capturará el error devuelto por el servicio
         ResponseEntity responseObject = await response.GetAsResponseEntity();
         
         Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.WrongVerificationCode),  
-            $"The response should contain the error keyword '{UserException.WrongVerificationCode}'. Actual error: {responseObject.ErrorCode}");
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode),  
+            $"The response should contain the error keyword '{UserErrors.WrongVerificationCode}'. Actual error: {responseObject.ErrorCode}");
     }
 }

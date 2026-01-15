@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using System.Globalization;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
@@ -7,15 +8,28 @@ public class DateTimeOffsetConverter : IPropertyConverter
 {
     public DynamoDBEntry ToEntry(object value)
     {
-        if (value is DateTimeOffset dto)
-            return dto.ToString("O"); // Formato ISO 8601
+        // Si el valor es DateTimeOffset y no es la fecha mínima (evitamos basura en DB)
+        if (value is DateTimeOffset dto && dto != DateTimeOffset.MinValue)
+        {
+            return new Primitive(dto.ToString("O", CultureInfo.InvariantCulture));
+        }
+        
         return new DynamoDBNull();
     }
 
     public object FromEntry(DynamoDBEntry entry)
     {
-        if (entry is Primitive primitive && DateTimeOffset.TryParse(primitive.Value as string, out var dto))
+        Primitive? primitive = entry as Primitive;
+        if (primitive == null || string.IsNullOrWhiteSpace(primitive.Value as string))
+        {
+            return DateTimeOffset.MinValue;
+        }
+
+        if (DateTimeOffset.TryParse(primitive.Value as string, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset dto))
+        {
             return dto;
-        return default(DateTimeOffset);
+        }
+
+        return DateTimeOffset.MinValue;
     }
 }

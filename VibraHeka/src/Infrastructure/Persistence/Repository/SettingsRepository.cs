@@ -13,8 +13,9 @@ public class SettingsRepository(IAmazonSimpleSystemsManagement SsmClient) : ISet
     /// Updates the verification email template in the AWS Systems Manager Parameter Store.
     /// </summary>
     /// <param name="emailTemplate">The email template to be stored as a parameter in AWS Systems Manager.</param>
+    /// <param name="cancellationToken">The cancellation token to listen for cancellations</param>
     /// <returns>A <see cref="Result{T}"/> indicating the success or failure of the operation. If successful, returns <see cref="Unit.Value"/>.</returns>
-    public async Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate)
+    public async Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
     {
         try
         {
@@ -24,7 +25,7 @@ public class SettingsRepository(IAmazonSimpleSystemsManagement SsmClient) : ISet
                 Value = emailTemplate,
                 Type = ParameterType.String,
                 Overwrite = true
-            });
+            }, cancellationToken);
             
             return Result.Success<Unit>(Unit.Value);
         }

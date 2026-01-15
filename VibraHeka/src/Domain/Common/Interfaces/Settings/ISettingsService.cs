@@ -17,5 +17,5 @@ public interface ISettingsService
     /// <param name="emailTemplate">The new email template to be used for verification.</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation,
     /// including potential error details.</returns>
-    Task<Result<Unit>> ChangeEmailForVerificationAsync(string emailTemplate);
+    Task<Result<Unit>> ChangeEmailForVerificationAsync(string emailTemplate, CancellationToken cancellationToken);
 }

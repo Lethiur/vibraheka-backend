@@ -4,7 +4,7 @@ using MediatR;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
+namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
 [TestFixture]
 public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
@@ -44,7 +44,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with UserNotFound error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with UserNotFound error (Cognito treats malformed emails as not found)
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     #endregion
@@ -80,7 +80,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with WrongVerificationCode error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
 
     [TestCase("12345", TestName = "Code too short")]
@@ -99,7 +99,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with WrongVerificationCode error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
 
     #endregion
@@ -117,7 +117,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidForm (Cognito treats empty/invalid emails as invalid parameters)
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.InvalidForm));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
     }
 
     [Test]
@@ -133,7 +133,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with WrongVerificationCode
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
 
     [TestCase("", TestName = "Empty code")]
@@ -147,7 +147,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidForm
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.InvalidForm));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
     }
 
     #endregion
@@ -168,7 +168,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: The service should catch the AWS exception and return our domain error
         Assert.That(result.IsFailure, Is.True, "The operation should fail");
-        Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode), 
+        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode), 
             "Should return WrongVerificationCode when the code does not match AWS records");
     }
     
@@ -191,7 +191,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
     
         // Then: The error should be NotAuthorized (Cognito does not allow confirming already confirmed users)
         Assert.That(secondConfirmResult.IsFailure, Is.True);
-        Assert.That(secondConfirmResult.Error, Is.EqualTo(UserException.NotAuthorized));
+        Assert.That(secondConfirmResult.Error, Is.EqualTo(UserErrors.NotAuthorized));
     }
 
     #endregion
@@ -217,7 +217,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         Result<Unit>[] results = await Task.WhenAll(attempts);
 
         // Then: Should have at least wrong code errors (rate limiting might not trigger immediately)
-        bool hasWrongCodeError = results.Any(r => r.IsFailure && r.Error == UserException.WrongVerificationCode);
+        bool hasWrongCodeError = results.Any(r => r.IsFailure && r.Error == UserErrors.WrongVerificationCode);
         Assert.That(hasWrongCodeError, Is.True, "Should have at least one wrong code error");
     }
 
@@ -247,7 +247,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         foreach (Result<Unit> result in results)
         {
             Assert.That(result.IsFailure, Is.True);
-            Assert.That(result.Error, Is.EqualTo(UserException.WrongVerificationCode));
+            Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode));
         }
     }
 

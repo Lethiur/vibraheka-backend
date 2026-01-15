@@ -18,13 +18,13 @@ public class SettingsService(ISettingsRepository Repository) : ISettingsService
     /// <param name="email">The new email template to be used for verification.</param>
     /// <returns>A <see cref="Result{Unit}"/> indicating the success or failure of the operation,
     /// along with potential error details.</returns>
-    public async Task<Result<Unit>> ChangeEmailForVerificationAsync(string email)
+    public async Task<Result<Unit>> ChangeEmailForVerificationAsync(string email, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
         {
             return Result.Failure<Unit>(SettingsErrors.InvalidVerificationEmailTemplate);
         }
         
-        return await Repository.UpdateVerificationEmailTemplateAsync(email);
+        return await Repository.UpdateVerificationEmailTemplateAsync(email, cancellationToken);
     }
 }

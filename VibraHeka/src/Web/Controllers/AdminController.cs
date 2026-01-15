@@ -33,7 +33,7 @@ public class AdminController(IMediator mediator)
         {
             switch (result.Error)
             {
-                case UserException.NotAuthorized:
+                case UserErrors.NotAuthorized:
                     return new UnauthorizedResult();
                 default:
                     return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
@@ -61,7 +61,7 @@ public class AdminController(IMediator mediator)
         {
             switch (result.Error)
             {
-                case UserException.NotAuthorized:
+                case UserErrors.NotAuthorized:
                     return new UnauthorizedResult();
                 default:
                     return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));

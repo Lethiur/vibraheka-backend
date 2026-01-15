@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using Amazon;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
@@ -17,7 +18,7 @@ namespace VibraHeka.Infrastructure.Services;
 
 public class UserService(IConfiguration config, ILogger<UserService> logger) : IUserService
 {
-    private readonly AmazonCognitoIdentityProviderClient _client = CreateClient(config);
+    protected IAmazonCognitoIdentityProvider _client = CreateClient(config);
     private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
     private readonly string _clientId = config["Cognito:ClientId"] ?? "";
 
@@ -44,10 +45,7 @@ public class UserService(IConfiguration config, ILogger<UserService> logger) : I
             }
         }
 
-        return new AmazonCognitoIdentityProviderClient(new AmazonCognitoIdentityProviderConfig 
-        { 
-            RegionEndpoint = region 
-        });
+        throw new DataException("AWS profile is required");
     }
     /// <summary>
     /// Registers a new user in the system by creating an account with the provided credentials and user information.
@@ -78,23 +76,23 @@ public class UserService(IConfiguration config, ILogger<UserService> logger) : I
         }
         catch (UsernameExistsException)
         {
-            return  Result.Failure<string>(UserException.UserAlreadyExist);
+            return  Result.Failure<string>(UserErrors.UserAlreadyExist);
         }
         catch (InvalidPasswordException)
         {
             // Handle invalid password
-            return Result.Failure<string>(UserException.InvalidPassword);
+            return Result.Failure<string>(UserErrors.InvalidPassword);
         }
         catch (InvalidParameterException)
         {
             // Handle invalid form data
-            return Result.Failure<string>(UserException.InvalidForm);
+            return Result.Failure<string>(UserErrors.InvalidForm);
         }
         catch (Exception E)
         {
             logger.LogError(E, "Unexpected error registering user");
             // Handle unexpected errors
-            return Result.Failure<string>(UserException.UnexpectedError);
+            return Result.Failure<string>(UserErrors.UnexpectedError);
         }
     }
 
@@ -130,20 +128,20 @@ public class UserService(IConfiguration config, ILogger<UserService> logger) : I
         }
         catch (NotAuthorizedException)
         {
-            return Result.Failure<AuthenticationResult>(UserException.InvalidPassword);
+            return Result.Failure<AuthenticationResult>(UserErrors.InvalidPassword);
         }
         catch (UserNotFoundException)
         {
-            return Result.Failure<AuthenticationResult>(UserException.UserNotFound);
+            return Result.Failure<AuthenticationResult>(UserErrors.UserNotFound);
         }
         catch (UserNotConfirmedException)
         {
-            return Result.Failure<AuthenticationResult>(UserException.UserNotConfirmed);
+            return Result.Failure<AuthenticationResult>(UserErrors.UserNotConfirmed);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error authenticating user {Email}", email);
-            return Result.Failure<AuthenticationResult>(UserException.UnexpectedError);
+            return Result.Failure<AuthenticationResult>(UserErrors.UnexpectedError);
         }
     }
 
@@ -169,37 +167,37 @@ public class UserService(IConfiguration config, ILogger<UserService> logger) : I
         catch (CodeMismatchException ex)
         {
             logger.LogWarning("Invalid confirmation code for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserException.WrongVerificationCode);
+            return Result.Failure<Unit>(UserErrors.WrongVerificationCode);
         }
         catch (ExpiredCodeException ex)
         {
             logger.LogWarning("Confirmation code expired for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserException.ExpiredCode);
+            return Result.Failure<Unit>(UserErrors.ExpiredCode);
         }
         catch (NotAuthorizedException ex)
         {
             logger.LogWarning("Not authorized to confirm {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserException.NotAuthorized);
+            return Result.Failure<Unit>(UserErrors.NotAuthorized);
         }
         catch (UserNotFoundException ex)
         {
             logger.LogWarning("User not found {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserException.UserNotFound);
+            return Result.Failure<Unit>(UserErrors.UserNotFound);
         }
         catch (TooManyFailedAttemptsException ex)
         {
             logger.LogWarning("Too many failed attempts for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserException.TooManyAttempts);
+            return Result.Failure<Unit>(UserErrors.TooManyAttempts);
         }
         catch (InvalidParameterException)
         {
-            return Result.Failure<Unit>(UserException.InvalidForm);
+            return Result.Failure<Unit>(UserErrors.InvalidForm);
         }
         
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error confirming user {Email}", email);
-            return Result.Failure<Unit>(EAppException.UnknownError);
+            return Result.Failure<Unit>(AppErrors.UnknownError);
         }
     }
 }

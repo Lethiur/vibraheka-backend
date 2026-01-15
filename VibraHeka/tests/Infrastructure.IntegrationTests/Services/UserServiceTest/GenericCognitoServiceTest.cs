@@ -10,7 +10,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
+namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
 [TestFixture]
 public abstract class GenericCognitoServiceTest : TestBase

@@ -14,12 +14,12 @@ public partial class VerifyUserCommandValidator : AbstractValidator<VerifyUserCo
         RuleFor(x => x.Code)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage(UserException.InvalidVerificationCode)
+            .WithMessage(UserErrors.InvalidVerificationCode)
             .NotNull()
             .Matches(@"^\d+$")
-            .WithMessage(UserException.InvalidVerificationCode)
+            .WithMessage(UserErrors.InvalidVerificationCode)
             .MinimumLength(6)
-            .WithMessage(UserException.InvalidVerificationCode);
+            .WithMessage(UserErrors.InvalidVerificationCode);
     }
     
 }

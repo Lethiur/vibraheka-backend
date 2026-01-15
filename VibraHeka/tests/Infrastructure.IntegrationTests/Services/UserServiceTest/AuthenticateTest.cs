@@ -4,7 +4,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
+namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
 [TestFixture]
 public class AuthenticateUserTests : GenericCognitoServiceTest
@@ -49,7 +49,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with UserNotFound error
         Assert.That(authResult.IsFailure, Is.True);
-        Assert.That(authResult.Error, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(authResult.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     #endregion
@@ -71,7 +71,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidPassword error
         Assert.That(authResult.IsFailure, Is.True);
-        Assert.That(authResult.Error, Is.EqualTo(UserException.InvalidPassword)); 
+        Assert.That(authResult.Error, Is.EqualTo(UserErrors.InvalidPassword)); 
         // Nota: Cognito a veces lanza UserNotFound o NotAuthorized por seguridad para no revelar si el usuario existe.
         // Según tu implementación de CognitoService.cs, NotAuthorizedException mapea a UserException.InvalidPassword.
     }
@@ -93,7 +93,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with UserNotConfirmed error
         Assert.That(authResult.IsFailure, Is.True);
-        Assert.That(authResult.Error, Is.EqualTo(UserException.UserNotConfirmed));
+        Assert.That(authResult.Error, Is.EqualTo(UserErrors.UserNotConfirmed));
     }
 
     #endregion
@@ -112,7 +112,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Should fail (AWS SDK usually throws for nulls, caught as UnexpectedError in your catch-all)
         Assert.That(authResult.IsFailure, Is.True);
-        Assert.That(authResult.Error, Is.EqualTo(UserException.UnexpectedError));
+        Assert.That(authResult.Error, Is.EqualTo(UserErrors.UnexpectedError));
     }
 
     #endregion

@@ -22,5 +22,4 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             return user?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     } 
-    public ClaimsPrincipal? Principals => httpContextAccessor.HttpContext?.User;
 }

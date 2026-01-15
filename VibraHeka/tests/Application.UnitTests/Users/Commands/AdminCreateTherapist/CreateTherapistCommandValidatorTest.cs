@@ -5,7 +5,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
-namespace VibraHeka.Application.UnitTests.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
 [TestFixture]
 public class CreateTherapistCommandValidatorTest
@@ -34,7 +34,7 @@ public class CreateTherapistCommandValidatorTest
 
         // Then: Should have validation error for email
         result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserException.InvalidEmail);
+              .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("invalid-email", TestName = "No @ symbol")]
@@ -52,7 +52,7 @@ public class CreateTherapistCommandValidatorTest
 
         // Then: Should have validation error for email
         result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserException.InvalidEmail);
+              .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("therapist@example.com", TestName = "Basic valid email")]
@@ -88,7 +88,7 @@ public class CreateTherapistCommandValidatorTest
 
         // Then: Should have validation error for name
         result.ShouldHaveValidationErrorFor(x => x.Name)
-              .WithErrorMessage(UserException.InvalidFullName);
+              .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
     [TestCase("John Doe", TestName = "Normal name")]
@@ -142,7 +142,7 @@ public class CreateTherapistCommandValidatorTest
         IEnumerable<ValidationFailure> emailErrors = result.Errors.Where(e => e.PropertyName == nameof(CreateTherapistCommand.Email));
         IEnumerable<ValidationFailure> validationFailures = emailErrors.ToList();
         Assert.That(validationFailures.Count(), Is.EqualTo(1));
-        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserException.InvalidEmail));
+        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidEmail));
     }
 
     #endregion

@@ -8,7 +8,7 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.UnitTests.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
 [TestFixture]
 public class CreateTherapistCommandHandlerTests
@@ -53,7 +53,7 @@ public class CreateTherapistCommandHandlerTests
 
         // Then: Should return not authorized failure and not call external services
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.NotAuthorized));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
@@ -75,7 +75,7 @@ public class CreateTherapistCommandHandlerTests
 
         // Then: Should return not authorized failure
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.NotAuthorized));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }

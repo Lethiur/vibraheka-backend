@@ -35,8 +35,8 @@ public class GetTemplateByIDTest : TestBase
     public async Task ShouldReturnTemplateWhenIdExists()
     {
         // Given: A template already exists in DynamoDB
-        var templateId = Guid.NewGuid().ToString();
-        var expectedPath = $"templates/{_faker.System.FileName("html")}";
+        string templateId = Guid.NewGuid().ToString();
+        string expectedPath = $"templates/{_faker.System.FileName("html")}";
         
         await SeedTemplate(templateId, expectedPath);
 
@@ -74,7 +74,7 @@ public class GetTemplateByIDTest : TestBase
 
     private async Task SeedTemplate(string id, string path)
     {
-        var model = new EmailTemplateDBModel
+        EmailTemplateDBModel model = new EmailTemplateDBModel
         {
             TemplateID = id,
             Path = path,

@@ -29,7 +29,7 @@ public class CreateTherapistCommandHandler(
     /// <returns>A Result object containing the created user's ID if successful, or an error message if the operation fails.</returns>
     public async Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
-        string password = "Password123!@#";
+        const string password = "Password123!@#";
 
         Result<bool> checkPrivilegesResult = await PrivilegeService.HasRoleAsync(CurrentUserService.UserId ?? "", UserRole.Admin);
 
@@ -45,13 +45,17 @@ public class CreateTherapistCommandHandler(
                     Email = request.Email,
                     Id = id,
                     CognitoId = id,
-                    Role = UserRole.Therapist
+                    Role = UserRole.Therapist,
+                    Created = DateTime.UtcNow,
+                    CreatedBy = CurrentUserService.UserId,
+                    LastModified = DateTime.UtcNow,
+                    LastModifiedBy = CurrentUserService.UserId
                 };
 
                 return await Repository.AddAsync(user);
             });    
         }
 
-        return Result.Failure<string>(UserException.NotAuthorized);
+        return Result.Failure<string>(UserErrors.NotAuthorized);
     }
 }

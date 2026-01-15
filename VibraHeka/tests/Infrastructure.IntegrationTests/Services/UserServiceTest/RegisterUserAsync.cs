@@ -2,7 +2,7 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Services.CognitoServiceTests;
+namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
 [TestFixture]
 public class RegisterUserAsync : GenericCognitoServiceTest
@@ -36,7 +36,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = "John Doe";
 
         // When: Registering the user
-        var result = await _userService.RegisterUserAsync(email, password, fullName);
+        Result<string> result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -53,7 +53,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         string fullName = "José María O'Connor-Smith";
 
         // When: Registering the user
-        var result = await _userService.RegisterUserAsync(email, password, fullName);
+        Result<string> result = await _userService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -75,7 +75,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
 
         // Then: Should fail with UserAlreadyExist error
         Assert.That(secondResult.IsFailure, Is.True);
-        Assert.That(secondResult.Error, Is.EqualTo(UserException.UserAlreadyExist));
+        Assert.That(secondResult.Error, Is.EqualTo(UserErrors.UserAlreadyExist));
     }
 
     [TestCase("", "ValidPassword123!", "John Doe", TestName = "Empty email")]
@@ -90,11 +90,11 @@ public class RegisterUserAsync : GenericCognitoServiceTest
     public async Task ShouldReturnInvalidFormWhenRequiredFieldsAreEmptyOrNull(string? email, string? password, string? fullName)
     {
         // When: Trying to register with empty/null fields
-        var result = await _userService.RegisterUserAsync(email!, password!, fullName!);
+        Result<string> result = await _userService.RegisterUserAsync(email!, password!, fullName!);
 
         // Then: Should fail with InvalidForm error (AWS treats empty fields as invalid parameters)
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.InvalidForm));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
     }
     
     
@@ -115,7 +115,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidPassword error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.InvalidPassword));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPassword));
     }
 
     [TestCase("", "John Doe", TestName = "Empty email")]
@@ -133,7 +133,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidForm error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.InvalidForm));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
     }
 
     #endregion
@@ -177,7 +177,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string>[] results = await Task.WhenAll(tasks);
 
         // Then: All should succeed
-        foreach (var result in results)
+        foreach (Result<string> result in results)
         {
             Assert.That(result.IsSuccess, Is.True, $"Concurrent registration failed");
             Assert.That(result.Value, Is.Not.Null);

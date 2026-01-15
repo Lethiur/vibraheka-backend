@@ -42,7 +42,7 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
             OverrideTableName = config["Dynamo:UsersTable"]
         };
         
-        List<User>? results = await context.QueryAsync<User>(email, queryConfig).GetRemainingAsync();
+        List<UserDBModel>? results = await context.QueryAsync<UserDBModel>(email, queryConfig).GetRemainingAsync();
         return results?.Count > 0;
     }
 
@@ -101,7 +101,6 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
         }
         catch (Exception e)
         {
-            // Loguear el error 'e' sería ideal aquí
             return Result.Failure<IEnumerable<User>>($"Error querying users by role: {e.Message}");
         }
     }

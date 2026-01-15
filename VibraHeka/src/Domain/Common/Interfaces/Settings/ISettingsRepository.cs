@@ -15,11 +15,12 @@ public interface ISettingsRepository
     /// <param name="emailTemplate">
     /// The verification email template to be updated.
     /// </param>
+    /// <param name="token">The cancellation token to listen for cancellations</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// the success or failure of the operation.
     /// </returns>
-    Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate);
+    Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate, CancellationToken token);
 
     /// <summary>
     /// Retrieves the verification email template from the settings repository.

@@ -63,13 +63,13 @@ public class VibraHekaProgram
                     // En .NET moderno suele ser JsonWebToken
                     if (securityToken is Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jwt)
                     {
-                        var clientIdClaim = jwt.GetClaim("client_id")?.Value;
+                        string? clientIdClaim = jwt.GetClaim("client_id")?.Value;
                         return clientIdClaim == clientId;
                     }
                 
                     if (securityToken is JwtSecurityToken oldJwt)
                     {
-                        return oldJwt.Payload.TryGetValue("client_id", out var cid) && cid.ToString() == clientId;
+                        return oldJwt.Payload.TryGetValue("client_id", out object? cid) && cid.ToString() == clientId;
                     }
 
                     return false;

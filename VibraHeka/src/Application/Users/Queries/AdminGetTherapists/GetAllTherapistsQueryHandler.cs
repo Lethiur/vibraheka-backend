@@ -40,6 +40,6 @@ public class GetAllTherapistsQueryHandler(
             return await Repository.GetByRoleAsync(UserRole.Therapist);
         }
 
-        return Result.Failure<IEnumerable<User>>(UserException.NotAuthorized);
+        return Result.Failure<IEnumerable<User>>(UserErrors.NotAuthorized);
     }
 }
