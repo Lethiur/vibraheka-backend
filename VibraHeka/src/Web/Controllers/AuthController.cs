@@ -2,11 +2,11 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Web.Controllers;
 
@@ -58,10 +58,10 @@ public class AuthController(IMediator mediator)
         {
             switch (verificationResult.Error)
             {
-                case UserException.UserNotFound:
+                case UserErrors.UserNotFound:
                     return new NotFoundObjectResult(ResponseEntity.FromError(verificationResult.Error));
-                case UserException.InvalidVerificationCode:
-                case UserException.WrongVerificationCode:
+                case UserErrors.InvalidVerificationCode:
+                case UserErrors.WrongVerificationCode:
                     return new BadRequestObjectResult(ResponseEntity.FromError(verificationResult.Error));
             }
 
@@ -93,10 +93,10 @@ public class AuthController(IMediator mediator)
         {
             switch (result.Error)
             {
-                case UserException.UserNotFound:
-                case UserException.InvalidPassword:
+                case UserErrors.UserNotFound:
+                case UserErrors.InvalidPassword:
                     return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
-                case UserException.UserNotConfirmed:
+                case UserErrors.UserNotConfirmed:
                     return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
             }
         }

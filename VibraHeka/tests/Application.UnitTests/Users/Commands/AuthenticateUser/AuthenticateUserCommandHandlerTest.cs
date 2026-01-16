@@ -2,24 +2,24 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AuthenticateUser;
 
 [TestFixture]
 public class AuthenticateUserCommandHandlerTest
 {
-    private Mock<ICognitoService> _cognitoServiceMock;
+    private Mock<IUserService> _cognitoServiceMock;
     private Mock<IUserRepository> _userRepositoryMock;
     private AuthenticateUserCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
     {
-        _cognitoServiceMock = new Mock<ICognitoService>();
+        _cognitoServiceMock = new Mock<IUserService>();
         _userRepositoryMock = new Mock<IUserRepository>();
         
         _handler = new AuthenticateUserCommandHandler(_cognitoServiceMock.Object, _userRepositoryMock.Object);
@@ -55,7 +55,7 @@ public class AuthenticateUserCommandHandlerTest
     {
         // Arrange
         AuthenticateUserCommand command = new("test@example.com", "Password123!" );
-        string expectedError = UserException.InvalidPassword;
+        string expectedError = UserErrors.InvalidPassword;
 
         _cognitoServiceMock
             .Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>()))
@@ -77,7 +77,7 @@ public class AuthenticateUserCommandHandlerTest
     {
         // Given: Some mocking to return error
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Failure<User>(UserException.UserNotFound));
+            .ReturnsAsync(Result.Failure<User>(UserErrors.UserNotFound));
         
         _cognitoServiceMock.Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(Result.Success(new AuthenticationResult()));
         
@@ -89,7 +89,7 @@ public class AuthenticateUserCommandHandlerTest
         
         // Then: Should return the error from the repository
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]

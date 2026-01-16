@@ -1,12 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.Users.Commands.VerificationCode;
 
-public class VerifyUserCommandHandler(ICognitoService cognitoService) : IRequestHandler<VerifyUserCommand, Result<Unit>>
+public class VerifyUserCommandHandler(IUserService userService) : IRequestHandler<VerifyUserCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(VerifyUserCommand request, CancellationToken cancellationToken)
     {
-        return cognitoService.ConfirmUserAsync(request.Email, request.Code);
+        return userService.ConfirmUserAsync(request.Email, request.Code);
     }
 }

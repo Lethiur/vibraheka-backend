@@ -6,36 +6,16 @@ using Bogus;
 using CSharpFunctionalExtensions;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class AddAsyncTest
+public class AddAsyncTest : GenericUserRepositoryTest
 {
-     private IUserRepository _userRepository;
-    private IDynamoDBContext _dynamoContext;
-    private IConfiguration _configuration;
-    private Faker _faker;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        new EnvLoader().Load();
-        _configuration = CreateTestConfiguration();
-        _dynamoContext = CreateDynamoDBContext();
-        _userRepository = new UserRepository(_dynamoContext, _configuration);
-        _faker = new Faker();
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _dynamoContext?.Dispose();
-    }
-
+    
     #region AddAsync - Success Cases
 
     [Test]
@@ -395,62 +375,6 @@ public class AddAsyncTest
 
         // Then: Should handle gracefully (might succeed with empty ID)
         Assert.That(result.IsFailure, Is.False, "User with empty GUID should be handled gracefully");
-    }
-
-    #endregion
-
-    #region Helper Methods
-
-    private User CreateValidUser()
-    {
-        return new User(
-            Guid.NewGuid().ToString(),
-            _faker.Internet.Email(),
-            _faker.Person.FullName
-        );
-    }
-
-    private async Task CleanupUser(string userId)
-    {
-        try
-        {
-            await _dynamoContext.DeleteAsync<User>(userId);
-            Console.WriteLine($"Cleanup: Deleted user {userId}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Warning: Could not cleanup user {userId}: {ex.Message}");
-        }
-    }
-
-    private IDynamoDBContext CreateDynamoDBContext()
-    {
-    
-        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
-        
-        return dynamoDbContext;
-    }
-
-    private static IConfiguration CreateTestConfiguration()
-    {
-        string usersTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_USERS_TABLE")
-                            ?? throw new InvalidOperationException("TEST_DYNAMO_USERS_TABLE environment variable is required");
-
-        string region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1";
-
-        Console.WriteLine($"Using DynamoDB configuration:");
-        Console.WriteLine($"  UsersTable: {usersTable}");
-        Console.WriteLine($"  Region: {region}");
-
-        IConfigurationBuilder configBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Dynamo:UsersTable"] = usersTable,
-                ["AWS:Region"] = region
-            });
-
-        return configBuilder.Build();
     }
 
     #endregion

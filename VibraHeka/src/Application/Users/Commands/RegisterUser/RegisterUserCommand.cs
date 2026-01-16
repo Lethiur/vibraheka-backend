@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Models.Results;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.Users.Commands.RegisterUser;
 

@@ -17,6 +17,6 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
     public CreateTherapistCommandValidator()
     {
         RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
-        RuleFor(x => x.Name).Cascade(CascadeMode.Stop).NotEmpty().WithMessage(UserException.InvalidFullName);
+        RuleFor(x => x.Name).Cascade(CascadeMode.Stop).NotEmpty().WithMessage(UserErrors.InvalidFullName);
     }
 }

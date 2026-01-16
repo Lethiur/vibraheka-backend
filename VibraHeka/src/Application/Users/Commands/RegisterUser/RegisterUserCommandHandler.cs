@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.Users.Commands.RegisterUser;
 
@@ -16,9 +16,9 @@ namespace VibraHeka.Application.Users.Commands.RegisterUser;
 /// 3. Persists the user to the user repository.
 /// 4. Returns a result indicating the success of the registration, including whether confirmation is required.
 /// </remarks>
-/// <param name="cognito">Abstraction for interacting with the AWS Cognito service.</param>
+/// <param name="user">Abstraction for interacting with the AWS Cognito service.</param>
 /// <param name="users">Repository interface for user persistence operations such as adding a user.</param>
-public class RegisterUserCommandHandler(ICognitoService cognito, IUserRepository users)
+public class RegisterUserCommandHandler(IUserService user, IUserRepository users)
     : IRequestHandler<RegisterUserCommand, Result<UserRegistrationResult>>
 {
     /// <summary>
@@ -38,19 +38,21 @@ public class RegisterUserCommandHandler(ICognitoService cognito, IUserRepository
     public async Task<Result<UserRegistrationResult>> Handle(RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        Result<string> cognitoId = await cognito.RegisterUserAsync(request.Email, request.Password, request.FullName);
+        Result<string> cognitoId = await user.RegisterUserAsync(request.Email, request.Password, request.FullName);
         
         return await cognitoId.Bind(async realCognitoId =>
         {
-            User user = new()
+            User newUser = new()
             {
                 Id =realCognitoId,
                 Email = request.Email,
                 FullName = request.FullName,
-                CognitoId = realCognitoId
+                CognitoId = realCognitoId,
+                Created = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
             };
 
-            Result<string> addAsync = await users.AddAsync(user);
+            Result<string> addAsync = await users.AddAsync(newUser);
 
             return addAsync.Match(userId => Result.Success(new UserRegistrationResult(userId, true)), Result.Failure<UserRegistrationResult>);
         });

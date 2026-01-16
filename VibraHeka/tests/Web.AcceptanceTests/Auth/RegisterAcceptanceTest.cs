@@ -31,34 +31,34 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     }
     
    // === EMAIL TESTS ===
-    [TestCase("", "Password123@", "John Doe", UserException.InvalidEmail)] // Email vacío
-    [TestCase(null, "Password123@", "John Doe", UserException.InvalidEmail)] // Email null
-    [TestCase("   ", "Password123@", "John Doe", UserException.InvalidEmail)] // Email solo espacios
-    [TestCase("invalid-email", "Password123@", "John Doe", UserException.InvalidEmail)] // Email formato inválido
-    [TestCase("@domain.com", "Password123@", "John Doe", UserException.InvalidEmail)] // Email sin parte local
-    [TestCase("user@", "Password123@", "John Doe", UserException.InvalidEmail)] // Email sin dominio
-    [TestCase("user.domain.com", "Password123@", "John Doe", UserException.InvalidEmail)] // Email sin @
+    [TestCase("", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email vacío
+    [TestCase(null, "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email null
+    [TestCase("   ", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email solo espacios
+    [TestCase("invalid-email", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email formato inválido
+    [TestCase("@domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin parte local
+    [TestCase("user@", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin dominio
+    [TestCase("user.domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin @
     
     // === PASSWORD TESTS ===
-    [TestCase("test@example.com", "", "John Doe", UserException.InvalidPassword)] // Password vacío
-    [TestCase("test@example.com", null, "John Doe", UserException.InvalidPassword)] // Password null
-    [TestCase("test@example.com", "   ", "John Doe", UserException.InvalidPassword)] // Password solo espacios
-    [TestCase("test@example.com", "1", "John Doe", UserException.InvalidPassword)] // Password 1 char
-    [TestCase("test@example.com", "12", "John Doe", UserException.InvalidPassword)] // Password 2 chars
-    [TestCase("test@example.com", "123", "John Doe", UserException.InvalidPassword)] // Password 3 chars
-    [TestCase("test@example.com", "1234", "John Doe", UserException.InvalidPassword)] // Password 4 chars
-    [TestCase("test@example.com", "12345", "John Doe", UserException.InvalidPassword)] // Password 5 chars (límite)
+    [TestCase("test@example.com", "", "John Doe", UserErrors.InvalidPassword)] // Password vacío
+    [TestCase("test@example.com", null, "John Doe", UserErrors.InvalidPassword)] // Password null
+    [TestCase("test@example.com", "   ", "John Doe", UserErrors.InvalidPassword)] // Password solo espacios
+    [TestCase("test@example.com", "1", "John Doe", UserErrors.InvalidPassword)] // Password 1 char
+    [TestCase("test@example.com", "12", "John Doe", UserErrors.InvalidPassword)] // Password 2 chars
+    [TestCase("test@example.com", "123", "John Doe", UserErrors.InvalidPassword)] // Password 3 chars
+    [TestCase("test@example.com", "1234", "John Doe", UserErrors.InvalidPassword)] // Password 4 chars
+    [TestCase("test@example.com", "12345", "John Doe", UserErrors.InvalidPassword)] // Password 5 chars (límite)
     
     // === FULLNAME TESTS ===
-    [TestCase("test@example.com", "Password123@", "", UserException.InvalidFullName)] // FullName vacío
-    [TestCase("test@example.com", "Password123@", null, UserException.InvalidFullName)] // FullName null
-    [TestCase("test@example.com", "Password123@", "   ", UserException.InvalidFullName)] // FullName solo espacios
-    [TestCase("test@example.com", "Password123@", "\t", UserException.InvalidFullName)] // FullName solo tab
-    [TestCase("test@example.com", "Password123@", "\n", UserException.InvalidFullName)] // FullName solo salto de línea
-    [TestCase("test@example.com", "Password123@", "\r\n", UserException.InvalidFullName)] // FullName CRLF
-    [TestCase("test@example.com", "Password123@", "A", UserException.InvalidFullName)] // FullName 1 char
-    [TestCase("test@example.com", "Password123@", "AB", UserException.InvalidFullName)] // FullName 2 chars (límite)
-    [TestCase("test@example.com", "Password123@", "  A  ", UserException.InvalidFullName)] // FullName con espacios al inicio/final
+    [TestCase("test@example.com", "Password123@", "", UserErrors.InvalidFullName)] // FullName vacío
+    [TestCase("test@example.com", "Password123@", null, UserErrors.InvalidFullName)] // FullName null
+    [TestCase("test@example.com", "Password123@", "   ", UserErrors.InvalidFullName)] // FullName solo espacios
+    [TestCase("test@example.com", "Password123@", "\t", UserErrors.InvalidFullName)] // FullName solo tab
+    [TestCase("test@example.com", "Password123@", "\n", UserErrors.InvalidFullName)] // FullName solo salto de línea
+    [TestCase("test@example.com", "Password123@", "\r\n", UserErrors.InvalidFullName)] // FullName CRLF
+    [TestCase("test@example.com", "Password123@", "A", UserErrors.InvalidFullName)] // FullName 1 char
+    [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (límite)
+    [TestCase("test@example.com", "Password123@", "  A  ", UserErrors.InvalidFullName)] // FullName con espacios al inicio/final
     
     // === EDGE CASES COMBINADOS ===
     [TestCase(null, null, null, "E-006 | E-001 | E-007")] // Todo null (primera validación que falle)
@@ -113,7 +113,7 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         ResponseEntity responseObject = JsonConvert.DeserializeObject<ResponseEntity>(responseContent) ?? throw new DataException("The response content could not be deserialized to a ResponseEntity object.");
         
         Assert.That(responseObject.Content, Is.Null,$"The response should contain the error keyword 'E-000'. Actual response: {responseContent}");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserException.UserAlreadyExist));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserAlreadyExist));
     }
     
 }

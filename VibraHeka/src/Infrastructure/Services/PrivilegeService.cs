@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Services;

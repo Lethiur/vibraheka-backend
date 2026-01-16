@@ -7,7 +7,7 @@
   },
   "paths": {
     "/api/v1/admin/addTherapist": {
-      "post": {
+      "put": {
         "tags": [
           "Admin"
         ],
@@ -24,6 +24,27 @@
           "required": true,
           "x-position": 1
         },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/therapists": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "Admin_GetTherapists",
         "responses": {
           "200": {
             "description": "",
@@ -121,6 +142,41 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AuthenticateUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/settings/ChangeTemplate": {
+      "patch": {
+        "tags": [
+          "Settings"
+        ],
+        "operationId": "Settings_ChangeTemplate",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeTemplateForActionCommand"
               }
             }
           },
@@ -259,6 +315,32 @@
             "type": "string"
           }
         }
+      },
+      "ChangeTemplateForActionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "templateID": {
+            "type": "string"
+          },
+          "action": {
+            "$ref": "#/components/schemas/ActionType"
+          }
+        }
+      },
+      "ActionType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "UserRegistered",
+          "UserVerification",
+          "PasswordReset"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
       "GetCodeQuery": {
         "type": "object",

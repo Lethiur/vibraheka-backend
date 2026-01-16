@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -22,5 +22,4 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             return user?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     } 
-    public ClaimsPrincipal? Principals => httpContextAccessor.HttpContext?.User;
 }

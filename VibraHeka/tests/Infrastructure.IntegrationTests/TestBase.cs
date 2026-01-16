@@ -1,4 +1,7 @@
-﻿using Bogus;
+﻿using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Bogus;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
 
@@ -33,18 +36,32 @@ public abstract class TestBase
         string usersTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_USERS_TABLE") ??
                             throw new InvalidOperationException(
                                 "TEST_DYNAMO_USERS_TABLE environment variable is required");
+        
+        string templatesTable = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATE_TABLE")
+                                ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATE_TABLE environment variable is required");
 
-        var configBuilder = new ConfigurationBuilder()
+        IConfigurationBuilder configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Dynamo:CodesTable"] = verificationCodesTable,
                 ["Cognito:UserPoolId"] = userPoolId,
                 ["Cognito:ClientId"] = clientId,
                 ["Dynamo:UsersTable"] = usersTable,
+                ["Dynamo:EmailTemplatesTable"] = templatesTable,
                 ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1",
                 ["AWS:Profile"] = "Twingers"
             });
         _configuration = configBuilder.Build();
         return _configuration;
     }
+    
+    protected IDynamoDBContext CreateDynamoDBContext()
+    {
+    
+        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
+            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
+        
+        return dynamoDbContext;
+    }
+
 }

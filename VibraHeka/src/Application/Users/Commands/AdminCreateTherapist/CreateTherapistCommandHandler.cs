@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
@@ -14,7 +15,7 @@ namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 /// creation responsibilities to the underlying user repository and authentication service.
 /// </remarks>
 public class CreateTherapistCommandHandler(
-    ICognitoService CognitService,
+    IUserService CognitService,
     IUserRepository Repository,
     ICurrentUserService CurrentUserService,
     IPrivilegeService PrivilegeService)
@@ -28,7 +29,7 @@ public class CreateTherapistCommandHandler(
     /// <returns>A Result object containing the created user's ID if successful, or an error message if the operation fails.</returns>
     public async Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
-        string password = "Password123!@#";
+        const string password = "Password123!@#";
 
         Result<bool> checkPrivilegesResult = await PrivilegeService.HasRoleAsync(CurrentUserService.UserId ?? "", UserRole.Admin);
 
@@ -44,13 +45,17 @@ public class CreateTherapistCommandHandler(
                     Email = request.Email,
                     Id = id,
                     CognitoId = id,
-                    Role = UserRole.Therapist
+                    Role = UserRole.Therapist,
+                    Created = DateTime.UtcNow,
+                    CreatedBy = CurrentUserService.UserId,
+                    LastModified = DateTime.UtcNow,
+                    LastModifiedBy = CurrentUserService.UserId
                 };
 
                 return await Repository.AddAsync(user);
             });    
         }
 
-        return Result.Failure<string>(UserException.NotAuthorized);
+        return Result.Failure<string>(UserErrors.NotAuthorized);
     }
 }

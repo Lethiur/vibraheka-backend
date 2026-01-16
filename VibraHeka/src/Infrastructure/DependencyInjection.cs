@@ -1,9 +1,15 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleSystemsManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.Codes;
+using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.Common.Interfaces.Settings;
+using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
@@ -12,19 +18,42 @@ namespace VibraHeka.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config)
+    public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
+        configurationManager.AddSystemsManager(options =>
+        {
+            options.Path = "/VibraHeka/";
+            options.ReloadAfter = TimeSpan.FromMinutes(5); 
+            options.Optional = true;
+        });
+        
+        builder.Services.Configure<AppSettingsEntity>(configurationManager);
         builder.Services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient());
-
+        
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
-        builder.Services.AddScoped<ICognitoService, CognitoService>();
+        
+        // Settings
+        builder.Services.AddScoped<ISettingsService, SettingsService>();
+        builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+        
+        // Email Templates
+        builder.Services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
+        builder.Services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
+        
+        // Privileges
         builder.Services.AddScoped<IPrivilegeService, PrivilegeService>();
         builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
+        // Users
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        
         builder.Services.AddSingleton(TimeProvider.System);
+        
         builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonDynamoDB>();
+        builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
     }
 }

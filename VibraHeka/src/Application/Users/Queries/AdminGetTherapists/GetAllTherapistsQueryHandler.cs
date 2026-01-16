@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
@@ -39,6 +40,6 @@ public class GetAllTherapistsQueryHandler(
             return await Repository.GetByRoleAsync(UserRole.Therapist);
         }
 
-        return Result.Failure<IEnumerable<User>>(UserException.NotAuthorized);
+        return Result.Failure<IEnumerable<User>>(UserErrors.NotAuthorized);
     }
 }

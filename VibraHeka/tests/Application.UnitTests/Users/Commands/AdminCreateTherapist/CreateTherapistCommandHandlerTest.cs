@@ -3,16 +3,17 @@ using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.UnitTests.Admin.Commands.CreateTherapist;
+namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
 [TestFixture]
 public class CreateTherapistCommandHandlerTests
 {
-    private Mock<ICognitoService> CognitoServiceMock;
+    private Mock<IUserService> CognitoServiceMock;
     private Mock<IUserRepository> RepositoryMock;
     private Mock<ICurrentUserService> CurrentUserServiceMock;
     private Mock<IPrivilegeService> PrivilegeServiceMock;
@@ -21,7 +22,7 @@ public class CreateTherapistCommandHandlerTests
     [SetUp]
     public void SetUp()
     {
-        CognitoServiceMock = new Mock<ICognitoService>();
+        CognitoServiceMock = new Mock<IUserService>();
         RepositoryMock = new Mock<IUserRepository>();
         CurrentUserServiceMock = new Mock<ICurrentUserService>();
         PrivilegeServiceMock = new Mock<IPrivilegeService>();
@@ -52,7 +53,7 @@ public class CreateTherapistCommandHandlerTests
 
         // Then: Should return not authorized failure and not call external services
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.NotAuthorized));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
@@ -74,7 +75,7 @@ public class CreateTherapistCommandHandlerTests
 
         // Then: Should return not authorized failure
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserException.NotAuthorized));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }

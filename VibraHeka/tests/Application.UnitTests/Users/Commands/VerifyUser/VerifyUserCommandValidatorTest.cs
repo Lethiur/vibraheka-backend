@@ -34,7 +34,7 @@ public class VerifyUserCommandValidatorTests
 
         // Then: Should have validation error for email
         result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserException.InvalidEmail);
+              .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("invalid-email", TestName = "No @ symbol")]
@@ -56,7 +56,7 @@ public class VerifyUserCommandValidatorTests
 
         // Then: Should have validation error for email
         result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserException.InvalidEmail);
+              .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("user@example.com", TestName = "Basic valid email")]
@@ -99,7 +99,7 @@ public class VerifyUserCommandValidatorTests
 
         // Then: Should have validation error for code
         result.ShouldHaveValidationErrorFor(x => x.Code)
-              .WithErrorMessage(UserException.InvalidVerificationCode);
+              .WithErrorMessage(UserErrors.InvalidVerificationCode);
     }
 
     [TestCase("1", TestName = "1 character")]
@@ -118,7 +118,7 @@ public class VerifyUserCommandValidatorTests
 
         // Then: Should have validation error for code
         result.ShouldHaveValidationErrorFor(x => x.Code)
-              .WithErrorMessage(UserException.InvalidVerificationCode);
+              .WithErrorMessage(UserErrors.InvalidVerificationCode);
     }
 
     [TestCase("123456", TestName = "6-digit numeric code")]
@@ -151,9 +151,9 @@ public class VerifyUserCommandValidatorTests
 
         // Then: Should have validation errors for both fields
         result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserException.InvalidEmail);
+              .WithErrorMessage(UserErrors.InvalidEmail);
         result.ShouldHaveValidationErrorFor(x => x.Code)
-              .WithErrorMessage(UserException.InvalidVerificationCode);
+              .WithErrorMessage(UserErrors.InvalidVerificationCode);
     }
 
     [Test]
@@ -237,7 +237,7 @@ public class VerifyUserCommandValidatorTests
         IEnumerable<ValidationFailure> emailErrors = result.Errors.Where(e => e.PropertyName == nameof(VerifyUserCommand.Email));
         IEnumerable<ValidationFailure> validationFailures = emailErrors.ToList();
         Assert.That(validationFailures.Count(), Is.EqualTo(1));
-        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserException.InvalidEmail));
+        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidEmail));
     }
 
     [Test]
@@ -254,7 +254,7 @@ public class VerifyUserCommandValidatorTests
         IEnumerable<ValidationFailure> codeErrors = result.Errors.Where(e => e.PropertyName == nameof(VerifyUserCommand.Code));
         IEnumerable<ValidationFailure> validationFailures = codeErrors.ToList();
         Assert.That(validationFailures.Count(), Is.EqualTo(1));
-        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserException.InvalidVerificationCode));
+        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidVerificationCode));
     }
 
     [Test]
@@ -321,16 +321,16 @@ public class VerifyUserCommandValidatorTests
     public void ShouldValidateEmailLengthAccordingToRfcLimits(int emailLength, bool shouldPass)
     {
         // Given: Email of specific length
-        var totalDomainLength = emailLength - 65; // 64 (local) + 1 (@)
-        var domainName = totalDomainLength > 4 
+        int totalDomainLength = emailLength - 65; // 64 (local) + 1 (@)
+        string domainName = totalDomainLength > 4 
             ? new string('b', totalDomainLength - 4) + ".com"
             : "b.co";
     
-        var email = $"{new string('a', 64)}@{domainName}";
-        var command = new VerifyUserCommand(email, "123456");
+        string email = $"{new string('a', 64)}@{domainName}";
+        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
 
         // When: Validating the command
-        var result = _validator.TestValidate(command);
+        TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
 
         // Then: Should pass or fail based on expectation
         if (shouldPass)
@@ -382,7 +382,7 @@ public class VerifyUserCommandValidatorTests
         else
         {
             result.ShouldHaveValidationErrorFor(x => x.Code)
-                  .WithErrorMessage(UserException.InvalidVerificationCode);
+                  .WithErrorMessage(UserErrors.InvalidVerificationCode);
         }
     }
 

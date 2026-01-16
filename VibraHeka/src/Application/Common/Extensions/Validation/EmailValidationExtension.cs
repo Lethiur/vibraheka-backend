@@ -21,16 +21,14 @@ public static class EmailValidationExtension
     /// <returns>An instance of <c>IRuleBuilderOptions</c> that indicates the validation rule for a valid email address.</returns>
     public static IRuleBuilderOptions<T, string> ValidEmail<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
-        return ruleBuilder.NotEmpty().WithMessage(UserException.InvalidEmail).NotNull()
-            .WithMessage(UserException.InvalidEmail).Must(BeValidEmail)
-            .WithMessage(UserException.InvalidEmail).Must(BeValidEmail);
+        return ruleBuilder.NotEmpty().WithMessage(UserErrors.InvalidEmail).NotNull()
+            .WithMessage(UserErrors.InvalidEmail).Must(BeValidEmail)
+            .WithMessage(UserErrors.InvalidEmail).Must(BeValidEmail);
     }
 
     private static bool BeValidEmail(string email)
     {
-        if (string.IsNullOrWhiteSpace(email))
-            return false;
-        
+       
         bool doesMatch = EmailRegex.IsMatch(email.Trim());
         if (doesMatch)
         {

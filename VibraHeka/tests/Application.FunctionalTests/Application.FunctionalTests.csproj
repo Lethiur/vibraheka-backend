@@ -34,7 +34,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="Admin\Commands\CreateTherapist\" />
+      <Folder Include="Settings\Commands\" />
+      <Folder Include="Therapists\Queries\" />
     </ItemGroup>
 
 </Project>

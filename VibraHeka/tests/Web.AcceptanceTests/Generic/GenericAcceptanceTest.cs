@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Common.Models.Results;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Application.Users.Queries.GetCode;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -123,6 +123,26 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     }
 
     /// <summary>
+    /// Registers a new user as an administrator, waits for email verification, and confirms the user's admin status.
+    /// </summary>
+    /// <param name="username">The username of the administrator to be registered.</param>
+    /// <param name="email">The email address of the administrator to be registered.</param>
+    /// <param name="password">The password for the administrator's account.</param>
+    /// <returns>The unique identifier of the newly registered administrator.</returns>
+    /// <exception cref="HttpRequestException">Thrown when there is an issue with the HTTP request during user registration or promotion.</exception>
+    /// <exception cref="TimeoutException">Thrown when the verification code is not retrieved within the specified timeout period.</exception>
+    protected async Task<string> RegisterAndConfirmAdmin(string username, string email, string password)
+    {
+        string userID = await RegisterUser(username, email, password);
+        VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
+        VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
+        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        patchAsJsonAsync.EnsureSuccessStatusCode();
+        await PromoteToAdmin(username, email, userID);
+        return userID;
+    }
+
+    /// <summary>
     /// Authenticates a user by validating their credentials and retrieving authentication details upon success.
     /// </summary>
     /// <param name="email">The email address of the user attempting to authenticate.</param>
@@ -146,7 +166,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="email">The email address of the admin user.</param>
     /// <param name="ID">The ID of the user to promote to admin</param>
     /// <returns>The unique identifier of the newly created admin user.</returns>
-    protected async Task<string> PromoteToAdmin(string username, string email, string ID)
+    private async Task<string> PromoteToAdmin(string username, string email, string ID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
@@ -158,7 +178,11 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
             CognitoId = userId,
             Email = email,
             FullName = username,
-            Role = UserRole.Admin
+            Role = UserRole.Admin,
+            Created = DateTime.UtcNow,
+            CreatedBy = userId,
+            LastModified = DateTime.UtcNow,
+            LastModifiedBy = userId
         };
 
         await repository.AddAsync(adminUser);
@@ -177,5 +201,13 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         Result<User> user = await repository.GetByIdAsync(userID);
         return user.GetValueOrDefault();
+    }
+
+    protected T GetObjectFromFactory<T>() where T : notnull
+    {
+        IServiceScope scope = Factory.Services.CreateScope();
+        T obj = scope.ServiceProvider.GetRequiredService<T>();
+        
+        return obj;
     }
 }

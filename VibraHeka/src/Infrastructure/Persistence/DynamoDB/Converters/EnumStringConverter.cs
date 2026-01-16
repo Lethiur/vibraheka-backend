@@ -20,8 +20,12 @@ public class EnumStringConverter<T> : IPropertyConverter where T : struct
     /// A <see cref="DynamoDBEntry"/>, specifically a <see cref="Primitive"/>, that
     /// represents the string version of the enum value.
     /// </returns>
-    public DynamoDBEntry ToEntry(object value)
+    public DynamoDBEntry ToEntry(object? value)
     {
+        if (value == null)
+        {
+            return new DynamoDBNull();
+        }
         return new Primitive(value.ToString());
     }
 
