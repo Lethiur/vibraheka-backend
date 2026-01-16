@@ -202,4 +202,12 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         Result<User> user = await repository.GetByIdAsync(userID);
         return user.GetValueOrDefault();
     }
+
+    protected T GetObjectFromFactory<T>() where T : notnull
+    {
+        IServiceScope scope = Factory.Services.CreateScope();
+        T obj = scope.ServiceProvider.GetRequiredService<T>();
+        
+        return obj;
+    }
 }
