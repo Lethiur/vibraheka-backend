@@ -5,6 +5,7 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 

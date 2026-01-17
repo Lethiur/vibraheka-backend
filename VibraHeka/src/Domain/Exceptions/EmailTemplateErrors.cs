@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Application.Common.Exceptions;
+﻿namespace VibraHeka.Domain.Exceptions;
 
 public class EmailTemplateErrors
 {
