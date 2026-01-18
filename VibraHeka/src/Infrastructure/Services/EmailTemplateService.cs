@@ -2,6 +2,7 @@
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -22,5 +23,15 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
             .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id));
+    }
+
+    /// <summary>
+    /// Retrieves all email templates from the system.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
+    /// wrapping a collection of <see cref="EmailEntity"/> objects or an error if the operation fails.</returns>
+    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken )
+    {
+       return EmailTemplateRepository.GetAllTemplates(cancellationToken);
     }
 }

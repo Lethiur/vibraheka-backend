@@ -12,11 +12,15 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
     [DynamoDBProperty] 
     public string Path { get; set; } = string.Empty;
     
+    [DynamoDBProperty]
+    public string Name { get; set; } = string.Empty;
+    
     
     public EmailEntity ToDomain() => new()
     {
         ID = TemplateID,
         Path = Path,
+        Name = Name,
         Created = Created,
         CreatedBy = CreatedBy,
         LastModified = LastModified,
@@ -27,6 +31,7 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
     {
         TemplateID = entity.ID,
         Path = entity.Path,
+        Name = entity.Name,
         Created = entity.Created,
         CreatedBy = entity.CreatedBy,
         LastModified = entity.LastModified,

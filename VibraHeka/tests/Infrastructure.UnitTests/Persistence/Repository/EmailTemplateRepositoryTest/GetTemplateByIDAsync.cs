@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using static System.Threading.CancellationToken;

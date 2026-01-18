@@ -50,7 +50,29 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context,  ICon
             return Result.Failure<Unit>(HandleError(e));
         }
     }
-    
+
+    /// <summary>
+    /// Retrieves all entities of type T from the DynamoDB table.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Result{IEnumerable{T}}"/> containing a collection of all entities if the operation is successful,
+    /// or a failure result with an error message if an error occurs.
+    /// </returns>
+    protected async Task<Result<IEnumerable<T>>> GetAll(CancellationToken cancellationToken)
+    {
+        ScanConfig configuration = new() { OverrideTableName = config[tableConfigKey] };
+
+        try
+        {
+            IAsyncSearch<T> asyncSearch = context.ScanAsync<T>(Enumerable.Empty<ScanCondition>(), configuration);
+            List<T> models = await asyncSearch.GetRemainingAsync(cancellationToken);
+            return models;
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<IEnumerable<T>>(HandleError(e));
+        }
+    }
     /// <summary>
     /// Handles an exception that occurs during execution of repository operations.
     /// </summary>
