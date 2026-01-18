@@ -24,4 +24,14 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
             .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id));
     }
+
+    /// <summary>
+    /// Retrieves all email templates from the system.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
+    /// wrapping a collection of <see cref="EmailEntity"/> objects or an error if the operation fails.</returns>
+    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken )
+    {
+       return EmailTemplateRepository.GetAllTemplates(cancellationToken);
+    }
 }

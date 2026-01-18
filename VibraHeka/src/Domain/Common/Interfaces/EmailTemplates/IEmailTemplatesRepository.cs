@@ -21,4 +21,12 @@ public interface IEmailTemplatesRepository
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
     /// wrapping a <see cref="Unit"/> indicating success, or an error if the operation fails.</returns>
     Task<Result<Unit>> SaveTemplate(EmailEntity template);
+
+
+    /// <summary>
+    /// Retrieves all email templates from the repository.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
+    /// wrapping a collection of <see cref="EmailEntity"/> objects or an error if the operation fails.</returns>
+    Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken);
 }

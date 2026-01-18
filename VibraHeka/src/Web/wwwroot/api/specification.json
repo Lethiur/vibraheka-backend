@@ -165,6 +165,27 @@
         }
       }
     },
+    "/api/v1/email-templates": {
+      "get": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_GetTemplates",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/ChangeTemplate": {
       "patch": {
         "tags": [

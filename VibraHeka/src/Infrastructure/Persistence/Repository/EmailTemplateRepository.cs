@@ -44,6 +44,20 @@ public class EmailTemplateRepository(IDynamoDBContext context, IConfiguration co
     }
 
     /// <summary>
+    /// Retrieves all email templates from the repository and maps them to domain entities.
+    /// </summary>
+    /// <returns>A <c>Task</c> representing the asynchronous operation.
+    /// The task result contains a <c>Result</c> object which encapsulates a collection of <c>EmailEntity</c> instances.</returns>
+    /// <exception cref="Exception">Thrown if an error occurs while retrieving or mapping the templates.</exception>
+    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken)
+    {
+        return GetAll(cancellationToken).Map(list =>
+        {
+            return list.Select(model => model.ToDomain());
+        });
+    }
+
+    /// <summary>
     /// Handles errors encountered during the execution of repository operations by converting exceptions into error messages.
     /// </summary>
     /// <param name="ex">The exception thrown during the operation.</param>
