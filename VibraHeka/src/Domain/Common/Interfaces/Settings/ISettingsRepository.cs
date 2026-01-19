@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.Settings;
 
@@ -30,4 +31,5 @@ public interface ISettingsRepository
     /// holding the current verification email template, or an error indicating the failure of the operation.
     /// </returns>
     Task<Result<string>> GetVerificationEmailTemplateAsync();
+    
 }

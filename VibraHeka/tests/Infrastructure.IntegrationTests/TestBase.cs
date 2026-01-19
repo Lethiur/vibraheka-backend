@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests;
 
@@ -48,8 +49,15 @@ public abstract class TestBase
                 ["Cognito:ClientId"] = clientId,
                 ["Dynamo:UsersTable"] = usersTable,
                 ["Dynamo:EmailTemplatesTable"] = templatesTable,
+                ["AppSettingsEntity:VerificationEmailTemplate"] = "",
+                ["AppSettingsEntity:EmailForResetPassword"] = "",
                 ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1",
                 ["AWS:Profile"] = "Twingers"
+            })
+            .AddSystemsManager(options =>
+            {
+                options.Path = "/VibraHeka/";
+                options.Optional = false;
             });
         _configuration = configBuilder.Build();
         return _configuration;
@@ -63,5 +71,24 @@ public abstract class TestBase
         
         return dynamoDbContext;
     }
+    
+    protected AppSettingsEntity CreateAppSettings()
+    {
+        var settings = new AppSettingsEntity();
+        _configuration.Bind(settings); // Ahora Bind encontrará las claves del diccionario o de SSM
+        return settings;
+    }
+    
+    protected void RefreshAppSettings(AppSettingsEntity settings)
+    {
+        if (_configuration is IConfigurationRoot root)
+        {
+            root.Reload();
+        }
+        _configuration.Bind(settings);
+    }
+    
+    
+    
 
 }

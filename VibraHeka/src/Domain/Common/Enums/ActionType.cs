@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Application.Common.Enums;
+﻿namespace VibraHeka.Domain.Common.Enums;
 
 public enum ActionType
 {

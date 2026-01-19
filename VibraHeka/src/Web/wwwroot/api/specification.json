@@ -221,6 +221,27 @@
         }
       }
     },
+    "/api/v1/settings/all-templates": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "operationId": "Settings_GetTemplates",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/verification-code": {
       "post": {
         "tags": [
