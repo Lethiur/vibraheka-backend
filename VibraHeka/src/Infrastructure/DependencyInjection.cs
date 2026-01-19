@@ -4,6 +4,7 @@ using Amazon.SimpleSystemsManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
@@ -23,11 +24,12 @@ public static class DependencyInjection
         configurationManager.AddSystemsManager(options =>
         {
             options.Path = "/VibraHeka/";
-            options.ReloadAfter = TimeSpan.FromMinutes(5); 
+            options.ReloadAfter = TimeSpan.FromSeconds(2); 
             options.Optional = true;
         });
         
         builder.Services.Configure<AppSettingsEntity>(configurationManager);
+        builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AppSettingsEntity>>().Value);
         builder.Services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient());
         
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();

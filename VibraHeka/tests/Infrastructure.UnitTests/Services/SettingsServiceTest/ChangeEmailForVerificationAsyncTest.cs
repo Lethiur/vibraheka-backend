@@ -4,6 +4,7 @@ using MediatR;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Settings;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SettingsServiceTest;
@@ -17,7 +18,7 @@ public class ChangeEmailForVerificationAsyncTest
     public void SetUp()
     {
         _repositoryMock = new Mock<ISettingsRepository>();
-        _service = new SettingsService(_repositoryMock.Object);
+        _service = new SettingsService(_repositoryMock.Object, new AppSettingsEntity());
     }
 
     [Test]

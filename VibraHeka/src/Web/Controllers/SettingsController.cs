@@ -3,15 +3,16 @@ using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
+using VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 using VibraHeka.Domain.Entities;
-using static VibraHeka.Application.Common.Exceptions.UserErrors;
 
 namespace VibraHeka.Web.Controllers;
 
 [ApiController]
 [Route("api/v1/settings")]
-public class SettingsController(IMediator mediator, ILogger<SettingsController> Logger)
+public partial class SettingsController(IMediator mediator, ILogger<SettingsController> Logger)
 {
     /// <summary>
     /// Updates the currently active template with the specified changes.
@@ -40,4 +41,35 @@ public class SettingsController(IMediator mediator, ILogger<SettingsController> 
         
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
+    
+    /// <summary>
+    /// Retrieves all email templates.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IActionResult"/> containing a list of email templates if successful,
+    /// or an appropriate error response if the operation fails.
+    /// </returns>
+    [HttpGet("all-templates")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> GetTemplates()
+    {
+        Result<IEnumerable<TemplateForActionEntity>> result = await mediator.Send(new GetTemplatesForActionQuery());
+        
+        if (result.IsFailure)
+        {
+            LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
+            if (result.Error == UserErrors.NotAuthorized)
+            {
+                return new UnauthorizedResult();
+            }
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    [LoggerMessage(LogLevel.Error, "Failed to get all templates for actions because {Error}")]
+    static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<SettingsController> logger, string Error);
 }

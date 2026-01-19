@@ -2,9 +2,9 @@
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Enums;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
+using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Common.Interfaces.Settings;

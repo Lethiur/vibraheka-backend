@@ -39,7 +39,7 @@ public class SettingsServiceIntegrationTests : TestBase
         });
 
         _repository = new SettingsRepository(_ssmClient);
-        _service = new SettingsService(_repository);
+        _service = new SettingsService(_repository, CreateAppSettings());
     }
 
     [TearDown]

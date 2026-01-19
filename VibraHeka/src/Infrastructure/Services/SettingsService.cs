@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Settings;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -9,7 +11,7 @@ namespace VibraHeka.Infrastructure.Services;
 /// Service class responsible for managing application settings, including
 /// operations related to the verification email template.
 /// </summary>
-public class SettingsService(ISettingsRepository Repository) : ISettingsService
+public class SettingsService(ISettingsRepository Repository, AppSettingsEntity appSettings) : ISettingsService
 {
     /// <summary>
     /// Updates the email template used for verification purposes.
@@ -25,7 +27,37 @@ public class SettingsService(ISettingsRepository Repository) : ISettingsService
         {
             return Result.Failure<Unit>(SettingsErrors.InvalidVerificationEmailTemplate);
         }
+
+        Result<Unit> updateVerificationEmailTemplateAsync =
+            await Repository.UpdateVerificationEmailTemplateAsync(email, cancellationToken);
+
+        updateVerificationEmailTemplateAsync.OnSuccessTry(_ => appSettings.VerificationEmailTemplate = email);
+
+        return updateVerificationEmailTemplateAsync;
+    }
+
+    /// <summary>
+    /// Retrieves all templates used for actions.
+    /// Fetches all available instances of <see cref="TemplateForActionEntity"/> from the repository.
+    /// </summary>
+    /// <returns>A <see>
+    ///         <cref>Result{IEnumerable{TemplateForActionEntity}}</cref>
+    ///     </see>
+    ///     containing a collection of templates or an error if the operation fails.</returns>
+    public Result<IEnumerable<TemplateForActionEntity>> GetAllTemplatesForActions()
+    {
+        List<TemplateForActionEntity> templates =
+        [
+            new TemplateForActionEntity()
+            {
+                TemplateID = appSettings.VerificationEmailTemplate, ActionType = ActionType.UserVerification
+            },
+            new TemplateForActionEntity()
+            {
+                TemplateID = appSettings.EmailForResetPassword, ActionType = ActionType.PasswordReset
+            }
+        ];
         
-        return await Repository.UpdateVerificationEmailTemplateAsync(email, cancellationToken);
+        return templates;
     }
 }
