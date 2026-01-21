@@ -20,7 +20,7 @@ public interface IEmailTemplatesRepository
     /// <param name="template">The email template to be saved.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
     /// wrapping a <see cref="Unit"/> indicating success, or an error if the operation fails.</returns>
-    Task<Result<Unit>> SaveTemplate(EmailEntity template);
+    Task<Result<Unit>> SaveTemplate(EmailEntity template, CancellationToken token);
 
 
     /// <summary>

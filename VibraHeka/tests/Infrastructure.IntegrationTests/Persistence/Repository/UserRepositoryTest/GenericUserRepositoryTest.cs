@@ -4,8 +4,10 @@ using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
@@ -14,7 +16,7 @@ public abstract class GenericUserRepositoryTest
 {
     protected IUserRepository _userRepository;
     protected IDynamoDBContext _dynamoContext;
-    protected IConfiguration _configuration;
+    protected AWSConfig _configuration;
     protected Faker _faker;
     
     [OneTimeSetUp]
@@ -38,12 +40,12 @@ public abstract class GenericUserRepositoryTest
     {
     
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
+            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) })).Build();
         
         return dynamoDbContext;
     }
 
-    private static IConfiguration CreateTestConfiguration()
+    private static AWSConfig CreateTestConfiguration()
     {
         string usersTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_USERS_TABLE")
                             ?? throw new InvalidOperationException("TEST_DYNAMO_USERS_TABLE environment variable is required");
@@ -54,14 +56,13 @@ public abstract class GenericUserRepositoryTest
         Console.WriteLine($"  UsersTable: {usersTable}");
         Console.WriteLine($"  Region: {region}");
 
-        IConfigurationBuilder configBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Dynamo:UsersTable"] = usersTable,
-                ["AWS:Region"] = region
-            });
 
-        return configBuilder.Build();
+        return Options.Create(new AWSConfig()
+        {
+            Region = region,
+            UsersTable = usersTable,
+            Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required")
+        }).Value;
     }
     
     protected User CreateValidUser()

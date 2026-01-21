@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Controllers;
 
@@ -41,6 +43,44 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         }
         
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+
+    /// <summary>
+    /// Creates a new email template using the provided details in the request.
+    /// </summary>
+    /// <param name="request">
+    /// An instance of <see cref="UploadEmailTemplateRequest"/> containing the name of the template
+    /// and the file to be uploaded.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> indicating success or failure of the operation.
+    /// On success, returns a confirmation of the created template;
+    /// otherwise, an appropriate error response.
+    /// </returns>
+    [HttpPut("create")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> CreateNewEmailTemplate([FromForm] UploadEmailTemplateRequest request)
+    {
+        CreateEmailTemplateCommand createEmailTemplateCommand = new CreateEmailTemplateCommand(request.File.OpenReadStream(), request.TemplateName);
+        Result<Unit> mediatrResponse = await mediator.Send(createEmailTemplateCommand);
+
+        if (mediatrResponse.IsFailure)
+        {
+            Logger.LogError("Failed to create new template because {Error}", mediatrResponse.Error);
+            if (mediatrResponse.Error == UserErrors.NotAuthorized)
+                return new UnauthorizedResult();
+            return new BadRequestObjectResult(ResponseEntity.FromError(mediatrResponse.Error));
+        }
+        else
+        {
+            Logger.LogInformation("Successfully created new template {TemplateName}", request.TemplateName);
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+
     }
 
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]

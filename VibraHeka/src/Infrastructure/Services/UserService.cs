@@ -12,15 +12,16 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Infrastructure.Entities;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class UserService(IConfiguration config, ILogger<UserService> logger) : IUserService
+public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserService
 {
     protected IAmazonCognitoIdentityProvider _client = CreateClient(config);
-    private readonly string _userPoolId = config["Cognito:UserPoolId"] ?? "";
-    private readonly string _clientId = config["Cognito:ClientId"] ?? "";
+    private readonly string _userPoolId = config.UserPoolId;
+    private readonly string _clientId = config.ClientId;
 
 
     /// <summary>
@@ -28,10 +29,10 @@ public class UserService(IConfiguration config, ILogger<UserService> logger) : I
     /// </summary>
     /// <param name="config">The application configuration containing AWS settings, such as region and profile name.</param>
     /// <returns>An instance of <see cref="AmazonCognitoIdentityProviderClient"/> initialized with the appropriate AWS credentials and region.</returns>
-    private static AmazonCognitoIdentityProviderClient CreateClient(IConfiguration config)
+    private static AmazonCognitoIdentityProviderClient CreateClient(AWSConfig config)
     {
-        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config["AWS:Region"] ?? "eu-west-1");
-        string? profileName = config["AWS:Profile"];
+        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config.Region);
+        string? profileName = config.Profile;
 
         if (!string.IsNullOrEmpty(profileName))
         {

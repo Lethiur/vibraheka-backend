@@ -3,9 +3,7 @@ using Amazon.SimpleSystemsManagement.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Settings;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;

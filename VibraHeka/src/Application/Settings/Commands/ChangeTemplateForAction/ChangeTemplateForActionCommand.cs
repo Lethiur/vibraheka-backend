@@ -9,7 +9,7 @@ namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 /// <param name="TemplateID">
 /// The unique identifier of the template to be associated with the specified action type.
 /// </param>
-/// <param name="Action">
+/// <param name="ActionType">
 /// The action type for which the template will be updated. This defines the context
 /// or scenario in which the template will be used, such as user registration or password reset.
 /// </param>
@@ -17,4 +17,4 @@ namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 /// This command is typically used to update configuration or settings
 /// within the application that tie templates to specific user actions.
 /// </remarks>
-public record ChangeTemplateForActionCommand(string TemplateID, ActionType Action) : IRequest<Result<Unit>>;
+public record ChangeTemplateForActionCommand(string TemplateID, ActionType ActionType) : IRequest<Result<Unit>>;

@@ -20,7 +20,7 @@ public class GetAllTemplateTest : TestBase
     {
         // Given
         _context = CreateDynamoDBContext();
-        _tableName = _configuration["Dynamo:EmailTemplatesTable"]!;
+        _tableName = _configuration.EmailTemplatesTable;
 
         // Inicializamos el repositorio con la configuración y el contexto de la base
         _repository = new EmailTemplateRepository(_context, _configuration);

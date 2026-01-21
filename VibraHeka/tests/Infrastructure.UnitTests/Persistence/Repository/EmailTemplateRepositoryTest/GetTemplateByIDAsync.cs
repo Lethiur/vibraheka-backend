@@ -8,28 +8,22 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using VibraHeka.Infrastructure.Persistence.Repository;
+using VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
 using static System.Threading.CancellationToken;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
 [TestFixture]
-public class GetTemplateByIDAsync
+public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
 {
-     private Mock<IDynamoDBContext> _contextMock;
-    private Mock<IConfiguration> _configMock;
-    private EmailTemplateRepository _repository;
-    private const string TableName = "EmailTemplatesTable";
+    private new EmailTemplateRepository _repository;
 
+    
     [SetUp]
-    public void SetUp()
+    public void Setup()
     {
-        _contextMock = new Mock<IDynamoDBContext>();
-        _configMock = new Mock<IConfiguration>();
-        
-        // Configuramos la clave que usa el repositorio para obtener el nombre de la tabla
-        _configMock.Setup(c => c["Dynamo:EmailTemplatesTable"]).Returns(TableName);
-
-        _repository = new EmailTemplateRepository(_contextMock.Object, _configMock.Object);
+        base.SetUp();
+        _repository = new EmailTemplateRepository(_contextMock.Object, _configMock);
     }
 
     [Test]

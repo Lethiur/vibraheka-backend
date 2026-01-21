@@ -12,7 +12,8 @@ public class GetTemplateByIDTest : TestBase
 {
     private Infrastructure.Persistence.Repository.EmailTemplateRepository _repository;
     private IDynamoDBContext _dynamoContext;
-
+    
+    
     [OneTimeSetUp]
     public void OneTimeSetUpChild()
     {
@@ -85,7 +86,7 @@ public class GetTemplateByIDTest : TestBase
 
         SaveConfig config = new SaveConfig()
         {
-            OverrideTableName = _configuration["Dynamo:EmailTemplatesTable"]
+            OverrideTableName = _configuration.EmailTemplatesTable
         };
 
         await _dynamoContext.SaveAsync(model, config);

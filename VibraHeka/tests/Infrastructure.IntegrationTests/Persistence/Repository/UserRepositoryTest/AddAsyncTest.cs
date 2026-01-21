@@ -107,7 +107,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: Retrieving the user directly from DynamoDB
         LoadConfig loadConfig = new()
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         User? retrievedUser = await _dynamoContext.LoadAsync<User>(originalUser.Id, loadConfig);
 
@@ -133,7 +133,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: Checking if user exists by email
         LoadConfig loadConfig = new()
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         User? retrievedUser = await _dynamoContext.LoadAsync<User>(user.Id, loadConfig);
 
@@ -172,7 +172,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: The user data should be updated to the new values
         LoadConfig loadConfig = new LoadConfig
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         User? retrievedUser = await _dynamoContext.LoadAsync<User>(userId, loadConfig);
 
@@ -204,7 +204,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: Both users should exist in the database
         LoadConfig loadConfig = new LoadConfig
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         
         User? retrievedFirstUser = await _dynamoContext.LoadAsync<User>(firstUser.Id, loadConfig);
@@ -250,7 +250,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: One of the users should be persisted (last write wins)
         LoadConfig loadConfig = new LoadConfig
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         User? retrievedUser = await _dynamoContext.LoadAsync<User>(userId, loadConfig);
 
@@ -289,7 +289,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // And: Only the latest data should persist
         LoadConfig loadConfig = new LoadConfig
         {
-            OverrideTableName = _configuration["Dynamo:UsersTable"]
+            OverrideTableName = _configuration.UsersTable
         };
         User? finalUser = await _dynamoContext.LoadAsync<User>(userId, loadConfig);
 

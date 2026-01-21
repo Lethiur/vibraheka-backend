@@ -1,11 +1,10 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
 
-public abstract class GenericDynamoRepository<T>(IDynamoDBContext context,  IConfiguration config, string tableConfigKey)
+public abstract class GenericDynamoRepository<T>(IDynamoDBContext context, string tableConfigKey)
 {
     /// <summary>
     /// Retrieves an entity of type T from the DynamoDB table by its unique ID.
@@ -16,7 +15,7 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context,  ICon
     /// </returns>
     protected async Task<Result<T>> FindByID(string ID)
     {
-        LoadConfig configuration = new() { OverrideTableName = config[tableConfigKey] };
+        LoadConfig configuration = new() { OverrideTableName = tableConfigKey };
         try
         {
             T? model = await context.LoadAsync<T>(ID, configuration);
@@ -32,17 +31,18 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context,  ICon
     /// Saves an entity of type T to the DynamoDB table.
     /// </summary>
     /// <param name="entity">The entity of type T to be saved to the table.</param>
+    /// <param name="token">The cancellation token to preemptively cancel the operation if needed.</param>
     /// <returns>
     /// A <see cref="Result{Unit}"/> representing the success or failure of the save operation.
     /// In case of failure, it contains an error message.
     /// </returns>
-    protected async Task<Result<Unit>> Save(T entity)
+    protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
-        SaveConfig saveConfig = new() { OverrideTableName = config[tableConfigKey] };
+        SaveConfig saveConfig = new() { OverrideTableName = tableConfigKey };
 
         try
         {
-            await context.SaveAsync(entity, saveConfig);
+            await context.SaveAsync(entity, saveConfig, token);
             return Unit.Value;
         }
         catch (Exception e)
@@ -60,7 +60,7 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context,  ICon
     /// </returns>
     protected async Task<Result<IEnumerable<T>>> GetAll(CancellationToken cancellationToken)
     {
-        ScanConfig configuration = new() { OverrideTableName = config[tableConfigKey] };
+        ScanConfig configuration = new() { OverrideTableName = tableConfigKey };
 
         try
         {

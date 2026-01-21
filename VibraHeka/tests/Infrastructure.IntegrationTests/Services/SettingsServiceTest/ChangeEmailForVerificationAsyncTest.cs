@@ -23,8 +23,8 @@ public class SettingsServiceIntegrationTests : TestBase
     [SetUp]
     public void SetUp()
     {
-        string profileName = "Twingers";
-        RegionEndpoint? region = Amazon.RegionEndpoint.GetBySystemName(_configuration["AWS:Region"] ?? "eu-west-1");
+        string profileName = _configuration.Profile;
+        RegionEndpoint? region = Amazon.RegionEndpoint.GetBySystemName(_configuration.Region);
 
       
         CredentialProfileStoreChain chain = new Amazon.Runtime.CredentialManagement.CredentialProfileStoreChain();

@@ -1,11 +1,10 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Configuration;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
@@ -19,10 +18,16 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Implements the IEmailTemplatesRepository interface for application-specific email template operations.
 /// Inherits from GenericDynamoRepository for shared data access behaviors.
 /// </remarks>
-public class EmailTemplateRepository(IDynamoDBContext context, IConfiguration config)
-    : GenericDynamoRepository<EmailTemplateDBModel>(context, config, "Dynamo:EmailTemplatesTable"), 
+public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config)
+    : GenericDynamoRepository<EmailTemplateDBModel>(context, config.EmailTemplatesTable), 
         IEmailTemplatesRepository
 {
+    /// <summary>
+    /// Retrieves an email template entity by its unique identifier.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
+    /// <returns>A <c>Task</c> representing the asynchronous operation. The task result contains a <c>Result</c> object which is successful if the template exists, returning the corresponding <c>EmailEntity</c>; otherwise, it contains an error.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the <c>templateID</c> is null or empty.</exception>
     public async Task<Result<EmailEntity>> GetTemplateByID(string templateID)
     {
         Result<EmailTemplateDBModel> findResult = await FindByID(templateID);
@@ -38,9 +43,9 @@ public class EmailTemplateRepository(IDynamoDBContext context, IConfiguration co
     /// <returns>A <c>Task</c> representing the asynchronous operation.
     /// The task result contains a <c>Result</c> object indicating the success or failure of the operation.</returns>
     /// <exception cref="NotImplementedException">Thrown if the method is not yet implemented.</exception>
-    public async Task<Result<Unit>> SaveTemplate(EmailEntity template)
+    public async Task<Result<Unit>> SaveTemplate(EmailEntity template, CancellationToken token)
     {
-        return await Save(EmailTemplateDBModel.FromDomain(template));
+        return await Save(EmailTemplateDBModel.FromDomain(template), token);
     }
 
     /// <summary>

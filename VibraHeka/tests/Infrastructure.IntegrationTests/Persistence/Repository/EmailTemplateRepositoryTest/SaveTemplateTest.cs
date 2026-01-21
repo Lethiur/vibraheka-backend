@@ -40,7 +40,7 @@ public class SaveTemplateTest : TestBase
         EmailEntity template = CreateValidTemplate();
 
         // When: Saving the template
-        Result<Unit> result = await _repository.SaveTemplate(template);
+        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -58,7 +58,7 @@ public class SaveTemplateTest : TestBase
         };
 
         // When: Saving the template
-        Result<Unit> result = await _repository.SaveTemplate(template);
+        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -76,10 +76,10 @@ public class SaveTemplateTest : TestBase
         EmailEntity originalTemplate = CreateValidTemplate();
 
         // When: Saving the template
-        await _repository.SaveTemplate(originalTemplate);
+        await _repository.SaveTemplate(originalTemplate, CancellationToken.None);
 
         // And: Retrieving directly from DynamoDB
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration["Dynamo:EmailTemplatesTable"] };
+        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesBucketName };
         EmailTemplateDBModel? retrieved = await _dynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
 
         // Then: Values should match
@@ -103,18 +103,18 @@ public class SaveTemplateTest : TestBase
         // Given: An initial record
         string templateId = Guid.NewGuid().ToString();
         EmailEntity template = new EmailEntity { ID = templateId, Path = "path/old.html" };
-        await _repository.SaveTemplate(template);
+        await _repository.SaveTemplate(template, CancellationToken.None);
 
         // And: The same ID but a new S3 path
         template.Path = "path/new.html";
 
         // When: Saving again
-        Result<Unit> result = await _repository.SaveTemplate(template);
+        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: The path should be updated in DynamoDB
         Assert.That(result.IsSuccess, Is.True);
         
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration["Dynamo:EmailTemplatesTable"] };
+        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
         EmailTemplateDBModel? retrieved = await _dynamoContext.LoadAsync<EmailTemplateDBModel>(templateId, loadConfig);
         
         Assert.That(retrieved.Path, Is.EqualTo("path/new.html"));

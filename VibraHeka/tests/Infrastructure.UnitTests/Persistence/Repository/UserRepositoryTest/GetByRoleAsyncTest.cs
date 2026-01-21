@@ -10,22 +10,8 @@ using VibraHeka.Infrastructure.Persistence.Repository;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class GetByRoleAsyncTest
+public class GetByRoleAsyncTest : GenericUserRepositoryTest
 {
-    private Mock<IDynamoDBContext> ContextMock;
-    private Mock<IConfiguration> ConfigMock;
-    private UserRepository Repository;
-
-    [SetUp]
-    public void SetUp()
-    {
-        ContextMock = new Mock<IDynamoDBContext>();
-        ConfigMock = new Mock<IConfiguration>();
-
-        ConfigMock.Setup(c => c["Dynamo:UsersTable"]).Returns("TestUsersTable");
-
-        Repository = new UserRepository(ContextMock.Object, ConfigMock.Object);
-    }
     
     [Test]
     [DisplayName("Should return list of users when role matches")]

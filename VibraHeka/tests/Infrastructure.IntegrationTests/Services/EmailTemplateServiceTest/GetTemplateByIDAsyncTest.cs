@@ -43,7 +43,7 @@ public class GetTemplateByIDAsyncTest : TestBase
         };
 
         await _context.SaveAsync(expectedTemplate,
-            new SaveConfig() { OverrideTableName = _configuration["Dynamo:EmailTemplatesTable"] });
+            new SaveConfig() { OverrideTableName = _configuration.EmailTemplatesTable });
 
         // When: Retrieving the template through the service
         Result<EmailEntity> result = await _service.GetTemplateByID(templateId);

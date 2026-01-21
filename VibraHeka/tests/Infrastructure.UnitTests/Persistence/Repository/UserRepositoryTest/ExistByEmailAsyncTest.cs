@@ -9,23 +9,9 @@ using VibraHeka.Infrastructure.Persistence.Repository;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class ExistByEmailAsyncTest
+public class ExistByEmailAsyncTest: GenericUserRepositoryTest
 {
-    private Mock<IDynamoDBContext> ContextMock;
-    private Mock<IConfiguration> ConfigMock;
-    private UserRepository Repository;
-
-    [SetUp]
-    public void SetUp()
-    {
-        ContextMock = new Mock<IDynamoDBContext>();
-        ConfigMock = new Mock<IConfiguration>();
-
-        ConfigMock.Setup(c => c["Dynamo:UsersTable"]).Returns("TestUsersTable");
-
-        Repository = new UserRepository(ContextMock.Object, ConfigMock.Object);
-    }
-
+   
      [Test]
     [DisplayName("Should return true when user exists by email in DynamoDB")]
     public async Task ShouldReturnTrueWhenUserExistsByEmail()

@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.S3;
 using Amazon.SimpleSystemsManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,8 +12,10 @@ using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence;
 using VibraHeka.Infrastructure.Persistence.Repository;
+using VibraHeka.Infrastructure.Persistence.S3;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure;
@@ -21,6 +24,8 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
+        builder.Services.Configure<AWSConfig>(builder.Configuration.GetSection("AWS"));
+        
         configurationManager.AddSystemsManager(options =>
         {
             options.Path = "/VibraHeka/";
@@ -31,6 +36,7 @@ public static class DependencyInjection
         builder.Services.Configure<AppSettingsEntity>(configurationManager);
         builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AppSettingsEntity>>().Value);
         builder.Services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient());
+        
         
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
@@ -43,6 +49,10 @@ public static class DependencyInjection
         // Email Templates
         builder.Services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
         builder.Services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
+        
+        // Email template storage
+        builder.Services.AddScoped<IEmailTemplateStorageService, EmailTemplateStorageService>();
+        builder.Services.AddScoped<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
         
         // Privileges
         builder.Services.AddScoped<IPrivilegeService, PrivilegeService>();
@@ -57,5 +67,6 @@ public static class DependencyInjection
         builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
         builder.Services.AddAWSService<IAmazonDynamoDB>();
         builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
+        builder.Services.AddAWSService<IAmazonS3>();
     }
 }

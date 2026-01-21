@@ -123,7 +123,7 @@ public class GetAllEmailTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
             CreatedBy = "SystemTest"
         };
 
-        await repository.SaveTemplate(template);
+        await repository.SaveTemplate(template, CancellationToken.None);
     }
     
 }

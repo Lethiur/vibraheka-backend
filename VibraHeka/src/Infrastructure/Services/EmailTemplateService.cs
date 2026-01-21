@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -33,5 +32,24 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken )
     {
        return EmailTemplateRepository.GetAllTemplates(cancellationToken);
+    }
+
+    /// <summary>
+    /// Saves a new or updated email template to the repository.
+    /// </summary>
+    /// <param name="emailTemplate">The email template entity to save.</param>
+    /// <param name="token">The token to preemptively cancel the task if needed</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{String}"/> object
+    /// wrapping the identifier of the saved email template if successful, or an error if the operation fails.</returns>
+    public async Task<Result<string>> SaveEmailTemplate(EmailEntity emailTemplate, CancellationToken token)
+    {
+        return await Maybe.From(emailTemplate)
+            .Where(tpl => tpl != null)
+            .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
+            .MapTry(async tpl =>
+            {
+                 await EmailTemplateRepository.SaveTemplate(tpl, token);
+                 return tpl.ID;
+            });
     }
 }

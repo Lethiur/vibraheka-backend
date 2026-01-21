@@ -26,7 +26,7 @@ public class ChangeTemplateForActionCommandHandler(
             .Bind(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID))
             .Bind(async template =>
             {
-                switch (request.Action)
+                switch (request.ActionType)
                 {
                     case ActionType.UserVerification:
                         return await SettingsService.ChangeEmailForVerificationAsync(request.TemplateID, cancellationToken);

@@ -826,7 +826,7 @@ export interface IAuthenticateUserCommand {
 
 export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {
     templateID?: string;
-    action?: ActionType;
+    actionType?: ActionType;
 
     constructor(data?: IChangeTemplateForActionCommand) {
         if (data) {
@@ -840,7 +840,7 @@ export class ChangeTemplateForActionCommand implements IChangeTemplateForActionC
     init(_data?: any) {
         if (_data) {
             this.templateID = _data["templateID"];
-            this.action = _data["action"];
+            this.actionType = _data["actionType"];
         }
     }
 
@@ -854,14 +854,14 @@ export class ChangeTemplateForActionCommand implements IChangeTemplateForActionC
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["templateID"] = this.templateID;
-        data["action"] = this.action;
+        data["actionType"] = this.actionType;
         return data;
     }
 }
 
 export interface IChangeTemplateForActionCommand {
     templateID?: string;
-    action?: ActionType;
+    actionType?: ActionType;
 }
 
 export enum ActionType {

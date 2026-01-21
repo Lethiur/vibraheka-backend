@@ -11,23 +11,8 @@ using VibraHeka.Infrastructure.Persistence.Repository;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class GetByIDAsyncTest
+public class GetByIDAsyncTest: GenericUserRepositoryTest
 {
-    private Mock<IDynamoDBContext> ContextMock;
-    private Mock<IConfiguration> ConfigMock;
-    private UserRepository Repository;
-
-    [SetUp]
-    public void SetUp()
-    {
-        ContextMock = new Mock<IDynamoDBContext>();
-        ConfigMock = new Mock<IConfiguration>();
-        
-        // Setup configuration for the table name
-        ConfigMock.Setup(c => c["Dynamo:UsersTable"]).Returns("TestUsersTable");
-
-        Repository = new UserRepository(ContextMock.Object, ConfigMock.Object);
-    }
 
     [Test]
     [DisplayName("Should return successful result when user is found in DynamoDB")]
@@ -43,7 +28,7 @@ public class GetByIDAsyncTest
             Role = UserRole.Therapist
         };
 
-        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), default))
+        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
             .ReturnsAsync(userModel);
 
         // When: Getting the user by ID
@@ -62,7 +47,7 @@ public class GetByIDAsyncTest
     {
         // Given: An ID that doesn't exist in DynamoDB
         const string userId = "non-existent";
-        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), default))
+        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
             .ReturnsAsync((UserDBModel)null!);
 
         // When: Getting the user by ID
@@ -80,7 +65,7 @@ public class GetByIDAsyncTest
         // Given: A database error
         const string userId = "any-id";
         const string errorMessage = "DynamoDB Connection Error";
-        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), default))
+        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
             .ThrowsAsync(new Exception(errorMessage));
 
         // When: Getting the user by ID

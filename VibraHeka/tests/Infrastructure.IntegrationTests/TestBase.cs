@@ -4,13 +4,15 @@ using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using DotEnv.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests;
 
 public abstract class TestBase
 {
-    protected IConfiguration _configuration;
+    protected AWSConfig _configuration;
     protected Faker _faker;
 
     [OneTimeSetUp]
@@ -21,7 +23,7 @@ public abstract class TestBase
         _faker = new Faker();
     }
 
-    protected IConfiguration CreateTestConfiguration()
+    protected AWSConfig CreateTestConfiguration()
     {
         string userPoolId = Environment.GetEnvironmentVariable("TEST_COGNITO_USER_POOL_ID")
                             ?? throw new InvalidOperationException(
@@ -41,25 +43,18 @@ public abstract class TestBase
         string templatesTable = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATE_TABLE")
                                 ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATE_TABLE environment variable is required");
 
-        IConfigurationBuilder configBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Dynamo:CodesTable"] = verificationCodesTable,
-                ["Cognito:UserPoolId"] = userPoolId,
-                ["Cognito:ClientId"] = clientId,
-                ["Dynamo:UsersTable"] = usersTable,
-                ["Dynamo:EmailTemplatesTable"] = templatesTable,
-                ["AppSettingsEntity:VerificationEmailTemplate"] = "",
-                ["AppSettingsEntity:EmailForResetPassword"] = "",
-                ["AWS:Region"] = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1",
-                ["AWS:Profile"] = "Twingers"
-            })
-            .AddSystemsManager(options =>
-            {
-                options.Path = "/VibraHeka/";
-                options.Optional = false;
-            });
-        _configuration = configBuilder.Build();
+        string emailTemplatesBucketName = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATES_BUCKET_NAME") ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATES_BUCKET_NAME environment variable is required");
+        
+        _configuration = Options.Create(new AWSConfig()
+        {
+            CodesTable = verificationCodesTable,
+            UserPoolId = userPoolId,
+            ClientId = clientId,
+            UsersTable = usersTable,
+            EmailTemplatesTable = templatesTable,
+            EmailTemplatesBucketName = emailTemplatesBucketName,
+            Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required")
+        }).Value;
         return _configuration;
     }
     
@@ -67,26 +62,16 @@ public abstract class TestBase
     {
     
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
+            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) })).Build();
         
         return dynamoDbContext;
     }
     
     protected AppSettingsEntity CreateAppSettings()
     {
-        var settings = new AppSettingsEntity();
-        _configuration.Bind(settings); // Ahora Bind encontrará las claves del diccionario o de SSM
-        return settings;
+        return new AppSettingsEntity();
     }
     
-    protected void RefreshAppSettings(AppSettingsEntity settings)
-    {
-        if (_configuration is IConfigurationRoot root)
-        {
-            root.Reload();
-        }
-        _configuration.Bind(settings);
-    }
     
     
     

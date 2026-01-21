@@ -365,7 +365,7 @@
           "templateID": {
             "type": "string"
           },
-          "action": {
+          "actionType": {
             "$ref": "#/components/schemas/ActionType"
           }
         }

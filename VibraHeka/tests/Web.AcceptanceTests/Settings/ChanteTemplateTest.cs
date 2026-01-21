@@ -98,7 +98,7 @@ public class ChanteTemplateTest: GenericAcceptanceTest<VibraHekaProgram>
             LastModified = DateTime.UtcNow
         };
 
-        Result<Unit> saveTemplate = await repository.SaveTemplate(template);
+        Result<Unit> saveTemplate = await repository.SaveTemplate(template, CancellationToken.None);
         Assert.That(saveTemplate.IsSuccess, Is.True);
     }
     

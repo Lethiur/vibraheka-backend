@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Configuration;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
@@ -11,7 +12,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// <summary>
 /// Represents a repository for managing user persistence operations utilizing Amazon DynamoDB.
 /// </summary>
-public class UserRepository(IDynamoDBContext context, IConfiguration config) : IUserRepository
+public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserRepository
 {
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.
@@ -22,7 +23,7 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
     {
         SaveConfig saveConfig = new()
         {
-            OverrideTableName = config["Dynamo:UsersTable"],
+            OverrideTableName = config.UsersTable,
         };
         
         await context.SaveAsync(UserDBModel.FromDomain(user), saveConfig);
@@ -39,7 +40,7 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
         QueryConfig queryConfig = new()
         {
             IndexName = "EmailIndex",
-            OverrideTableName = config["Dynamo:UsersTable"]
+            OverrideTableName = config.UsersTable
         };
         
         List<UserDBModel>? results = await context.QueryAsync<UserDBModel>(email, queryConfig).GetRemainingAsync();
@@ -56,7 +57,7 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
     {
         LoadConfig configuration = new()
         {
-            OverrideTableName = config["Dynamo:UsersTable"],
+            OverrideTableName = config.UsersTable,
         };
 
         try
@@ -84,7 +85,7 @@ public class UserRepository(IDynamoDBContext context, IConfiguration config) : I
         QueryConfig queryConfig = new()
         {
             IndexName = "Role-Index",
-            OverrideTableName = config["Dynamo:UsersTable"]
+            OverrideTableName = config.UsersTable
         };
 
         try
