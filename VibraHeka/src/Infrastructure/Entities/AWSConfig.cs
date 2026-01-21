@@ -48,7 +48,7 @@ public class AWSConfig
     /// This property specifies the geographical region where AWS resources are deployed
     /// and determines the endpoint for connecting to AWS services.
     /// </summary>
-    public string Region { get; set; } = string.Empty;
+    public string Location { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the profile name used for AWS service configurations.

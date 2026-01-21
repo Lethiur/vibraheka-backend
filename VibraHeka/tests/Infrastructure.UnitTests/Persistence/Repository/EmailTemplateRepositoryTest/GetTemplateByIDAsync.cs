@@ -23,6 +23,7 @@ public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
     public void Setup()
     {
         base.SetUp();
+        _configMock.EmailTemplatesTable = TableName;
         _repository = new EmailTemplateRepository(_contextMock.Object, _configMock);
     }
 

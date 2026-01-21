@@ -1,6 +1,6 @@
 ﻿
 resource "aws_s3_bucket" "VH_email_templates" {
-  bucket = "VibraHeka-email-templates-${terraform.workspace}" 
+  bucket = "vibraheka-email-templates-${terraform.workspace}" 
 }
 
 resource "aws_s3_bucket_public_access_block" "VH_email_templates_access" {

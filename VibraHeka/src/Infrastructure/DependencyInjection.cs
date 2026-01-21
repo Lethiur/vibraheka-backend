@@ -25,7 +25,8 @@ public static class DependencyInjection
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
         builder.Services.Configure<AWSConfig>(builder.Configuration.GetSection("AWS"));
-        
+        builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
+
         configurationManager.AddSystemsManager(options =>
         {
             options.Path = "/VibraHeka/";

@@ -79,7 +79,7 @@ public class SaveTemplateTest : TestBase
         await _repository.SaveTemplate(originalTemplate, CancellationToken.None);
 
         // And: Retrieving directly from DynamoDB
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesBucketName };
+        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
         EmailTemplateDBModel? retrieved = await _dynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
 
         // Then: Values should match

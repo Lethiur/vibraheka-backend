@@ -1,5 +1,6 @@
 provider "aws" {
   profile = "Twingers"
+  region       = "eu-west-1"
 }
 
 terraform {
@@ -9,6 +10,6 @@ terraform {
     region       = "eu-west-1"
     profile      = "Twingers"
     encrypt      = true
-    use_lockfile = true
+    # use_lockfile = true
   }
 }

@@ -21,7 +21,7 @@ public abstract class GenericUserServiceTest
         _loggerMock = new Mock<ILogger<UserService>>();
         _cognitoMock = new Mock<IAmazonCognitoIdentityProvider>();
 
-        _configMock.Region = "eu-west-1";
+        _configMock.Location = "eu-west-1";
         _configMock.Profile = "Twingers";
         
         // Asumiendo que UserService permite inyectar o acceder al cliente para tests

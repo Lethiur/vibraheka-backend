@@ -53,7 +53,8 @@ public abstract class TestBase
             UsersTable = usersTable,
             EmailTemplatesTable = templatesTable,
             EmailTemplatesBucketName = emailTemplatesBucketName,
-            Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required")
+            Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required"),
+            Location = "eu-west-1"
         }).Value;
         return _configuration;
     }

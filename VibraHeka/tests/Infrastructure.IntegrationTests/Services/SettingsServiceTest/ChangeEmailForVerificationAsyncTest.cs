@@ -24,7 +24,7 @@ public class SettingsServiceIntegrationTests : TestBase
     public void SetUp()
     {
         string profileName = _configuration.Profile;
-        RegionEndpoint? region = Amazon.RegionEndpoint.GetBySystemName(_configuration.Region);
+        RegionEndpoint? region = Amazon.RegionEndpoint.GetBySystemName(_configuration.Location);
 
       
         CredentialProfileStoreChain chain = new Amazon.Runtime.CredentialManagement.CredentialProfileStoreChain();

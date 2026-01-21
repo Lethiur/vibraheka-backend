@@ -53130,7 +53130,7 @@ var require_credential_provider_chain = __commonJS({
        */
       constructor: function CredentialProviderChain(providers) {
         if (providers) {
-          this.providers = providers;
+          this.∑providers = providers;
         } else {
           this.providers = AWS.CredentialProviderChain.defaultProviders.slice(0);
         }

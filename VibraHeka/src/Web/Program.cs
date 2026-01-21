@@ -41,9 +41,10 @@ public class VibraHekaProgram
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                string? region = builder.Configuration["Cognito:Region"];
-                string? userPoolId = builder.Configuration["Cognito:UserPoolId"];
-                string? clientId = builder.Configuration["Cognito:ClientId"];
+                
+                string? region = builder.Configuration["AWS:Region"];
+                string? userPoolId = builder.Configuration["AWS:UserPoolId"];
+                string? clientId = builder.Configuration["AWS:ClientId"];
 
                 options.Authority = $"https://cognito-idp.{region}.amazonaws.com/{userPoolId}";
                 options.RequireHttpsMetadata = true;

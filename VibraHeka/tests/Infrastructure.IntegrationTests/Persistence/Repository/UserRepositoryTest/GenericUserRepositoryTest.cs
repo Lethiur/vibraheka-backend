@@ -59,7 +59,7 @@ public abstract class GenericUserRepositoryTest
 
         return Options.Create(new AWSConfig()
         {
-            Region = region,
+            Location = region,
             UsersTable = usersTable,
             Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required")
         }).Value;

@@ -31,7 +31,7 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
     /// <returns>An instance of <see cref="AmazonCognitoIdentityProviderClient"/> initialized with the appropriate AWS credentials and region.</returns>
     private static AmazonCognitoIdentityProviderClient CreateClient(AWSConfig config)
     {
-        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config.Region);
+        RegionEndpoint? region = RegionEndpoint.GetBySystemName(config.Location);
         string? profileName = config.Profile;
 
         if (!string.IsNullOrEmpty(profileName))

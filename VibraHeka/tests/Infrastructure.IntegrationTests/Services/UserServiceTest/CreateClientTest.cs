@@ -18,7 +18,7 @@ public class CreateClientTest
     {
         _configMock = new AWSConfig()
         {
-            Region = "eu-west-1"
+            Location = "eu-west-1"
         };
         _loggerMock = new Mock<ILogger<UserService>>();
     }

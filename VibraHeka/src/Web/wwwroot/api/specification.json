@@ -186,6 +186,47 @@
         }
       }
     },
+    "/api/v1/email-templates/create": {
+      "put": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_CreateNewEmailTemplate",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "TemplateName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/ChangeTemplate": {
       "patch": {
         "tags": [
