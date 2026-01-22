@@ -26,7 +26,7 @@ public interface IEmailTemplateStorageRepository
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A <c>Task</c> representing the asynchronous operation,
     /// containing a <c>Result</c> object indicating success or failure of the save operation.</returns>
-    Task<Result<Unit>> SaveTemplate(string templateID, Stream templateStream, CancellationToken cancellationToken);
+    Task<Result<string>> SaveTemplate(string templateID, Stream templateStream, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves an authorization string that can be used to access the specified email template for reading.

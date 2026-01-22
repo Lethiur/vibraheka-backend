@@ -56,7 +56,7 @@ public class SaveTemplateTest : TestBase
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(templateId));
+        Assert.That(result.Value, Is.EqualTo(  $"https://{_configuration.EmailTemplatesBucketName}.s3.{_configuration.Location}.amazonaws.com/{templateId}/template.json"));
 
         // Cleanup remoto
         await _s3.DeleteObjectAsync(_bucketName, templateId, _cancellationToken);
@@ -76,7 +76,7 @@ public class SaveTemplateTest : TestBase
         // Then
         Assert.That(result.IsSuccess, Is.True);
 
-        using (GetObjectResponse response = await _s3.GetObjectAsync(_bucketName, templateId, _cancellationToken))
+        using (GetObjectResponse response = await _s3.GetObjectAsync(_bucketName, $"{templateId}/template.json", _cancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
             using MemoryStream ms = new MemoryStream();
@@ -87,7 +87,7 @@ public class SaveTemplateTest : TestBase
         }
 
         // Cleanup remoto
-        await _s3.DeleteObjectAsync(_bucketName, templateId, _cancellationToken);
+        await _s3.DeleteObjectAsync(_bucketName, $"{templateId}/template.json", _cancellationToken);
     }
 
     [Test]

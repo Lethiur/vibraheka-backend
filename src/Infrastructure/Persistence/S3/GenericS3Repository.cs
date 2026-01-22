@@ -10,7 +10,7 @@ namespace VibraHeka.Infrastructure.Persistence.S3;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
 {
-     /// <summary>
+    /// <summary>
     /// Client used to communicate with AWS
     /// </summary>
     private readonly IAmazonS3 Client = client;
@@ -24,29 +24,26 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     /// Sends a file to AWS on async fashion
     /// </summary>
     /// <param name="file">The file to be sent</param>
+    /// <param name="uploadPath">The path on the S3</param>
     /// <param name="token">The token used to cancel the task</param>
     /// <returns>Whether the file was properly uploaded to the bucket</returns>
-    protected async Task<Result<bool>> UploadAsync(FileInfo file, CancellationToken token)
+    protected async Task<Result<string>> UploadAsync(FileInfo file, string uploadPath, CancellationToken token)
     {
-        bool ret = false;
         if (file is not { Exists: true })
         {
-            return ret;
+            return  Result.Failure<string>("File does not exist");
         }
 
         await using Stream strean = file.OpenRead();
-        PutObjectRequest objectRequest = new()
-        {
-            BucketName = BucketName,
-            Key = file.Name,
-            InputStream = strean
-        };    
+        PutObjectRequest objectRequest = new() { BucketName = BucketName, Key = uploadPath + "/" + file.Name, InputStream = strean };
         objectRequest.Metadata.Add("Content-Type", "image/png");
 
         PutObjectResponse objectAsync = await Client.PutObjectAsync(objectRequest, token);
-        ret = objectAsync.HttpStatusCode == HttpStatusCode.OK;
 
-        return ret;
+        return objectAsync.HttpStatusCode == HttpStatusCode.OK
+            ? Result.Success(
+                $"https://{BucketName}.s3.{Client.Config.RegionEndpoint.SystemName}.amazonaws.com/{uploadPath}/{file.Name}")
+            : Result.Failure<string>("Failed to upload file");
     }
 
     /// <summary>
@@ -59,7 +56,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     {
         GetObjectResponse getObjectResponse =
             await Client.GetObjectAsync(BucketName, fileKey, token);
-        
+
         await using Stream responseStream = getObjectResponse.ResponseStream;
         using StreamReader reader = new(responseStream);
 
@@ -92,7 +89,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
         {
             return Result.Failure<string>(InfrastructureFileManagementErrors.InvalidHash);
         }
-        
+
         GetPreSignedUrlRequest request = new GetPreSignedUrlRequest
         {
             BucketName = BucketName,
@@ -101,9 +98,8 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             Verb = HttpVerb.PUT,
             Headers = { ContentMD5 = md5Hash },
             ContentType = "application/octet-stream",
-            
         };
-        
+
         return await Client.GetPreSignedURLAsync(request);
     }
 }

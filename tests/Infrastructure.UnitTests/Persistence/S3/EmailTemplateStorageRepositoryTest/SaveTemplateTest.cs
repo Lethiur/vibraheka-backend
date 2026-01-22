@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
@@ -40,6 +41,8 @@ public class SaveTemplateTest
         ClientMock
             .Setup(c => c.PutObjectAsync(It.IsAny<PutObjectRequest>(), cancellationToken))
             .ReturnsAsync(new PutObjectResponse { HttpStatusCode = System.Net.HttpStatusCode.OK });
+        
+        ClientMock.Setup(c => c.Config).Returns(new AmazonS3Config { RegionEndpoint = RegionEndpoint.USEast1 });
 
         EmailTemplateStorageRepository repository =
             new EmailTemplateStorageRepository(ClientMock.Object, Options);
@@ -47,7 +50,7 @@ public class SaveTemplateTest
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
         // When
-        Result<Unit> result = await repository.SaveTemplate(templateId, templateStream, cancellationToken);
+        Result<string> result = await repository.SaveTemplate(templateId, templateStream, cancellationToken);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -60,7 +63,7 @@ public class SaveTemplateTest
             c => c.PutObjectAsync(
                 It.Is<PutObjectRequest>(r =>
                     r.BucketName == Options.EmailTemplatesBucketName &&
-                    r.Key == templateId &&
+                    r.Key == $"{templateId}/template.json" &&
                     r.InputStream != null),
                 cancellationToken),
             Times.Once);

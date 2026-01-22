@@ -31,14 +31,14 @@ public class SaveTemplateTest
         using var templateStream = new MemoryStream(bytes);
         _repositoryMock
             .Setup(r => r.SaveTemplate(templateId, templateStream, _cancellationToken))
-            .ReturnsAsync(CSharpFunctionalExtensions.Result.Success(MediatR.Unit.Value));
+            .ReturnsAsync(CSharpFunctionalExtensions.Result.Success(""));
 
         // When
         var result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(templateId));
+        Assert.That(result.Value, Is.EqualTo(""));
 
         _repositoryMock.Verify(r => r.SaveTemplate(templateId, templateStream, _cancellationToken), Times.Once);
         _repositoryMock.VerifyNoOtherCalls();

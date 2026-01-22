@@ -27,15 +27,15 @@ public class CreateEmailTemplateCommandHandler(
 {
     public Task<Result<Unit>> Handle(CreateEmailTemplateCommand request, CancellationToken cancellationToken)
     {
+        EmailEntity entity = new EmailEntity(){ID = Guid.NewGuid().ToString()};
         return Maybe.From(currentUserService.UserId)
             .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
             .Bind(async userID => await privilegeService.HasRoleAsync(userID, UserRole.Admin))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
-            .Map(_ => Guid.NewGuid().ToString())
-            .Bind(templateID => storageService.SaveTemplate(templateID, request.fileStream, cancellationToken))
-            .Map(templateID => new EmailEntity() { ID = templateID, Name = request.templateName, Path = templateID})
-            .Bind(templateID => templateService.SaveEmailTemplate(templateID, cancellationToken))
+            .Bind(template => storageService.SaveTemplate(entity.ID, request.FileStream, cancellationToken))
+            .Map(templatePath => entity.Path = templatePath)
+            .Bind(_ => templateService.SaveEmailTemplate(entity, cancellationToken))
             .Map(_ => Unit.Value);
     }
 }

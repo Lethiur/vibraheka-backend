@@ -48,7 +48,7 @@ public class SaveTemplateTest : TestBase
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
         // When
-        Result<Unit> result = await repository.SaveTemplate(templateId, templateStream, CancellationToken.None);
+        Result<string> result = await repository.SaveTemplate(templateId, templateStream, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -83,19 +83,19 @@ public class SaveTemplateTest : TestBase
         // When
         await using (MemoryStream s1 = new MemoryStream(bytesV1))
         {
-            Result<Unit> r1 = await repository.SaveTemplate(templateId, s1, CancellationToken.None);
+            Result<string> r1 = await repository.SaveTemplate(templateId, s1, CancellationToken.None);
             Assert.That(r1.IsSuccess, Is.True);
         }
 
         await using (MemoryStream s2 = new MemoryStream(bytesV2))
         {
-            Result<Unit> r2 = await repository.SaveTemplate(templateId, s2, CancellationToken.None);
+            Result<string> r2 = await repository.SaveTemplate(templateId, s2, CancellationToken.None);
             Assert.That(r2.IsSuccess, Is.True);
         }
 
         // Then
         using (GetObjectResponse response =
-               await _s3.GetObjectAsync(_configuration.EmailTemplatesBucketName, templateId))
+               await _s3.GetObjectAsync(_configuration.EmailTemplatesBucketName, $"{templateId}/template.json"))
         await using (Stream responseStream = response.ResponseStream)
         {
             using MemoryStream ms = new MemoryStream();
@@ -106,6 +106,6 @@ public class SaveTemplateTest : TestBase
         }
 
         // Cleanup remoto
-        await _s3.DeleteObjectAsync(_configuration.EmailTemplatesBucketName, templateId);
+        await _s3.DeleteObjectAsync(_configuration.EmailTemplatesBucketName, $"{templateId}/template.json");
     }
 }

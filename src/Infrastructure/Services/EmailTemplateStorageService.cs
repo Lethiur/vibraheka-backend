@@ -22,10 +22,9 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     /// <param name="templateStream">The stream containing the email template content.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A result containing the template ID if the operation is successful, or an error if it fails.</returns>
-    public async Task<Result<string>> SaveTemplate(string templateID, Stream templateStream,
+    public Task<Result<string>> SaveTemplate(string templateID, Stream templateStream,
         CancellationToken cancellationToken)
     {
-        await _repository.SaveTemplate(templateID, templateStream, cancellationToken);
-        return templateID;
+        return _repository.SaveTemplate(templateID, templateStream, cancellationToken);
     }
 }

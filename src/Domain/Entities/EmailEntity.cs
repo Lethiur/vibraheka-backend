@@ -12,4 +12,7 @@ public class EmailEntity : BaseAuditableEntity
     
     public string Name { get; set; } = string.Empty;
     
+    public List<string> Attachments { get; set; } = [];
+    
 }
+ 

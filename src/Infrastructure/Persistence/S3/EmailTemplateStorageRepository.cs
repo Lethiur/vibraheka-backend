@@ -39,15 +39,15 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the save operation.</param>
     /// <returns>A result indicating success or failure of the save operation.</returns>
     /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
-    public async Task<Result<Unit>> SaveTemplate(string templateID, Stream templateStream,
+    public async Task<Result<string>> SaveTemplate(string templateID, Stream templateStream,
         CancellationToken cancellationToken)
     {
-        string tempPath = Path.Combine(Path.GetTempPath(), templateID);
+        string tempPath = Path.Combine(Path.GetTempPath(), "template.json");
         if (templateStream.CanSeek)
         {
             templateStream.Position = 0;
         }
-
+        
         await using (FileStream file = new(
                          tempPath,
                          FileMode.Create,
@@ -58,9 +58,9 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
             await file.FlushAsync(cancellationToken);
         }
 
-        await UploadAsync(new FileInfo(tempPath), cancellationToken);
+        Result<string> uploadAsync = await UploadAsync(new FileInfo(tempPath), templateID, cancellationToken);
         File.Delete(tempPath);
-        return Result.Success(Unit.Value);
+        return uploadAsync;
     }
 
     /// <summary>
