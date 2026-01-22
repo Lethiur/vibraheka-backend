@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"CreateChallengeLambda","Source":"./Lambdas/VerificationCode/terraform","Dir":"Lambdas/VerificationCode/terraform"}]}

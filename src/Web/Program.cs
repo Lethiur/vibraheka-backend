@@ -42,7 +42,7 @@ public class VibraHekaProgram
             .AddJwtBearer(options =>
             {
                 
-                string? region = builder.Configuration["AWS:Region"];
+                string? region = builder.Configuration["AWS:Location"];
                 string? userPoolId = builder.Configuration["AWS:UserPoolId"];
                 string? clientId = builder.Configuration["AWS:ClientId"];
 
