@@ -11,6 +11,7 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;
@@ -28,14 +29,14 @@ public class ChanteTemplateTest: GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(username, email, ThePassword);
         
         // And: The user is authenticated
-        var authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
         
         // And: Template in the DB
         await SeedEmailTemplate(templateID, "test/verification-email.html");
 
         // And: A command to change the template
-        var command = new ChangeTemplateForActionCommand(templateID, ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.UserVerification);
 
         // When: The admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -54,11 +55,11 @@ public class ChanteTemplateTest: GenericAcceptanceTest<VibraHekaProgram>
         // Given: An authenticated admin
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        var authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // And: An invalid command (empty template)
-        var command = new ChangeTemplateForActionCommand("", ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("", ActionType.UserVerification);
 
         // When: Sending the request
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -76,7 +77,7 @@ public class ChanteTemplateTest: GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnUnauthorizedWhenNoTokenProvided()
     {
         // Given: A command but no authorization header
-        var command = new ChangeTemplateForActionCommand("Some template", ActionType.PasswordReset);
+        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("Some template", ActionType.PasswordReset);
 
         // When: Any user (or guest) attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);

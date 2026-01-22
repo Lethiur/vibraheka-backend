@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Infrastructure.Services;
@@ -28,13 +29,13 @@ public class SaveTemplateTest
         string templateId = Guid.NewGuid().ToString("N");
         byte[] bytes = Encoding.UTF8.GetBytes("""{"template":"Hello"}""");
 
-        using var templateStream = new MemoryStream(bytes);
+        using MemoryStream templateStream = new MemoryStream(bytes);
         _repositoryMock
             .Setup(r => r.SaveTemplate(templateId, templateStream, _cancellationToken))
             .ReturnsAsync(CSharpFunctionalExtensions.Result.Success(MediatR.Unit.Value));
 
         // When
-        var result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
+        Result<string> result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -51,7 +52,7 @@ public class SaveTemplateTest
         string templateId = Guid.NewGuid().ToString("N");
         byte[] bytes = Encoding.UTF8.GetBytes("""{"template":"Boom"}""");
 
-        using (var templateStream = new MemoryStream(bytes))
+        using (MemoryStream templateStream = new MemoryStream(bytes))
         {
             _repositoryMock
                 .Setup(r => r.SaveTemplate(templateId, templateStream, _cancellationToken))

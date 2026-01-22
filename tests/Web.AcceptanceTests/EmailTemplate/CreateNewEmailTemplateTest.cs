@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using NUnit.Framework;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
@@ -13,7 +14,7 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
     public async Task ShouldReturnUnauthorizedWhenCreateNewEmailTemplateIsCalledWithoutToken()
     {
         // Given
-        using var form = CreateValidMultipartForm(
+        using MultipartFormDataContent form = CreateValidMultipartForm(
             templateName: $"template-{TheFaker.Random.AlphaNumeric(8)}",
             fileName: "template.json",
             fileContent: """{"template":"Hello","subject":"World"}""");
@@ -33,10 +34,10 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(username, email, ThePassword);
 
-        var auth = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
-        using var form = CreateValidMultipartForm(
+        using MultipartFormDataContent form = CreateValidMultipartForm(
             templateName: $"template-{TheFaker.Random.AlphaNumeric(8)}",
             fileName: "template.json",
             fileContent: """{"template":"Hello","subject":"World"}""");
@@ -56,10 +57,10 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(username, email, ThePassword);
 
-        var auth = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
-        using var form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new MultipartFormDataContent();
         form.Add(new StringContent($"template-{TheFaker.Random.AlphaNumeric(8)}", Encoding.UTF8), "TemplateName");
         // Nota: no añadimos "File" para forzar request inválida
 
@@ -73,14 +74,14 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
     private static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
         string fileContent)
     {
-        var form = new MultipartFormDataContent();
+        MultipartFormDataContent form = new MultipartFormDataContent();
 
         form.Add(new StringContent(templateName, Encoding.UTF8), "TemplateName");
 
-        var bytes = Encoding.UTF8.GetBytes(fileContent);
-        var fileStream = new MemoryStream(bytes);
+        byte[] bytes = Encoding.UTF8.GetBytes(fileContent);
+        MemoryStream fileStream = new MemoryStream(bytes);
 
-        var filePart = new StreamContent(fileStream);
+        StreamContent filePart = new StreamContent(fileStream);
         filePart.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         form.Add(filePart, "File", fileName);

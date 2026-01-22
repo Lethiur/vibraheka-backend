@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Amazon.CognitoIdentityProvider.Model;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
@@ -21,7 +22,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ReturnsAsync(new ConfirmSignUpResponse());
 
         // When: Confirming the user
-        var result = await _service.ConfirmUserAsync(email, code);
+        Result<Unit> result = await _service.ConfirmUserAsync(email, code);
 
         // Then: Should return success Unit
         Assert.That(result.IsSuccess, Is.True);
@@ -37,7 +38,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ThrowsAsync(new CodeMismatchException("Invalid code"));
 
         // When: Confirming
-        var result = await _service.ConfirmUserAsync("user@test.com", "000000");
+        Result<Unit> result = await _service.ConfirmUserAsync("user@test.com", "000000");
 
         // Then: Should return WrongVerificationCode domain error
         Assert.That(result.IsFailure, Is.True);
@@ -53,7 +54,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ThrowsAsync(new ExpiredCodeException("Code expired"));
 
         // When: Confirming
-        var result = await _service.ConfirmUserAsync("user@test.com", "111111");
+        Result<Unit> result = await _service.ConfirmUserAsync("user@test.com", "111111");
 
         // Then: Should return ExpiredCode domain error
         Assert.That(result.IsFailure, Is.True);
@@ -69,7 +70,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ThrowsAsync(new TooManyFailedAttemptsException("Too many tries"));
 
         // When: Confirming
-        var result = await _service.ConfirmUserAsync("user@test.com", "222222");
+        Result<Unit> result = await _service.ConfirmUserAsync("user@test.com", "222222");
 
         // Then: Should return TooManyAttempts domain error
         Assert.That(result.IsFailure, Is.True);
@@ -85,7 +86,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
         // When: Confirming
-        var result = await _service.ConfirmUserAsync("none@test.com", "123456");
+        Result<Unit> result = await _service.ConfirmUserAsync("none@test.com", "123456");
 
         // Then: Should return UserNotFound domain error
         Assert.That(result.IsFailure, Is.True);
@@ -101,7 +102,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
             .ThrowsAsync(new Exception("AWS is having issues"));
 
         // When: Confirming
-        var result = await _service.ConfirmUserAsync("user@test.com", "123456");
+        Result<Unit> result = await _service.ConfirmUserAsync("user@test.com", "123456");
 
         // Then: Should return AppErrors.UnknownError as defined in your catch
         Assert.That(result.IsFailure, Is.True);

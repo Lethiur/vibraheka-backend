@@ -39,7 +39,7 @@ public class GetAllTemplatesForActionsTest
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        var templates = result.Value.ToList();
+        List<TemplateForActionEntity> templates = result.Value.ToList();
 
         Assert.That(templates, Has.Count.EqualTo(2));
 
