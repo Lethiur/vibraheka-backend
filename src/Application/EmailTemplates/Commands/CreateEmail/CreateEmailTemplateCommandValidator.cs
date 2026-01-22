@@ -8,7 +8,8 @@ public class CreateEmailTemplateCommandValidator : AbstractValidator<CreateEmail
 {
     public CreateEmailTemplateCommandValidator()
     {
-        RuleFor(x => x.templateName).NotEmpty().NotNull().MinimumLength(3).WithMessage(EmailTemplateErrors.InvalidTemplateName);
-        RuleFor(x => x.fileStream).NotNull().NotEmpty().ValidJsonStream().WithMessage(EmailTemplateErrors.InvalidTemplateContent);
+        RuleLevelCascadeMode = CascadeMode.Stop; 
+        RuleFor(x => x.templateName).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateName).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateName).MinimumLength(3).WithMessage(EmailTemplateErrors.InvalidTemplateName);
+        RuleFor(x => x.fileStream).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateContent).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateContent).ValidJsonStream().WithMessage(EmailTemplateErrors.InvalidTemplateContent);
     }
 }

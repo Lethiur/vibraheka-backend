@@ -69,14 +69,14 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
 
         if (mediatrResponse.IsFailure)
         {
-            Logger.LogError("Failed to create new template because {Error}", mediatrResponse.Error);
+            LogFailedToCreateNewTemplateBecauseError(Logger, mediatrResponse.Error);
             if (mediatrResponse.Error == UserErrors.NotAuthorized)
                 return new UnauthorizedResult();
             return new BadRequestObjectResult(ResponseEntity.FromError(mediatrResponse.Error));
         }
         else
         {
-            Logger.LogInformation("Successfully created new template {TemplateName}", request.TemplateName);
+            LogSuccessfullyCreatedNewTemplateTemplatename(Logger, request.TemplateName);
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
@@ -85,4 +85,10 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
 
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
     static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string Error);
+
+    [LoggerMessage(LogLevel.Information, "Successfully created new template {TemplateName}")]
+    static partial void LogSuccessfullyCreatedNewTemplateTemplatename(ILogger<EmailTemplateController> logger, string TemplateName);
+
+    [LoggerMessage(LogLevel.Error, "Failed to create new template because {Error}")]
+    static partial void LogFailedToCreateNewTemplateBecauseError(ILogger<EmailTemplateController> logger, string Error);
 }

@@ -43,9 +43,23 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
         CancellationToken cancellationToken)
     {
         string tempPath = Path.Combine(Path.GetTempPath(), templateID);
-        FileStream file = new(tempPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await file.CopyToAsync(templateStream, cancellationToken);
+        if (templateStream.CanSeek)
+        {
+            templateStream.Position = 0;
+        }
+
+        await using (FileStream file = new(
+                         tempPath,
+                         FileMode.Create,
+                         FileAccess.Write,
+                         FileShare.None))
+        {
+            await templateStream.CopyToAsync(file, cancellationToken);
+            await file.FlushAsync(cancellationToken);
+        }
+
         await UploadAsync(new FileInfo(tempPath), cancellationToken);
+        File.Delete(tempPath);
         return Result.Success(Unit.Value);
     }
 

@@ -29,21 +29,22 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     protected async Task<Result<bool>> UploadAsync(FileInfo file, CancellationToken token)
     {
         bool ret = false;
-        if (file is { Exists: true })
+        if (file is not { Exists: true })
         {
-            // making a TransferUtilityUploadRequest instance
-            PutObjectRequest objectRequest = new()
-            {
-                BucketName = BucketName,
-                Key = file.Name,
-                InputStream = file.OpenRead()
-            };
-
-            objectRequest.Metadata.Add("Content-Type", "image/png");
-
-            PutObjectResponse objectAsync = await Client.PutObjectAsync(objectRequest, token);
-            ret = objectAsync.HttpStatusCode == HttpStatusCode.OK;    
+            return ret;
         }
+
+        await using Stream strean = file.OpenRead();
+        PutObjectRequest objectRequest = new()
+        {
+            BucketName = BucketName,
+            Key = file.Name,
+            InputStream = strean
+        };    
+        objectRequest.Metadata.Add("Content-Type", "image/png");
+
+        PutObjectResponse objectAsync = await Client.PutObjectAsync(objectRequest, token);
+        ret = objectAsync.HttpStatusCode == HttpStatusCode.OK;
 
         return ret;
     }

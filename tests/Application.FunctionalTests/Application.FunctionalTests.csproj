@@ -34,7 +34,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="EmailTemplates\Commands\" />
       <Folder Include="Settings\Commands\" />
       <Folder Include="Therapists\Queries\" />
     </ItemGroup>

@@ -30,4 +30,12 @@
     <Folder Include="terraform\Lambdas\SendEmail\terraform\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="terraform\.terraform\modules\modules.json" />
+    <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.23.0\darwin_arm64\LICENSE.txt" />
+    <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.25.0\windows_386\LICENSE.txt" />
+    <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.25.0\windows_386\terraform-provider-aws_v6.25.0_x5.exe" />
+    <Content Include="terraform\.terraform\terraform.tfstate" />
+  </ItemGroup>
+
 </Project>

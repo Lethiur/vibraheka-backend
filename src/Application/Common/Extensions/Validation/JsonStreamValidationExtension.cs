@@ -17,15 +17,15 @@ public static class JsonStreamValidationExtension
     /// </returns>
     public static IRuleBuilderOptions<T, Stream> ValidJsonStream<T>(this IRuleBuilder<T, Stream> ruleBuilder)
     {
-        return ruleBuilder.MustAsync(async (stream, ct) =>
+        return ruleBuilder.Must((stream) =>
         {
             try
             {
                 stream.Position = 0;
-                using JsonDocument document = await JsonDocument.ParseAsync(
-                    stream,
-                    cancellationToken: ct
-                );
+                using JsonDocument document =
+                    JsonDocument.Parse(
+                        stream
+                    );
             }
             catch (JsonException)
             {
