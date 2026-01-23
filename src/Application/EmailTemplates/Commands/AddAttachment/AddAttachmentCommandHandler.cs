@@ -3,6 +3,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 
@@ -30,8 +31,8 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 public class AddAttachmentCommandHandler(
     IPrivilegeService privilegeService,
     ICurrentUserService currentUserService,
-    IEmailTemplatesService templatesService
-    // IEmailTemplateStorageService emailTemplateStorageService
+    IEmailTemplatesService templatesService,
+    IEmailTemplateStorageService emailTemplateStorageService
     ) : IRequestHandler<AddAttachmentCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
@@ -42,6 +43,13 @@ public class AddAttachmentCommandHandler(
             .Bind(async userID => await privilegeService.HasRoleAsync(userID, UserRole.Admin))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
             .Bind(_ => templatesService.GetTemplateByID(request.TemplateId))
+            .Ensure(template => template != null, EmailTemplateErrors.TemplateNotFound)
+            .Bind(templateEntity =>
+                emailTemplateStorageService
+                    .AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
+                    .Tap(url => templateEntity.Attachments.Add(url))
+                    .Map(_ => templateEntity))
+            .Bind(templateEntity => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
             .Map(_ => Unit.Value);
     }
 }

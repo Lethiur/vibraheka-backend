@@ -12,12 +12,12 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateStorag
 [Category("Integration")]
 public class SaveTemplateTest : TestBase
 {
-    private IAmazonS3 _s3 = default!;
-    private EmailTemplateStorageRepository _repository = default!;
-    private EmailTemplateStorageService _service = default!;
+    private IAmazonS3 S3 = default!;
+    private EmailTemplateStorageRepository Repository = default!;
+    private EmailTemplateStorageService Service = default!;
 
-    private CancellationToken _cancellationToken;
-    private string _bucketName = default!;
+    private CancellationToken TestCancellationToken;
+    private string BucketName = default!;
 
     [OneTimeSetUp]
     public void OneTimeSetUpS3()
@@ -25,90 +25,90 @@ public class SaveTemplateTest : TestBase
         // Given (shared)
         RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
 
-        _s3 = new AmazonS3Client(new AmazonS3Config
+        S3 = new AmazonS3Client(new AmazonS3Config
         {
             RegionEndpoint = region, Profile = new Profile(_configuration.Profile)
         });
 
-        _bucketName = _configuration.EmailTemplatesBucketName;
-        _cancellationToken = CancellationToken.None;
+        BucketName = _configuration.EmailTemplatesBucketName;
+        TestCancellationToken = CancellationToken.None;
 
-        _repository = new EmailTemplateStorageRepository(_s3, _configuration);
-        _service = new EmailTemplateStorageService(_repository);
+        Repository = new EmailTemplateStorageRepository(S3, _configuration);
+        Service = new EmailTemplateStorageService(Repository);
     }
 
     [OneTimeTearDown]
     public void OneTimeTearDownS3()
     {
-        _s3?.Dispose();
+        S3?.Dispose();
     }
 
     [Test]
     public async Task ShouldReturnTemplateIdWhenSaveTemplateIsCalled()
     {
-        // Given
+        // Given: a valid template request to verify URL generation.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"Hello","subject":"World"}""");
         await using MemoryStream templateStream = new MemoryStream(expectedBytes);
 
-        // When
-        Result<string> result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
+        // When: saving the template via the service.
+        Result<string> result = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
 
         // Then
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(  $"https://{_configuration.EmailTemplatesBucketName}.s3.{_configuration.Location}.amazonaws.com/{templateId}/template.json"));
+        Assert.That(result.IsSuccess);
+        Assert.That(result.Value, Is.EqualTo($"https://{_configuration.EmailTemplatesBucketName}.s3.{_configuration.Location}.amazonaws.com/{templateId}/template.json"));
 
-        // Cleanup remoto
-        await _s3.DeleteObjectAsync(_bucketName, templateId, _cancellationToken);
+        // Remote cleanup.
+        await S3.DeleteObjectAsync(BucketName, templateId, TestCancellationToken);
     }
 
     [Test]
     public async Task ShouldUploadTemplateToS3WhenSaveTemplateIsCalled()
     {
-        // Given
+        // Given: a template payload to verify it is uploaded.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"Integration","subject":"S3"}""");
         await using MemoryStream templateStream = new MemoryStream(expectedBytes);
 
-        // When
-        Result<string> result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
+        // When: saving the template via the service.
+        Result<string> result = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
 
         // Then
-        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.IsSuccess);
 
-        using (GetObjectResponse response = await _s3.GetObjectAsync(_bucketName, $"{templateId}/template.json", _cancellationToken))
+        using (GetObjectResponse response = await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
             using MemoryStream ms = new MemoryStream();
-            await responseStream.CopyToAsync(ms, _cancellationToken);
+            await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 
             Assert.That(actualBytes, Is.EqualTo(expectedBytes));
         }
 
-        // Cleanup remoto
-        await _s3.DeleteObjectAsync(_bucketName, $"{templateId}/template.json", _cancellationToken);
+        // Remote cleanup.
+        await S3.DeleteObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken);
     }
 
     [Test]
     public async Task ShouldNotLeaveTempFileWhenSaveTemplateIsCalled()
     {
-        // Este test solo aplica si el repositorio borra el fichero temporal en finally.
-        // Given
+        // This test only applies if the repository deletes the temp file in finally.
+        // Given: a template payload to verify temp cleanup.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"TempCleanup"}""");
         await using MemoryStream templateStream = new MemoryStream(expectedBytes);
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
-        // When
-        Result<string> result = await _service.SaveTemplate(templateId, templateStream, _cancellationToken);
+        // When: saving the template via the service.
+        Result<string> result = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
 
         // Then
-        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.IsSuccess);
         Assert.That(File.Exists(expectedTempPath), Is.False);
 
-        // Cleanup remoto
-        await _s3.DeleteObjectAsync(_bucketName, templateId, _cancellationToken);
+        // Remote cleanup.
+        await S3.DeleteObjectAsync(BucketName, templateId, TestCancellationToken);
     }
 }

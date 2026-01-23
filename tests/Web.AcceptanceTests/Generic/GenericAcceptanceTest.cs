@@ -54,8 +54,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [OneTimeTearDown]
     public void TearDown()
     {
-        Client.Dispose();
-        Factory.Dispose();
+        Client?.Dispose();
+        Factory?.Dispose();
     }
 
     /// <summary>

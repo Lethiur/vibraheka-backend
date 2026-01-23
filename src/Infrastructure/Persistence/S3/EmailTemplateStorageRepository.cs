@@ -64,6 +64,49 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     }
 
     /// <summary>
+    /// Saves an attachment associated with the specified email template ID into the storage repository.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to which the attachment belongs.</param>
+    /// <param name="attachmentStream">The stream representing the attachment content to be saved.</param>
+    /// <param name="attachmentName">The name of the attachment to be saved.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A result containing the path of the saved attachment if successful; otherwise, an error result.</returns>
+    /// <exception cref="IOException">Thrown if an I/O error occurs during file operations.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown if permission to access the filesystem or cloud storage is denied.</exception>
+    public async Task<Result<string>> SaveAttachment(string templateID, Stream attachmentStream, string attachmentName,
+        CancellationToken cancellationToken)
+    {
+        string tempPath = Path.Combine(Path.GetTempPath(), attachmentName);
+        try
+        {
+
+            if (attachmentStream.CanSeek)
+            {
+                attachmentStream.Position = 0;
+            }
+
+            await using (FileStream file = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
+            {
+                await attachmentStream.CopyToAsync(file, cancellationToken);
+                await file.FlushAsync(cancellationToken);
+            }
+
+            Result<string> uploadAsync =
+                await UploadAsync(new FileInfo(tempPath), $"{templateID}/attachments", cancellationToken);
+
+            return uploadAsync;
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+        }
+        
+    }
+
+    /// <summary>
     /// Generates an authorization string that allows read access to the specified email template.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template for which the authorization string is being generated.</param>
