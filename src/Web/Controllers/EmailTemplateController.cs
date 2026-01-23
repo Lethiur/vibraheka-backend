@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Domain.Entities;
@@ -74,13 +75,33 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
                 return new UnauthorizedResult();
             return new BadRequestObjectResult(ResponseEntity.FromError(mediatrResponse.Error));
         }
-        else
+
+        LogSuccessfullyCreatedNewTemplateTemplatename(Logger, request.TemplateName);
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+    }
+
+    [HttpPut("add-attachment")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> AddAttachmentToTemplate([FromForm] UploadEmailTemplateAttachment request)
+    {
+        AddAttachmentCommand command =
+            new AddAttachmentCommand(request.File.OpenReadStream(), request.TemplateID, request.AttachmentName);
+        Result<Unit> result = await mediator.Send(command);
+
+        if (result.IsFailure)
         {
-            LogSuccessfullyCreatedNewTemplateTemplatename(Logger, request.TemplateName);
+            LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID, result.Error);
+            if (result.Error == UserErrors.NotAuthorized)
+            {
+                return new UnauthorizedResult();
+            }
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
-
     }
 
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
@@ -91,4 +112,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
 
     [LoggerMessage(LogLevel.Error, "Failed to create new template because {Error}")]
     static partial void LogFailedToCreateNewTemplateBecauseError(ILogger<EmailTemplateController> logger, string Error);
+
+    [LoggerMessage(LogLevel.Error, "Failed to add attachment to template with ID: {TemplateID} because {Error}")]
+    static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
 }

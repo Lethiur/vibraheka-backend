@@ -239,7 +239,7 @@ public class CreateEmailTemplateCommandHandlerTests
             x => x.SaveEmailTemplate(
                 It.Is<EmailEntity>(e =>
                     e.Name == templateName &&
-                    e.ID == e.Path &&
+                    e.Path == ("template-id") &&
                     !string.IsNullOrEmpty(e.ID)),
                 cancellationToken),
             Times.Once);

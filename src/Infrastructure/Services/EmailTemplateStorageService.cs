@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -22,10 +23,24 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     /// <param name="templateStream">The stream containing the email template content.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A result containing the template ID if the operation is successful, or an error if it fails.</returns>
-    public async Task<Result<string>> SaveTemplate(string templateID, Stream templateStream,
+    public Task<Result<string>> SaveTemplate(string templateID, Stream templateStream,
         CancellationToken cancellationToken)
     {
-        await _repository.SaveTemplate(templateID, templateStream, cancellationToken);
-        return templateID;
+        return _repository.SaveTemplate(templateID, templateStream, cancellationToken);
+    }
+
+
+    /// <summary>
+    /// Adds an attachment to the storage repository associated with a specific email template.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to which the attachment will be associated.</param>
+    /// <param name="attachment">A stream containing the content of the attachment to be added.</param>
+    /// <param name="attachmentName">The name of the attachment file to be stored.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation, containing a result with the identifier of the saved attachment on success, or an error in case of failure.</returns>
+    public Task<Result<string>> AddAttachment(string templateID, Stream attachment, string attachmentName,
+        CancellationToken cancellationToken)
+    {
+        return _repository.SaveAttachment(templateID, attachment, attachmentName, cancellationToken);
     }
 }

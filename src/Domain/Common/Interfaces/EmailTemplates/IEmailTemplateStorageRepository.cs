@@ -26,7 +26,19 @@ public interface IEmailTemplateStorageRepository
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A <c>Task</c> representing the asynchronous operation,
     /// containing a <c>Result</c> object indicating success or failure of the save operation.</returns>
-    Task<Result<Unit>> SaveTemplate(string templateID, Stream templateStream, CancellationToken cancellationToken);
+    Task<Result<string>> SaveTemplate(string templateID, Stream templateStream, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Saves an attachment to the storage repository associated with the specified email template ID.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to associate the attachment with.</param>
+    /// <param name="attachmentStream">A <c>Stream</c> containing the contents of the attachment to be saved.</param>
+    /// <param name="attachmentName">The name of the attachment file to be saved.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A <c>Task</c> representing the asynchronous operation,
+    /// containing a <c>Result</c> object with the identifier of the saved attachment on success, or an error on failure.</returns>
+    Task<Result<string>> SaveAttachment(string templateID, Stream attachmentStream, string attachmentName,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves an authorization string that can be used to access the specified email template for reading.

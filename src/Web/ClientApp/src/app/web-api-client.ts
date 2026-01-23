@@ -329,6 +329,7 @@ export class AuthClient implements IAuthClient {
 export interface IEmailTemplateClient {
     emailTemplate_GetTemplates(): Observable<FileResponse>;
     emailTemplate_CreateNewEmailTemplate(templateName: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
+    emailTemplate_AddAttachmentToTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
 }
 
 @Injectable({
@@ -430,6 +431,67 @@ export class EmailTemplateClient implements IEmailTemplateClient {
     }
 
     protected processEmailTemplate_CreateNewEmailTemplate(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_AddAttachmentToTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/v1/email-templates/add-attachment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (attachmentName !== null && attachmentName !== undefined)
+            content_.append("AttachmentName", attachmentName.toString());
+        if (templateID !== null && templateID !== undefined)
+            content_.append("TemplateID", templateID.toString());
+        if (file !== null && file !== undefined)
+            content_.append("File", file.data, file.fileName ? file.fileName : "File");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_AddAttachmentToTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_AddAttachmentToTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processEmailTemplate_AddAttachmentToTemplate(response: HttpResponseBase): Observable<FileResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :

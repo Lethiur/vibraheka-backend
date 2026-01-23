@@ -227,6 +227,51 @@
         }
       }
     },
+    "/api/v1/email-templates/add-attachment": {
+      "put": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_AddAttachmentToTemplate",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "AttachmentName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "TemplateID": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/ChangeTemplate": {
       "patch": {
         "tags": [

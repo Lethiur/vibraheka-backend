@@ -9,7 +9,7 @@ public class CreateEmailTemplateCommandValidator : AbstractValidator<CreateEmail
     public CreateEmailTemplateCommandValidator()
     {
         RuleLevelCascadeMode = CascadeMode.Stop; 
-        RuleFor(x => x.templateName).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateName).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateName).MinimumLength(3).WithMessage(EmailTemplateErrors.InvalidTemplateName);
-        RuleFor(x => x.fileStream).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateContent).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateContent).ValidJsonStream().WithMessage(EmailTemplateErrors.InvalidTemplateContent);
+        RuleFor(x => x.TemplateName).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateName).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateName).MinimumLength(3).WithMessage(EmailTemplateErrors.InvalidTemplateName);
+        RuleFor(x => x.FileStream).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateContent).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateContent).ValidJsonStream().WithMessage(EmailTemplateErrors.InvalidTemplateContent);
     }
 }
