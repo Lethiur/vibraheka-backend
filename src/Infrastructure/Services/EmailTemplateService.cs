@@ -21,7 +21,8 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return await Maybe.From(templateID)
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
-            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id));
+            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id))
+            .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound);
     }
 
     /// <summary>

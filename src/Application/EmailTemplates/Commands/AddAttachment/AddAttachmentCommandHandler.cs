@@ -14,13 +14,6 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 /// The class implements the <see cref="IRequestHandler{TRequest, TResponse}"/> interface,
 /// providing logic to process <see cref="AddAttachmentCommand"/> requests.
 /// </remarks>
-/// <param name="privilegeService">
-/// A service for verifying user privileges to ensure the user has permission
-/// to modify the email template or add attachments.
-/// </param>
-/// <param name="currentUserService">
-/// A service providing information about the current user, such as their UserId.
-/// </param>
 /// <param name="templatesService">
 /// A service responsible for handling operations on email templates.
 /// </param>
@@ -29,21 +22,13 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 /// in the underlying data store.
 /// </param>
 public class AddAttachmentCommandHandler(
-    IPrivilegeService privilegeService,
-    ICurrentUserService currentUserService,
     IEmailTemplatesService templatesService,
     IEmailTemplateStorageService emailTemplateStorageService
     ) : IRequestHandler<AddAttachmentCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
     {
-        return Maybe.From(currentUserService.UserId)
-            .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
-            .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await privilegeService.HasRoleAsync(userID, UserRole.Admin))
-            .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
-            .Bind(_ => templatesService.GetTemplateByID(request.TemplateId))
-            .Ensure(template => template != null, EmailTemplateErrors.TemplateNotFound)
+        return templatesService.GetTemplateByID(request.TemplateId)
             .Bind(templateEntity =>
                 emailTemplateStorageService
                     .AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)

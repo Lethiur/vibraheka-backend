@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Interfaces;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 
@@ -10,4 +11,4 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 /// the unique identifier for the email template, and the name of the attachment.
 /// </remarks>
 public record AddAttachmentCommand(Stream FileStream, string TemplateId, string AttachmentName)
-    : IRequest<Result<Unit>>;
+    : IRequest<Result<Unit>>, IRequireAdmin;

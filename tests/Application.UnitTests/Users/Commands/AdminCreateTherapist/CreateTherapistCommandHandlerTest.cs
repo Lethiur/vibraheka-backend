@@ -30,8 +30,7 @@ public class CreateTherapistCommandHandlerTests
         Handler = new CreateTherapistCommandHandler(
             CognitoServiceMock.Object,
             RepositoryMock.Object,
-            CurrentUserServiceMock.Object,
-            PrivilegeServiceMock.Object);
+            CurrentUserServiceMock.Object);
     }
 
     #region Privilege Validation Tests

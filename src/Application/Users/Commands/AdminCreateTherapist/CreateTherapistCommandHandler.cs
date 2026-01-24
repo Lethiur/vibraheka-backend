@@ -17,8 +17,7 @@ namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 public class CreateTherapistCommandHandler(
     IUserService CognitService,
     IUserRepository Repository,
-    ICurrentUserService CurrentUserService,
-    IPrivilegeService PrivilegeService)
+    ICurrentUserService CurrentUserService)
     : IRequestHandler<CreateTherapistCommand, Result<string>>
 {
     /// <summary>
@@ -27,35 +26,25 @@ public class CreateTherapistCommandHandler(
     /// <param name="request">The command containing the therapist's email and name.</param>
     /// <param name="cancellationToken">The cancellation token for the operation.</param>
     /// <returns>A Result object containing the created user's ID if successful, or an error message if the operation fails.</returns>
-    public async Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
+    public Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
         const string password = "Password123!@#";
-
-        Result<bool> checkPrivilegesResult = await PrivilegeService.HasRoleAsync(CurrentUserService.UserId ?? "", UserRole.Admin);
-
-        if (checkPrivilegesResult is { IsSuccess: true, Value: true })
+        return CognitService.RegisterUserAsync(request.Email, password, request.Name).Bind(async id =>
         {
-            Result<string> cognitoIdResult = await CognitService.RegisterUserAsync(request.Email, password, request.Name);
-
-            return await cognitoIdResult.Bind(async id =>
+            User user = new()
             {
-                User user = new()
-                {
-                    FullName = request.Name,
-                    Email = request.Email,
-                    Id = id,
-                    CognitoId = id,
-                    Role = UserRole.Therapist,
-                    Created = DateTime.UtcNow,
-                    CreatedBy = CurrentUserService.UserId,
-                    LastModified = DateTime.UtcNow,
-                    LastModifiedBy = CurrentUserService.UserId
-                };
+                FullName = request.Name,
+                Email = request.Email,
+                Id = id,
+                CognitoId = id,
+                Role = UserRole.Therapist,
+                Created = DateTime.UtcNow,
+                CreatedBy = CurrentUserService.UserId,
+                LastModified = DateTime.UtcNow,
+                LastModifiedBy = CurrentUserService.UserId
+            };
 
-                return await Repository.AddAsync(user);
-            });    
-        }
-
-        return Result.Failure<string>(UserErrors.NotAuthorized);
+            return await Repository.AddAsync(user);
+        });
     }
 }

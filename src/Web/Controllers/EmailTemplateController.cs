@@ -65,6 +65,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateNewEmailTemplate([FromForm] UploadEmailTemplateRequest request)
     {
+        
         CreateEmailTemplateCommand createEmailTemplateCommand = new CreateEmailTemplateCommand(request.File.OpenReadStream(), request.TemplateName);
         Result<Unit> mediatrResponse = await mediator.Send(createEmailTemplateCommand);
 

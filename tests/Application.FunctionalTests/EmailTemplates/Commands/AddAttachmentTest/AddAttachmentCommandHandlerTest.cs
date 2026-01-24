@@ -36,8 +36,6 @@ public class AddAttachmentCommandHandlerTest
         _storageServiceMock = new Mock<IEmailTemplateStorageService>();
 
         _handler = new AddAttachmentCommandHandler(
-            _privilegeServiceMock.Object,
-            _currentUserServiceMock.Object,
             _templatesServiceMock.Object,
             _storageServiceMock.Object);
     }

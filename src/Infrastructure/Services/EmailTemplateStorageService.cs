@@ -43,4 +43,17 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     {
         return _repository.SaveAttachment(templateID, attachment, attachmentName, cancellationToken);
     }
+
+    /// <summary>
+    /// Retrieves the URL of a stored email template.
+    /// </summary>
+    /// <param name="templateID">The unique identifier for the email template.</param>
+    /// <param name="cancellationToken">The token to cancel the task preemptively</param>
+    /// <returns>A result containing the URL of the email template if the operation is successful, or an error if it fails.</returns>
+    public Task<Result<string>> GetTemplateUrlAsync(string templateID, CancellationToken cancellationToken)
+    {
+        return Result.Of(templateID)
+            .Ensure(async tpl => await _repository.TemplateExistsAsync(tpl, cancellationToken))
+            .Bind(tpl =>_repository.GetTemplateUrlAsync(tpl) );
+    }
 }

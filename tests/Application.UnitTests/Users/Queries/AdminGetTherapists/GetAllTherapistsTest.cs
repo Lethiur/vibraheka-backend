@@ -13,21 +13,15 @@ namespace VibraHeka.Application.UnitTests.Users.Queries.AdminGetTherapists;
 [TestFixture]
 public class GetAllTherapistsQueryHandlerTests
 {
-    private Mock<ICurrentUserService> CurrentUserServiceMock;
-    private Mock<IPrivilegeService> PrivilegeServiceMock;
     private Mock<IUserRepository> RepositoryMock;
     private GetAllTherapistsQueryHandler Handler;
 
     [SetUp]
     public void SetUp()
     {
-        CurrentUserServiceMock = new Mock<ICurrentUserService>();
-        PrivilegeServiceMock = new Mock<IPrivilegeService>();
         RepositoryMock = new Mock<IUserRepository>();
         
         Handler = new GetAllTherapistsQueryHandler(
-            CurrentUserServiceMock.Object,
-            PrivilegeServiceMock.Object,
             RepositoryMock.Object);
     }
 
@@ -36,13 +30,9 @@ public class GetAllTherapistsQueryHandlerTests
     public async Task ShouldReturnAListOfTherapistsWhenUserIsAdmin()
     {
         // Given: An admin user and some therapists in the repository
-        const string userId = "admin-user-id";
         IEnumerable<User> therapists = new List<User> { new() { FullName = "Therapist Name" } };
-        GetAllTherapistsQuery query = new GetAllTherapistsQuery();
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
-            .ReturnsAsync(Result.Success(true));
+        GetAllTherapistsQuery query = new();
+        
         RepositoryMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist))
             .ReturnsAsync(Result.Success(therapists));
 
@@ -60,12 +50,7 @@ public class GetAllTherapistsQueryHandlerTests
     public async Task ShouldFailWhenUserIsNotAnAdmin()
     {
         // Given: A non-admin user
-        const string userId = "regular-user-id";
-        GetAllTherapistsQuery query = new GetAllTherapistsQuery();
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
-            .ReturnsAsync(Result.Success(false));
+        GetAllTherapistsQuery query = new();
 
         // When: The handler is executed
         Result<IEnumerable<User>> result = await Handler.Handle(query, CancellationToken.None);
@@ -80,12 +65,6 @@ public class GetAllTherapistsQueryHandlerTests
     [DisplayName("Should fail when privilege check fails")]
     public async Task ShouldFailWhenPrivilegeCheckFails()
     {
-        // Given: A failure in the privilege service
-        const string userId = "any-user-id";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
-            .ReturnsAsync(Result.Failure<bool>("Internal Error"));
-
         // When: The handler is executed
         Result<IEnumerable<User>> result = await Handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
 

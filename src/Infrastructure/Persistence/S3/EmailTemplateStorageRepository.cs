@@ -19,16 +19,17 @@ namespace VibraHeka.Infrastructure.Persistence.S3;
 public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     : GenericS3Repository(client, options.EmailTemplatesBucketName), IEmailTemplateStorageRepository
 {
+    
+
     /// <summary>
     /// Retrieves the email template identified by the specified template ID.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the request.</param>
     /// <returns>A result containing a stream of the template content if successful; otherwise, an error result.</returns>
     /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
-    public Task<Result<Stream>> GetTemplate(string templateID, CancellationToken cancellationToken)
+    public Task<Result<string>> GetTemplateUrlAsync(string templateID)
     {
-        throw new NotImplementedException();
+        return GetDownloadPreSignedUrl($"{templateID}/template.json", 60);
     }
 
     /// <summary>
@@ -43,24 +44,34 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
         CancellationToken cancellationToken)
     {
         string tempPath = Path.Combine(Path.GetTempPath(), "template.json");
-        if (templateStream.CanSeek)
-        {
-            templateStream.Position = 0;
-        }
-        
-        await using (FileStream file = new(
-                         tempPath,
-                         FileMode.Create,
-                         FileAccess.Write,
-                         FileShare.None))
-        {
-            await templateStream.CopyToAsync(file, cancellationToken);
-            await file.FlushAsync(cancellationToken);
-        }
-
-        Result<string> uploadAsync = await UploadAsync(new FileInfo(tempPath), templateID, cancellationToken);
+        FileInfo streamToFile = await StreamToFile(templateStream, tempPath, cancellationToken);
+        Result<string> uploadAsync = await UploadAsync(streamToFile, templateID, cancellationToken);
         File.Delete(tempPath);
         return uploadAsync;
+    }
+
+    /// <summary>
+    /// Checks if an email template exists in the storage for the specified template ID.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to check for existence.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A result containing a boolean value indicating whether the template exists.</returns>
+    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
+    public Task<Result<bool>> TemplateExistsAsync(string templateID, CancellationToken cancellationToken)
+    {
+        return FileExistsAsync($"{templateID}/template.json", cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves the S3 path of the specified email template based on its template ID.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template whose S3 path is to be retrieved.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A result containing the S3 path of the email template if successful; otherwise, an error result.</returns>
+    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
+    public Task<Result<string>> GetEmailTemplatePath(string templateID, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -77,23 +88,11 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
         CancellationToken cancellationToken)
     {
         string tempPath = Path.Combine(Path.GetTempPath(), attachmentName);
-        try
+        FileInfo info = await StreamToFile(attachmentStream, attachmentName, cancellationToken);
+        try 
         {
-
-            if (attachmentStream.CanSeek)
-            {
-                attachmentStream.Position = 0;
-            }
-
-            await using (FileStream file = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
-            {
-                await attachmentStream.CopyToAsync(file, cancellationToken);
-                await file.FlushAsync(cancellationToken);
-            }
-
             Result<string> uploadAsync =
-                await UploadAsync(new FileInfo(tempPath), $"{templateID}/attachments", cancellationToken);
-
+                await UploadAsync(info, $"{templateID}/attachments", cancellationToken);
             return uploadAsync;
         }
         finally

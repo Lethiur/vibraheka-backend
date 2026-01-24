@@ -46,6 +46,31 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             : Result.Failure<string>("Failed to upload file");
     }
 
+
+    /// <summary>
+    /// Checks asynchronously if a file exists in the specified S3 bucket.
+    /// </summary>
+    /// <param name="fileKey">The key of the file to check for existence on S3.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the task.</param>
+    /// <returns>A result indicating whether the file exists in the bucket or not.</returns>
+    protected async Task<Result<bool>> FileExistsAsync(string fileKey, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            {
+                BucketName = BucketName,
+                Key = fileKey
+            }, cancellationToken);
+
+            return true;
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
+    }
+    
     /// <summary>
     /// Retrieves the contents of a file inside the bucket using its file key
     /// </summary>
@@ -62,6 +87,34 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
 
         string content = await reader.ReadToEndAsync(token); // Reads the content as a string
         return Result.Success(content);
+    }
+
+
+    /// <summary>
+    /// Writes the contents of a stream to a file at the specified file path.
+    /// </summary>
+    /// <param name="stream">The input stream containing data to be written to the file.</param>
+    /// <param name="filePath">The path where the file will be created or overwritten.</param>
+    /// <param name="cancellationToken">Token used to listen for task cancellation.</param>
+    /// <returns>The created FileInfo object representing the newly created file.</returns>
+    protected async Task<FileInfo> StreamToFile(Stream stream, string filePath, CancellationToken cancellationToken)
+    {
+        if (stream.CanSeek)
+        {
+            stream.Position = 0;
+        }
+        
+        await using (FileStream file = new(
+                         filePath,
+                         FileMode.Create,
+                         FileAccess.Write,
+                         FileShare.None))
+        {
+            await stream.CopyToAsync(file, cancellationToken);
+            await file.FlushAsync(cancellationToken);
+        }
+        
+        return new FileInfo(filePath);
     }
 
     /// <summary>
@@ -98,6 +151,26 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             Verb = HttpVerb.PUT,
             Headers = { ContentMD5 = md5Hash },
             ContentType = "application/octet-stream",
+        };
+
+        return await Client.GetPreSignedURLAsync(request);
+    }
+
+    /// <summary>
+    /// Generates a pre-signed URL for downloading a file from an S3 bucket.
+    /// </summary>
+    /// <param name="key">The unique identifier of the file in the S3 bucket.</param>
+    /// <param name="expiresInSeconds">The duration in seconds for which the generated URL will remain valid.</param>
+    /// <returns>A result containing the pre-signed URL if successful, or an error message if the operation fails.</returns>
+    protected async Task<Result<string>> GetDownloadPreSignedUrl(string key, int expiresInSeconds)
+    {
+        GetPreSignedUrlRequest request = new GetPreSignedUrlRequest
+        {
+            BucketName = BucketName,
+            Key = key,
+            Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
+            Verb = HttpVerb.GET,
+            
         };
 
         return await Client.GetPreSignedURLAsync(request);
