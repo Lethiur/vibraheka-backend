@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
+using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplate;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
@@ -82,6 +85,15 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 
+    /// <summary>
+    /// Adds a new attachment to an existing email template.
+    /// </summary>
+    /// <param name="request">
+    /// The attachment details, including file, template ID, and attachment name.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> indicating success with an empty response body or an appropriate error response.
+    /// </returns>
     [HttpPut("add-attachment")]
     [Authorize]
     [Produces("application/json")]
@@ -105,6 +117,66 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 
+    /// <summary>
+    /// Updates the name of an existing email template.
+    /// </summary>
+    /// <param name="request">
+    /// An <see cref="EditTemplateNameRequest"/> containing the template ID and the new name to be assigned to the template.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> indicating whether the operation was successful. Returns an error response if the operation fails,
+    /// including an unauthorized result if the caller lacks permissions.
+    /// </returns>
+    [HttpPatch("change-name")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> ChangeTemplateName([FromBody] EditTemplateNameRequest request)
+    {
+        EditTemplateNameCommand command = new(request.TemplateID, request.NewTemplateName);
+        Result<Unit> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            Logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}", request.TemplateID, result.Error);
+            if (result.Error == UserErrors.NotAuthorized)
+            {
+                return new UnauthorizedResult();
+            }
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+    }
+
+    /// <summary>
+    /// Updates the contents of an existing email template based on the provided request data.
+    /// </summary>
+    /// <param name="request">
+    /// An <see cref="EditTemplateNameRequest"/> containing the template ID and the new content details.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> indicating the result of the update operation. Returns a success response if the update is successful,
+    /// a bad request response if the operation fails due to input errors, or an unauthorized response if the user lacks necessary permissions.
+    /// </returns>
+    [HttpPatch("change-contents")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> ChangeTemplateContents([FromForm] EditTemplateNameRequest request)
+    {
+        EditTemplateNameCommand command = new(request.TemplateID, request.NewTemplateName);
+        Result<Unit> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID, result.Error);
+            if (result.Error == UserErrors.NotAuthorized)
+            {
+                return new UnauthorizedResult();
+            }
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+    }
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
     static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string Error);
 
@@ -116,4 +188,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
 
     [LoggerMessage(LogLevel.Error, "Failed to add attachment to template with ID: {TemplateID} because {Error}")]
     static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+
+    [LoggerMessage(LogLevel.Error, "Failed to change template name for template with ID '{TemplateID}' because {Error}")]
+    static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
 }

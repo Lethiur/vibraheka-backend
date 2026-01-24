@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
@@ -19,21 +18,14 @@ namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 /// <param name="storageService">The service responsible for managing email template storage.</param>
 /// <param name="privilegeService">The service used for verifying user permissions and roles.</param>
 public class CreateEmailTemplateCommandHandler(
-    ICurrentUserService currentUserService,
     IEmailTemplatesService templateService,
-    IEmailTemplateStorageService storageService,
-    IPrivilegeService privilegeService
-    ) : IRequestHandler<CreateEmailTemplateCommand, Result<Unit>>
+    IEmailTemplateStorageService storageService
+) : IRequestHandler<CreateEmailTemplateCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(CreateEmailTemplateCommand request, CancellationToken cancellationToken)
     {
-        EmailEntity entity = new EmailEntity(){ID = Guid.NewGuid().ToString()};
-        return Maybe.From(currentUserService.UserId)
-            .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
-            .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await privilegeService.HasRoleAsync(userID, UserRole.Admin))
-            .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
-            .Bind(template => storageService.SaveTemplate(entity.ID, request.FileStream, cancellationToken))
+        EmailEntity entity = new EmailEntity() { ID = Guid.NewGuid().ToString() };
+        return storageService.SaveTemplate(entity.ID, request.FileStream, cancellationToken)
             .Map(templatePath => entity.Path = templatePath)
             .Bind(_ => templateService.SaveEmailTemplate(entity, cancellationToken))
             .Map(_ => Unit.Value);

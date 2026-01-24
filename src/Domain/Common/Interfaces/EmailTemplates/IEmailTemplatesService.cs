@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.EmailTemplates;
@@ -25,4 +26,13 @@ public interface IEmailTemplatesService
     /// <param name="emailTemplate">The email template entity to save, containing information such as template ID, path, and name.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{String}"/> indicating the success or failure of the operation, along with the ID of the saved template if successful.</returns>
     Task<Result<string>> SaveEmailTemplate(EmailEntity emailTemplate, CancellationToken token);
+
+    /// <summary>
+    /// Updates the name of an existing email template identified by the provided template ID.
+    /// </summary>
+    /// <param name="templateID">The identifier of the email template to update.</param>
+    /// <param name="newTemplateName">The new name to assign to the email template.</param>
+    /// <param name="token">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating the success or failure of the update operation.</returns>
+    Task<Result<Unit>> EditTemplateName(string templateID, string newTemplateName, CancellationToken token);
 }

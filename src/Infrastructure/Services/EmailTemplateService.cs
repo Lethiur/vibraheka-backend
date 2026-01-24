@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -52,5 +53,23 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
                  await EmailTemplateRepository.SaveTemplate(tpl, token);
                  return tpl.ID;
             });
+    }
+
+    /// <summary>
+    /// Updates the name of an existing email template.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to be updated.</param>
+    /// <param name="newTemplateName">The new name to assign to the email template.</param>
+    /// <param name="token">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating success or failure of the operation.</returns>
+    public Task<Result<Unit>> EditTemplateName(string templateID, string newTemplateName, CancellationToken token)
+    {
+        return GetTemplateByID(templateID)
+            .Tap(entity =>
+            {
+                entity.Name = newTemplateName;
+                entity.LastModified = DateTime.UtcNow;
+                EmailTemplateRepository.SaveTemplate(entity, token);
+            }).Map(_ => Unit.Value);
     }
 }

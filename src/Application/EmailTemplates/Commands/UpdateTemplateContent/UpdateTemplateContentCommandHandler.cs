@@ -22,7 +22,6 @@ public class UpdateTemplateCommandHandler(
     public Task<Result<Unit>> Handle(UpdateTemplateCommand request, CancellationToken cancellationToken)
     {
         return emailTemplatesService.GetTemplateByID(request.TemplateID)
-            .Ensure(template => template != null, EmailTemplateErrors.TemplateNotFound)
             .Bind(templateEntity => emailTemplateStorageService.SaveTemplate(templateEntity.ID, request.TemplateStream, cancellationToken))
             .Map(_ => Unit.Value);
     }
