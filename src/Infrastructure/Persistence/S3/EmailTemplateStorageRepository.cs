@@ -142,4 +142,16 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     {
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    /// Retrieves the content of an email template identified by the specified template ID.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result containing the email template content as a string if successful; otherwise, an error result.</returns>
+    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
+    public Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken)
+    {
+        return GetFileContents($"{templateID}/template.json", cancellationToken);
+    }
 }

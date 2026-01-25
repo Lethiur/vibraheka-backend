@@ -10,6 +10,7 @@ using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
+using VibraHeka.Application.EmailTemplates.Queries.GetTemplateContent;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
 
@@ -190,7 +191,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     /// <summary>
     /// Retrieves the download URL for a specified email template.
     /// </summary>
-    /// <param name="TemplateID">The unique identifier of the email template.</param>
+    /// <param name="templateID">The unique identifier of the email template.</param>
     /// <returns>
     /// An <see cref="IActionResult"/> containing the download URL if successful,
     /// or an appropriate error response if the operation fails.
@@ -199,9 +200,35 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Authorize]
     [Produces("application/json")]
     [Consumes("application/json")]
-    public async Task<IActionResult> GetTemplateUrl([FromQuery(Name = "TemplateID")] string TemplateID)
+    public async Task<IActionResult> GetTemplateUrl([FromQuery(Name = "TemplateID")] string templateID)
     {
-        GetEmailTemplateURLQuery query = new(TemplateID);
+        GetEmailTemplateURLQuery query = new(templateID);
+        Result<string> result = await mediator.Send(query);
+        if (result.IsFailure)
+        {
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    /// <summary>
+    /// Retrieves the contents of a specified template.
+    /// </summary>
+    /// <param name="templateID">
+    /// The unique identifier of the template whose contents are to be retrieved.
+    /// </param>
+    /// <returns>
+    /// A string representing the contents of the specified template if found,
+    /// or null if the template does not exist.
+    /// </returns>
+    [HttpGet("contents")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> GetTemplateContents([FromQuery(Name = "templateID")] string templateID)
+    {
+        GetEmailTemplateContentQuery query = new(templateID);
         Result<string> result = await mediator.Send(query);
         if (result.IsFailure)
         {

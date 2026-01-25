@@ -355,6 +355,38 @@
         "parameters": [
           {
             "name": "TemplateID",
+            "x-originalName": "templateID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email-templates/contents": {
+      "get": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_GetTemplateContents",
+        "parameters": [
+          {
+            "name": "templateID",
             "in": "query",
             "schema": {
               "type": "string"
