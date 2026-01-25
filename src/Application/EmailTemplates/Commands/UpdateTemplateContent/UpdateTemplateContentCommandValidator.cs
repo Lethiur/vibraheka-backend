@@ -1,10 +1,10 @@
 using VibraHeka.Application.Common.Extensions.Validation;
 
-namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplate;
+namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 
-public class UpdateTemplateCommandValidator : AbstractValidator<UpdateTemplateCommand>
+public class UpdateTemplateContentCommandValidator : AbstractValidator<UpdateTemplateContentCommand>
 {
-    public UpdateTemplateCommandValidator()
+    public UpdateTemplateContentCommandValidator()
     {
         RuleFor(command => command.TemplateID).ValidTemplateID();
         RuleFor(command => command.TemplateStream).ValidJsonStream();

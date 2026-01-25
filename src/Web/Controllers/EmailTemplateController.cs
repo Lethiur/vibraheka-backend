@@ -7,8 +7,9 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
-using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplate;
+using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
+using VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
 
@@ -35,7 +36,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     public async Task<IActionResult> GetTemplates()
     {
         Result<IEnumerable<EmailEntity>> result = await mediator.Send(new GetAllEmailTemplatesQuery());
-        
+
         if (result.IsFailure)
         {
             LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
@@ -43,9 +44,10 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
             {
                 return new UnauthorizedResult();
             }
+
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
-        
+
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
@@ -68,8 +70,9 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateNewEmailTemplate([FromForm] UploadEmailTemplateRequest request)
     {
-        
-        CreateEmailTemplateCommand createEmailTemplateCommand = new CreateEmailTemplateCommand(request.File.OpenReadStream(), request.TemplateName);
+
+        CreateEmailTemplateCommand createEmailTemplateCommand =
+            new CreateEmailTemplateCommand(request.File.OpenReadStream(), request.TemplateName);
         Result<Unit> mediatrResponse = await mediator.Send(createEmailTemplateCommand);
 
         if (mediatrResponse.IsFailure)
@@ -111,6 +114,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
             {
                 return new UnauthorizedResult();
             }
+
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
@@ -137,11 +141,13 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            Logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}", request.TemplateID, result.Error);
+            Logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}",
+                request.TemplateID, result.Error);
             if (result.Error == UserErrors.NotAuthorized)
             {
                 return new UnauthorizedResult();
             }
+
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
@@ -162,21 +168,49 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Authorize]
     [Produces("application/json")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> ChangeTemplateContents([FromForm] EditTemplateNameRequest request)
+    public async Task<IActionResult> ChangeTemplateContents([FromForm] EditTemplateContentRequest request)
     {
-        EditTemplateNameCommand command = new(request.TemplateID, request.NewTemplateName);
+        UpdateTemplateContentCommand command = new(request.TemplateID, request.TemplateFile.OpenReadStream());
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID, result.Error);
+            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID,
+                result.Error);
             if (result.Error == UserErrors.NotAuthorized)
             {
                 return new UnauthorizedResult();
             }
+
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
+
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
+
+    /// <summary>
+    /// Retrieves the download URL for a specified email template.
+    /// </summary>
+    /// <param name="TemplateID">The unique identifier of the email template.</param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> containing the download URL if successful,
+    /// or an appropriate error response if the operation fails.
+    /// </returns>
+    [HttpGet("url")]
+    [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> GetTemplateUrl([FromQuery(Name = "TemplateID")] string TemplateID)
+    {
+        GetEmailTemplateURLQuery query = new(TemplateID);
+        Result<string> result = await mediator.Send(query);
+        if (result.IsFailure)
+        {
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
     static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string Error);
 

@@ -272,6 +272,111 @@
         }
       }
     },
+    "/api/v1/email-templates/change-name": {
+      "patch": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_ChangeTemplateName",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditTemplateNameRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email-templates/change-contents": {
+      "patch": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_ChangeTemplateContents",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "TemplateID": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "TemplateFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/email-templates/url": {
+      "get": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_GetTemplateUrl",
+        "parameters": [
+          {
+            "name": "TemplateID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/ChangeTemplate": {
       "patch": {
         "tags": [
@@ -440,6 +545,18 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "EditTemplateNameRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "templateID": {
+            "type": "string"
+          },
+          "newTemplateName": {
             "type": "string"
           }
         }
