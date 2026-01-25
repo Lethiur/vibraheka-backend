@@ -106,7 +106,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     {
         AddAttachmentCommand command =
             new AddAttachmentCommand(request.File.OpenReadStream(), request.TemplateID, request.AttachmentName);
-        Result<Unit> result = await mediator.Send(command);
+        Result<string> result = await mediator.Send(command);
 
         if (result.IsFailure)
         {
@@ -119,7 +119,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
     /// <summary>
