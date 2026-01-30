@@ -272,6 +272,37 @@
         }
       }
     },
+    "/api/v1/email-templates/create-skeleton": {
+      "put": {
+        "tags": [
+          "EmailTemplate"
+        ],
+        "operationId": "EmailTemplate_CreateTemplateSkeleton",
+        "parameters": [
+          {
+            "name": "templateName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/email-templates/change-name": {
       "patch": {
         "tags": [

@@ -1,11 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Build.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
@@ -122,6 +121,31 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="templateName"></param>
+    /// <returns></returns>
+    [HttpPut("create-skeleton")]
+    [Authorize]
+    [Produces("application/json")]
+    public async Task<IActionResult> CreateTemplateSkeleton([FromQuery(Name = "templateName")] string templateName)
+    {
+        CreateTemplateDefinitionCommand command = new(templateName);
+        Result<string> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            LogFailedToCreateTheTeamplateSkeletonBecauseError(Logger, result.Error);
+            if (result.Error == UserErrors.NotAuthorized)
+            {
+                return new UnauthorizedResult();
+            }
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        Logger.LogInformation("Successfully created template skeleton for template {TemplateName} with ID: {TemplateID}", templateName, result.Value);
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
     /// <summary>
     /// Updates the name of an existing email template.
     /// </summary>
@@ -252,4 +276,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
 
     [LoggerMessage(LogLevel.Error, "Failed to change template name for template with ID '{TemplateID}' because {Error}")]
     static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+
+    [LoggerMessage(LogLevel.Error, "Failed to create the teamplate skeleton because: {Error}")]
+    static partial void LogFailedToCreateTheTeamplateSkeletonBecauseError(ILogger<EmailTemplateController> logger, string Error);
 }

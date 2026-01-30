@@ -1,6 +1,6 @@
-﻿namespace VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
+﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Interfaces;
 
-public class CreateTemplateDefinitionCommand
-{
-    
-}
+namespace VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
+
+public record CreateTemplateDefinitionCommand(string TempateName) : IRequest<Result<string>>, IRequireAdmin;

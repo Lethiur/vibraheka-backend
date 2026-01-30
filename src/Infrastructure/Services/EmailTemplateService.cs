@@ -31,9 +31,9 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// </summary>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
     /// wrapping a collection of <see cref="EmailEntity"/> objects or an error if the operation fails.</returns>
-    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken )
+    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken)
     {
-       return EmailTemplateRepository.GetAllTemplates(cancellationToken);
+        return EmailTemplateRepository.GetAllTemplates(cancellationToken);
     }
 
     /// <summary>
@@ -48,11 +48,8 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return await Maybe.From(emailTemplate)
             .Where(tpl => tpl != null)
             .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
-            .MapTry(async tpl =>
-            {
-                 await EmailTemplateRepository.SaveTemplate(tpl, token);
-                 return tpl.ID;
-            });
+            .Bind(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
+                .Map(_ => emailTemplate.ID));
     }
 
     /// <summary>
