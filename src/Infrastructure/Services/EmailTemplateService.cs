@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -21,7 +22,8 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return await Maybe.From(templateID)
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
-            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id));
+            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id))
+            .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound);
     }
 
     /// <summary>
@@ -29,9 +31,9 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// </summary>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
     /// wrapping a collection of <see cref="EmailEntity"/> objects or an error if the operation fails.</returns>
-    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken )
+    public Task<Result<IEnumerable<EmailEntity>>> GetAllTemplates(CancellationToken cancellationToken)
     {
-       return EmailTemplateRepository.GetAllTemplates(cancellationToken);
+        return EmailTemplateRepository.GetAllTemplates(cancellationToken);
     }
 
     /// <summary>
@@ -46,10 +48,25 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return await Maybe.From(emailTemplate)
             .Where(tpl => tpl != null)
             .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
-            .MapTry(async tpl =>
+            .Bind(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
+                .Map(_ => emailTemplate.ID));
+    }
+
+    /// <summary>
+    /// Updates the name of an existing email template.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to be updated.</param>
+    /// <param name="newTemplateName">The new name to assign to the email template.</param>
+    /// <param name="token">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating success or failure of the operation.</returns>
+    public Task<Result<Unit>> EditTemplateName(string templateID, string newTemplateName, CancellationToken token)
+    {
+        return GetTemplateByID(templateID)
+            .Tap(entity =>
             {
-                 await EmailTemplateRepository.SaveTemplate(tpl, token);
-                 return tpl.ID;
-            });
+                entity.Name = newTemplateName;
+                entity.LastModified = DateTime.UtcNow;
+                EmailTemplateRepository.SaveTemplate(entity, token);
+            }).Map(_ => Unit.Value);
     }
 }

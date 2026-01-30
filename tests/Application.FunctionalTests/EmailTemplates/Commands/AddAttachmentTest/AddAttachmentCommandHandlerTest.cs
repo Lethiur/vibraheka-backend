@@ -36,8 +36,6 @@ public class AddAttachmentCommandHandlerTest
         _storageServiceMock = new Mock<IEmailTemplateStorageService>();
 
         _handler = new AddAttachmentCommandHandler(
-            _privilegeServiceMock.Object,
-            _currentUserServiceMock.Object,
             _templatesServiceMock.Object,
             _storageServiceMock.Object);
     }
@@ -93,47 +91,7 @@ public class AddAttachmentCommandHandlerTest
                 NoCancellation),
             Times.Once);
     }
-
-    [TestCase(null!)]
-    [TestCase("")]
-    [TestCase("   ")]
-    [Description(
-        "Given an invalid user ID, when adding an attachment, then it should return InvalidUserID error")]
-    public async Task ShouldReturnInvalidUserIdErrorWhenUserIdIsInvalid(string userId)
-    {
-        // Given: an invalid user id to verify validation rejects the request early.
-        AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
-        _currentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-
-        // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
-
-        // Then
-        Assert.That(result.IsFailure);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
-        _privilegeServiceMock.Verify(x => x.HasRoleAsync(It.IsAny<string>(), It.IsAny<UserRole>()), Times.Never);
-    }
-
-    [Test]
-    [Description(
-        "Given a user without admin role, when adding an attachment, then it should return NotAuthorized error")]
-    public async Task ShouldReturnNotAuthorizedErrorWhenUserIsNotAdmin()
-    {
-        // Given: a non-admin user to verify authorization is enforced.
-        AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
-
-        _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin))
-            .ReturnsAsync(false);
-
-        // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
-
-        // Then
-        Assert.That(result.IsFailure);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _templatesServiceMock.Verify(x => x.GetTemplateByID(It.IsAny<string>()), Times.Never);
-    }
+    
 
     [Test]
     [Description(
@@ -147,7 +105,7 @@ public class AddAttachmentCommandHandlerTest
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin))
             .ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
-            .ReturnsAsync(Success<EmailEntity>(null!));
+            .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));
 
         // When: handling the add-attachment command.
         Result<Unit> result = await _handler.Handle(command, NoCancellation);
@@ -171,9 +129,6 @@ public class AddAttachmentCommandHandlerTest
         EmailEntity templateEntity = CreateTemplateEntity();
         AddAttachmentCommand command = CreateCommand(fileStream);
 
-        _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin))
-            .ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
             .ReturnsAsync(Success(templateEntity));
         _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, DefaultAttachmentName, NoCancellation))

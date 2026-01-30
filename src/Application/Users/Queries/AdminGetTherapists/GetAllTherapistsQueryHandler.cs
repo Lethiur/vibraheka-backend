@@ -27,19 +27,11 @@ namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
 /// holding a list of <see cref="User"/> entities or an error if the operation fails.
 /// </returns>
 public class GetAllTherapistsQueryHandler(
-    ICurrentUserService CurrentUserService,
-    IPrivilegeService PrivilegeService,
     IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<User>>>
 {
-    public async Task<Result<IEnumerable<User>>> Handle(GetAllTherapistsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<User>>> Handle(GetAllTherapistsQuery request,
+        CancellationToken cancellationToken)
     {
-        Result<bool> checkPrivilegesResult = await PrivilegeService.HasRoleAsync(CurrentUserService.UserId ?? "", UserRole.Admin);
-
-        if (checkPrivilegesResult is { IsSuccess: true, Value: true })
-        {
-            return await Repository.GetByRoleAsync(UserRole.Therapist);
-        }
-
-        return Result.Failure<IEnumerable<User>>(UserErrors.NotAuthorized);
+        return await Repository.GetByRoleAsync(UserRole.Therapist);
     }
 }

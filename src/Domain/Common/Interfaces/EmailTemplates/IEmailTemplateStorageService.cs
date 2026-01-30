@@ -28,4 +28,20 @@ public interface IEmailTemplateStorageService
     /// <returns>A task representing the asynchronous operation, containing a Result with the URL of the uploaded attachment or an error if the operation fails.</returns>
     Task<Result<string>> AddAttachment(string templateID, Stream attachment, string attachmentName,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the URL of a stored email template based on its unique identifier.
+    /// </summary>
+    /// <param name="templateID">The unique identifier for the email template.</param>
+    /// <param name="cancellationToken">The token to cancel the task preemptively</param>
+    /// <returns>A task representing the asynchronous operation, containing a Result with the URL of the email template or an error if the template cannot be found.</returns>
+    Task<Result<string>> GetTemplateUrlAsync(string templateID, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the content of an email template from the storage system.
+    /// </summary>
+    /// <param name="templateID">The unique identifier for the email template.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation, containing a Result with the email template content or an error if the operation fails.</returns>
+    Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken);
 }

@@ -1,4 +1,5 @@
-﻿using VibraHeka.Domain.Entities;
+﻿using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Middleware;
 
@@ -38,6 +39,11 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
     /// <returns>A task that represents the asynchronous operation of writing the response.</returns>
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        if (exception is UnauthorizedException)
+        {
+            context.Response.StatusCode = 401;
+            return context.Response.WriteAsJsonAsync(ResponseEntity.FromError("Unauthorized"));
+        }
         context.Response.StatusCode = 400;
         return context.Response.WriteAsJsonAsync(ResponseEntity.FromError(exception.Message));
     }
