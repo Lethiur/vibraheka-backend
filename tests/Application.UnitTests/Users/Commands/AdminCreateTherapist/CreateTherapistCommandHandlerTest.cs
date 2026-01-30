@@ -33,54 +33,7 @@ public class CreateTherapistCommandHandlerTests
             CurrentUserServiceMock.Object);
     }
 
-    #region Privilege Validation Tests
-
-    [Test]
-    [DisplayName("Should return failure when current user is not an admin")]
-    public async Task ShouldReturnFailureWhenUserIsNotAdmin()
-    {
-        // Given: A command to create a therapist and a user without admin privileges
-        CreateTherapistCommand command = new CreateTherapistCommand("test@therapist.com", "Dr. Smith");
-        string userId = "non-admin-id";
-        
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
-            .ReturnsAsync(Result.Success(false));
-
-        // When: Handling the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Then: Should return not authorized failure and not call external services
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        
-        CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
-    }
-
-    [Test]
-    [DisplayName("Should return failure when current user ID is null")]
-    public async Task ShouldReturnFailureWhenUserIdIsNull()
-    {
-        // Given: A command and no authenticated user context
-        CreateTherapistCommand command = new CreateTherapistCommand("test@therapist.com", "Dr. Smith");
-        
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns((string?)null);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync("", UserRole.Admin))
-            .ReturnsAsync(Result.Success(false));
-
-        // When: Handling the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Then: Should return not authorized failure
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        
-        CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-    }
-
-    #endregion
-
+    
     #region Therapist Creation Tests
 
     [Test]
@@ -114,7 +67,6 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(cognitoId));
         
-        PrivilegeServiceMock.Verify(x => x.HasRoleAsync(adminId, UserRole.Admin), Times.Once);
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name), Times.Once);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
     }

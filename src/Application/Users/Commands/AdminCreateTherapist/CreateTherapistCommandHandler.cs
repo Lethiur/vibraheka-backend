@@ -29,7 +29,8 @@ public class CreateTherapistCommandHandler(
     public Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
         const string password = "Password123!@#";
-        return CognitService.RegisterUserAsync(request.Email, password, request.Name).Bind(async id =>
+        return CognitService.RegisterUserAsync(request.Email, password, request.Name)
+            .Bind(async id =>
         {
             User user = new()
             {

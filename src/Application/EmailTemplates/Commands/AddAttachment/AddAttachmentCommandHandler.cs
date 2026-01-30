@@ -24,17 +24,15 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 public class AddAttachmentCommandHandler(
     IEmailTemplatesService templatesService,
     IEmailTemplateStorageService emailTemplateStorageService
-    ) : IRequestHandler<AddAttachmentCommand, Result<Unit>>
+) : IRequestHandler<AddAttachmentCommand, Result<string>>
 {
-    public Task<Result<Unit>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
+    public Task<Result<string>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
     {
         return templatesService.GetTemplateByID(request.TemplateId)
-            .Bind(templateEntity =>
-                emailTemplateStorageService
-                    .AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
-                    .Tap(url => templateEntity.Attachments.Add(url))
-                    .Map(_ => templateEntity))
-            .Bind(templateEntity => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
-            .Map(_ => Unit.Value);
+            .Bind(templateEntity => emailTemplateStorageService.AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
+                .Tap(url => templateEntity.Attachments.Add(url))
+                .Map(_ => templateEntity)
+                .Bind(entity => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
+                .Map(entity => templateEntity.Attachments.Last()));
     }
 }

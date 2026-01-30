@@ -85,4 +85,13 @@ public interface IEmailTemplateStorageRepository
     /// <returns>A <c>Task</c> representing the asynchronous operation,
     /// containing a <c>Result</c> object indicating success or failure of the delete operation.</returns>
     Task<Result<Unit>> DeleteTemplate(string templateID, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the content of an email template from the storage repository using the specified template ID.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to retrieve the content for.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A <c>Task</c> representing the asynchronous operation,
+    /// containing a <c>Result</c> object with the template content as a <c>string</c> on success, or an error on failure.</returns>
+    Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken);
 }

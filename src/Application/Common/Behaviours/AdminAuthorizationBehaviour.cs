@@ -38,7 +38,7 @@ public sealed class AdminAuthorizationBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var result = await Maybe
+        Result<bool> result = await Maybe
             .From(_currentUser.UserId)
             .Where(id => !string.IsNullOrWhiteSpace(id))
             .ToResult(UserErrors.InvalidUserID)

@@ -24,8 +24,6 @@ namespace VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 /// Service to interact with email templates, including operations to fetch all templates from the system.
 /// </param>
 public class GetAllEmailTemplatesQueryHandler(
-    ICurrentUserService currentUserService,
-    IPrivilegeService privilegeService,
     IEmailTemplatesService emailTemplateService) : IRequestHandler<GetAllEmailTemplatesQuery, Result<IEnumerable<EmailEntity>>>
 {
     /// <summary>
@@ -40,11 +38,6 @@ public class GetAllEmailTemplatesQueryHandler(
     public Task<Result<IEnumerable<EmailEntity>>> Handle(GetAllEmailTemplatesQuery request,
         CancellationToken cancellationToken)
     {
-        return Maybe.From(currentUserService.UserId)
-            .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
-            .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await privilegeService.HasRoleAsync(userID, UserRole.Admin))
-            .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
-            .Bind(_ => emailTemplateService.GetAllTemplates(cancellationToken));
+        return emailTemplateService.GetAllTemplates(cancellationToken);
     }
 }

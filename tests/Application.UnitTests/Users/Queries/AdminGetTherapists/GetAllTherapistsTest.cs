@@ -45,32 +45,4 @@ public class GetAllTherapistsQueryHandlerTests
         RepositoryMock.Verify(x => x.GetByRoleAsync(UserRole.Therapist), Times.Once);
     }
 
-    [Test]
-    [DisplayName("Should fail when user is not an admin")]
-    public async Task ShouldFailWhenUserIsNotAnAdmin()
-    {
-        // Given: A non-admin user
-        GetAllTherapistsQuery query = new();
-
-        // When: The handler is executed
-        Result<IEnumerable<User>> result = await Handler.Handle(query, CancellationToken.None);
-
-        // Then: The result should fail with NotAuthorized error
-        Assert.That(result.IsFailure, Is.True, "The operation should fail");
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized), "The error should be NotAuthorized");
-        RepositoryMock.Verify(x => x.GetByRoleAsync(It.IsAny<UserRole>()), Times.Never);
-    }
-
-    [Test]
-    [DisplayName("Should fail when privilege check fails")]
-    public async Task ShouldFailWhenPrivilegeCheckFails()
-    {
-        // When: The handler is executed
-        Result<IEnumerable<User>> result = await Handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
-
-        // Then: The result should fail with NotAuthorized error
-        Assert.That(result.IsFailure, Is.True, "The operation should fail even if the service fails");
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized), "The error should remain NotAuthorized for security");
-        RepositoryMock.Verify(x => x.GetByRoleAsync(It.IsAny<UserRole>()), Times.Never);
-    }
 }

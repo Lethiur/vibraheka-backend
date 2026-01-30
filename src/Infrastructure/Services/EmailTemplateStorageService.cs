@@ -56,4 +56,9 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
             .Ensure(async tpl => await _repository.TemplateExistsAsync(tpl, cancellationToken))
             .Bind(tpl =>_repository.GetTemplateUrlAsync(tpl) );
     }
+
+    public Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken)
+    {
+        return _repository.GetTemplateContent(templateID, cancellationToken);
+    }
 }
