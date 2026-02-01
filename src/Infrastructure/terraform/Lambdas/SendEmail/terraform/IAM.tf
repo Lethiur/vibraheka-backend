@@ -13,12 +13,20 @@ resource "aws_iam_role" "VH_email_lambda_role" {
       }
     ]
   })
+  tags = {
+    created : "terraform",
+    environment : terraform.workspace,
+    system : "VibraHeka",
+    service : "PAM",
+    dev : terraform.workspace != "prod"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "VH_email_lambda_logs" {
   role       = aws_iam_role.VH_email_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
 resource "aws_iam_role_policy" "VH_ses_send_email_policy" {
   name = "ses-send-email-policy-${terraform.workspace}"
   role = aws_iam_role.VH_email_lambda_role.id
@@ -33,7 +41,7 @@ resource "aws_iam_role_policy" "VH_ses_send_email_policy" {
           "ses:SendTemplatedEmail",
           "ses:SendRawEmail"
         ]
-        Resource = var.ses-arn
+        Resource = [var.ses-arn, var.ses-domain-arn, var.ses_config_set_arn]
       }
     ]
   })
@@ -41,7 +49,7 @@ resource "aws_iam_role_policy" "VH_ses_send_email_policy" {
 
 
 resource "aws_iam_role_policy" "VH_s3_bucket_access" {
-  name = "s3-read-templates-policy"
+  name = "send-email-s3-read-templates-policy-${terraform.workspace}"
   role = aws_iam_role.VH_email_lambda_role.id
 
   policy = jsonencode({
@@ -60,4 +68,43 @@ resource "aws_iam_role_policy" "VH_s3_bucket_access" {
       }
     ]
   })
+}
+
+resource "aws_iam_policy" "kms_policy" {
+  name = "SendEmail-KMSPolicy-${terraform.workspace}"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["kms:Decrypt"],
+        Resource = [var.kms_arn, var.kms_alias_arn],
+      }
+    ]
+  })
+  tags = {
+    created : "terraform",
+    environment : terraform.workspace,
+    system : "VibraHeka",
+    service : "PAM",
+    dev : terraform.workspace != "prod"
+  }
+}
+
+
+resource "aws_iam_policy_attachment" "PAM_lambda_kms_policy_attach" {
+  name       = "send-email-lambda_kms_policy_attachment-${terraform.workspace}"
+  roles      = [aws_iam_role.VH_email_lambda_role.name]
+  policy_arn = aws_iam_policy.kms_policy.arn
+}
+
+variable "user_pool_arn" {
+  default = ""
+}
+resource "aws_lambda_permission" "allow_cognito_create_challenge" {
+  statement_id  = "AllowExecutionFromCognito"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.send_email.function_name
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = var.user_pool_arn
 }

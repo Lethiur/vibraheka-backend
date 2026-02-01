@@ -14,7 +14,7 @@ resource "aws_ses_configuration_set" "VibraHeka_ses_config" {
 }
 
 resource "aws_ses_domain_mail_from" "VibraHeka_ses_tracking" {
-  domain = "vibraheka.com"
+  domain = aws_ses_domain_identity.VibraHeka_ses_domain.domain
   mail_from_domain = "mail.vibraheka.com"
 }
 

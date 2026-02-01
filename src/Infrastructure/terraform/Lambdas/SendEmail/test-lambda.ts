@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 
 dotenv.config();
-import {handler} from "./lambda_send_email";
+import {handler} from "./src/lambda_send_email";
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 const mockEvent: APIGatewayProxyEvent = {

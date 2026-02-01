@@ -20,8 +20,11 @@ resource "aws_iam_policy" "VH_ssm_policy" {
   })
 }
 
-resource "aws_ssm_parameter" "VH_ssm_seed_param" {
-  name  = "/VibraHeka/AppStatus"
-  type  = "String"
-  value = "Ready"
+resource "aws_ssm_parameter" "VH_verification_email_template" {
+  name = "${var.ssm_namespace}VerificationEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
