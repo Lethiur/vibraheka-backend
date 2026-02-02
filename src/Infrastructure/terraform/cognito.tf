@@ -20,7 +20,7 @@ resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
   lambda_config {
     kms_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
     custom_email_sender {
-      lambda_arn     = module.CreateChallengeLambda.lambda_arn
+      lambda_arn     = var.prod_deployment ? module.SendEmailLambda.lambda_arn : module.CreateChallengeLambda.lambda_arn
       lambda_version = "V1_0"
     }
   }

@@ -48,7 +48,7 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return await Maybe.From(emailTemplate)
             .Where(tpl => tpl != null)
             .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
-            .Bind(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
+            .BindTry(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
                 .Map(_ => emailTemplate.ID));
     }
 
