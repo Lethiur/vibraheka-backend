@@ -20,3 +20,7 @@ variable "ses-domain-arn" {
 }
 
 variable "ses_config_set_name" {}
+
+variable "kms_alias_name" {
+
+}

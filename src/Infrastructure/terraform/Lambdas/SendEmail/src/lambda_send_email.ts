@@ -1,4 +1,5 @@
 import {
+    CustomEmailSenderTriggerEvent, CustomEmailSenderTriggerHandler,
     CustomMessageTriggerEvent,
     CustomMessageTriggerHandler,
 } from "aws-lambda";
@@ -11,16 +12,14 @@ import SSMClientWrapper from "./Clients/SSMClient";
 import S3ClientWrapper from "./Clients/S3Client";
 import validateEnvironment from "./Validators/EnvironmentValidator";
 import SESClientWrapper from "./Clients/SESClient";
-
+import {toByteArray} from 'base64-js';
 const {decrypt} = buildClient(
     CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
 );
-const keyring = new KmsKeyringNode({generatorKeyId, keyIds});
-// Initialize AWS SDK clients with default configuration
+
 const sesClient = new SESClientWrapper();
 const s3Client = new S3ClientWrapper();
 const ssmClient = new SSMClientWrapper();
-
 
 /**
  * Replaces template placeholders with actual values
@@ -42,16 +41,20 @@ function processTemplate(template: string, data: Record<string, string | number>
 }
 
 
-export const handler: CustomMessageTriggerHandler = async (event: CustomMessageTriggerEvent) => {
+export const handler: CustomEmailSenderTriggerHandler = async (event: CustomEmailSenderTriggerEvent) => {
     try {
         // Step 1: Validate all required environment variables are present
         const env = validateEnvironment();
         console.log(env)
-        const recipient: string | null = event.request.userAttributes.email;
+        const recipient: string | null = event.userName;
         if (recipient == null) {
             throw new Error("El usuario es una puta mierda")
         }
-
+        
+        if (event.request.code == null) {
+            throw new Error("El codigo es una puta mierda")
+        }
+        
         console.log(`Processing email request for ${recipient} recipient(s)`);
 
         // Step 2: Retrieve the template filename from SSM Parameter Store
@@ -62,14 +65,18 @@ export const handler: CustomMessageTriggerHandler = async (event: CustomMessageT
         const templateHtml = await s3Client.getFileContents(`${templateFileName}/template.json`, env.TEMPLATE_BUCKET);
         console.log(`Downloaded template from S3: ${env.TEMPLATE_BUCKET}/${templateFileName}`);
 
+        const generatorKeyId: string = env.KEY_ALIAS;
+        const keyIds: string[] = [env.KEY_ARN];
+        const keyring = new KmsKeyringNode({generatorKeyId, keyIds});
+        
         // Step 4: Process the template by replacing all {{variable}} placeholders
         // Decrypt the provided code using the AWS Encryption SDK
         const {plaintext} = await decrypt(
             keyring,
-            toByteArray(event.request.code)
+            toByteArray(event.request.code!)
         );
-        plainTextCode = plaintext;
-        const processedHtml = processTemplate(templateHtml, {"code": event.request.});
+        const plainTextCode : string = plaintext.toString();
+        const processedHtml = processTemplate(templateHtml, {"code": plainTextCode, "username": event.request.userAttributes.USER_NAME});
 
         // Step 5: Send emails to all recipients in parallel
         const subject = "Tu codigo de verificacion";

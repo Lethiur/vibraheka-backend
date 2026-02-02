@@ -41,6 +41,8 @@ resource "aws_lambda_function" "send_email" {
       SES_FROM_EMAIL                      = var.ses_email_from
       SES_CONFIG_SET                      = var.ses_config_set_name
       SSM_TEMPLATE_NAME_PARAM             = var.ssm_verification_template_param
+      KEY_ARN                             = var.kms_arn
+      KEY_ALIAS                           = var.kms_alias_name
       AWS_NODEJS_CONNECTION_REUSE_ENABLED = "1"
     }
   }
