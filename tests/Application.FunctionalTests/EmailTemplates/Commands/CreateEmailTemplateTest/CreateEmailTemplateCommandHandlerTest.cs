@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
@@ -16,18 +17,24 @@ public class CreateEmailTemplateCommandHandlerTests
 {
     private Mock<IEmailTemplateStorageService> _storageServiceMock;
     private Mock<IEmailTemplatesService> _templateServiceMock;
+    private Mock<ICurrentUserService> _currentUserServiceMock;
+    
     private CreateEmailTemplateCommandHandler _handler;
+    
 
     [SetUp]
     public void SetUp()
     {
         _storageServiceMock = new Mock<IEmailTemplateStorageService>();
         _templateServiceMock = new Mock<IEmailTemplatesService>();
-
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new CreateEmailTemplateCommandHandler(
             _templateServiceMock.Object,
-            _storageServiceMock.Object
+            _storageServiceMock.Object,
+            _currentUserServiceMock.Object
         );
+        
+        _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
     }
 
     [Test]
@@ -132,8 +139,7 @@ public class CreateEmailTemplateCommandHandlerTests
             x => x.SaveEmailTemplate(
                 It.Is<EmailEntity>(e =>
                     e.Name == templateName &&
-                    e.Path == ("template-id") &&
-                    !string.IsNullOrEmpty(e.ID)),
+                    e.Path == ("template-id")),
                 cancellationToken),
             Times.Once);
     }

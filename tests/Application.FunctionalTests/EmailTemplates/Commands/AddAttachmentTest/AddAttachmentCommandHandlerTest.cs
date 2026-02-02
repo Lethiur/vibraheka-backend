@@ -78,7 +78,7 @@ public class AddAttachmentCommandHandlerTest
             .ReturnsAsync(Success("template-saved"));
 
         // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
+        Result<string> result = await _handler.Handle(command, NoCancellation);
 
         // Then
         Assert.That(result.IsSuccess);
@@ -108,7 +108,7 @@ public class AddAttachmentCommandHandlerTest
             .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));
 
         // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
+        Result<string> result = await _handler.Handle(command, NoCancellation);
 
         // Then
         Assert.That(result.IsFailure);
@@ -135,7 +135,7 @@ public class AddAttachmentCommandHandlerTest
             .ReturnsAsync(Failure<string>(errorMessage));
 
         // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
+        Result<string> result = await _handler.Handle(command, NoCancellation);
 
         // Then
         Assert.That(result.IsFailure);
@@ -167,7 +167,7 @@ public class AddAttachmentCommandHandlerTest
             .ReturnsAsync(Failure<string>(errorMessage));
 
         // When: handling the add-attachment command.
-        Result<Unit> result = await _handler.Handle(command, NoCancellation);
+        Result<string> result = await _handler.Handle(command, NoCancellation);
 
         // Then
         Assert.That(result.IsFailure);
