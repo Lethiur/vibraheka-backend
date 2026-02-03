@@ -45,7 +45,7 @@ export const handler: CustomEmailSenderTriggerHandler = async (event: CustomEmai
     try {
         // Step 1: Validate all required environment variables are present
         const env = validateEnvironment();
-        console.log(env)
+        console.log(event)
         const recipient: string | null = event.userName;
         if (recipient == null) {
             throw new Error("El usuario es una puta mierda")
@@ -65,6 +65,7 @@ export const handler: CustomEmailSenderTriggerHandler = async (event: CustomEmai
         const templateHtml = await s3Client.getFileContents(`${templateFileName}/template.json`, env.TEMPLATE_BUCKET);
         console.log(`Downloaded template from S3: ${env.TEMPLATE_BUCKET}/${templateFileName}`);
 
+        console.log(templateHtml);
         const generatorKeyId: string = env.KEY_ALIAS;
         const keyIds: string[] = [env.KEY_ARN];
         const keyring = new KmsKeyringNode({generatorKeyId, keyIds});
@@ -76,7 +77,7 @@ export const handler: CustomEmailSenderTriggerHandler = async (event: CustomEmai
             toByteArray(event.request.code!)
         );
         const plainTextCode : string = plaintext.toString();
-        const processedHtml = processTemplate(templateHtml, {"code": plainTextCode, "username": event.request.userAttributes.USER_NAME});
+        const processedHtml = processTemplate(templateHtml, {"code": plainTextCode, "username": event.request["userAttributes"]["name"]});
 
         // Step 5: Send emails to all recipients in parallel
         const subject = "Tu codigo de verificacion";

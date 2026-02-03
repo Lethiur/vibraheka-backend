@@ -28,6 +28,29 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context, strin
     }
 
     /// <summary>
+    /// Retrieves an entity of type T from the DynamoDB table by its unique ID and range key.
+    /// </summary>
+    /// <param name="idValue">The unique identifier of the entity.</param>
+    /// <param name="rangeKeyValue">The range key associated with the entity.</param>
+    /// <param name="cancellationToken">The token used to halt the operation</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the entity if found, or a failure result with an error message if the entity is not found or an error occurs.
+    /// </returns>
+    protected async Task<Result<T>> FindByIdAndRangeKey(string idValue, object rangeKeyValue, CancellationToken cancellationToken)
+    {
+        LoadConfig configuration = new() { OverrideTableName = tableConfigKey };
+        try
+        {
+            T? model = await context.LoadAsync<T>(idValue, rangeKeyValue, configuration, cancellationToken);
+            return model;
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<T>(HandleError(e));
+        }
+    }
+
+    /// <summary>
     /// Saves an entity of type T to the DynamoDB table.
     /// </summary>
     /// <param name="entity">The entity of type T to be saved to the table.</param>

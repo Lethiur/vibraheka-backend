@@ -105,6 +105,6 @@ public class ConfirmUserAsync : GenericUserServiceTest
 
         // Then: Should return AppErrors.UnknownError as defined in your catch
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(AppErrors.UnknownError));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));
     }
 }

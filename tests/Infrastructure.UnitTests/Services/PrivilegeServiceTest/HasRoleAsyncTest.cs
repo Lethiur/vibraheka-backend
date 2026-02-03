@@ -14,7 +14,9 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.PrivilegeServiceTest;
 public class HasRoleAsyncTest
 {
     private Mock<IUserRepository> _userRepositoryMock;
+    private Mock<IActionLogRepository> _actionLogRepositoryMock;
     private Mock<ILogger<IPrivilegeService>> _loggerMock;
+    
     private PrivilegeService _service;
 
     [SetUp]
@@ -22,7 +24,8 @@ public class HasRoleAsyncTest
     {
         _userRepositoryMock = new Mock<IUserRepository>();
         _loggerMock = new Mock<ILogger<IPrivilegeService>>();
-        _service = new PrivilegeService(_userRepositoryMock.Object, _loggerMock.Object);
+        _actionLogRepositoryMock = new Mock<IActionLogRepository>();
+        _service = new PrivilegeService(_userRepositoryMock.Object, _actionLogRepositoryMock.Object, _loggerMock.Object);
     }
 
     [Test]

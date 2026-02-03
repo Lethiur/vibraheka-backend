@@ -42,6 +42,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
+
+        builder.Services.AddScoped<IActionLogRepository, ActionLogRepository>();
         
         // Settings
         builder.Services.AddScoped<ISettingsService, SettingsService>();

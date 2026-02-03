@@ -44,7 +44,7 @@ public abstract class TestBase
                                 ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATE_TABLE environment variable is required");
 
         string emailTemplatesBucketName = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATES_BUCKET_NAME") ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATES_BUCKET_NAME environment variable is required");
-        
+        string actionLogTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_ACTION_LOG_TABLE") ?? throw new InvalidOperationException("TEST_DYNAMO_ACTION_LOG_TABLE environment variable is required");
         _configuration = Options.Create(new AWSConfig()
         {
             CodesTable = verificationCodesTable,
@@ -54,7 +54,8 @@ public abstract class TestBase
             EmailTemplatesTable = templatesTable,
             EmailTemplatesBucketName = emailTemplatesBucketName,
             Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required"),
-            Location = "eu-west-1"
+            Location = "eu-west-1",
+            ActionLogTable = actionLogTable
         }).Value;
         return _configuration;
     }
