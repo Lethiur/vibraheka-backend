@@ -17,13 +17,13 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{EmailEntity}"/> object
     /// wrapping the email template if found, or an error if the operation fails.</returns>
-    public async Task<Result<EmailEntity>> GetTemplateByID(string templateID)
+    public Task<Result<EmailEntity>> GetTemplateByID(string templateID)
     {
-        return await Maybe.From(templateID)
+        return  Maybe.From(templateID)
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
             .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id))
-            .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound);
+            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound);
     }
 
     /// <summary>
@@ -46,7 +46,6 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     public async Task<Result<string>> SaveEmailTemplate(EmailEntity emailTemplate, CancellationToken token)
     {
         return await Maybe.From(emailTemplate)
-            .Where(tpl => tpl != null)
             .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
             .BindTry(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
                 .Map(_ => emailTemplate.ID));
@@ -61,7 +60,10 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating success or failure of the operation.</returns>
     public Task<Result<Unit>> EditTemplateName(string templateID, string newTemplateName, CancellationToken token)
     {
-        return GetTemplateByID(templateID)
+        return
+            Maybe.From(templateID)
+                .ToResult(EmailTemplateErrors.InvalidTempalteID)
+                .Map(GetTemplateByID)
             .Tap(entity =>
             {
                 entity.Name = newTemplateName;

@@ -28,10 +28,9 @@ public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config)
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
     /// <returns>A <c>Task</c> representing the asynchronous operation. The task result contains a <c>Result</c> object which is successful if the template exists, returning the corresponding <c>EmailEntity</c>; otherwise, it contains an error.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <c>templateID</c> is null or empty.</exception>
-    public async Task<Result<EmailEntity>> GetTemplateByID(string templateID)
+    public Task<Result<EmailEntity>> GetTemplateByID(string templateID)
     {
-        Result<EmailTemplateDBModel> findResult = await FindByID(templateID);
-        return findResult
+        return FindByID(templateID)
             .Ensure(model => model != null, EmailTemplateErrors.TemplateNotFound)
             .Map(model => model.ToDomain());
     }

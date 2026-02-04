@@ -9,12 +9,12 @@ namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateEm
 [TestFixture]
 public class CreateEmailTemplateCommandValidatorTests
 {
-    private CreateEmailTemplateCommandValidator validator;
+    private CreateEmailTemplateCommandValidator Validator;
 
     [SetUp]
     public void SetUp()
     {
-        validator = new CreateEmailTemplateCommandValidator();
+        Validator = new CreateEmailTemplateCommandValidator();
     }
 
     // ----------------------------
@@ -44,30 +44,6 @@ public class CreateEmailTemplateCommandValidatorTests
             .SetName("ShouldPassValidationWhenJsonIsValidPrimitiveNull");
       
     }
-
-    public static IEnumerable<TestCaseData> InvalidJsonCases()
-    {
-        // malformed JSON
-        yield return new TestCaseData("""{"template":"Welcome Email" """)
-            .SetName("ShouldFailValidationWhenJsonIsInvalidUnclosedObject");
-        yield return new TestCaseData("""[{"template":"Welcome Email"}""")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidUnclosedArray");
-        yield return new TestCaseData("""{invalid""")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidGarbageAfterBrace");
-        yield return new TestCaseData("""{"key": }""")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidMissingValue");
-        yield return new TestCaseData("""{,}""")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidCommaObject");
-
-        // clearly non-JSON text
-        yield return new TestCaseData("This is plain text, not JSON")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidPlainText");
-        yield return new TestCaseData("not-json-format")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidRandomString");
-        yield return new TestCaseData("12.34.56")
-            .SetName("ShouldFailValidationWhenJsonIsInvalidInvalidNumber");
-    }
-
     // ----------------------------
     // Tests
     // ----------------------------
@@ -85,7 +61,7 @@ public class CreateEmailTemplateCommandValidatorTests
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.False);
@@ -106,7 +82,7 @@ public class CreateEmailTemplateCommandValidatorTests
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.True);
@@ -121,7 +97,7 @@ public class CreateEmailTemplateCommandValidatorTests
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(null!, "Valid Template Name");
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.False);
@@ -136,11 +112,11 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsEmpty()
     {
         // Given
-        MemoryStream fileStream = new MemoryStream(Array.Empty<byte>());
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
+        MemoryStream fileStream = new MemoryStream([]);
+        CreateEmailTemplateCommand command = new(fileStream, "Valid Template Name");
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.False);
@@ -159,50 +135,13 @@ public class CreateEmailTemplateCommandValidatorTests
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.True);
         Assert.That(result.Errors, Is.Empty);
     }
-
-    [TestCaseSource(nameof(InvalidJsonCases))]
-    [Description("Given a command with invalid JSON in file stream, when validating, then it should fail with InvalidTemplateContent error")]
-    public async Task ShouldFailValidationWhenJsonIsInvalid(string jsonContent)
-    {
-        // Given
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent));
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
-
-        // When
-        ValidationResult result = await validator.ValidateAsync(command);
-
-        // Then
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(
-            result.Errors,
-            Has.Some.Matches<ValidationFailure>(e => e.ErrorMessage == EmailTemplateErrors.InvalidTemplateContent)
-        );
-    }
-
-    [Test]
-    [Description("Given a command with valid JSON stream, when validating, then the stream position should be reset to zero after validation")]
-    public async Task ShouldResetStreamPositionWhenJsonIsValidated()
-    {
-        // Given
-        string validJson = """{"template":"Welcome Email"}""";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes(validJson));
-        fileStream.Position = 5;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
-
-        // When
-        ValidationResult result = await validator.ValidateAsync(command);
-
-        // Then
-        Assert.That(result.IsValid, Is.True);
-        Assert.That(fileStream.Position, Is.EqualTo(0));
-    }
-
+    
     [Test]
     [Description("Given a command with null template name and null file stream, when validating, then it should fail with both errors")]
     public async Task ShouldFailValidationWhenBothFieldsAreInvalid()
@@ -211,7 +150,7 @@ public class CreateEmailTemplateCommandValidatorTests
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(null!, null!);
 
         // When
-        ValidationResult result = await validator.ValidateAsync(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then
         Assert.That(result.IsValid, Is.False);

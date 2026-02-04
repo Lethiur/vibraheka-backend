@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.Build.Tasks;
 using Moq;
 using VibraHeka.Domain.Exceptions;
 
@@ -16,9 +17,12 @@ public class CheckTemplateExistsTest : GenericEmailTemplateStorageServiceTest
     {
         Result<Unit> result = await Service.CheckTemplateExists(templateId!, TestCancellationToken);
 
+        RepositoryMock.Verify(r => r.TemplateExistsAsync(It.IsAny<string>(), TestCancellationToken), Times.Never);
+        
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
         RepositoryMock.VerifyNoOtherCalls();
+        
     }
 
     [Test]

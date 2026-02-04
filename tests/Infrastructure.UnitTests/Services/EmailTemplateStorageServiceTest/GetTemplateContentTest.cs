@@ -17,6 +17,9 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceTest
         RepositoryMock
             .Setup(r => r.GetTemplateContent(templateId, TestCancellationToken))
             .ReturnsAsync(Result.Success(expectedContent));
+        
+        RepositoryMock.Setup(r => r.TemplateExistsAsync(templateId, TestCancellationToken))
+            .ReturnsAsync(Result.Success(true));
 
         // When
         Result<string> result = await Service.GetTemplateContent(templateId, TestCancellationToken);
@@ -25,6 +28,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(expectedContent));
         RepositoryMock.Verify(r => r.GetTemplateContent(templateId, TestCancellationToken), Times.Once);
+        RepositoryMock.Verify(r => r.TemplateExistsAsync(templateId, TestCancellationToken), Times.Once);
         RepositoryMock.VerifyNoOtherCalls();
     }
 
@@ -41,9 +45,11 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceTest
         // When / Then
         Assert.That(
             async () => await Service.GetTemplateContent(templateId, TestCancellationToken),
-            Throws.TypeOf<IOException>());
+            Throws.Nothing);
 
-        RepositoryMock.Verify(r => r.GetTemplateContent(templateId, TestCancellationToken), Times.Once);
+        RepositoryMock.Verify(r => r.GetTemplateContent(templateId, TestCancellationToken), Times.Never);
+        RepositoryMock.Verify(r => r.TemplateExistsAsync(templateId, TestCancellationToken), Times.Once);
         RepositoryMock.VerifyNoOtherCalls();
+        
     }
 }

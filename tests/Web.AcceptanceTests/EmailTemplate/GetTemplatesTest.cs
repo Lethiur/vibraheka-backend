@@ -5,6 +5,7 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -55,11 +56,11 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         HttpResponseMessage response = await Client.GetAsync("api/v1/email-templates");
 
         // Then: The list should contain the new template
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        IEnumerable<EmailEntity>? templates = responseEntity.GetContentAs<IEnumerable<EmailEntity>>();
+        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        IEnumerable<EmailTemplateResponseDTO>? templates = responseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
         
         Assert.That(templates, Is.Not.Null);
-        Assert.That(templates!.Any(t => t.Name == templateName), Is.True);
+        Assert.That(templates!.Any(t => t.TemplateName == templateName), Is.True);
     }
 
     [Test]
