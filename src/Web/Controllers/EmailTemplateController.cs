@@ -42,7 +42,13 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
             LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value.Select(template => new EmailTemplateResponseDTO()
+        {
+            CreatedAt = template.Created,
+            TemplateID = template.ID,
+            TemplateName = template.Name,
+            LastModified = template.LastModified
+        })));
     }
 
 

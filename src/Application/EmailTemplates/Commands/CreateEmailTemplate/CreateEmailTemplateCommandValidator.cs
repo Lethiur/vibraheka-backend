@@ -1,5 +1,5 @@
 ﻿using VibraHeka.Application.Common.Extensions.Validation;
-using VibraHeka.Domain.Exceptions;
+using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 
@@ -8,10 +8,10 @@ public class CreateEmailTemplateCommandValidator : AbstractValidator<CreateEmail
     public CreateEmailTemplateCommandValidator()
     {
         RuleLevelCascadeMode = CascadeMode.Stop;
-        RuleFor(x => x.TemplateName).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateName).NotNull()
-            .WithMessage(EmailTemplateErrors.InvalidTemplateName).MinimumLength(3)
-            .WithMessage(EmailTemplateErrors.InvalidTemplateName);
-        RuleFor(x => x.FileStream).NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateContent).NotEmpty()
-            .WithMessage(EmailTemplateErrors.InvalidTemplateContent);
+        RuleFor(x => x.TemplateName).NotEmpty().WithMessage(InvalidTemplateName).NotNull()
+            .WithMessage(InvalidTemplateName).MinimumLength(3)
+            .WithMessage(InvalidTemplateName);
+        RuleFor(x => x.FileStream).NotNull().WithMessage(InvalidTemplateContent).NotEmpty()
+            .WithMessage(InvalidTemplateContent).Must(stream => stream.CanSeek && stream.Length > 0).WithMessage(InvalidTemplateContent);
     }
 }

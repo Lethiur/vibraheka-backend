@@ -55,9 +55,9 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     public Task<Result<string>> GetTemplateUrlAsync(string templateID, CancellationToken cancellationToken)
     {
         return Result.Of(templateID)
-            .Ensure(async tpl => await _repository.TemplateExistsAsync(tpl, cancellationToken))
-            .BindTry(tpl => CheckTemplateExists(tpl, cancellationToken))
-            .BindTry(tpl =>_repository.GetTemplateUrlAsync(templateID) );
+            .Ensure(tpl => !string.IsNullOrWhiteSpace(tpl) && !string.IsNullOrEmpty(tpl), InvalidTempalteID)
+            .Check(tpl => CheckTemplateExists(tpl, cancellationToken))
+            .BindTry(tpl =>_repository.GetTemplateUrlAsync(tpl) );
     }
 
     /// <summary>
@@ -83,9 +83,9 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     {
         return Maybe.From(templateID)
             .ToResult(InvalidTempalteID)
-            .Ensure(a => !string.IsNullOrWhiteSpace(templateID), InvalidTempalteID)
+            .Ensure(a => !string.IsNullOrWhiteSpace(a), InvalidTempalteID)
             .BindTry(_ => _repository.TemplateExistsAsync(templateID, cancellationToken))
-            .Ensure(res => res, TemplateNotFound)
+            .Ensure(exist => exist, TemplateNotFound)
             .Map(_ => Unit.Value);
     }
 }

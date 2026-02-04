@@ -7,6 +7,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -37,9 +38,9 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Happy Path check: Verify name updated in the list
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        IEnumerable<EmailEntity>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailEntity>>();
-        Assert.That(templates!.Any(t => t.ID == templateId && t.Name == newName), Is.True);
+        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        IEnumerable<EmailTemplateResponseDTO>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        Assert.That(templates!.Any(t => t.TemplateID == templateId && t.TemplateName == newName), Is.True);
     }
 
     [Test]

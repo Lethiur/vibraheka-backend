@@ -4,6 +4,7 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -32,9 +33,9 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Verify the skeleton exists in the summary list (Happy Path check)
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        IEnumerable<EmailEntity>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailEntity>>();
-        Assert.That(templates!.Any(t => t.ID == templateId && t.Name == templateName), Is.True);
+        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        IEnumerable<EmailTemplateResponseDTO>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        Assert.That(templates!.Any(t => t.TemplateID == templateId && t.TemplateName == templateName), Is.True);
     }
 
     [Test]

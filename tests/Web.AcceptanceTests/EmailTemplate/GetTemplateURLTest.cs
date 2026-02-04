@@ -5,6 +5,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -30,12 +31,12 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         
         // We need to get the ID. We can get all templates to find it.
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        EmailEntity template = listEntity.GetContentAs<IEnumerable<EmailEntity>>()!
-            .First(t => t.Name == templateName);
+        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        EmailTemplateResponseDTO template = listEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>()!
+            .First(t => t.TemplateName == templateName);
 
         // When: Getting the URL
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={template.ID}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={template.TemplateID}");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));

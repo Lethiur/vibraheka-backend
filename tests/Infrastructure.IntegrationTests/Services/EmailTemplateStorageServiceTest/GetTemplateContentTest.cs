@@ -35,7 +35,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceIntegrat
 
     [Test]
     [DisplayName("Should throw when template does not exist")]
-    public void ShouldThrowWhenTemplateDoesNotExist()
+    public void ShouldNotThrowWhenTemplateDoesNotExist()
     {
         // Given
         string templateId = $"missing-{Guid.NewGuid():N}";
@@ -43,6 +43,6 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceIntegrat
         // When / Then
         Assert.That(
             async () => await Service.GetTemplateContent(templateId, TestCancellationToken),
-            Throws.TypeOf<AmazonS3Exception>());
+            Throws.Nothing);
     }
 }

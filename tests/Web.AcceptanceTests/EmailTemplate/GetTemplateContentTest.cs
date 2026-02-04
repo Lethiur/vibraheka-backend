@@ -5,6 +5,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 using static System.Text.Encoding;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
@@ -37,12 +38,12 @@ public class GetTemplateContentTest : GenericAcceptanceTest<VibraHekaProgram>
 
 
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<List<EmailEntity>>();
-        EmailEntity template = listEntity.GetContentAs<List<EmailEntity>>()!
-            .First(t => t.Name == templateName);
+        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<List<EmailTemplateResponseDTO>>();
+        EmailTemplateResponseDTO template = listEntity.GetContentAs<List<EmailTemplateResponseDTO>>()!
+            .First(t => t.TemplateName == templateName);
 
         // When: Getting the content
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/contents?templateID={template.ID}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/contents?templateID={template.TemplateID}");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
