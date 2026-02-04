@@ -5,27 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "tsx test-local.ts",
-    "build": "esbuild ./src/lambda_send_email.ts --bundle --platform=node --target=node20 --outdir=dist",
-    "zip:unix": "cd dist && zip -r ../lambda.zip . && cd ..",
-    "zip:windows": "powershell -NoProfile -Command \"Remove-Item -Force .\\lambda.zip -ErrorAction SilentlyContinue; Compress-Archive -Path .\\dist\\* -DestinationPath .\\lambda.zip -Force\""
+    "build": "esbuild ./lambda_send_email.ts --bundle --platform=node --target=node20 --outdir=dist",
+    "zip": "cd dist && zip -r ../lambda.zip . && cd .."
   },
   "author": "Twingers Corporation",
   "license": "ISC",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/node": "^22.13.5",
-    "dotenv": "^17.2.3",
     "esbuild": "^0.25.0",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@aws-crypto/client-node": "^4.2.1",
     "@aws-sdk/client-s3": "^3.700.0",
     "@aws-sdk/client-ses": "^3.980.0",
-    "@aws-sdk/client-ssm": "^3.700.0",
-    "aws-lambda": "^1.0.7",
-    "base64-js": "^1.5.1"
+    "@aws-sdk/client-ssm": "^3.700.0"
   }
 }

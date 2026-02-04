@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 

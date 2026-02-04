@@ -1,38 +1,13 @@
 ﻿using System.Text;
-using Amazon;
-using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
-using MediatR;
-using VibraHeka.Infrastructure.Persistence.S3;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplateStorageRepositoryTest;
 
 [TestFixture]
 [Category("Integration")]
-public class SaveTemplateTest : TestBase
+public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegrationTest
 {
-    private IAmazonS3 S3 = null!;
-    
-    [OneTimeSetUp]
-    public void SetupS3()
-    {
-        base.OneTimeSetUp();
-        RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
-
-        S3 = new AmazonS3Client(new AmazonS3Config
-        {
-            RegionEndpoint = region,
-            Profile = new Profile(_configuration.Profile)
-        });
-    }
-    
-    [OneTimeTearDown]
-    public void TearDownS3()
-    {
-        S3?.Dispose();
-    }   
-    
      [Test]
     public async Task ShouldUploadTemplateToS3AndDeleteTempFileWhenSaveTemplateIsCalled()
     {
@@ -43,22 +18,20 @@ public class SaveTemplateTest : TestBase
 
         await using MemoryStream templateStream = new MemoryStream(expectedBytes);
 
-        EmailTemplateStorageRepository repository = new EmailTemplateStorageRepository(S3, _configuration);
-
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
         // When: saving the template.
-        Result<string> result = await repository.SaveTemplate(templateId, templateStream, CancellationToken.None);
+        Result<string> result = await Repository.SaveTemplate(templateId, templateStream, TestCancellationToken);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
 
         using (GetObjectResponse response =
-               await S3.GetObjectAsync(_configuration.EmailTemplatesBucketName, $"{templateId}/template.json"))
+               await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
             using MemoryStream ms = new MemoryStream();
-            await responseStream.CopyToAsync(ms);
+            await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 
             Assert.That(actualBytes, Is.EqualTo(expectedBytes));
@@ -67,7 +40,7 @@ public class SaveTemplateTest : TestBase
         Assert.That(File.Exists(expectedTempPath), Is.False);
 
         // Remote cleanup.
-        await S3.DeleteObjectAsync(_configuration.EmailTemplatesBucketName, templateId);
+        await S3.DeleteObjectAsync(BucketName, templateId, TestCancellationToken);
     }
 
     [Test]
@@ -78,34 +51,32 @@ public class SaveTemplateTest : TestBase
         byte[] bytesV1 = Encoding.UTF8.GetBytes("""{"template":"V1"}""");
         byte[] bytesV2 = Encoding.UTF8.GetBytes("""{"template":"V2"}""");
 
-        EmailTemplateStorageRepository repository = new EmailTemplateStorageRepository(S3, _configuration);
-
         // When: saving the template twice with the same id.
         await using (MemoryStream s1 = new MemoryStream(bytesV1))
         {
-            Result<string> r1 = await repository.SaveTemplate(templateId, s1, CancellationToken.None);
+            Result<string> r1 = await Repository.SaveTemplate(templateId, s1, TestCancellationToken);
             Assert.That(r1.IsSuccess, Is.True);
         }
 
         await using (MemoryStream s2 = new MemoryStream(bytesV2))
         {
-            Result<string> r2 = await repository.SaveTemplate(templateId, s2, CancellationToken.None);
+            Result<string> r2 = await Repository.SaveTemplate(templateId, s2, TestCancellationToken);
             Assert.That(r2.IsSuccess, Is.True);
         }
 
         // Then
         using (GetObjectResponse response =
-               await S3.GetObjectAsync(_configuration.EmailTemplatesBucketName, $"{templateId}/template.json"))
+               await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
             using MemoryStream ms = new MemoryStream();
-            await responseStream.CopyToAsync(ms);
+            await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 
             Assert.That(actualBytes, Is.EqualTo(bytesV2));
         }
 
         // Remote cleanup.
-        await S3.DeleteObjectAsync(_configuration.EmailTemplatesBucketName, $"{templateId}/template.json");
+        await S3.DeleteObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken);
     }
 }

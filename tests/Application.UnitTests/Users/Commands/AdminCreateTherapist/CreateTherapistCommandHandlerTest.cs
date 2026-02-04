@@ -2,7 +2,6 @@
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;

@@ -145,6 +145,7 @@ export interface IAuthClient {
     auth_Register(command: RegisterUserCommand): Observable<void>;
     auth_ConfirmUser(command: VerifyUserCommand): Observable<void>;
     auth_Authenticate(command: AuthenticateUserCommand): Observable<void>;
+    auth_ResendConfirmationCode(email: string | undefined): Observable<void>;
 }
 
 @Injectable({
@@ -300,6 +301,61 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processAuth_Authenticate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_ResendConfirmationCode(email: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/resend-confirmation-code?";
+        if (email === null)
+            throw new globalThis.Error("The parameter 'email' cannot be null.");
+        else if (email !== undefined)
+            url_ += "email=" + encodeURIComponent("" + email) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_ResendConfirmationCode(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_ResendConfirmationCode(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_ResendConfirmationCode(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1317,7 +1373,8 @@ export interface IChangeTemplateForActionCommand {
 export enum ActionType {
     UserRegistered = 0,
     UserVerification = 1,
-    PasswordReset = 2,
+    RequestVerificationCode = 2,
+    PasswordReset = 3,
 }
 
 export class GetCodeQuery implements IGetCodeQuery {

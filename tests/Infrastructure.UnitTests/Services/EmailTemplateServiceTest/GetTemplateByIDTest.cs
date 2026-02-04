@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;

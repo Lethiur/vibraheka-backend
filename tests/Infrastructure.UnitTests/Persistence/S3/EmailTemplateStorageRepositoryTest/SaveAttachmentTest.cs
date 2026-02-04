@@ -1,26 +1,12 @@
 ﻿using System.Text;
-using Amazon;
-using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using Moq;
-using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.S3;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.S3.EmailTemplateStorageRepositoryTest;
 
-public class SaveAttachmentTest
+public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryTest
 {
-    private Mock<IAmazonS3> ClientMock = default!;
-    private AWSConfig Options = default!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        ClientMock = new Mock<IAmazonS3>(MockBehavior.Loose);
-        Options = new AWSConfig { EmailTemplatesBucketName = "unit-test-bucket" };
-    }
-
     [Test]
     [Description("Given a valid attachment stream, when saving the attachment, then it should upload the temp file and delete it")]
     public async Task ShouldUploadTempFileAndDeleteItWhenSaveAttachmentIsCalled()
@@ -47,14 +33,11 @@ public class SaveAttachmentTest
                 }
             })
             .ReturnsAsync(new PutObjectResponse { HttpStatusCode = System.Net.HttpStatusCode.OK });
-        ClientMock.Setup(c => c.Config).Returns(new AmazonS3Config { RegionEndpoint = RegionEndpoint.USEast1 });
-
-        EmailTemplateStorageRepository repository = new(ClientMock.Object, Options);
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
 
         // When: saving the attachment.
-        Result<string> result = await repository.SaveAttachment(templateId, attachmentStream, attachmentName, cancellationToken);
+        Result<string> result = await Repository.SaveAttachment(templateId, attachmentStream, attachmentName, cancellationToken);
 
         // Then
         Assert.That(result.IsSuccess);
@@ -86,14 +69,11 @@ public class SaveAttachmentTest
             .Setup(c => c.PutObjectAsync(It.IsAny<PutObjectRequest>(), cancellationToken))
             .ThrowsAsync(new IOException("Upload failed"));
 
-        EmailTemplateStorageRepository repository =
-            new EmailTemplateStorageRepository(ClientMock.Object, Options);
-
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
 
         // When / Then: saving should throw and temp file should be deleted.
         Assert.That(
-            async () => await repository.SaveAttachment(templateId, attachmentStream, attachmentName, cancellationToken),
+            async () => await Repository.SaveAttachment(templateId, attachmentStream, attachmentName, cancellationToken),
             Throws.TypeOf<IOException>());
 
         Assert.That(File.Exists(expectedTempPath), Is.False);
@@ -106,16 +86,13 @@ public class SaveAttachmentTest
         // Given: a stream that throws to verify temp cleanup on copy failures.
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = $"{Guid.NewGuid():N}.bin";
-        using var attachmentStream = new ThrowingStream();
-
-        EmailTemplateStorageRepository repository =
-            new EmailTemplateStorageRepository(ClientMock.Object, Options);
+        using ThrowingStream attachmentStream = new ThrowingStream();
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
 
         // When / Then: saving should throw and temp file should be deleted.
         Assert.That(
-            async () => await repository.SaveAttachment(templateId, attachmentStream, attachmentName, CancellationToken.None),
+            async () => await Repository.SaveAttachment(templateId, attachmentStream, attachmentName, CancellationToken.None),
             Throws.TypeOf<IOException>());
 
         Assert.That(File.Exists(expectedTempPath), Is.False);

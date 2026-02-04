@@ -36,12 +36,13 @@ public static class DependencyInjection
         
         builder.Services.Configure<AppSettingsEntity>(configurationManager);
         builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AppSettingsEntity>>().Value);
-        builder.Services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient());
         
         
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
+
+        builder.Services.AddScoped<IActionLogRepository, ActionLogRepository>();
         
         // Settings
         builder.Services.AddScoped<ISettingsService, SettingsService>();

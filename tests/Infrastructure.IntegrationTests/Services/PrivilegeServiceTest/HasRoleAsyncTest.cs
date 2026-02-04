@@ -1,43 +1,13 @@
 ﻿using System.ComponentModel;
-using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Bogus;
 using CSharpFunctionalExtensions;
-using DotEnv.Core;
-using Microsoft.Extensions.Logging.Abstractions;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeServiceTest;
 
 [TestFixture]
-public class HasRoleAsyncTest : TestBase
+public class HasRoleAsyncTest : GenericPrivilegeServiceTest
 {
-    private IPrivilegeService PrivilegeService;
-
-    private Microsoft.Extensions.Logging.ILogger<IPrivilegeService> _logger;
-    
-    private IUserRepository _userRepository;
-    
-    [OneTimeSetUp]
-    public void OneTimeSetUpChild()
-    {
-        base.OneTimeSetUp();
-        new EnvLoader().Load();
-        _configuration = CreateTestConfiguration();
-        _logger = NullLogger<IPrivilegeService>.Instance;
-        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig { Profile = new Profile("Twingers") })).Build();
-        _userRepository = new UserRepository(dynamoDbContext, _configuration);
-        PrivilegeService = new Infrastructure.Services.PrivilegeService(_userRepository, _logger);
-        _faker = new Faker();
-        
-    }
-    
     #region HasRoleAsync Tests
 
     [Test]

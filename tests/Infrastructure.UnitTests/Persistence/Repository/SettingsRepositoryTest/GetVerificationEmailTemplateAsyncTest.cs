@@ -27,7 +27,7 @@ public class GetVerificationEmailTemplateAsyncTest
     {
         // Given
         const string expectedValue = "<html>template</html>";
-        var response = new GetParameterResponse
+        GetParameterResponse response = new GetParameterResponse
         {
             Parameter = new Parameter { Value = expectedValue }
         };

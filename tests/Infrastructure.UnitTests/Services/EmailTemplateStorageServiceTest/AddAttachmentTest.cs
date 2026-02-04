@@ -1,26 +1,13 @@
 ﻿using System.Text;
+using CSharpFunctionalExtensions;
 using Moq;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.EmailTemplateStorageServiceTest;
 
 [TestFixture]
 [Category("unit")]
-public class AddAttachmentTest
+public class AddAttachmentTest : GenericEmailTemplateStorageServiceTest
 {
-    private Mock<IEmailTemplateStorageRepository> RepositoryMock = default!;
-    private EmailTemplateStorageService Service = default!;
-    private CancellationToken TestCancellationToken;
-
-    [SetUp]
-    public void SetUp()
-    {
-        RepositoryMock = new Mock<IEmailTemplateStorageRepository>(MockBehavior.Strict);
-        Service = new EmailTemplateStorageService(RepositoryMock.Object);
-        TestCancellationToken = CancellationToken.None;
-    }
-
     [Test]
     public async Task ShouldCallRepositoryAndReturnResultWhenAddAttachmentIsCalled()
     {
@@ -28,14 +15,14 @@ public class AddAttachmentTest
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = "file.bin";
         byte[] bytes = Encoding.UTF8.GetBytes("payload");
-        using var attachmentStream = new MemoryStream(bytes);
+        using MemoryStream attachmentStream = new MemoryStream(bytes);
 
         RepositoryMock
             .Setup(r => r.SaveAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken))
-            .ReturnsAsync(CSharpFunctionalExtensions.Result.Success("url"));
+            .ReturnsAsync(Result.Success("url"));
 
         // When: invoking the service method.
-        var result = await Service.AddAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken);
+        Result<string> result = await Service.AddAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken);
 
         // Then
         Assert.That(result.IsSuccess);
@@ -55,7 +42,7 @@ public class AddAttachmentTest
         string attachmentName = "file.bin";
         byte[] bytes = Encoding.UTF8.GetBytes("payload");
 
-        using (var attachmentStream = new MemoryStream(bytes))
+        using (MemoryStream attachmentStream = new MemoryStream(bytes))
         {
             RepositoryMock
                 .Setup(r => r.SaveAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken))

@@ -68,7 +68,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
 
         // Then: Should return InvalidPassword domain error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPassword));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
     }
 
     [Test]

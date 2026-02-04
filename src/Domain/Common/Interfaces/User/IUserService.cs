@@ -40,4 +40,24 @@ public interface IUserService
     /// <param name="password">The password associated with the user's account.</param>
     /// <returns>A result containing an <see cref="AuthenticationResult"/> with the user's ID, access token, and refresh token upon successful authentication, or an error in case of failure.</returns>
     public Task<Result<AuthenticationResult>> AuthenticateUserAsync(string email, string password);
+
+    /// <summary>
+    /// Asynchronously resends the verification code to the specified email address through AWS Cognito.
+    /// </summary>
+    /// <param name="email">The email address to which the verification code will be resent.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> where T is <see cref="Unit"/>, indicating the outcome of the resend operation.
+    /// </returns>
+    Task<Result<Unit>> ResendVerificationCodeAsync(string email);
+
+    /// <summary>
+    /// Asynchronously retrieves the unique identifier of a user from AWS Cognito based on the provided email address.
+    /// </summary>
+    /// <param name="email">The email address of the user whose unique identifier is being retrieved.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> where T is a string representing the unique identifier of the user, if found.
+    /// </returns>
+    Task<Result<string>> GetUserID(string email);
 }

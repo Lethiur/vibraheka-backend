@@ -1,9 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 

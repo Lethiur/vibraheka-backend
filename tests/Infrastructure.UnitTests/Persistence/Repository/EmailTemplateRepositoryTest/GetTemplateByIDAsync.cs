@@ -1,32 +1,17 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Configuration;
 using Moq;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
 using static System.Threading.CancellationToken;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
 [TestFixture]
-public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
+public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
 {
-    private new EmailTemplateRepository _repository;
-
-    
-    [SetUp]
-    public void Setup()
-    {
-        base.SetUp();
-        _configMock.EmailTemplatesTable = TableName;
-        _repository = new EmailTemplateRepository(_contextMock.Object, _configMock);
-    }
-
     [Test]
     [DisplayName("Should return email template when it exists in DynamoDB")]
     public async Task ShouldReturnEmailTemplateWhenExists()
@@ -39,7 +24,7 @@ public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
             .ReturnsAsync(template);
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
 
         // Then: Should return success with the template
         Assert.That(result.IsSuccess, Is.True);
@@ -58,7 +43,7 @@ public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
             .ReturnsAsync((EmailTemplateDBModel)null!);
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
 
         // Then: Should return success but the value should be null (comportamiento de LoadAsync)
         Assert.That(result.IsSuccess, Is.False);
@@ -75,7 +60,7 @@ public class GetTemplateByIDAsync : GenericDynamoRepositoryTest
             .ThrowsAsync(new Exception("DynamoDB error"));
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
 
         // Then: Should fail with the handled error message
         Assert.That(result.IsFailure, Is.True);

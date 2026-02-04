@@ -47,10 +47,7 @@ public class UserErrors
     /// </summary>
     public const string TooManyAttempts = "E-006";
 
-    /// <summary>
-    /// Represents the error code indicating that the user is not authorized to perform the requested operation.
-    /// </summary>
-    public const string NotAuthorized = "E-007";
+
 
     /// <summary>
     /// Represents the error code indicating that the provided confirmation code has expired.
@@ -71,4 +68,14 @@ public class UserErrors
     /// Represents the error code indicating that the provided user ID is invalid.
     /// </summary>
     public const string InvalidUserID = "E-011";
+
+    /// <summary>
+    /// Represents the error code indicating that a limit has been exceeded, such as a rate limit or resource allocation threshold.
+    /// </summary>
+    public const string LimitExceeded = "E-012";
+    
+    /// <summary>
+    /// Represents the error code indicating that the user is not authorized to perform the requested operation.
+    /// </summary>
+    public const string NotAuthorized = "E-013";
 }

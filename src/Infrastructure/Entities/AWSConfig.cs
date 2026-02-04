@@ -57,5 +57,11 @@ public class AWSConfig
     /// </summary>
     public string Profile { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the name of the DynamoDB table that stores action log entries.
+    /// This property is used to define the table location for tracking and managing user or system activities within the AWS infrastructure.
+    /// </summary>
+    public string ActionLogTable { get; set; } = string.Empty;
+
 
 }

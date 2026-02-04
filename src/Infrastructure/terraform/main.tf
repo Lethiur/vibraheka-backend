@@ -22,5 +22,8 @@ module "SendEmailLambda" {
   kms_arn                         = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
   user_pool_arn                   = aws_cognito_user_pool.VibraHeka-main-pool.arn
   ses-domain-arn                  = aws_ses_domain_identity.VibraHeka_ses_domain.arn
+}
 
+module "ActionLog" {
+  source = "./ActionLog"
 }

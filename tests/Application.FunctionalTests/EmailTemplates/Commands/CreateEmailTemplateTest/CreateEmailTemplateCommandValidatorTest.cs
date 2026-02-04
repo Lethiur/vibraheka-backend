@@ -136,7 +136,7 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsEmpty()
     {
         // Given
-        MemoryStream fileStream = new MemoryStream(System.Array.Empty<byte>());
+        MemoryStream fileStream = new MemoryStream(Array.Empty<byte>());
         CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
 
         // When

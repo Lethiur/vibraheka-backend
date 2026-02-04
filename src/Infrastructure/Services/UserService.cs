@@ -7,7 +7,6 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
@@ -75,25 +74,10 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
             logger.Log(LogLevel.Information, "User registered successfully: {UserSub}", response.UserSub);
             return response.UserSub;
         }
-        catch (UsernameExistsException)
+        catch (Exception ex)
         {
-            return  Result.Failure<string>(UserErrors.UserAlreadyExist);
-        }
-        catch (InvalidPasswordException)
-        {
-            // Handle invalid password
-            return Result.Failure<string>(UserErrors.InvalidPassword);
-        }
-        catch (InvalidParameterException)
-        {
-            // Handle invalid form data
-            return Result.Failure<string>(UserErrors.InvalidForm);
-        }
-        catch (Exception E)
-        {
-            logger.LogError(E, "Unexpected error registering user");
-            // Handle unexpected errors
-            return Result.Failure<string>(UserErrors.UnexpectedError);
+            logger.LogError(ex, "Error while registering the user {Email}", email);
+            return MapCognitoException<string>(ex);
         }
     }
 
@@ -127,22 +111,61 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
 
             return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,response.AuthenticationResult.RefreshToken ));
         }
-        catch (NotAuthorizedException)
+        catch (Exception ex)
         {
-            return Result.Failure<AuthenticationResult>(UserErrors.InvalidPassword);
+            logger.LogError(ex, "Error while authenticating the user {Email}", email);
+            return MapCognitoException<AuthenticationResult>(ex);
         }
-        catch (UserNotFoundException)
+    }
+
+    /// <summary>
+    /// Resends the verification code to the specified user's email address.
+    /// </summary>
+    /// <param name="email">The email address of the user to whom the verification code should be resent.</param>
+    /// <returns>A <see cref="Result{Unit}"/> indicating the success or failure of the operation.</returns>
+    /// <exception cref="NotImplementedException">Thrown when the method is not implemented.</exception>
+    public async Task<Result<Unit>> ResendVerificationCodeAsync(string email)
+    {
+        ResendConfirmationCodeRequest request = new()
         {
-            return Result.Failure<AuthenticationResult>(UserErrors.UserNotFound);
-        }
-        catch (UserNotConfirmedException)
+            ClientId = _clientId, Username = email
+        };
+
+        try
         {
-            return Result.Failure<AuthenticationResult>(UserErrors.UserNotConfirmed);
+            ResendConfirmationCodeResponse resendConfirmationCodeResponse =
+                await _client.ResendConfirmationCodeAsync(request);
+            return Result.Success(Unit.Value);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error authenticating user {Email}", email);
-            return Result.Failure<AuthenticationResult>(UserErrors.UnexpectedError);
+            logger.LogError(ex, "Error while resending the verification code for user {Email}", email);
+            return MapCognitoException<Unit>(ex);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the unique user identifier (User ID) associated with the specified email address from the Cognito user pool.
+    /// </summary>
+    /// <param name="email">The email address of the user whose User ID is to be retrieved.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the User ID if the operation is successful; otherwise, an error result.</returns>
+    public async Task<Result<string>> GetUserID(string email)
+    {
+        try
+        {
+            AdminGetUserRequest request = new AdminGetUserRequest()
+            {
+                UserPoolId = _userPoolId,
+                Username = email
+            };
+
+            AdminGetUserResponse response = await _client.AdminGetUserAsync(request);
+            return Result.Success(response.UserAttributes.First(attr => attr.Name == "sub").Value);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while requesting the new verification code for user with email {Email}", email);
+            return MapCognitoException<string>(ex);
         }
     }
 
@@ -165,40 +188,41 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
             logger.Log(LogLevel.Information, "User with {Email} confirmed successfully", email);
             return Result.Success(Unit.Value);
         }
-        catch (CodeMismatchException ex)
-        {
-            logger.LogWarning("Invalid confirmation code for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserErrors.WrongVerificationCode);
-        }
-        catch (ExpiredCodeException ex)
-        {
-            logger.LogWarning("Confirmation code expired for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserErrors.ExpiredCode);
-        }
-        catch (NotAuthorizedException ex)
-        {
-            logger.LogWarning("Not authorized to confirm {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserErrors.NotAuthorized);
-        }
-        catch (UserNotFoundException ex)
-        {
-            logger.LogWarning("User not found {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserErrors.UserNotFound);
-        }
-        catch (TooManyFailedAttemptsException ex)
-        {
-            logger.LogWarning("Too many failed attempts for {Email}: {Error}", email, ex.Message);
-            return Result.Failure<Unit>(UserErrors.TooManyAttempts);
-        }
-        catch (InvalidParameterException)
-        {
-            return Result.Failure<Unit>(UserErrors.InvalidForm);
-        }
-        
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error confirming user {Email}", email);
-            return Result.Failure<Unit>(AppErrors.UnknownError);
+            logger.LogError(ex, "Error while error confirming user {Email}", email);
+            return MapCognitoException<Unit>(ex);
         }
+    }
+
+    /// <summary>
+    /// Maps exceptions thrown by the Amazon Cognito Identity Provider to corresponding application-specific error identifiers.
+    /// </summary>
+    /// <typeparam name="T">The type of the result that the operation will return in case of success.</typeparam>
+    /// <param name="ex">The exception thrown during the execution of an operation in the Cognito service.</param>
+    /// <returns>A <see cref="Result{T}"/> containing the appropriate error mapped from the exception, or a fallback error for unexpected exceptions.</returns>
+    private Result<T> MapCognitoException<T>(Exception ex)
+    {
+        // Map common Cognito exceptions to your domain/application error strings.
+        // Add/remove cases as you discover them.
+        return ex switch
+        {
+            UsernameExistsException => Result.Failure<T>(UserErrors.UserAlreadyExist),
+            InvalidPasswordException => Result.Failure<T>(UserErrors.InvalidPassword),
+            InvalidParameterException => Result.Failure<T>(UserErrors.InvalidForm),
+
+            NotAuthorizedException => Result.Failure<T>(UserErrors.NotAuthorized),
+            UserNotFoundException => Result.Failure<T>(UserErrors.UserNotFound),
+            UserNotConfirmedException => Result.Failure<T>(UserErrors.UserNotConfirmed),
+
+            CodeMismatchException => Result.Failure<T>(UserErrors.WrongVerificationCode),
+            ExpiredCodeException => Result.Failure<T>(UserErrors.ExpiredCode),
+
+            TooManyFailedAttemptsException => Result.Failure<T>(UserErrors.TooManyAttempts),
+            LimitExceededException => Result.Failure<T>(UserErrors.LimitExceeded),
+
+            // Fallback: unexpected
+            _ => Result.Failure<T>(UserErrors.UnexpectedError)
+        };
     }
 }

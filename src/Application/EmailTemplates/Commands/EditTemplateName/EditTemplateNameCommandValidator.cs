@@ -1,4 +1,3 @@
-using System.Data;
 using VibraHeka.Application.Common.Extensions.Validation;
 using VibraHeka.Domain.Exceptions;
 

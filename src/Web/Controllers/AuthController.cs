@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
+using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
@@ -12,7 +13,7 @@ namespace VibraHeka.Web.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
-public class AuthController(IMediator mediator)
+public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
 {
     /// <summary>
     /// Handles a user registration request by processing the provided registration details
@@ -93,6 +94,8 @@ public class AuthController(IMediator mediator)
         {
             switch (result.Error)
             {
+                case UserErrors.NotAuthorized:
+                    return new NotFoundObjectResult(ResponseEntity.FromError(UserErrors.InvalidPassword));
                 case UserErrors.UserNotFound:
                 case UserErrors.InvalidPassword:
                     return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
@@ -102,5 +105,29 @@ public class AuthController(IMediator mediator)
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    /// <summary>
+    /// Resends a confirmation code to the specified email address, allowing the user to verify their account.
+    /// </summary>
+    /// <param name="email">The email address of the user to which the confirmation code should be resent.</param>
+    /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.
+    /// A success response confirms the code was resent, while a failure response provides error details.</returns>
+    [HttpGet("resend-confirmation-code")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResendConfirmationCode([FromQuery(Name = "email")] string email)
+    {
+        ResendConfirmationCodeCommand command = new(email);
+        Logger.LogInformation("Resending confirmation code for user with email {Email}", email);
+        Result<Unit> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            Logger.LogError("Failed to resend confirmation code for user with email {Email}: {Error}", email, result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess("Confirmation code resent successfully"));
     }
 }

@@ -1,4 +1,6 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -209,5 +211,22 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         T obj = scope.ServiceProvider.GetRequiredService<T>();
         
         return obj;
+    }
+    protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
+        string fileContent)
+    {
+        MultipartFormDataContent form = new MultipartFormDataContent();
+
+        form.Add(new StringContent(templateName, Encoding.UTF8), "TemplateName");
+
+        byte[] bytes = Encoding.UTF8.GetBytes(fileContent);
+        MemoryStream fileStream = new MemoryStream(bytes);
+
+        StreamContent filePart = new StreamContent(fileStream);
+        filePart.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        form.Add(filePart, "File", fileName);
+
+        return form;
     }
 }

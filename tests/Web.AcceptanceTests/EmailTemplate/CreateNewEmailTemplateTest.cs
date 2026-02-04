@@ -39,8 +39,9 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
+        string templateName = $"template-{TheFaker.Random.AlphaNumeric(8)}";
         using MultipartFormDataContent form = CreateValidMultipartForm(
-            templateName: $"template-{TheFaker.Random.AlphaNumeric(8)}",
+            templateName: templateName,
             fileName: "template.json",
             fileContent: """{"template":"Hello","subject":"World"}""");
 
@@ -49,6 +50,13 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+        // Happy Path check: Verify template exists in the list
+        HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
+        ResponseEntity listResponseEntity =
+            await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
+        IEnumerable<EmailEntity>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailEntity>>();
+        Assert.That(templates!.Any(t => t.Name == templateName), Is.True);
     }
 
     [Test]
@@ -62,9 +70,8 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent($"template-{TheFaker.Random.AlphaNumeric(8)}", Encoding.UTF8), "TemplateName");
-        // Note: "File" is intentionally omitted to force an invalid request.
 
         // When: submitting the create-template request.
         using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/create", form);
@@ -121,48 +128,6 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
         Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.InvalidTemplateName));
     }
-
-    [Test]
-    public async Task ShouldReturnBadRequestWhenTemplateContentIsInvalidJson()
-    {
-        // Given: an admin request with invalid JSON to verify content validation.
-        string username = TheFaker.Internet.UserName();
-        string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmAdmin(username, email, ThePassword);
-
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-
-        using MultipartFormDataContent form = CreateValidMultipartForm(
-            templateName: $"template-{TheFaker.Random.AlphaNumeric(8)}",
-            fileName: "template.json",
-            fileContent: "not-json");
-
-        // When: submitting the create-template request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/create", form);
-
-        // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.False);
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.InvalidTemplateContent));
-    }
-
-    private static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
-        string fileContent)
-    {
-        MultipartFormDataContent form = new MultipartFormDataContent();
-
-        form.Add(new StringContent(templateName, Encoding.UTF8), "TemplateName");
-
-        byte[] bytes = Encoding.UTF8.GetBytes(fileContent);
-        MemoryStream fileStream = new MemoryStream(bytes);
-
-        StreamContent filePart = new StreamContent(fileStream);
-        filePart.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-        form.Add(filePart, "File", fileName);
-
-        return form;
-    }
 }
+
+

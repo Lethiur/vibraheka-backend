@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using NUnit.Framework;
@@ -145,6 +145,9 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
+        Assert.That(responseEntity.Content, Is.Not.Null);
     }
 
     [Test]
@@ -172,6 +175,9 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
+        Assert.That(responseEntity.Content, Is.Not.Null);
     }
 
     private async Task InsertTemplateInDatabase(string templateId)
