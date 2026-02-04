@@ -7,7 +7,6 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 {
     public RegisterUserCommandValidator()
     {
-        RuleLevelCascadeMode = CascadeMode.Stop; 
         RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
         
         RuleFor(x => x.Password).Cascade(CascadeMode.Stop).ValidPassword();
