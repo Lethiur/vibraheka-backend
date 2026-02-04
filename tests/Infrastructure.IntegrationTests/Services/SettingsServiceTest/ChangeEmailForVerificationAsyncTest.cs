@@ -24,10 +24,10 @@ public class SettingsServiceIntegrationTests : TestBase
     public void SetUp()
     {
         string profileName = _configuration.Profile;
-        RegionEndpoint? region = Amazon.RegionEndpoint.GetBySystemName(_configuration.Location);
+        RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
 
       
-        CredentialProfileStoreChain chain = new Amazon.Runtime.CredentialManagement.CredentialProfileStoreChain();
+        CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
         if (!chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
         {
             throw new InvalidOperationException($"AWS Profile '{profileName}' not found in local credentials file.");

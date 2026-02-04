@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
@@ -32,6 +33,33 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
 
         Assert.That(responseEntity.Success, Is.True);
         Assert.That(templates, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task ShouldReflectNewlyCreatedTemplateInList()
+    {
+        // Given: An admin user
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
+        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+        
+        // And: A newly created template
+        string templateName = $"NewListTemplate-{TheFaker.Random.AlphaNumeric(8)}";
+        using MultipartFormDataContent form = new MultipartFormDataContent();
+        form.Add(new StringContent(templateName), "TemplateName");
+        form.Add(new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("{}"))), "File", "t.json");
+        await Client.PutAsync("/api/v1/email-templates/create", form);
+
+        // When: requesting all templates.
+        HttpResponseMessage response = await Client.GetAsync("api/v1/email-templates");
+
+        // Then: The list should contain the new template
+        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
+        IEnumerable<EmailEntity>? templates = responseEntity.GetContentAs<IEnumerable<EmailEntity>>();
+        
+        Assert.That(templates, Is.Not.Null);
+        Assert.That(templates!.Any(t => t.Name == templateName), Is.True);
     }
 
     [Test]

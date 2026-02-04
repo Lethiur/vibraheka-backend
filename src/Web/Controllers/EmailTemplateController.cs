@@ -40,14 +40,8 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         if (result.IsFailure)
         {
             LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
-
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
-
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
@@ -78,13 +72,10 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         if (mediatrResponse.IsFailure)
         {
             LogFailedToCreateNewTemplateBecauseError(Logger, mediatrResponse.Error);
-            if (mediatrResponse.Error == UserErrors.NotAuthorized)
-                return new UnauthorizedResult();
             return new BadRequestObjectResult(ResponseEntity.FromError(mediatrResponse.Error));
         }
 
         LogSuccessfullyCreatedNewTemplateTemplatename(Logger, request.TemplateName);
-
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 
