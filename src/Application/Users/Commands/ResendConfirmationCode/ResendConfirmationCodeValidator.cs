@@ -6,6 +6,7 @@ public class ResendConfirmationCodeValidator : AbstractValidator<ResendConfirmat
 {
     public ResendConfirmationCodeValidator()
     {
+        RuleLevelCascadeMode = CascadeMode.Stop; 
         RuleFor(x => x.Email).ValidEmail();
     }
 }

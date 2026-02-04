@@ -2,7 +2,6 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
-using NUnit.Framework.Internal;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
 

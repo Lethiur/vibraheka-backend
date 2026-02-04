@@ -7,7 +7,6 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;

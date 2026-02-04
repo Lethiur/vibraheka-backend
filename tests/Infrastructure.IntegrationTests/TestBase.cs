@@ -3,7 +3,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using DotEnv.Core;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;

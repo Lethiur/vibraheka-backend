@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Data;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Infrastructure.Entities;

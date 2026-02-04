@@ -1,35 +1,15 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
-using Bogus;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
 [TestFixture]
-public class SaveTemplateTest : TestBase
+public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
 {
-    private IEmailTemplatesRepository _repository;
-    private IDynamoDBContext _dynamoContext;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUpChild()
-    {
-        base.OneTimeSetUp();
-        _dynamoContext = CreateDynamoDBContext();
-        _repository = new Infrastructure.Persistence.Repository.EmailTemplateRepository(_dynamoContext, _configuration);
-        _faker = new Faker();
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _dynamoContext?.Dispose();
-    }
-
     #region SaveTemplate - Success Cases
 
     [Test]
@@ -40,7 +20,7 @@ public class SaveTemplateTest : TestBase
         EmailEntity template = CreateValidTemplate();
 
         // When: Saving the template
-        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
+        Result<Unit> result = await Repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -58,7 +38,7 @@ public class SaveTemplateTest : TestBase
         };
 
         // When: Saving the template
-        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
+        Result<Unit> result = await Repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
@@ -76,11 +56,11 @@ public class SaveTemplateTest : TestBase
         EmailEntity originalTemplate = CreateValidTemplate();
 
         // When: Saving the template
-        await _repository.SaveTemplate(originalTemplate, CancellationToken.None);
+        await Repository.SaveTemplate(originalTemplate, CancellationToken.None);
 
         // And: Retrieving directly from DynamoDB
         LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        EmailTemplateDBModel? retrieved = await _dynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
+        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
 
         // Then: Values should match
         Assert.That(retrieved, Is.Not.Null);
@@ -103,19 +83,19 @@ public class SaveTemplateTest : TestBase
         // Given: An initial record
         string templateId = Guid.NewGuid().ToString();
         EmailEntity template = new EmailEntity { ID = templateId, Path = "path/old.html" };
-        await _repository.SaveTemplate(template, CancellationToken.None);
+        await Repository.SaveTemplate(template, CancellationToken.None);
 
         // And: The same ID but a new S3 path
         template.Path = "path/new.html";
 
         // When: Saving again
-        Result<Unit> result = await _repository.SaveTemplate(template, CancellationToken.None);
+        Result<Unit> result = await Repository.SaveTemplate(template, CancellationToken.None);
 
         // Then: The path should be updated in DynamoDB
         Assert.That(result.IsSuccess, Is.True);
         
         LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        EmailTemplateDBModel? retrieved = await _dynamoContext.LoadAsync<EmailTemplateDBModel>(templateId, loadConfig);
+        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(templateId, loadConfig);
         
         Assert.That(retrieved.Path, Is.EqualTo("path/new.html"));
     }

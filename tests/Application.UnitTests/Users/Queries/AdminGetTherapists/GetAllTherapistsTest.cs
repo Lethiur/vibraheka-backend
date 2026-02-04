@@ -3,8 +3,6 @@ using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Admin.Queries.GetAllTherapists;
-using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 

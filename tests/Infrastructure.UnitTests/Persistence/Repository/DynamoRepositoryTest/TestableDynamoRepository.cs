@@ -1,8 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Configuration;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;

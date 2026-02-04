@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
-using Bogus;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -8,27 +7,8 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
 [TestFixture]
-public class GetTemplateByIDTest : TestBase
+public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
 {
-    private Infrastructure.Persistence.Repository.EmailTemplateRepository _repository;
-    private IDynamoDBContext _dynamoContext;
-    
-    
-    [OneTimeSetUp]
-    public void OneTimeSetUpChild()
-    {
-        base.OneTimeSetUp();
-        _dynamoContext = CreateDynamoDBContext();
-        _repository = new Infrastructure.Persistence.Repository.EmailTemplateRepository(_dynamoContext, _configuration);
-        _faker = new Faker();
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _dynamoContext?.Dispose();
-    }
-
     #region GetTemplateByID - Success Cases
 
     [Test]
@@ -42,7 +22,7 @@ public class GetTemplateByIDTest : TestBase
         await SeedTemplate(templateId, expectedPath);
 
         // When: Retrieving the template by ID
-        Result<EmailEntity> result = await _repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
 
         // Then: Should return success and match the seeded data
         Assert.That(result.IsSuccess, Is.True);
@@ -62,7 +42,7 @@ public class GetTemplateByIDTest : TestBase
         string nonExistentId = "non-existent-id-" + Guid.NewGuid();
 
         // When: Trying to retrieve it
-        Result<EmailEntity> result = await _repository.GetTemplateByID(nonExistentId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(nonExistentId);
 
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);
@@ -89,7 +69,7 @@ public class GetTemplateByIDTest : TestBase
             OverrideTableName = _configuration.EmailTemplatesTable
         };
 
-        await _dynamoContext.SaveAsync(model, config);
+        await DynamoContext.SaveAsync(model, config);
     }
 
     #endregion

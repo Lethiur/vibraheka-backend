@@ -1,9 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 
@@ -26,6 +24,7 @@ public class GetAllEmailTemplatesQueryHandlerTest
 
  
     [Test]
+    [Description("Given a request for all templates, when the service returns a successful list, then the handler should return that list")]
     public async Task ShouldReturnTemplatesIfEverythingIsOk()
     {
         // Given
@@ -45,6 +44,7 @@ public class GetAllEmailTemplatesQueryHandlerTest
     }
 
     [Test]
+    [Description("Given a request for all templates, when the service returns a failure, then the handler should return that failure")]
     public async Task ShouldReturnFailureIfServiceFails()
     {
         // Given

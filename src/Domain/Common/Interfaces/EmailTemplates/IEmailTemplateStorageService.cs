@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 
@@ -44,4 +43,12 @@ public interface IEmailTemplateStorageService
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation, containing a Result with the email template content or an error if the operation fails.</returns>
     Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Checks if an email template exists in the storage system.
+    /// </summary>
+    /// <param name="templateID">The unique identifier for the email template to check.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation, containing a boolean value indicating whether the email template exists.</returns>
+    Task<Result<Unit>> CheckTemplateExists(string templateID, CancellationToken cancellationToken);
 }

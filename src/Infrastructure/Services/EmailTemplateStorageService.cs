@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
-using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
+using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -54,11 +56,36 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
     {
         return Result.Of(templateID)
             .Ensure(async tpl => await _repository.TemplateExistsAsync(tpl, cancellationToken))
-            .BindTry(tpl =>_repository.GetTemplateUrlAsync(tpl) );
+            .BindTry(tpl => CheckTemplateExists(tpl, cancellationToken))
+            .BindTry(tpl =>_repository.GetTemplateUrlAsync(templateID) );
     }
 
+    /// <summary>
+    /// Retrieves the content of an email template from the storage repository.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result containing the email template content as a string if successful, or an error if the operation fails.</returns>
     public Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken)
     {
-        return _repository.GetTemplateContent(templateID, cancellationToken);
+        return Maybe.From(templateID).ToResult(InvalidTempalteID)
+            .BindTry(tplID => CheckTemplateExists(tplID, cancellationToken))
+            .BindTry(_ => _repository.GetTemplateContent(templateID, cancellationToken));
+    }
+
+    /// <summary>
+    /// Checks whether a template exists in the storage repository.
+    /// </summary>
+    /// <param name="templateID">The unique identifier of the template to check.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A boolean value indicating whether the template exists.</returns>
+    public Task<Result<Unit>> CheckTemplateExists(string templateID, CancellationToken cancellationToken)
+    {
+        return Maybe.From(templateID)
+            .ToResult(InvalidTempalteID)
+            .Ensure(a => !string.IsNullOrWhiteSpace(templateID), InvalidTempalteID)
+            .BindTry(_ => _repository.TemplateExistsAsync(templateID, cancellationToken))
+            .Ensure(res => res, TemplateNotFound)
+            .Map(_ => Unit.Value);
     }
 }

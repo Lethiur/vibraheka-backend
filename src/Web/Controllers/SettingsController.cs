@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 using VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 using VibraHeka.Domain.Entities;

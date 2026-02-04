@@ -1,9 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -65,8 +68,9 @@ public class PrivilegeService(
     /// </returns>
     public Task<Result<bool>> CanExecuteAction(string userId, ActionType action, CancellationToken cancellationToken)
     {
-        return ActionLogRepository.GetActionLogForUser(userId, action, cancellationToken)
-            .MapTry(async entity =>
+        return  Maybe.From(userId).ToResult(PrivilegeErrors.InvalidID)
+            .BindTry(id => ActionLogRepository.GetActionLogForUser(id, action, cancellationToken))
+            .BindTry(async entity =>
             {
                 TimeSpan timeElapsed = DateTimeOffset.UtcNow - entity.Timestamp;
                 if (timeElapsed.TotalMinutes < 1)
@@ -74,12 +78,13 @@ public class PrivilegeService(
                     return false;
                 }
                 entity.Timestamp = DateTimeOffset.UtcNow;
-                Result<ActionLogEntity> saveResult = await ActionLogRepository.SaveActionLog(entity, cancellationToken);
-                return saveResult.IsSuccess;
+                return await ActionLogRepository.SaveActionLog(entity, cancellationToken).Map(_ => true);
             })
-            .OnFailureCompensate(error =>
+            .OnFailureCompensateWhen(
+                error => error == ActionLogErrors.ActionLogNotFound,
+                _ =>
             {
-                ActionLogEntity entity = new ActionLogEntity()
+                ActionLogEntity entity = new()
                 {
                     ID = userId, Action = action, Timestamp = DateTimeOffset.UtcNow
                 };

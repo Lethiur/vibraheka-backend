@@ -1,16 +1,7 @@
 ﻿using System.ComponentModel;
-using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Bogus;
 using CSharpFunctionalExtensions;
-using DotEnv.Core;
-using Microsoft.Extensions.Logging.Abstractions;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeServiceTest;
 

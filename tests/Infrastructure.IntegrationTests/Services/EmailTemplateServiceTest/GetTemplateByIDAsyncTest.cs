@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -36,8 +35,8 @@ public class GetTemplateByIDAsyncTest : TestBase
     public async Task ShouldRetrieveEmailTemplateFromDynamoDBWhenValidIdProvided()
     {
         // Given: A template persisted in the DynamoDB table
-        var templateId = $"test-template-{Guid.NewGuid()}";
-        var expectedTemplate = new EmailTemplateDBModel()
+        string templateId = $"test-template-{Guid.NewGuid()}";
+        EmailTemplateDBModel expectedTemplate = new EmailTemplateDBModel()
         {
             TemplateID = templateId, Path = "Integration Test Subject"
         };

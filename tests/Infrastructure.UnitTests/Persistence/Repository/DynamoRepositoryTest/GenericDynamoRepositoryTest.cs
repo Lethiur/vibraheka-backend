@@ -1,5 +1,4 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
 

@@ -1,5 +1,4 @@
 ﻿using Amazon.CognitoIdentityProvider;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Services;

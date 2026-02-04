@@ -2,7 +2,6 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;

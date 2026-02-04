@@ -1,48 +1,13 @@
 ﻿using System.Text;
-using Amazon;
-using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
-using VibraHeka.Infrastructure.Persistence.S3;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateStorageServiceTest;
 
 [TestFixture]
 [Category("Integration")]
-public class SaveTemplateTest : TestBase
+public class SaveTemplateTest : GenericEmailTemplateStorageServiceIntegrationTest
 {
-    private IAmazonS3 S3 = default!;
-    private EmailTemplateStorageRepository Repository = default!;
-    private EmailTemplateStorageService Service = default!;
-
-    private CancellationToken TestCancellationToken;
-    private string BucketName = default!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUpS3()
-    {
-        // Given (shared)
-        RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
-
-        S3 = new AmazonS3Client(new AmazonS3Config
-        {
-            RegionEndpoint = region, Profile = new Profile(_configuration.Profile)
-        });
-
-        BucketName = _configuration.EmailTemplatesBucketName;
-        TestCancellationToken = CancellationToken.None;
-
-        Repository = new EmailTemplateStorageRepository(S3, _configuration);
-        Service = new EmailTemplateStorageService(Repository);
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDownS3()
-    {
-        S3?.Dispose();
-    }
-
     [Test]
     public async Task ShouldReturnTemplateIdWhenSaveTemplateIsCalled()
     {
