@@ -24,17 +24,77 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Configurations\" />
-    <Folder Include="Data\Interceptors\" />
-    <Folder Include="Identity\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="terraform\.terraform\modules\modules.json" />
     <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.23.0\darwin_arm64\LICENSE.txt" />
     <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.25.0\windows_386\LICENSE.txt" />
     <Content Include="terraform\.terraform\providers\registry.terraform.io\hashicorp\aws\6.25.0\windows_386\terraform-provider-aws_v6.25.0_x5.exe" />
     <Content Include="terraform\.terraform\terraform.tfstate" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <StaticWebAssetEndpoint Remove="Identity\css\site.css" />
+    <StaticWebAssetEndpoint Remove="Identity\favicon.ico" />
+    <StaticWebAssetEndpoint Remove="Identity\js\site.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.rtl.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.rtl.min.css" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.esm.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\bootstrap\LICENSE" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation-unobtrusive\LICENSE.txt" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation\dist\additional-methods.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation\dist\additional-methods.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation\dist\jquery.validate.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation\dist\jquery.validate.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery-validation\LICENSE.md" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.min.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.slim.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.slim.min.js" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\dist\jquery.slim.min.map" />
+    <StaticWebAssetEndpoint Remove="Identity\lib\jquery\LICENSE.txt" />
   </ItemGroup>
 
 </Project>

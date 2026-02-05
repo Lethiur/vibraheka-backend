@@ -36,7 +36,7 @@ public class CreateTherapistCommandHandlerTest
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>()))
+            .Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Success("new-user-id"));
 
         // When
@@ -45,11 +45,11 @@ public class CreateTherapistCommandHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo("new-user-id"));
-        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<User>(u =>
+        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == "new-user-id" &&
             u.CognitoId == "new-user-id" &&
             u.Email == command.Email &&
-            u.FullName == command.Name &&
+            u.FirstName == command.Name &&
             u.Role == UserRole.Therapist &&
             u.CreatedBy == "admin-1" &&
             u.LastModifiedBy == "admin-1")), Times.Once);
@@ -71,7 +71,7 @@ public class CreateTherapistCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("E-002"));
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
+        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
     }
 
     [Test]
@@ -85,7 +85,7 @@ public class CreateTherapistCommandHandlerTest
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>()))
+            .Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Failure<string>("DB-FAIL"));
 
         // When

@@ -13,20 +13,20 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
     public async Task ShouldReturnUserWhenValidIdProvided()
     {
         // Given: A user already persisted in the database
-        User originalUser = CreateValidUser();
-        await _userRepository.AddAsync(originalUser);
+        UserEntity originalUserEntity = CreateValidUser();
+        await _userRepository.AddAsync(originalUserEntity);
 
         // When: Retrieving the user by ID
-        Result<User> result = await _userRepository.GetByIdAsync(originalUser.Id);
+        Result<UserEntity> result = await _userRepository.GetByIdAsync(originalUserEntity.Id, CancellationToken.None);
 
         // Then: The operation should be successful and data should match
         Assert.That(result.IsSuccess, Is.True, "The retrieval should be successful");
-        Assert.That(result.Value.Id, Is.EqualTo(originalUser.Id));
-        Assert.That(result.Value.Email, Is.EqualTo(originalUser.Email));
-        Assert.That(result.Value.FullName, Is.EqualTo(originalUser.FullName));
+        Assert.That(result.Value.Id, Is.EqualTo(originalUserEntity.Id));
+        Assert.That(result.Value.Email, Is.EqualTo(originalUserEntity.Email));
+        Assert.That(result.Value.FirstName, Is.EqualTo(originalUserEntity.FirstName));
 
         // Cleanup
-        await CleanupUser(originalUser.Id);
+        await CleanupUser(originalUserEntity.Id);
     }
 
     [Test]
@@ -37,7 +37,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
         string nonExistentId = Guid.NewGuid().ToString();
 
         // When: Attempting to retrieve the user
-        Result<User> result = await _userRepository.GetByIdAsync(nonExistentId);
+        Result<UserEntity> result = await _userRepository.GetByIdAsync(nonExistentId, CancellationToken.None);
 
         // Then: It should return a failure with UserNotFound error
         Assert.That(result.IsFailure, Is.True, "The operation should fail for a non-existent ID");
@@ -50,11 +50,11 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with a complex ID (if business logic allows it, otherwise just a Guid string)
         string complexId = $"user#test#{Guid.NewGuid()}";
-        User user = new User(complexId, _faker.Internet.Email(), _faker.Person.FullName);
-        await _userRepository.AddAsync(user);
+        UserEntity userEntity = new UserEntity(complexId, _faker.Internet.Email(), _faker.Person.FullName);
+        await _userRepository.AddAsync(userEntity);
 
         // When: Retrieving the user
-        Result<User> result = await _userRepository.GetByIdAsync(complexId);
+        Result<UserEntity> result = await _userRepository.GetByIdAsync(complexId, CancellationToken.None);
 
         // Then: It should find the user correctly
         Assert.That(result.IsSuccess, Is.True);

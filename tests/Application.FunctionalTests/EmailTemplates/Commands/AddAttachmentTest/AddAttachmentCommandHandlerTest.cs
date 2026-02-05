@@ -67,7 +67,7 @@ public class AddAttachmentCommandHandlerTest
         AddAttachmentCommand command = CreateCommand(fileStream, DefaultTemplateId, attachmentName);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin)).ReturnsAsync(true);
+        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
             .ReturnsAsync(Success(templateEntity));
         _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, attachmentName, NoCancellation))
@@ -100,7 +100,7 @@ public class AddAttachmentCommandHandlerTest
         AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin))
+        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None ))
             .ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
             .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));
@@ -155,7 +155,7 @@ public class AddAttachmentCommandHandlerTest
         AddAttachmentCommand command = CreateCommand(fileStream);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin))
+        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
             .ReturnsAsync(Success(templateEntity));

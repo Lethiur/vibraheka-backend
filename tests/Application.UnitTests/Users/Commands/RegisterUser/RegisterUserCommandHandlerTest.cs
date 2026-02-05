@@ -40,7 +40,7 @@ public class RegisterUserCommandHandlerTest
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success("user-sub-123"));
 
-        _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>()))
+        _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Success("user-id-123"));
 
         // When: Handling the command
@@ -53,7 +53,7 @@ public class RegisterUserCommandHandlerTest
         // And: Should call external services
         _cognitoServiceMock.Verify(x => x.RegisterUserAsync("test@example.com", "Password123!", "John Doe"),
             Times.Once);
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class RegisterUserCommandHandlerTest
         // And: Should not call Cognito
         _cognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Once);
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
+        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class RegisterUserCommandHandlerTest
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync("existing@example.com", "Password123!", "John Doe"))
             .ReturnsAsync(Result.Success<string>("test-123"));
 
-        _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>()))
+        _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Failure<string>(UserErrors.UserAlreadyExist));
 
         // When: Handling the command
@@ -101,6 +101,6 @@ public class RegisterUserCommandHandlerTest
         // And: Should not call Cognito
         _cognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Once);
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
 }

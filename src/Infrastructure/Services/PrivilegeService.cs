@@ -24,13 +24,14 @@ public class PrivilegeService(
     /// </summary>
     /// <param name="userId">The unique identifier of the user to check.</param>
     /// <param name="role">The role to validate against the user's current role.</param>
+    /// <param name="cancellationToken">The token used to halt the operation</param>
     /// <returns>
     /// A <c>Result</c> containing a boolean value, where <c>true</c> indicates the user has the specified role,
     /// and <c>false</c> otherwise. If the user is not found, the result will contain an error.
     /// </returns>
-    public async Task<Result<bool>> HasRoleAsync(string userId, UserRole role)
+    public async Task<Result<bool>> HasRoleAsync(string userId, UserRole role, CancellationToken cancellationToken)
     {
-        Result<User> user = await UsersRepository.GetByIdAsync(userId);
+        Result<UserEntity> user = await UsersRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user.IsFailure)
         {

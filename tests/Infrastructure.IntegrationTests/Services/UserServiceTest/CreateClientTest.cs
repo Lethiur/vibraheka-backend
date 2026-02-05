@@ -2,6 +2,7 @@
 using System.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Services;
 
@@ -11,6 +12,7 @@ public class CreateClientTest
 {
    private AWSConfig _configMock;
     private Mock<ILogger<UserService>> _loggerMock;
+    private Mock<IUserRepository> _userRepositoryMock;
 
     [SetUp]
     public void SetUp()
@@ -20,6 +22,7 @@ public class CreateClientTest
             Location = "eu-west-1"
         };
         _loggerMock = new Mock<ILogger<UserService>>();
+        _userRepositoryMock = new Mock<IUserRepository>();
     }
 
     [Test]
@@ -27,7 +30,7 @@ public class CreateClientTest
     public void ShouldThrowDataExceptionWhenProfileIsMissing()
     {
         // When/Then: Instantiating the service should trigger CreateClient and throw
-        DataException? ex = Assert.Throws<DataException>(() => new UserService(_configMock, _loggerMock.Object));
+        DataException? ex = Assert.Throws<DataException>(() => new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object));
         Assert.That(ex.Message, Is.EqualTo("AWS profile is required"));
     }
 
@@ -41,7 +44,7 @@ public class CreateClientTest
         // When/Then: It should fail because CredentialProfileStoreChain won't find it
         DataException? ex = Assert.Throws<DataException>(() =>
         {
-            UserService userService = new UserService(_configMock, _loggerMock.Object);
+            UserService userService = new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object);
         });
         Assert.That(ex.Message, Is.EqualTo("AWS profile is required"));
     }
@@ -56,6 +59,6 @@ public class CreateClientTest
         
         // When: Creating the service
         // Then: Should not throw if the profile exists in ~/.aws/credentials
-        Assert.DoesNotThrow(() => new UserService(_configMock, _loggerMock.Object));
+        Assert.DoesNotThrow(() => new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object));
     }
 }

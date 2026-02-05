@@ -14,29 +14,63 @@ public class UserDBModel : BaseAuditableDBModel
     public string CognitoId { get; set; } = string.Empty; // Sub de Cognito
     [DynamoDBGlobalSecondaryIndexHashKey("EmailIndex")]
     public string Email { get; set; } = string.Empty;
+    
     [DynamoDBProperty]
-    public string FullName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public string MiddleName { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public string LastName { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public string PhoneNumber { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public string Bio { get; set; } = string.Empty;
+    
+    public string ProfilePictureUrl { get; set; } = string.Empty;
+    
+
     
     [DynamoDBProperty(typeof(EnumStringConverter<UserRole>))]
     [DynamoDBGlobalSecondaryIndexHashKey("Role-Index")]
     public UserRole Role { get; set; } = UserRole.User;
     
-    public static UserDBModel FromDomain(User user) => new()
+    public static UserDBModel FromDomain(UserEntity userEntity) => new()
     {
-        Id = user.Id,
-        Email = user.Email,
-        Role = user.Role,
-        CognitoId = user.CognitoId,
-        FullName = user.FullName
-        
+        Id = userEntity.Id,
+        Email = userEntity.Email,
+        Role = userEntity.Role,
+        CognitoId = userEntity.CognitoId,
+        FirstName = userEntity.FirstName,
+        MiddleName = userEntity.MiddleName,
+        ProfilePictureUrl = userEntity.ProfilePictureUrl,
+        LastName = userEntity.LastName,
+        PhoneNumber = userEntity.PhoneNumber,
+        Bio = userEntity.Bio,
+        Created = userEntity.Created,
+        CreatedBy = userEntity.CreatedBy,
+        LastModified = userEntity.LastModified,
+        LastModifiedBy = userEntity.LastModifiedBy
     };
 
-    public User ToDomain() => new()
+    public UserEntity ToDomain() => new()
     {
         Id = this.Id,
         Email = this.Email,
         Role = this.Role,
+        ProfilePictureUrl = this.ProfilePictureUrl,
         CognitoId = this.CognitoId,
-        FullName = this.FullName
+        FirstName = this.FirstName,
+        MiddleName = this.MiddleName,
+        LastName = this.LastName,
+        PhoneNumber = this.PhoneNumber,
+        Bio = this.Bio,
+        Created = this.Created,
+        CreatedBy = this.CreatedBy,
+        LastModified = this.LastModified,
+        LastModifiedBy = this.LastModifiedBy
     };
 }

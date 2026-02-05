@@ -11,7 +11,7 @@ public class ResendConfirmationCodeCommandHandler(IUserService userService, IPri
     public Task<Result<Unit>> Handle(ResendConfirmationCodeCommand request, CancellationToken cancellationToken)
     {
         return
-            userService.GetUserID(request.Email).BindTry(userID => privilegeService
+            userService.GetUserID(request.Email, cancellationToken).BindTry(userID => privilegeService
                     .CanExecuteAction(userID, ActionType.RequestVerificationCode, cancellationToken))
             .Ensure(can => can, UserErrors.NotAuthorized)
             .BindTry(_ => userService.ResendVerificationCodeAsync(request.Email));

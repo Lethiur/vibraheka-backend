@@ -22,7 +22,7 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
         { 
             Id = userId, 
             Email = "test@example.com", 
-            FullName = "Test User",
+            FirstName = "Test User",
             Role = UserRole.Therapist
         };
 
@@ -30,7 +30,7 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
             .ReturnsAsync(userModel);
 
         // When: Getting the user by ID
-        Result<User> result = await Repository.GetByIdAsync(userId);
+        Result<UserEntity> result = await Repository.GetByIdAsync(userId, CancellationToken.None);
 
         // Then: Result should be success and domain entity should match
         Assert.That(result.IsSuccess, Is.True);
@@ -49,7 +49,7 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
             .ReturnsAsync((UserDBModel)null!);
 
         // When: Getting the user by ID
-        Result<User> result = await Repository.GetByIdAsync(userId);
+        Result<UserEntity> result = await Repository.GetByIdAsync(userId, CancellationToken.None);
 
         // Then: Result should be failure with UserNotFound error
         Assert.That(result.IsFailure, Is.True);
@@ -67,7 +67,7 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
             .ThrowsAsync(new Exception(errorMessage));
 
         // When: Getting the user by ID
-        Result<User> result = await Repository.GetByIdAsync(userId);
+        Result<UserEntity> result = await Repository.GetByIdAsync(userId, CancellationToken.None);
 
         // Then: Result should be failure and contain the exception message
         Assert.That(result.IsFailure, Is.True);

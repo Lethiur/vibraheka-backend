@@ -45,15 +45,15 @@ public class CreateTherapistCommandHandlerTests
         string cognitoId = "new-cognito-id";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
         
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name))
             .ReturnsAsync(Result.Success(cognitoId));
 
-        RepositoryMock.Setup(x => x.AddAsync(It.Is<User>(u => 
+        RepositoryMock.Setup(x => x.AddAsync(It.Is<UserEntity>(u => 
                 u.Email == command.Email && 
-                u.FullName == command.Name && 
+                u.FirstName == command.Name && 
                 u.Role == UserRole.Therapist &&
                 u.Id == cognitoId &&
                 u.CognitoId == cognitoId)))
@@ -67,7 +67,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.Value, Is.EqualTo(cognitoId));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name), Times.Once);
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
 
     [Test]
@@ -80,7 +80,7 @@ public class CreateTherapistCommandHandlerTests
         string errorMessage = "Cognito registration error";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
 
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -93,7 +93,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
         
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
     }
 
     [Test]
@@ -106,13 +106,13 @@ public class CreateTherapistCommandHandlerTests
         string dbError = "Error saving user to DB";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
 
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success("cognito-id"));
 
-        RepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>()))
+        RepositoryMock.Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Failure<string>(dbError));
 
         // When: Handling the command
@@ -123,7 +123,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.Error, Is.EqualTo(dbError));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Once);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
 
     #endregion

@@ -5,6 +5,7 @@ using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -17,6 +18,8 @@ public abstract class GenericCognitoServiceTest : TestBase
 {
     protected IUserService _userService;
     private ILogger<UserService> _logger;
+    protected IUserRepository _userRepository;
+    
     private VerificationCodesRepository _verificationCodeRepository;
 
     [OneTimeSetUp]
@@ -24,12 +27,13 @@ public abstract class GenericCognitoServiceTest : TestBase
     {
         base.OneTimeSetUp();
         _logger = NullLogger<UserService>.Instance;
-        _userService = new UserService(_configuration, _logger);
         _faker = new Faker();
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
             new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
         _verificationCodeRepository =
             new VerificationCodesRepository(dynamoDbContext, _configuration);
+        _userRepository = new UserRepository(dynamoDbContext, _configuration);
+        _userService = new UserService(_configuration, _logger, _userRepository);
     }
 
 

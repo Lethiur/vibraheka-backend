@@ -35,7 +35,7 @@ public class RegisterUserCommandHandlerTest
             .ReturnsAsync(Result.Success(cognitoId));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>()))
+            .Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Success(cognitoId));
 
         // When
@@ -46,11 +46,11 @@ public class RegisterUserCommandHandlerTest
         Assert.That(result.Value.UserId, Is.EqualTo(cognitoId));
         Assert.That(result.Value.needsConfirmation, Is.True);
 
-        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<User>(u =>
+        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == cognitoId &&
             u.CognitoId == cognitoId &&
             u.Email == command.Email &&
-            u.FullName == command.FullName)), Times.Once);
+            u.FirstName == command.FullName)), Times.Once);
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class RegisterUserCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("E-002"));
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>()), Times.Never);
+        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class RegisterUserCommandHandlerTest
             .ReturnsAsync(Result.Success("cognito-123"));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<User>()))
+            .Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
             .ReturnsAsync(Result.Failure<string>("DB-FAIL"));
 
         // When

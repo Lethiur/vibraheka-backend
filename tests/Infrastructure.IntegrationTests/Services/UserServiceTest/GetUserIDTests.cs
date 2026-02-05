@@ -16,7 +16,7 @@ public class GetUserIDTests : GenericCognitoServiceTest
         string registeredUserId = await RegisterUser(email);
 
         // When: Getting the user id by email
-        Result<string> result = await _userService.GetUserID(email);
+        Result<string> result = await _userService.GetUserID(email, CancellationToken.None);
 
         // Then: It should return the same Cognito sub
         Assert.That(result.IsSuccess, Is.True);
@@ -32,7 +32,7 @@ public class GetUserIDTests : GenericCognitoServiceTest
         string email = $"ghost-{Guid.NewGuid()}@example.com";
 
         // When: Getting the user id by email
-        Result<string> result = await _userService.GetUserID(email);
+        Result<string> result = await _userService.GetUserID(email, CancellationToken.None);
 
         // Then: It should map to our domain error
         Assert.That(result.IsFailure, Is.True);
@@ -45,7 +45,7 @@ public class GetUserIDTests : GenericCognitoServiceTest
     [DisplayName("Should fail with InvalidForm when email is invalid")]
     public async Task ShouldFailWithInvalidFormWhenEmailIsInvalid(string? email)
     {
-        Result<string> result = await _userService.GetUserID(email!);
+        Result<string> result = await _userService.GetUserID(email!, CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.AnyOf(UserErrors.InvalidForm, UserErrors.UnexpectedError));

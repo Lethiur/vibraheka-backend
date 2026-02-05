@@ -33,13 +33,13 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Admin role in the repository
         const string userId = "admin-id";
-        User user = new User { Id = userId, Role = UserRole.Admin };
+        UserEntity userEntity = new UserEntity { Id = userId, Role = UserRole.Admin };
 
-        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(Result.Success(user));
+        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(userEntity));
 
         // When: Checking if the user has the Admin role
-        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin);
+        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);
 
         // Then: Should return success with true
         Assert.That(result.IsSuccess, Is.True);
@@ -52,13 +52,13 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Therapist role
         const string userId = "therapist-id";
-        User user = new User { Id = userId, Role = UserRole.Therapist };
+        UserEntity userEntity = new UserEntity { Id = userId, Role = UserRole.Therapist };
 
-        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(Result.Success(user));
+        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(userEntity));
 
         // When: Checking if the user has the Admin role
-        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin);
+        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);
 
         // Then: Should return success with false
         Assert.That(result.IsSuccess, Is.True);
@@ -73,11 +73,11 @@ public class HasRoleAsyncTest
         const string userId = "unknown-id";
         const string errorMessage = "User not found";
         
-        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(Result.Failure<User>(errorMessage));
+        _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
+            .ReturnsAsync(Result.Failure<UserEntity>(errorMessage));
 
         // When: Checking the role
-        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin);
+        Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);
 
         // Then: Should return failure with the repository error
         Assert.That(result.IsFailure, Is.True);

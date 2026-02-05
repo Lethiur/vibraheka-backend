@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.User;
 
@@ -59,5 +60,26 @@ public interface IUserService
     /// A task that represents the asynchronous operation.
     /// The task result contains a <see cref="Result"/> where T is a string representing the unique identifier of the user, if found.
     /// </returns>
-    Task<Result<string>> GetUserID(string email);
+    Task<Result<string>> GetUserID(string email, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves a user's information based on the provided unique identifier.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user to retrieve.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="User"/> object with the details of the user if found; otherwise, null.
+    /// </returns>
+    Task<Result<UserEntity>> GetUserByID(string userID, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously updates the user's profile information in the system.
+    /// </summary>
+    /// <param name="newUserData">An instance of <see cref="UserEntity"/> containing the updated user data.</param>
+    /// <param name="updater">The identifier of the person or system performing the update operation.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> indicating whether the update operation was successful.
+    /// </returns>
+    Task<Result<Unit>> UpdateUserAsync(UserEntity newUserData, string updater, CancellationToken cancellationToken);
 }
