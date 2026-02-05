@@ -988,6 +988,139 @@ export class SettingsClient implements ISettingsClient {
     }
 }
 
+export interface IUserClient {
+    user_GetUserProfileFromId(userID: string): Observable<UserEntity>;
+    user_UpdateUserProfile(profile: UserDTO): Observable<FileResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class UserClient implements IUserClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    user_GetUserProfileFromId(userID: string): Observable<UserEntity> {
+        let url_ = this.baseUrl + "/api/v1/users/{id}";
+        if (userID === undefined || userID === null)
+            throw new globalThis.Error("The parameter 'userID' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + userID));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUser_GetUserProfileFromId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUser_GetUserProfileFromId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UserEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UserEntity>;
+        }));
+    }
+
+    protected processUser_GetUserProfileFromId(response: HttpResponseBase): Observable<UserEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    user_UpdateUserProfile(profile: UserDTO): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/v1/users/update-profile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(profile);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUser_UpdateUserProfile(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUser_UpdateUserProfile(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processUser_UpdateUserProfile(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IVerificationCodeClient {
     verificationCode_Register(query: GetCodeQuery): Observable<FileResponse>;
 }
@@ -1375,6 +1508,191 @@ export enum ActionType {
     UserVerification = 1,
     RequestVerificationCode = 2,
     PasswordReset = 3,
+}
+
+export abstract class BaseAuditableEntity implements IBaseAuditableEntity {
+    created?: Date;
+    createdBy?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+
+    constructor(data?: IBaseAuditableEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : undefined as any;
+            this.createdBy = _data["createdBy"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : undefined as any;
+            this.lastModifiedBy = _data["lastModifiedBy"];
+        }
+    }
+
+    static fromJS(data: any): BaseAuditableEntity {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseAuditableEntity' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["created"] = this.created ? this.created.toISOString() : undefined as any;
+        data["createdBy"] = this.createdBy;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : undefined as any;
+        data["lastModifiedBy"] = this.lastModifiedBy;
+        return data;
+    }
+}
+
+export interface IBaseAuditableEntity {
+    created?: Date;
+    createdBy?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+}
+
+export class UserEntity extends BaseAuditableEntity implements IUserEntity {
+    id?: string;
+    cognitoId?: string;
+    email?: string;
+    firstName?: string;
+    profilePictureUrl?: string;
+    bio?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    role?: UserRole;
+
+    constructor(data?: IUserEntity) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.id = _data["id"];
+            this.cognitoId = _data["cognitoId"];
+            this.email = _data["email"];
+            this.firstName = _data["firstName"];
+            this.profilePictureUrl = _data["profilePictureUrl"];
+            this.bio = _data["bio"];
+            this.middleName = _data["middleName"];
+            this.lastName = _data["lastName"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.role = _data["role"];
+        }
+    }
+
+    static override fromJS(data: any): UserEntity {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserEntity();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["cognitoId"] = this.cognitoId;
+        data["email"] = this.email;
+        data["firstName"] = this.firstName;
+        data["profilePictureUrl"] = this.profilePictureUrl;
+        data["bio"] = this.bio;
+        data["middleName"] = this.middleName;
+        data["lastName"] = this.lastName;
+        data["phoneNumber"] = this.phoneNumber;
+        data["role"] = this.role;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IUserEntity extends IBaseAuditableEntity {
+    id?: string;
+    cognitoId?: string;
+    email?: string;
+    firstName?: string;
+    profilePictureUrl?: string;
+    bio?: string;
+    middleName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    role?: UserRole;
+}
+
+export enum UserRole {
+    User = 0,
+    Admin = 1,
+    Therapist = 2,
+}
+
+export class UserDTO implements IUserDTO {
+    id?: string;
+    email?: string;
+    profilePictureUrl?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    bio?: string;
+    phoneNumber?: string;
+
+    constructor(data?: IUserDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.email = _data["email"];
+            this.profilePictureUrl = _data["profilePictureUrl"];
+            this.firstName = _data["firstName"];
+            this.middleName = _data["middleName"];
+            this.lastName = _data["lastName"];
+            this.bio = _data["bio"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): UserDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["email"] = this.email;
+        data["profilePictureUrl"] = this.profilePictureUrl;
+        data["firstName"] = this.firstName;
+        data["middleName"] = this.middleName;
+        data["lastName"] = this.lastName;
+        data["bio"] = this.bio;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+export interface IUserDTO {
+    id?: string;
+    email?: string;
+    profilePictureUrl?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    bio?: string;
+    phoneNumber?: string;
 }
 
 export class GetCodeQuery implements IGetCodeQuery {

@@ -31,7 +31,7 @@ public class ResendConfirmationCodeCommandHandlerTest
         // Given
         ResendConfirmationCodeCommand command = new("user@test.com");
         _userServiceMock
-            .Setup(x => x.GetUserID(command.Email))
+            .Setup(x => x.GetUserID(command.Email, CancellationToken.None))
             .ReturnsAsync(Result.Success("user-id"));
 
         _privilegeServiceMock
@@ -56,7 +56,7 @@ public class ResendConfirmationCodeCommandHandlerTest
         // Given
         ResendConfirmationCodeCommand command = new("user@test.com");
         _userServiceMock
-            .Setup(x => x.GetUserID(command.Email))
+            .Setup(x => x.GetUserID(command.Email, CancellationToken.None))
             .ReturnsAsync(Result.Success("user-id"));
 
         _privilegeServiceMock
@@ -78,7 +78,7 @@ public class ResendConfirmationCodeCommandHandlerTest
         // Given
         ResendConfirmationCodeCommand command = new("user@test.com");
         _userServiceMock
-            .Setup(x => x.GetUserID(command.Email))
+            .Setup(x => x.GetUserID(command.Email, CancellationToken.None))
             .ReturnsAsync(Result.Failure<string>("E-003"));
 
         // When
@@ -96,7 +96,7 @@ public class ResendConfirmationCodeCommandHandlerTest
         // Given
         ResendConfirmationCodeCommand command = new("user@test.com");
         _userServiceMock
-            .Setup(x => x.GetUserID(command.Email))
+            .Setup(x => x.GetUserID(command.Email, CancellationToken.None))
             .ReturnsAsync(Result.Success("user-id"));
 
         _privilegeServiceMock
@@ -118,7 +118,7 @@ public class ResendConfirmationCodeCommandHandlerTest
         // Given
         ResendConfirmationCodeCommand command = new("user@test.com");
         _userServiceMock
-            .Setup(x => x.GetUserID(command.Email))
+            .Setup(x => x.GetUserID(command.Email, CancellationToken.None))
             .ReturnsAsync(Result.Success("user-id"));
 
         _privilegeServiceMock

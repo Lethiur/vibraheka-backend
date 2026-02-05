@@ -58,7 +58,7 @@ public class ChangeTemplateCommandHandlerTest
         // Arrange
         const string userId = "user-123";
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(false);
 
         ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("1", ActionType.UserVerification);
@@ -77,7 +77,7 @@ public class ChangeTemplateCommandHandlerTest
         // Arrange
         const string userId = "admin-123";
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(true);
         
         EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID(It.IsAny<string>()))
@@ -99,7 +99,7 @@ public class ChangeTemplateCommandHandlerTest
         // Arrange
         const string userId = "admin-123";
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin)).ReturnsAsync(true);
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
         EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID("1")).ReturnsAsync(Result.Success(new EmailEntity()));
 
         // Usamos un cast o un valor no contemplado en el switch si el enum lo permite
@@ -120,7 +120,7 @@ public class ChangeTemplateCommandHandlerTest
         const string userId = "admin-123";
         const string templateId = "1";
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin)).ReturnsAsync(true);
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
         EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId)).ReturnsAsync(Result.Success(new EmailEntity()));
         settingsServiceMock.Setup(x => x.ChangeEmailForVerificationAsync(templateId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));

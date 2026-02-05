@@ -25,11 +25,11 @@ public class GetAllTherapistsQueryHandlerTest
     public async Task ShouldReturnTherapistsWhenRepositorySucceeds()
     {
         // Given
-        IEnumerable<User> therapists = [new User { Role = UserRole.Therapist, Email = "t1@test.com" }];
+        IEnumerable<UserEntity> therapists = [new UserEntity { Role = UserRole.Therapist, Email = "t1@test.com" }];
         _repoMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist)).ReturnsAsync(Result.Success(therapists));
 
         // When
-        Result<IEnumerable<User>> result = await _handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
+        Result<IEnumerable<UserEntity>> result = await _handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -43,10 +43,10 @@ public class GetAllTherapistsQueryHandlerTest
         // Given
         string errorMessage = "DB-FAIL";
         _repoMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist))
-            .ReturnsAsync(Result.Failure<IEnumerable<User>>(errorMessage));
+            .ReturnsAsync(Result.Failure<IEnumerable<UserEntity>>(errorMessage));
 
         // When
-        Result<IEnumerable<User>> result = await _handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
+        Result<IEnumerable<UserEntity>> result = await _handler.Handle(new GetAllTherapistsQuery(), CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

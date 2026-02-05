@@ -10,13 +10,14 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Infrastructure.Entities;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserService
+public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRepository userRepository) : IUserService
 {
     protected IAmazonCognitoIdentityProvider _client = CreateClient(config);
     private readonly string _userPoolId = config.UserPoolId;
@@ -149,7 +150,7 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
     /// </summary>
     /// <param name="email">The email address of the user whose User ID is to be retrieved.</param>
     /// <returns>A <see cref="Result{T}"/> containing the User ID if the operation is successful; otherwise, an error result.</returns>
-    public async Task<Result<string>> GetUserID(string email)
+    public async Task<Result<string>> GetUserID(string email, CancellationToken cancellationToken)
     {
         try
         {
@@ -159,7 +160,7 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
                 Username = email
             };
 
-            AdminGetUserResponse response = await _client.AdminGetUserAsync(request);
+            AdminGetUserResponse response = await _client.AdminGetUserAsync(request, cancellationToken);
             return Result.Success(response.UserAttributes.First(attr => attr.Name == "sub").Value);
         }
         catch (Exception ex)
@@ -167,6 +168,46 @@ public class UserService(AWSConfig config, ILogger<UserService> logger) : IUserS
             logger.LogError(ex, "Error while requesting the new verification code for user with email {Email}", email);
             return MapCognitoException<string>(ex);
         }
+    }
+
+    /// <summary>
+    /// Retrieves a user from the database by their unique identifier.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user to retrieve.</param>
+    /// <returns>A user object containing the user's details, or null if no user is found with the specified identifier.</returns>
+    public Task<Result<UserEntity>> GetUserByID(string userID, CancellationToken cancellationToken)
+    {
+        return Maybe.From(userID)
+            .ToResult(UserErrors.InvalidUserID)
+            .Ensure(id => !string.IsNullOrWhiteSpace(id), UserErrors.InvalidUserID)
+            .BindTry(id => userRepository.GetByIdAsync(id, cancellationToken))
+            .Ensure(user => user != null, UserErrors.UserNotFound);
+    }
+
+    /// <summary>
+    /// Updates the details of an existing user in the system.
+    /// </summary>
+    /// <param name="newUserData">The updated user information encapsulated in a <see cref="UserEntity"/> object.</param>
+    /// <param name="updater">The identifier of the user performing the update operation.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Result{Unit}"/> indicating the success or failure of the update operation.</returns>
+    /// <exception cref="NotImplementedException">Thrown if the method is not yet implemented.</exception>
+    public Task<Result<Unit>> UpdateUserAsync(UserEntity newUserData, string updater,
+        CancellationToken cancellationToken)
+    {
+        return GetUserByID(newUserData.Id, cancellationToken).MapTry(user =>
+        {
+            user.LastModified = DateTime.UtcNow;
+            user.LastModifiedBy = updater;
+            user.FirstName = newUserData.FirstName;
+            user.MiddleName = newUserData.MiddleName;
+            user.LastName = newUserData.LastName;
+            user.Bio = newUserData.Bio;
+            user.PhoneNumber = newUserData.PhoneNumber;
+            return user;
+        }).BindTry(userRepository.AddAsync)
+        .Map(_ => Unit.Value);
+        
     }
 
     /// <summary>

@@ -36,8 +36,8 @@ public class AuthenticateUserCommandHandlerTest
             .Setup(s => s.AuthenticateUserAsync(command.Email, command.Password))
             .ReturnsAsync(expectedResult);
 
-        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Of(new User()));
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
+            .ReturnsAsync(Result.Of(new UserEntity()));
         
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -61,8 +61,8 @@ public class AuthenticateUserCommandHandlerTest
             .Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Failure<AuthenticationResult>(expectedError));
         
-        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Of(new User()));
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
+            .ReturnsAsync(Result.Of(new UserEntity()));
 
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -76,8 +76,8 @@ public class AuthenticateUserCommandHandlerTest
     public async Task ShouldPropagateErrorFromRepository()
     {
         // Given: Some mocking to return error
-        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Failure<User>(UserErrors.UserNotFound));
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
+            .ReturnsAsync(Result.Failure<UserEntity>(UserErrors.UserNotFound));
         
         _cognitoServiceMock.Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(Result.Success(new AuthenticationResult()));
         
@@ -103,8 +103,8 @@ public class AuthenticateUserCommandHandlerTest
             .Setup(s => s.AuthenticateUserAsync(command.Email, command.Password))
             .ReturnsAsync(expectedResult);
 
-        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Of(new User()
+        _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
+            .ReturnsAsync(Result.Of(new UserEntity()
             {
                 Role = UserRole.Therapist
             }));

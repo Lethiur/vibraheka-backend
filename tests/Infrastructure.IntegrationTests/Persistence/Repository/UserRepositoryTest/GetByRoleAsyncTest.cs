@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
 
@@ -13,20 +14,20 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     {
         // Given: Multiple users with the same role persisted in DynamoDB
         UserRole role = UserRole.Therapist;
-        User user1 = CreateValidUser();
+        UserEntity user1 = CreateValidUser();
         user1.Role = role;
-        User user2 = CreateValidUser();
+        UserEntity user2 = CreateValidUser();
         user2.Role = role;
 
         await _userRepository.AddAsync(user1);
         await _userRepository.AddAsync(user2);
 
         // When: Retrieving users by role
-        Result<IEnumerable<User>> result = await _userRepository.GetByRoleAsync(role);
+        Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(role);
 
         // Then: The operation should be successful and contain at least our two users
         Assert.That(result.IsSuccess, Is.True);
-        List<User> users = result.Value.ToList();
+        List<UserEntity> users = result.Value.ToList();
         Assert.That(users.Any(u => u.Id == user1.Id), Is.True, "Should contain the first user");
         Assert.That(users.Any(u => u.Id == user2.Id), Is.True, "Should contain the second user");
         Assert.That(users.All(u => u.Role == role), Is.True, "All returned users should have the requested role");
@@ -41,20 +42,20 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     public async Task ShouldCorrectlyMapAllPropertiesWhenRetrievingByRole()
     {
         // Given: A user with full data
-        User user = CreateValidUser();
-        user.Role = UserRole.Therapist;
-        await _userRepository.AddAsync(user);
+        UserEntity userEntity = CreateValidUser();
+        userEntity.Role = UserRole.Therapist;
+        await _userRepository.AddAsync(userEntity);
 
         // When: Retrieving by role
-        Result<IEnumerable<User>> result = await _userRepository.GetByRoleAsync(UserRole.Therapist);
+        Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(UserRole.Therapist);
 
         // Then: The specific user should have all properties correctly mapped
-        User retrievedUser = result.Value.First(u => u.Id == user.Id);
-        Assert.That(retrievedUser.FullName, Is.EqualTo(user.FullName));
-        Assert.That(retrievedUser.Email, Is.EqualTo(user.Email));
-        Assert.That(retrievedUser.Role, Is.EqualTo(UserRole.Therapist));
+        UserEntity retrievedUserEntity = result.Value.First(u => u.Id == userEntity.Id);
+        Assert.That(retrievedUserEntity.FirstName, Is.EqualTo(userEntity.FirstName));
+        Assert.That(retrievedUserEntity.Email, Is.EqualTo(userEntity.Email));
+        Assert.That(retrievedUserEntity.Role, Is.EqualTo(UserRole.Therapist));
 
         // Cleanup
-        await CleanupUser(user.Id);
+        await CleanupUser(userEntity.Id);
     }
 }

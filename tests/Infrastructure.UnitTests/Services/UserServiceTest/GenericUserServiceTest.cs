@@ -1,6 +1,7 @@
 ﻿using Amazon.CognitoIdentityProvider;
 using Microsoft.Extensions.Logging;
 using Moq;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Services;
 
@@ -11,6 +12,7 @@ public abstract class GenericUserServiceTest
     protected AWSConfig _configMock;
     protected Mock<ILogger<UserService>> _loggerMock;
     protected Mock<IAmazonCognitoIdentityProvider> _cognitoMock;
+    protected Mock<IUserRepository> _userRepositoryMock;
     protected TestableUserService _service;
     
     [SetUp]
@@ -19,11 +21,12 @@ public abstract class GenericUserServiceTest
         _configMock = new AWSConfig();
         _loggerMock = new Mock<ILogger<UserService>>();
         _cognitoMock = new Mock<IAmazonCognitoIdentityProvider>();
+        _userRepositoryMock = new Mock<IUserRepository>();
 
         _configMock.Location = "eu-west-1";
         _configMock.Profile = "Twingers";
         
         // Asumiendo que UserService permite inyectar o acceder al cliente para tests
-        _service = new TestableUserService(_configMock, _loggerMock.Object, _cognitoMock.Object);
+        _service = new TestableUserService(_configMock, _loggerMock.Object, _cognitoMock.Object, _userRepositoryMock.Object);
     }
 }

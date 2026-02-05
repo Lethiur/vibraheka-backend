@@ -31,9 +31,9 @@ public class CreateTherapistCommandHandler(
         return CognitService.RegisterUserAsync(request.Email, password, request.Name)
             .Bind(async id =>
         {
-            User user = new()
+            UserEntity userEntity = new()
             {
-                FullName = request.Name,
+                FirstName = request.Name,
                 Email = request.Email,
                 Id = id,
                 CognitoId = id,
@@ -44,7 +44,7 @@ public class CreateTherapistCommandHandler(
                 LastModifiedBy = CurrentUserService.UserId
             };
 
-            return await Repository.AddAsync(user);
+            return await Repository.AddAsync(userEntity);
         });
     }
 }

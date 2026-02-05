@@ -28,14 +28,14 @@ public class GetAllTherapistsQueryHandlerTests
     public async Task ShouldReturnAListOfTherapistsWhenUserIsAdmin()
     {
         // Given: An admin user and some therapists in the repository
-        IEnumerable<User> therapists = new List<User> { new() { FullName = "Therapist Name" } };
+        IEnumerable<UserEntity> therapists = new List<UserEntity> { new() { FirstName = "Therapist Name" } };
         GetAllTherapistsQuery query = new();
         
         RepositoryMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist))
             .ReturnsAsync(Result.Success(therapists));
 
         // When: The handler is executed
-        Result<IEnumerable<User>> result = await Handler.Handle(query, CancellationToken.None);
+        Result<IEnumerable<UserEntity>> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: The result should be successful and contain the therapists
         Assert.That(result.IsSuccess, Is.True, "The operation should be successful");

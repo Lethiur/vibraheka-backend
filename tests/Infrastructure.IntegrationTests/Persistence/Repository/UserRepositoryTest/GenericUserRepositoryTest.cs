@@ -64,9 +64,9 @@ public abstract class GenericUserRepositoryTest
         }).Value;
     }
     
-    protected User CreateValidUser()
+    protected UserEntity CreateValidUser()
     {
-        return new User(
+        return new UserEntity(
             Guid.NewGuid().ToString(),
             _faker.Internet.Email(),
             _faker.Person.FullName
@@ -81,7 +81,7 @@ public abstract class GenericUserRepositoryTest
     {
         try
         {
-            await _dynamoContext.DeleteAsync<User>(userId);
+            await _dynamoContext.DeleteAsync<UserEntity>(userId);
             Console.WriteLine($"Cleanup: Deleted user {userId}");
         }
         catch (Exception ex)

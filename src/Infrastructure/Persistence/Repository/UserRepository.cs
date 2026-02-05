@@ -16,17 +16,17 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.
     /// </summary>
-    /// <param name="user">The user entity to be added to the DynamoDB users table.</param>
+    /// <param name="userEntity">The user entity to be added to the DynamoDB users table.</param>
     /// <returns>A result containing the user's ID if the operation is successful, or an error otherwise.</returns>
-    public async Task<Result<string>> AddAsync(User user)
+    public async Task<Result<string>> AddAsync(UserEntity userEntity)
     {
         SaveConfig saveConfig = new()
         {
             OverrideTableName = config.UsersTable,
         };
         
-        await context.SaveAsync(UserDBModel.FromDomain(user), saveConfig);
-        return user.Id;
+        await context.SaveAsync(UserDBModel.FromDomain(userEntity), saveConfig);
+        return userEntity.Id;
     }
 
     /// <summary>
@@ -50,9 +50,10 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// Retrieves a user by their unique identifier from the DynamoDB users table asynchronously.
     /// </summary>
     /// <param name="id">The unique identifier of the user to be retrieved.</param>
+    /// <param name="cancellationToken">The token used to halt the operation</param>
     /// <returns>A result containing the user entity if the operation is successful, or an error otherwise.</returns>
     /// <exception cref="NotImplementedException">Thrown if the method is not implemented.</exception>
-    public async Task<Result<User>> GetByIdAsync(string id)
+    public async Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         LoadConfig configuration = new()
         {
@@ -61,12 +62,12 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
 
         try
         {
-            UserDBModel? model = await context.LoadAsync<UserDBModel>(id, configuration);
-            return model != null ? Result.Success(model.ToDomain()) : Result.Failure<User>(InfrastructureUserErrors.UserNotFound);
+            UserDBModel? model = await context.LoadAsync<UserDBModel>(id, configuration, cancellationToken);
+            return model != null ? Result.Success(model.ToDomain()) : Result.Failure<UserEntity>(InfrastructureUserErrors.UserNotFound);
         }
         catch (Exception e)
         {
-            return Result.Failure<User>(e.Message);
+            return Result.Failure<UserEntity>(e.Message);
         }
     }
 
@@ -76,10 +77,10 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <param name="role">The role of the users to retrieve.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
-    /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="User"/> objects
+    /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="UserEntity"/> objects
     /// corresponding to the specified role.
     /// </returns>
-    public async Task<Result<IEnumerable<User>>> GetByRoleAsync(UserRole role)
+    public async Task<Result<IEnumerable<UserEntity>>> GetByRoleAsync(UserRole role)
     {
         QueryConfig queryConfig = new()
         {
@@ -94,14 +95,14 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
 
             if (models == null || models.Count == 0)
             {
-                return Result.Success(Enumerable.Empty<User>());
+                return Result.Success(Enumerable.Empty<UserEntity>());
             }
 
             return Result.Success(models.Select(m => m.ToDomain()));
         }
         catch (Exception e)
         {
-            return Result.Failure<IEnumerable<User>>($"Error querying users by role: {e.Message}");
+            return Result.Failure<IEnumerable<UserEntity>>($"Error querying users by role: {e.Message}");
         }
     }
 }

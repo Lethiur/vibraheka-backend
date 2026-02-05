@@ -53,7 +53,7 @@ public class GetAllTemplatesForActionTest
         // Given
         const string userId = "user-123";
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(false));
         GetTemplatesForActionQuery query = new GetTemplatesForActionQuery();
 
@@ -77,7 +77,7 @@ public class GetAllTemplatesForActionTest
         };
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Success<IEnumerable<TemplateForActionEntity>>(expectedTemplates));
@@ -101,7 +101,7 @@ public class GetAllTemplatesForActionTest
         const string errorMessage = "Database Error";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin))
+        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Failure<IEnumerable<TemplateForActionEntity>>(errorMessage));

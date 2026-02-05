@@ -27,11 +27,11 @@ public class GetUserIDTests : GenericUserServiceTest
         };
 
         _cognitoMock
-            .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
+            .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), CancellationToken.None))
             .ReturnsAsync(response);
 
         // When
-        Result<string> result = await _service.GetUserID(email);
+        Result<string> result = await _service.GetUserID(email, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -50,7 +50,7 @@ public class GetUserIDTests : GenericUserServiceTest
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
-        Result<string> result = await _service.GetUserID("missing@test.com");
+        Result<string> result = await _service.GetUserID("missing@test.com", CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
@@ -64,7 +64,7 @@ public class GetUserIDTests : GenericUserServiceTest
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new InvalidParameterException("Invalid username"));
 
-        Result<string> result = await _service.GetUserID("");
+        Result<string> result = await _service.GetUserID("", CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
@@ -86,7 +86,7 @@ public class GetUserIDTests : GenericUserServiceTest
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ReturnsAsync(response);
 
-        Result<string> result = await _service.GetUserID("user@test.com");
+        Result<string> result = await _service.GetUserID("user@test.com", CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));
@@ -100,7 +100,7 @@ public class GetUserIDTests : GenericUserServiceTest
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new Exception("AWS is down"));
 
-        Result<string> result = await _service.GetUserID("user@test.com");
+        Result<string> result = await _service.GetUserID("user@test.com", CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));

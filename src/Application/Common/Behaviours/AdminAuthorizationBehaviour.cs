@@ -42,7 +42,7 @@ public sealed class AdminAuthorizationBehavior<TRequest, TResponse>
             .From(_currentUser.UserId)
             .Where(id => !string.IsNullOrWhiteSpace(id))
             .ToResult(UserErrors.InvalidUserID)
-            .Bind(id => _privilegeService.HasRoleAsync(id, UserRole.Admin))
+            .Bind(id => _privilegeService.HasRoleAsync(id, UserRole.Admin, cancellationToken))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized);
 
         if (result.IsFailure)

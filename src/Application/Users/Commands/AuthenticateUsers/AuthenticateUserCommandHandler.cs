@@ -18,7 +18,7 @@ public class AuthenticateUserCommandHandler(IUserService userService, IUserRepos
 
         return await authenticateUserAsync.Bind(async (result) =>
         {
-            return (await UserRpository.GetByIdAsync(result.UserID)).Map(user =>
+            return (await UserRpository.GetByIdAsync(result.UserID, cancellationToken)).Map(user =>
             {
                 result.Role = user.Role;
                 return result;

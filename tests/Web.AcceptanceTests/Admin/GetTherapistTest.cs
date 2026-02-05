@@ -68,11 +68,11 @@ public class GetTherapistTest  : GenericAcceptanceTest<VibraHekaProgram>
         getAsync.EnsureSuccessStatusCode();
         
         // And: The content of the response should include the created therapist
-        ResponseEntity entity = await getAsync.GetAsResponseEntityAndContentAs<List<User>>();
+        ResponseEntity entity = await getAsync.GetAsResponseEntityAndContentAs<List<UserEntity>>();
         Assert.That(entity.Content, Is.Not.Null);
         
-        IEnumerable<User>? therapists = entity.GetContentAs<IEnumerable<User>>();
-        IEnumerable<User>? enumerable = therapists as User[] ?? therapists!.ToArray();
+        IEnumerable<UserEntity>? therapists = entity.GetContentAs<IEnumerable<UserEntity>>();
+        IEnumerable<UserEntity>? enumerable = therapists as UserEntity[] ?? therapists!.ToArray();
         Assert.That(enumerable, Is.Not.Null);
         Assert.That(enumerable, Is.Not.Empty);
         

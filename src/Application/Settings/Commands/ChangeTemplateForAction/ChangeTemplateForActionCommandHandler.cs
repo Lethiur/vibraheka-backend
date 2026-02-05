@@ -21,7 +21,7 @@ public class ChangeTemplateForActionCommandHandler(
             .Where(userID =>
                 !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await PrivilegeService.HasRoleAsync(userID, UserRole.Admin))
+            .Bind(async userID => await PrivilegeService.HasRoleAsync(userID, UserRole.Admin, cancellationToken))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized) // Ensuring the user has admin roles
             .Bind(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID))
             .Bind(async template =>

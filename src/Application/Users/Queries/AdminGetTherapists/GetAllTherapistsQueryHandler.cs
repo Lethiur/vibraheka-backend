@@ -22,12 +22,12 @@ namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
 /// </param>
 /// <returns>
 /// A task that represents the asynchronous operation, which contains a <see cref="Result{T}"/> object
-/// holding a list of <see cref="User"/> entities or an error if the operation fails.
+/// holding a list of <see cref="UserEntity"/> entities or an error if the operation fails.
 /// </returns>
 public class GetAllTherapistsQueryHandler(
-    IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<User>>>
+    IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<UserEntity>>>
 {
-    public async Task<Result<IEnumerable<User>>> Handle(GetAllTherapistsQuery request,
+    public async Task<Result<IEnumerable<UserEntity>>> Handle(GetAllTherapistsQuery request,
         CancellationToken cancellationToken)
     {
         return await Repository.GetByRoleAsync(UserRole.Therapist);
