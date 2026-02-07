@@ -1204,7 +1204,7 @@ export class UserDTO implements IUserDTO {
     lastName?: string;
     bio?: string;
     phoneNumber?: string;
-    timezoneId?: string;
+    timezoneID?: string;
 
     constructor(data?: IUserDTO) {
         if (data) {
@@ -1225,7 +1225,7 @@ export class UserDTO implements IUserDTO {
             this.lastName = _data["lastName"];
             this.bio = _data["bio"];
             this.phoneNumber = _data["phoneNumber"];
-            this.timezoneId = _data["timezoneId"];
+            this.timezoneID = _data["timezoneID"];
         }
     }
 
@@ -1246,7 +1246,7 @@ export class UserDTO implements IUserDTO {
         data["lastName"] = this.lastName;
         data["bio"] = this.bio;
         data["phoneNumber"] = this.phoneNumber;
-        data["timezoneId"] = this.timezoneId;
+        data["timezoneID"] = this.timezoneID;
         return data;
     }
 }
@@ -1260,7 +1260,7 @@ export interface IUserDTO {
     lastName?: string;
     bio?: string;
     phoneNumber?: string;
-    timezoneId?: string;
+    timezoneID?: string;
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -1598,7 +1598,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
-    timezoneId?: string;
+    timezoneID?: string;
     role?: UserRole;
 
     constructor(data?: IUserEntity) {
@@ -1617,7 +1617,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
             this.middleName = _data["middleName"];
             this.lastName = _data["lastName"];
             this.phoneNumber = _data["phoneNumber"];
-            this.timezoneId = _data["timezoneId"];
+            this.timezoneID = _data["timezoneID"];
             this.role = _data["role"];
         }
     }
@@ -1640,7 +1640,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
         data["middleName"] = this.middleName;
         data["lastName"] = this.lastName;
         data["phoneNumber"] = this.phoneNumber;
-        data["timezoneId"] = this.timezoneId;
+        data["timezoneID"] = this.timezoneID;
         data["role"] = this.role;
         super.toJSON(data);
         return data;
@@ -1657,7 +1657,7 @@ export interface IUserEntity extends IBaseAuditableEntity {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
-    timezoneId?: string;
+    timezoneID?: string;
     role?: UserRole;
 }
 

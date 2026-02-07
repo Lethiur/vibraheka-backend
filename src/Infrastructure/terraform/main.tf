@@ -1,28 +1,42 @@
-module "CreateChallengeLambda" {
-  source                  = "./Lambdas/VerificationCode/terraform"
-  dynamo_codes_table_arn  = aws_dynamodb_table.VibraHeka_PAM_verification_codes.arn
-  dynamo_codes_table_name = aws_dynamodb_table.VibraHeka_PAM_verification_codes.name
-  kms_alias_arn           = aws_kms_alias.PAM_cognito_kms_alias.arn
-  kms_alias_name          = aws_kms_alias.PAM_cognito_kms_alias.name
-  kms_arn                 = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
-  user_pool_arn           = aws_cognito_user_pool.VibraHeka-main-pool.arn
+
+module "Config" {
+  source = "./Config"
+  ssm_namespace = "VibraHeka"
 }
 
-module "SendEmailLambda" {
-  source                          = "./Lambdas/SendEmail/terraform"
-  ses-arn                         = aws_ses_domain_identity.VibraHeka_ses_domain.arn
-  template_bucket_arn             = aws_s3_bucket.VH_email_templates.arn
-  template_bucket_name            = aws_s3_bucket.VH_email_templates.bucket
-  ses_config_set_arn              = aws_ses_configuration_set.VibraHeka_ses_config.arn
-  ses_config_set_name             = aws_ses_configuration_set.VibraHeka_ses_config.name
-  ses_email_from                  = aws_ses_domain_mail_from.VibraHeka_ses_tracking.mail_from_domain
-  ssm_verification_template_param = aws_ssm_parameter.VH_verification_email_template.name
-  kms_alias_arn                   = aws_kms_alias.PAM_cognito_kms_alias.arn
-  kms_alias_name                  = aws_kms_alias.PAM_cognito_kms_alias.name
-  kms_arn                         = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
-  user_pool_arn                   = aws_cognito_user_pool.VibraHeka-main-pool.arn
-  ses-domain-arn                  = aws_ses_domain_identity.VibraHeka_ses_domain.arn
+module "Emails" {
+  source = "./Emails"
 }
+
+module "Users" {
+  source = "./Users"
+  lambda_save_verification_code_arn = module.Lambda.lambda_save_verification_code_arn
+  lambda_send_email_arn = module.Lambda.lambda_send_email_arn
+  prod_deployment = var.prod_deployment
+}
+
+module "Dev" {
+  source = "./Dev"
+}
+
+module "Lambda" {
+  source = "./Lambdas"
+  s3_templates_arn = module.Emails.s3_email_templates_bucket_arn
+  s3_templates_name = module.Emails.s3_email_templates_bucket_name
+  ses_domain_arn = module.Emails.ses_email_domain_arn
+  ses_config_arn = module.Emails.ses_config_arn
+  ses_config_name = module.Emails.ses_config_name
+  ses_mail_from_domain = module.Emails.ses_email_from_domain
+  ssm_email_verification_template_id_parameter_name = module.Config.ssm_email_verification_template_id_parameter_name
+  kms_users_arn = module.Users.kms_users_arn
+  kms_users_key_alias_arn = module.Users.kms_users_key_alias_arn
+  kms_users_key_alias_name = module.Users.kms_users_key_alias_name
+  cognito_user_pool_arn = module.Users.cognito_pool_users_arn
+  dynamodb_codes_table_arn = module.Dev.dynamodb_table_codes_arn
+  dynamodb_codes_table_name = module.Dev.dynamodb_table_codes_name
+  ssm_read_parameters_policy_arn = module.Config.ssm_read_vh_parameters_policy_arn
+}
+
 
 module "ActionLog" {
   source = "./ActionLog"

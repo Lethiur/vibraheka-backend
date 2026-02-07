@@ -64,6 +64,6 @@ resource "aws_cloudwatch_log_group" "VH_send_email_lambda_logs" {
   }
 }
 
-output "lambda_arn" {
+output "lambda_send_email_arn" {
   value = aws_lambda_function.send_email.arn
 }

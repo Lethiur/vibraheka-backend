@@ -41,6 +41,6 @@ resource "aws_lambda_permission" "allow_cognito_create_challenge" {
 }
 
 
-output "lambda_arn" {
+output "lambda_save_verification_code_arn" {
   value = aws_lambda_function.create_challenge.arn
 }

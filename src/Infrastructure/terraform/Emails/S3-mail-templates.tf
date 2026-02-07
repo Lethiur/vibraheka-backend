@@ -9,7 +9,7 @@ resource "aws_s3_bucket_public_access_block" "VH_email_templates_access" {
   block_public_acls       = true
   ignore_public_acls      = true
 
-  # Permitimos policy pública (pero solo para GetObject en un prefijo)
+  # Necesario para permitir una bucket policy pública
   block_public_policy     = false
   restrict_public_buckets = false
 }
@@ -34,9 +34,17 @@ resource "aws_s3_bucket_policy" "VH_email_templates_public_read_objects" {
         Principal = "*"
         Action    = ["s3:GetObject"]
 
-        # IMPORTANTE: GetObject solo aplica a ARNs de OBJETO (terminan en /*)
+        # Lectura pública de TODOS los objetos del bucket
         Resource  = "${aws_s3_bucket.VH_email_templates.arn}/*"
       }
     ]
   })
+}
+
+output "s3_email_templates_bucket_name" {
+  value = aws_s3_bucket.VH_email_templates.bucket
+}
+
+output "s3_email_templates_bucket_arn" {
+  value = aws_s3_bucket.VH_email_templates.arn
 }

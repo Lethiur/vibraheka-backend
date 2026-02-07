@@ -668,7 +668,7 @@
           "phoneNumber": {
             "type": "string"
           },
-          "timezoneId": {
+          "timezoneID": {
             "type": "string"
           }
         }
@@ -820,7 +820,7 @@
               "phoneNumber": {
                 "type": "string"
               },
-              "timezoneId": {
+              "timezoneID": {
                 "type": "string"
               },
               "role": {

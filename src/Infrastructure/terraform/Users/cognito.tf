@@ -9,18 +9,10 @@ resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
     required = true
   }
   
-  
-  email_configuration {
-    email_sending_account = "DEVELOPER"
-    from_email_address    = "VibraHeka <no-reply@vibraheka.com>"
-    source_arn            = aws_ses_domain_identity.VibraHeka_ses_domain.arn
-    reply_to_email_address = "support@vibraheka.com"
-  }
-  
   lambda_config {
     kms_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
     custom_email_sender {
-      lambda_arn     = var.prod_deployment ? module.SendEmailLambda.lambda_arn : module.CreateChallengeLambda.lambda_arn
+      lambda_arn     = var.prod_deployment ? var.lambda_send_email_arn : var.lambda_save_verification_code_arn
       lambda_version = "V1_0"
     }
   }
@@ -52,11 +44,14 @@ resource "aws_cognito_user_pool_client" "PAM_cognito_pool_client" {
   ]
 }
 
-output "user_pool_id" {
+output "cognito_pool_user_id" {
   value = aws_cognito_user_pool.VibraHeka-main-pool.id
 }
 
-output "client_id" {
+output "cognito_user_pool_client_id" {
   value = aws_cognito_user_pool_client.PAM_cognito_pool_client.id
 }
 
+output "cognito_pool_users_arn" {
+  value = aws_cognito_user_pool.VibraHeka-main-pool.arn
+}

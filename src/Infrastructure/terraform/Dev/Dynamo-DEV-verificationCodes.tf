@@ -20,3 +20,11 @@ output "verification_codes_table" {
   value = aws_dynamodb_table.VibraHeka_PAM_verification_codes.name 
   description = "The name of the terraform table that stores the codes. Only available in test environment"
 }
+
+output "dynamodb_table_codes_arn" {
+  value = aws_dynamodb_table.VibraHeka_PAM_verification_codes.arn
+}
+
+output "dynamodb_table_codes_name" {
+  value = aws_dynamodb_table.VibraHeka_PAM_verification_codes.name
+}

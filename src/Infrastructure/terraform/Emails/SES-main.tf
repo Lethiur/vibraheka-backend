@@ -18,12 +18,18 @@ resource "aws_ses_domain_mail_from" "VibraHeka_ses_tracking" {
   mail_from_domain = "mail.vibraheka.com"
 }
 
-output "ses_verification_token" {
-  value       = aws_ses_domain_identity.VibraHeka_ses_domain.verification_token
-  description = "Crea un registro TXT con nombre _amazonses.tu-dominio.com y este valor"
+output "ses_config_arn" {
+  value = aws_ses_configuration_set.VibraHeka_ses_config.arn
 }
 
-output "ses_dkim_tokens" {
-  value       = aws_ses_domain_dkim.VibraHeka_ses_dkim.dkim_tokens
-  description = "Crea 3 registros CNAME usando estos tokens"
+output "ses_config_name" {
+  value = aws_ses_configuration_set.VibraHeka_ses_config.name
+}
+
+output "ses_email_from_domain" {
+  value = aws_ses_domain_mail_from.VibraHeka_ses_tracking.mail_from_domain
+}
+
+output "ses_email_domain_arn" {
+  value = aws_ses_domain_identity.VibraHeka_ses_domain.arn
 }
