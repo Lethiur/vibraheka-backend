@@ -30,7 +30,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         Factory = new WebApplicationFactory<TAppClass>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, configBuilder) =>
+                builder.ConfigureAppConfiguration((_, configBuilder) =>
                 {
                     // Borra config anterior
                     configBuilder.Sources.Clear();
@@ -56,8 +56,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [OneTimeTearDown]
     public void TearDown()
     {
-        Client?.Dispose();
-        Factory?.Dispose();
+        Client.Dispose();
+        Factory.Dispose();
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
             new RegisterUserCommand(
-                email, password, username)
+                email, password, username, "Europe/Madrid")
         );
         ResponseEntity asResponseEntityAndContentAs =
             await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
@@ -168,7 +168,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="email">The email address of the admin user.</param>
     /// <param name="ID">The ID of the user to promote to admin</param>
     /// <returns>The unique identifier of the newly created admin user.</returns>
-    private async Task<string> PromoteToAdmin(string username, string email, string ID)
+    private async Task PromoteToAdmin(string username, string email, string ID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
@@ -189,7 +189,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
         await repository.AddAsync(adminUserEntity);
             
-        return userId;
     }
 
     /// <summary>

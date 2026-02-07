@@ -16,14 +16,13 @@ public class RegisterUserCommandHandlerTest
     private IRequestHandler<RegisterUserCommand, Result<UserRegistrationResult>> _handler;
     private Mock<IUserRepository> _userRepositoryMock;
     private Mock<IUserService> _cognitoServiceMock;
-    private RegisterUserCommandValidator _validator;
+    
 
     [SetUp]
     public void SetUp()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
         _cognitoServiceMock = new Mock<IUserService>();
-        _validator = new RegisterUserCommandValidator();
 
         _handler = new RegisterUserCommandHandler(
             _cognitoServiceMock.Object,
@@ -35,7 +34,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldRegisterUserSuccessfullyWhenValidCommandProvided()
     {
         // Given: Valid command and successful external services
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", "John Doe");
+        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", "John Doe", "Europe/Madrid");
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success("user-sub-123"));
@@ -61,7 +60,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldFailWhenUserAlreadyExists()
     {
         // Given: Command for existing user
-        RegisterUserCommand command = new RegisterUserCommand("existing@example.com", "Password123!", "John Doe");
+        RegisterUserCommand command = new RegisterUserCommand("existing@example.com", "Password123!", "John Doe", "Europe/Madrid");
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Failure<string>(UserErrors.UserAlreadyExist));
@@ -83,7 +82,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldFailWhenDynamoFails()
     {
         // Given: Command for existing user
-        RegisterUserCommand command = new("existing@example.com", "Password123!", "John Doe");
+        RegisterUserCommand command = new("existing@example.com", "Password123!", "John Doe", "Europe/Madrid");
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync("existing@example.com", "Password123!", "John Doe"))
             .ReturnsAsync(Result.Success<string>("test-123"));

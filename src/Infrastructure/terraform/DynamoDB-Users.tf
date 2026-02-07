@@ -32,14 +32,14 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
     name               = "EmailIndex"
     hash_key           = "Email"
     projection_type    = "INCLUDE"
-    non_key_attributes = ["Id", "Email", "FirstName", "MiddleName", "Last Name", "Role"]
+    non_key_attributes = ["Id", "Email", "FirstName", "MiddleName", "Last Name", "Role", "TimezoneID"]
   }
 
   global_secondary_index {
     name               = "Role-Index"
     hash_key           = "Role"
     projection_type    = "INCLUDE"
-    non_key_attributes =  ["Id", "Email", "FirstName", "MiddleName", "Last Name", "Role"]
+    non_key_attributes =  ["Id", "Email", "FirstName", "MiddleName", "Last Name", "Role", "TimezoneID"]
   }
   
 }

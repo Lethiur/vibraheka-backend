@@ -17,7 +17,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateTherapistCommand"
+                "$ref": "#/components/schemas/UserDTO"
               }
             }
           },
@@ -640,14 +640,35 @@
   },
   "components": {
     "schemas": {
-      "CreateTherapistCommand": {
+      "UserDTO": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "email": {
             "type": "string"
           },
-          "name": {
+          "profilePictureUrl": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "timezoneId": {
             "type": "string"
           }
         }
@@ -692,6 +713,9 @@
             "type": "string"
           },
           "fullName": {
+            "type": "string"
+          },
+          "timeZoneID": {
             "type": "string"
           }
         }
@@ -796,6 +820,9 @@
               "phoneNumber": {
                 "type": "string"
               },
+              "timezoneId": {
+                "type": "string"
+              },
               "role": {
                 "$ref": "#/components/schemas/UserRole"
               }
@@ -837,36 +864,6 @@
           "lastModifiedBy": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "UserDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "profilePictureUrl": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "middleName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "bio": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
           }
         }
       },

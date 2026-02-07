@@ -50,6 +50,7 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
                 CognitoId = realCognitoId,
                 Created = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
+                TimezoneID = request.TimeZoneID
             };
 
             Result<string> addAsync = await users.AddAsync(newUserEntity);

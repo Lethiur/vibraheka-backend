@@ -17,7 +17,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         // Given: A registered but not confirmed user
         Faker faker = new();
         string email = faker.Internet.Email();
-        RegisterUserCommand registerCommand = new(email, "Password123@", "John Doe");
+        RegisterUserCommand registerCommand = new(email, "Password123@", "John Doe", "Europe/Madrid");
         await Client.PostAsJsonAsync("/api/v1/auth/register", registerCommand);
 
         // When: Resending the confirmation code

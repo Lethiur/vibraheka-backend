@@ -17,6 +17,8 @@ public class UserEntity : BaseAuditableEntity
     
     public string PhoneNumber { get; set; } = string.Empty;
     
+    public string TimezoneID { get; set; } = string.Empty;
+    
     public UserRole Role { get; set; } = UserRole.User;
 
     public UserEntity()

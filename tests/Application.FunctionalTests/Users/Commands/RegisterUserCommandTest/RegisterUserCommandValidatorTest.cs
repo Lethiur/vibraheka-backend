@@ -21,7 +21,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "Europe/Madrid");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -37,7 +37,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
     {
         // Given
-        RegisterUserCommand command = new(email, "Password123!", "John Doe");
+        RegisterUserCommand command = new(email, "Password123!", "John Doe", "Europe/Madrid");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -57,7 +57,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldHaveErrorWhenPasswordIsInvalid(string password)
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", password, "John Doe");
+        RegisterUserCommand command = new("test@example.com", password, "John Doe", "Europe/Madrid");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -77,7 +77,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldHaveErrorWhenFullNameIsInvalid(string name)
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", name);
+        RegisterUserCommand command = new("test@example.com", "Password123!", name, "Europe/Madrid");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);

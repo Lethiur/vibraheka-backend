@@ -30,6 +30,10 @@ public class UserDBModel : BaseAuditableDBModel
     [DynamoDBProperty]
     public string Bio { get; set; } = string.Empty;
     
+    [DynamoDBProperty]
+    public string TimezoneID { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
     public string ProfilePictureUrl { get; set; } = string.Empty;
     
 
@@ -50,6 +54,7 @@ public class UserDBModel : BaseAuditableDBModel
         LastName = userEntity.LastName,
         PhoneNumber = userEntity.PhoneNumber,
         Bio = userEntity.Bio,
+        TimezoneID = userEntity.TimezoneID,
         Created = userEntity.Created,
         CreatedBy = userEntity.CreatedBy,
         LastModified = userEntity.LastModified,
@@ -68,6 +73,7 @@ public class UserDBModel : BaseAuditableDBModel
         LastName = this.LastName,
         PhoneNumber = this.PhoneNumber,
         Bio = this.Bio,
+        TimezoneID = this.TimezoneID,
         Created = this.Created,
         CreatedBy = this.CreatedBy,
         LastModified = this.LastModified,

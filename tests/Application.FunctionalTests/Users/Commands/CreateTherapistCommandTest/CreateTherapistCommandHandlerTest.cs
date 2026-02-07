@@ -5,6 +5,7 @@ using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users;
 
@@ -30,9 +31,10 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new("therapist@test.com", "Therapist Name");
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name))
+            .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock
@@ -48,8 +50,8 @@ public class CreateTherapistCommandHandlerTest
         _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == "new-user-id" &&
             u.CognitoId == "new-user-id" &&
-            u.Email == command.Email &&
-            u.FirstName == command.Name &&
+            u.Email == command.TherapistData.Email &&
+            u.FirstName == command.TherapistData.FirstName &&
             u.Role == UserRole.Therapist &&
             u.CreatedBy == "admin-1" &&
             u.LastModifiedBy == "admin-1")), Times.Once);
@@ -60,9 +62,10 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new("therapist@test.com", "Therapist Name");
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name))
+            .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
             .ReturnsAsync(Result.Failure<string>("E-002"));
 
         // When
@@ -79,9 +82,10 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new("therapist@test.com", "Therapist Name");
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.Name))
+            .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock

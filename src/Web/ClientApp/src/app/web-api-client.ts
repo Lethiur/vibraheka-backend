@@ -15,7 +15,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface IAdminClient {
-    admin_CreateTherapist(command: CreateTherapistCommand): Observable<FileResponse>;
+    admin_CreateTherapist(command: UserDTO): Observable<FileResponse>;
     admin_GetTherapists(): Observable<FileResponse>;
 }
 
@@ -32,7 +32,7 @@ export class AdminClient implements IAdminClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    admin_CreateTherapist(command: CreateTherapistCommand): Observable<FileResponse> {
+    admin_CreateTherapist(command: UserDTO): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/v1/admin/addTherapist";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1195,11 +1195,18 @@ export class VerificationCodeClient implements IVerificationCodeClient {
     }
 }
 
-export class CreateTherapistCommand implements ICreateTherapistCommand {
+export class UserDTO implements IUserDTO {
+    id?: string;
     email?: string;
-    name?: string;
+    profilePictureUrl?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    bio?: string;
+    phoneNumber?: string;
+    timezoneId?: string;
 
-    constructor(data?: ICreateTherapistCommand) {
+    constructor(data?: IUserDTO) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1210,29 +1217,50 @@ export class CreateTherapistCommand implements ICreateTherapistCommand {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.email = _data["email"];
-            this.name = _data["name"];
+            this.profilePictureUrl = _data["profilePictureUrl"];
+            this.firstName = _data["firstName"];
+            this.middleName = _data["middleName"];
+            this.lastName = _data["lastName"];
+            this.bio = _data["bio"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.timezoneId = _data["timezoneId"];
         }
     }
 
-    static fromJS(data: any): CreateTherapistCommand {
+    static fromJS(data: any): UserDTO {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateTherapistCommand();
+        let result = new UserDTO();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["email"] = this.email;
-        data["name"] = this.name;
+        data["profilePictureUrl"] = this.profilePictureUrl;
+        data["firstName"] = this.firstName;
+        data["middleName"] = this.middleName;
+        data["lastName"] = this.lastName;
+        data["bio"] = this.bio;
+        data["phoneNumber"] = this.phoneNumber;
+        data["timezoneId"] = this.timezoneId;
         return data;
     }
 }
 
-export interface ICreateTherapistCommand {
+export interface IUserDTO {
+    id?: string;
     email?: string;
-    name?: string;
+    profilePictureUrl?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    bio?: string;
+    phoneNumber?: string;
+    timezoneId?: string;
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -1303,6 +1331,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
     email?: string;
     password?: string;
     fullName?: string;
+    timeZoneID?: string;
 
     constructor(data?: IRegisterUserCommand) {
         if (data) {
@@ -1318,6 +1347,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
             this.email = _data["email"];
             this.password = _data["password"];
             this.fullName = _data["fullName"];
+            this.timeZoneID = _data["timeZoneID"];
         }
     }
 
@@ -1333,6 +1363,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
         data["email"] = this.email;
         data["password"] = this.password;
         data["fullName"] = this.fullName;
+        data["timeZoneID"] = this.timeZoneID;
         return data;
     }
 }
@@ -1341,6 +1372,7 @@ export interface IRegisterUserCommand {
     email?: string;
     password?: string;
     fullName?: string;
+    timeZoneID?: string;
 }
 
 export class VerifyUserCommand implements IVerifyUserCommand {
@@ -1566,6 +1598,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
+    timezoneId?: string;
     role?: UserRole;
 
     constructor(data?: IUserEntity) {
@@ -1584,6 +1617,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
             this.middleName = _data["middleName"];
             this.lastName = _data["lastName"];
             this.phoneNumber = _data["phoneNumber"];
+            this.timezoneId = _data["timezoneId"];
             this.role = _data["role"];
         }
     }
@@ -1606,6 +1640,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
         data["middleName"] = this.middleName;
         data["lastName"] = this.lastName;
         data["phoneNumber"] = this.phoneNumber;
+        data["timezoneId"] = this.timezoneId;
         data["role"] = this.role;
         super.toJSON(data);
         return data;
@@ -1622,6 +1657,7 @@ export interface IUserEntity extends IBaseAuditableEntity {
     middleName?: string;
     lastName?: string;
     phoneNumber?: string;
+    timezoneId?: string;
     role?: UserRole;
 }
 
@@ -1629,70 +1665,6 @@ export enum UserRole {
     User = 0,
     Admin = 1,
     Therapist = 2,
-}
-
-export class UserDTO implements IUserDTO {
-    id?: string;
-    email?: string;
-    profilePictureUrl?: string;
-    firstName?: string;
-    middleName?: string;
-    lastName?: string;
-    bio?: string;
-    phoneNumber?: string;
-
-    constructor(data?: IUserDTO) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.email = _data["email"];
-            this.profilePictureUrl = _data["profilePictureUrl"];
-            this.firstName = _data["firstName"];
-            this.middleName = _data["middleName"];
-            this.lastName = _data["lastName"];
-            this.bio = _data["bio"];
-            this.phoneNumber = _data["phoneNumber"];
-        }
-    }
-
-    static fromJS(data: any): UserDTO {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserDTO();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["email"] = this.email;
-        data["profilePictureUrl"] = this.profilePictureUrl;
-        data["firstName"] = this.firstName;
-        data["middleName"] = this.middleName;
-        data["lastName"] = this.lastName;
-        data["bio"] = this.bio;
-        data["phoneNumber"] = this.phoneNumber;
-        return data;
-    }
-}
-
-export interface IUserDTO {
-    id?: string;
-    email?: string;
-    profilePictureUrl?: string;
-    firstName?: string;
-    middleName?: string;
-    lastName?: string;
-    bio?: string;
-    phoneNumber?: string;
 }
 
 export class GetCodeQuery implements IGetCodeQuery {

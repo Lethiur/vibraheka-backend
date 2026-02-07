@@ -2,6 +2,7 @@ using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
+using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.CreateTherapistCommandTest;
 
@@ -21,7 +22,8 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        CreateTherapistCommand command = new("therapist@example.com", "Dr. Jane Doe");
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -37,7 +39,8 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
     {
         // Given
-        CreateTherapistCommand command = new(email, "Dr. Jane Doe");
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = email, FirstName = "Dr. Smith"});
+
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -57,7 +60,8 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenNameIsInvalid(string name)
     {
         // Given
-        CreateTherapistCommand command = new("therapist@example.com", name);
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = name});
+
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);

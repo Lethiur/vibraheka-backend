@@ -5,6 +5,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.Models.Results.User;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Admin;
@@ -17,7 +18,6 @@ public class GetTherapistTest  : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: registered user
         string email = TheFaker.Internet.Email();
-        string therapistEmail = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
         
         // And: Authenticated
@@ -59,7 +59,7 @@ public class GetTherapistTest  : GenericAcceptanceTest<VibraHekaProgram>
         
         // And: Therapist created
         string therapistEmail = TheFaker.Internet.Email(); 
-        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(therapistEmail, TheFaker.Person.FullName));
+        await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(new UserDTO(){ Email = therapistEmail, FirstName = TheFaker.Person.FullName}));
 
         // When: The list is requested
         HttpResponseMessage getAsync = await Client.GetAsync("/api/v1/admin/therapists");
@@ -72,7 +72,7 @@ public class GetTherapistTest  : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(entity.Content, Is.Not.Null);
         
         IEnumerable<UserEntity>? therapists = entity.GetContentAs<IEnumerable<UserEntity>>();
-        IEnumerable<UserEntity>? enumerable = therapists as UserEntity[] ?? therapists!.ToArray();
+        IEnumerable<UserEntity> enumerable = therapists as UserEntity[] ?? therapists!.ToArray();
         Assert.That(enumerable, Is.Not.Null);
         Assert.That(enumerable, Is.Not.Empty);
         

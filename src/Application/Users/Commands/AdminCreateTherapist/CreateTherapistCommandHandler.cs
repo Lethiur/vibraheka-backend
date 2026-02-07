@@ -28,14 +28,20 @@ public class CreateTherapistCommandHandler(
     public Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
         const string password = "Password123!@#";
-        return CognitService.RegisterUserAsync(request.Email, password, request.Name)
+        return CognitService.RegisterUserAsync(request.TherapistData.Email, password, request.TherapistData.FirstName)
             .Bind(async id =>
         {
             UserEntity userEntity = new()
             {
-                FirstName = request.Name,
-                Email = request.Email,
+                FirstName = request.TherapistData.FirstName,
+                Email = request.TherapistData.Email,
+                MiddleName = request.TherapistData.MiddleName,
+                LastName = request.TherapistData.LastName,
+                PhoneNumber = request.TherapistData.PhoneNumber,
+                Bio = request.TherapistData.Bio,
+                ProfilePictureUrl = request.TherapistData.ProfilePictureUrl,
                 Id = id,
+                TimezoneID = request.TherapistData.TimezoneID,
                 CognitoId = id,
                 Role = UserRole.Therapist,
                 Created = DateTime.UtcNow,
