@@ -10,7 +10,6 @@
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-    <PackageReference Include="HtmlSanitizer" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" />
