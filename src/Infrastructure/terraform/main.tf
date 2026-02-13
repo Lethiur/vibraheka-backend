@@ -35,6 +35,8 @@ module "Lambda" {
   dynamodb_codes_table_arn = module.Dev.dynamodb_table_codes_arn
   dynamodb_codes_table_name = module.Dev.dynamodb_table_codes_name
   ssm_read_parameters_policy_arn = module.Config.ssm_read_vh_parameters_policy_arn
+  stripe_event_bus_arn =  var.stripe_event_bus_arn
+  stripe_secret_key = var.stripe_api_key
 }
 
 

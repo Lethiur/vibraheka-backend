@@ -24,6 +24,12 @@ module "SendEmailLambda" {
   ssm_read_parameter_policy_arn =  var.ssm_read_parameters_policy_arn
 }
 
+module "Payments" {
+  source = "./Payments/terraform"
+  stripe_secret_key = var.stripe_secret_key
+  stripe_event_bus_arn = var.stripe_event_bus_arn
+}
+
 output "lambda_save_verification_code_arn" {
   value = module.CreateChallengeLambda.lambda_save_verification_code_arn
 }

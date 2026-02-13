@@ -26,5 +26,11 @@ variable "dynamodb_codes_table_arn" {}
 
 variable "dynamodb_codes_table_name" {}
 
+variable "stripe_secret_key" {
+}
+
+
+variable "stripe_event_bus_arn" {}
+
 
 
