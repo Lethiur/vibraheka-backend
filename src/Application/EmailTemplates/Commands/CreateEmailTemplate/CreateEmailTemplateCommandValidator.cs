@@ -1,5 +1,4 @@
-﻿using VibraHeka.Application.Common.Extensions.Validation;
-using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
+﻿using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 

@@ -56,8 +56,7 @@ public class CreateTherapistCommandHandlerTests
                 u.Email == command.TherapistData.Email && 
                 u.FirstName == command.TherapistData.FirstName && 
                 u.Role == UserRole.Therapist &&
-                u.Id == cognitoId &&
-                u.CognitoId == cognitoId)))
+                u.Id == cognitoId )))
             .ReturnsAsync(Result.Success(cognitoId));
 
         // When: Handling the command

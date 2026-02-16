@@ -1,5 +1,4 @@
 ﻿using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Extensions.Validation;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 

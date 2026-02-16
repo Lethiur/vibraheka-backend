@@ -11,7 +11,7 @@ public class UserDBModel : BaseAuditableDBModel
     [DynamoDBHashKey]
     public string Id { get; set; } = string.Empty;
     [DynamoDBProperty]
-    public string CognitoId { get; set; } = string.Empty; // Sub de Cognito
+    public string CustomerID { get; set; } = string.Empty; // Sub de Cognito
     [DynamoDBGlobalSecondaryIndexHashKey("EmailIndex")]
     public string Email { get; set; } = string.Empty;
     
@@ -47,7 +47,7 @@ public class UserDBModel : BaseAuditableDBModel
         Id = userEntity.Id,
         Email = userEntity.Email,
         Role = userEntity.Role,
-        CognitoId = userEntity.CognitoId,
+        CustomerID = userEntity.CustomerID,
         FirstName = userEntity.FirstName,
         MiddleName = userEntity.MiddleName,
         ProfilePictureUrl = userEntity.ProfilePictureUrl,
@@ -67,7 +67,7 @@ public class UserDBModel : BaseAuditableDBModel
         Email = this.Email,
         Role = this.Role,
         ProfilePictureUrl = this.ProfilePictureUrl,
-        CognitoId = this.CognitoId,
+        CustomerID = this.CustomerID,
         FirstName = this.FirstName,
         MiddleName = this.MiddleName,
         LastName = this.LastName,

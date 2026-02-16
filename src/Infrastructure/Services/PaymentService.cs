@@ -1,64 +1,80 @@
-﻿using Stripe;
-using Stripe.BillingPortal;
+﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
+using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class PaymentService(StripeConfig stripeConfig) : IPaymentService
+/// <summary>
+/// Provides services for managing payments and subscriptions using Stripe integration.
+/// </summary>
+public class PaymentService(IPaymentRepository PaymentRepository, ISubscriptionRepository subscriptionRepository, IUserRepository UserRepository) : IPaymentService
 {
-    public async Task<string> RegisterOrder(UserEntity payer, OrderEntity orderEntity)
+    /// <summary>
+    /// Registers a subscription for a specific user, initiating the payment process and associating the subscription details.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user for whom the subscription is being registered.</param>
+    /// <param name="subscription">The subscription entity containing details about the subscription to be registered.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation if needed.</param>
+    /// <returns>A result containing the subscription ID if successful, or an error message in case of failure.</returns>
+    public Task<Result<string>> RegisterSubscriptionAsync(string userID, SubscriptionEntity subscription,
+        CancellationToken cancellationToken)
     {
-        StripeConfiguration.ApiKey = stripeConfig.SecretKey;
-        
-        CustomerService customerService = new();
-        Customer customer = await customerService.CreateAsync(new CustomerCreateOptions()
-        {
-            Email = payer.Email,
-            Metadata = new Dictionary<string, string>
+        return GetByIdAsync(userID, cancellationToken)
+            .BindTry(async user =>
             {
-                { "userId", payer.Id }
-            }
-        });
-
-        Stripe.Checkout.SessionCreateOptions options = new Stripe.Checkout.SessionCreateOptions()
-        {
-            Mode = "subscription",
-            Customer = customer.Id,
-            PaymentMethodTypes = ["card", "paypal", "revolut_pay"],
-            LineItems =
-            [
-                new() { Price = orderEntity.ItemID, Quantity = orderEntity.Quantity }
-            ],
-            SuccessUrl = "https://example.com/success",
-            CancelUrl = "https://example.com/cancel",
-            ClientReferenceId = Guid.NewGuid().ToString()
-        };
-        
-        Stripe.Checkout.SessionService sessionService = new Stripe.Checkout.SessionService();
-        Stripe.Checkout.Session? session = await sessionService.CreateAsync(options);
-
-        return session.Url;
+                if (string.IsNullOrEmpty(user.CustomerID))
+                {
+                    return await PaymentRepository.RegisterCustomerAsync(user, cancellationToken).BindTry(customrID =>
+                    {
+                        user.CustomerID = customrID;
+                        return UserRepository.AddAsync(user);
+                    }).Map(_ => user);
+                }
+                return user;
+            })
+            .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, subscription, cancellationToken))
+            .BindTry(tuple =>
+            {
+                subscription.ExternalSubscriptionID = tuple.externalSubID;
+                return subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken).Map(_ => tuple.url);
+            });
     }
 
-    public async Task<string> CreateUrlForPaymentDetail(UserEntity payer)
+    /// <summary>
+    /// Retrieves the URL for accessing the subscription details page associated with a specific user.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription details URL is to be retrieved.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation if required.</param>
+    /// <returns>A result containing the subscription details URL if successful, or an error message if the operation fails.</returns>
+    public Task<Result<string>> GetSubscriptionDetailsUrlAsync(string userID, CancellationToken cancellationToken)
     {
-        StripeConfiguration.ApiKey = stripeConfig.SecretKey;
-        ;
-        CustomerService customerService = new();
-        Customer customer = await customerService.CreateAsync(new CustomerCreateOptions()
-        {
-            Email = payer.Email,
-            Metadata = new Dictionary<string, string>
-            {
-                { "userId", payer.Id }
-            }
-        });
-        SessionCreateOptions options = new SessionCreateOptions() { Customer = customer.Id};
-        SessionService sessionService = new SessionService();
-        Session? session = await sessionService.CreateAsync(options);
+        return GetByIdAsync(userID, cancellationToken)
+            .BindTry(userEntity => PaymentRepository.GetSubscriptionPanelUrlAsync(userEntity, cancellationToken));
+    }
 
-        return session.Url;
+    /// <summary>
+    /// Retrieves a user entity by its unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to retrieve.</param>
+    /// <param name="cancellationToken">The token used to signal cancellation of the operation.</param>
+    /// <returns>A result containing the user entity if found, or an error indicating that the user ID is invalid.</returns>
+    public Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
+    {
+        return Maybe.From(id)
+            .ToResult(UserErrors.InvalidUserID)
+            .Ensure(userID => !string.IsNullOrWhiteSpace(userID), UserErrors.InvalidUserID)
+            .BindTry(userID => UserRepository.GetByIdAsync(userID, cancellationToken))
+            .MapError(error =>
+            {
+                return error switch
+                {
+                    InfrastructureUserErrors.UserNotFound => UserErrors.UserNotFound,
+                    _ => AppErrors.UnknownError
+                };
+            });
     }
 }

@@ -48,7 +48,6 @@ public class RegisterUserCommandHandlerTest
 
         _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == cognitoId &&
-            u.CognitoId == cognitoId &&
             u.Email == command.Email &&
             u.FirstName == command.FullName)), Times.Once);
     }

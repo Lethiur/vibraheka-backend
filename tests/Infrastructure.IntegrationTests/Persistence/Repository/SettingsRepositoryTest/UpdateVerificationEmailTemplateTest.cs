@@ -4,7 +4,6 @@ using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using Bogus;
 using CSharpFunctionalExtensions;
-using DotEnv.Core;
 using MediatR;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -12,23 +11,17 @@ using VibraHeka.Infrastructure.Persistence.Repository;
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SettingsRepositoryTest;
 
 [TestFixture]
-public class UpdateVerificationEmailTemplateTest
+public class UpdateVerificationEmailTemplateTest : TestBase
 {
     private ISettingsRepository _repository;
     private IAmazonSimpleSystemsManagement _ssmClient;
-    private Faker _faker;
     private const string ParameterName = "/VibraHeka/VerificationEmailTemplate";
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void OneTimeSetup()
     {
-        new EnvLoader().Load();
-        
-        AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new AmazonSimpleSystemsManagementConfig() { Profile = new Profile("Twingers") };
-
-        // Usamos un Profile para asegurar que se conecta a la cuenta de sandbox/test
-       
-        
+        base.OneTimeSetUp();
+        AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new AmazonSimpleSystemsManagementConfig() { Profile = new Profile(_configuration.Profile) };
         _ssmClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
         _repository = new SettingsRepository(_ssmClient);
         _faker = new Faker();

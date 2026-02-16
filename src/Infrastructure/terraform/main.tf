@@ -37,9 +37,15 @@ module "Lambda" {
   ssm_read_parameters_policy_arn = module.Config.ssm_read_vh_parameters_policy_arn
   stripe_event_bus_arn =  var.stripe_event_bus_arn
   stripe_secret_key = var.stripe_api_key
+  dynamodb_subscription_table = module.Subscriptions.dynamodb_subscription_table_name
+  dynamodb_subscription_table_arn = module.Subscriptions.dynamodb_subscription_table_arn
 }
 
 
 module "ActionLog" {
   source = "./ActionLog"
+}
+
+module "Subscriptions" {
+  source = "./Subscriptions"
 }

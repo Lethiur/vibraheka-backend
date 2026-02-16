@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;

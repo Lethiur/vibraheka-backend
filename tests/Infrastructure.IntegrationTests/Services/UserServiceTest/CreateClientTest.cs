@@ -1,28 +1,39 @@
 ﻿using System.ComponentModel;
 using System.Data;
-using Microsoft.Extensions.Logging;
-using Moq;
+using Amazon.DynamoDBv2.DataModel;
+using Microsoft.Extensions.Logging.Abstractions;
 using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
-public class CreateClientTest
+public class CreateClientTest : TestBase
 {
-   private AWSConfig _configMock;
-    private Mock<ILogger<UserService>> _loggerMock;
-    private Mock<IUserRepository> _userRepositoryMock;
+    private NullLogger<UserService> _loggerMock;
+    private IUserRepository _userRepositoryMock;
+    private IDynamoDBContext _context;
+
+
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+        base.OneTimeSetUp();
+        _context = CreateDynamoDBContext();
+        _userRepositoryMock = new UserRepository(_context, _configuration);
+        _loggerMock = new NullLogger<UserService>();
+        _userRepositoryMock = new UserRepository(CreateDynamoDBContext(), _configuration);
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+        _context?.Dispose();
+    }
 
     [SetUp]
     public void SetUp()
     {
-        _configMock = new AWSConfig()
-        {
-            Location = "eu-west-1"
-        };
-        _loggerMock = new Mock<ILogger<UserService>>();
-        _userRepositoryMock = new Mock<IUserRepository>();
     }
 
     [Test]
@@ -30,7 +41,8 @@ public class CreateClientTest
     public void ShouldThrowDataExceptionWhenProfileIsMissing()
     {
         // When/Then: Instantiating the service should trigger CreateClient and throw
-        DataException? ex = Assert.Throws<DataException>(() => new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object));
+        DataException? ex =
+            Assert.Throws<DataException>(() => new UserService(_configuration, _loggerMock, _userRepositoryMock));
         Assert.That(ex.Message, Is.EqualTo("AWS profile is required"));
     }
 
@@ -39,26 +51,26 @@ public class CreateClientTest
     public void ShouldThrowDataExceptionWhenProfileNotFoundInSystem()
     {
         // Given: A profile name that definitely doesn't exist on the machine
-        _configMock.Profile =$"non-existent-profile-{Guid.NewGuid()}";
+        _configuration.Profile = $"non-existent-profile-{Guid.NewGuid()}";
 
         // When/Then: It should fail because CredentialProfileStoreChain won't find it
-        DataException? ex = Assert.Throws<DataException>(() =>
-        {
-            UserService userService = new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object);
-        });
+
+        DataException? ex =
+            Assert.Throws<DataException>(() => new UserService(_configuration, _loggerMock, _userRepositoryMock));
+
         Assert.That(ex.Message, Is.EqualTo("AWS profile is required"));
     }
 
     [Test]
     [DisplayName("Should initialize successfully when a valid local profile is provided")]
-    [NUnit.Framework.Category("LocalOnly")] 
+    [NUnit.Framework.Category("LocalOnly")]
     public void ShouldInitializeSuccessfullyWithValidProfile()
     {
         // Given: A valid profile name (ajusta "default" a uno que tengas o usa uno de pruebas)
-        _configMock.Profile = "Twingers";
-        
+        _configuration.Profile = "Twingers";
+
         // When: Creating the service
         // Then: Should not throw if the profile exists in ~/.aws/credentials
-        Assert.DoesNotThrow(() => new UserService(_configMock, _loggerMock.Object, _userRepositoryMock.Object));
+        Assert.DoesNotThrow(() => new UserService(_configuration, _loggerMock, _userRepositoryMock));
     }
 }

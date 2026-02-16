@@ -15,6 +15,11 @@
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.stripe_lambda_dynamodb_policy.arn
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
@@ -32,6 +37,7 @@ resource "aws_lambda_function" "stripe_lambda" {
   environment {
     variables = {
       STRIPE_SECRET_KEY     = var.stripe_secret_key
+      DYNAMO_TABLE_NAME = var.subscription_db_table_name
     }
   }
 

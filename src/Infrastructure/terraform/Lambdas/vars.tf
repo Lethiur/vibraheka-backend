@@ -26,8 +26,13 @@ variable "dynamodb_codes_table_arn" {}
 
 variable "dynamodb_codes_table_name" {}
 
+variable "dynamodb_subscription_table" {}
+
+variable "dynamodb_subscription_table_arn" {}
+
 variable "stripe_secret_key" {
 }
+
 
 
 variable "stripe_event_bus_arn" {}

@@ -47,7 +47,6 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
                 Id =realCognitoId,
                 Email = request.Email,
                 FirstName = request.FullName,
-                CognitoId = realCognitoId,
                 Created = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
                 TimezoneID = request.TimeZoneID

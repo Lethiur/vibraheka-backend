@@ -13,7 +13,10 @@
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.SimpleSystemsManagement" />
-        <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="coverlet.collector">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="CSharpFunctionalExtensions" />
         <PackageReference Include="MediatR" />
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
@@ -21,6 +24,7 @@
         <PackageReference Include="NUnit"/>
         <PackageReference Include="NUnit.Analyzers"/>
         <PackageReference Include="NUnit3TestAdapter"/>
+        <PackageReference Include="Riok.Mapperly" />
     </ItemGroup>
 
     <ItemGroup>

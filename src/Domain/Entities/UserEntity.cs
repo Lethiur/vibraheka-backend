@@ -3,7 +3,7 @@
 public class UserEntity : BaseAuditableEntity
 {
     public string Id { get; set; } = string.Empty;
-    public string CognitoId { get; set; } = string.Empty; 
+    public string CustomerID { get; set; } = string.Empty; 
     public string Email { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     
@@ -26,11 +26,11 @@ public class UserEntity : BaseAuditableEntity
         
     }
     
-    public UserEntity(string id, string email, string personFirstName, string cognitoId = "")
+    public UserEntity(string id, string email, string personFirstName, string customerId = "")
     {
         Id = id;
         Email = email;
         FirstName = personFirstName;
-        CognitoId = cognitoId;
+        CustomerID = customerId;
     }
 }

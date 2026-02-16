@@ -42,7 +42,6 @@ public class CreateTherapistCommandHandler(
                 ProfilePictureUrl = request.TherapistData.ProfilePictureUrl,
                 Id = id,
                 TimezoneID = request.TherapistData.TimezoneID,
-                CognitoId = id,
                 Role = UserRole.Therapist,
                 Created = DateTime.UtcNow,
                 CreatedBy = CurrentUserService.UserId,

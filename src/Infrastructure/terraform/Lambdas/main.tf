@@ -28,6 +28,8 @@ module "Payments" {
   source = "./Payments/terraform"
   stripe_secret_key = var.stripe_secret_key
   stripe_event_bus_arn = var.stripe_event_bus_arn
+  subscription_db_table_name =  var.dynamodb_subscription_table
+  dynamodb_table_arn = var.dynamodb_subscription_table_arn
 }
 
 output "lambda_save_verification_code_arn" {

@@ -1,5 +1,5 @@
 {
-  "x-generator": "NSwag v14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
   "openapi": "3.0.0",
   "info": {
     "title": "VibraHeka API",
@@ -529,6 +529,65 @@
         }
       }
     },
+    "/api/v1/subscriptions": {
+      "put": {
+        "tags": [
+          "Subscription"
+        ],
+        "operationId": "Subscription_Subscribe",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Subscription"
+        ],
+        "operationId": "Subscription_GetSubscriptionDetails",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Subscription"
+        ],
+        "operationId": "Subscription_UpdateSubscription",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/{id}": {
       "get": {
         "tags": [
@@ -796,7 +855,7 @@
               "id": {
                 "type": "string"
               },
-              "cognitoId": {
+              "customerID": {
                 "type": "string"
               },
               "email": {

@@ -1,6 +1,8 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
+using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
 
@@ -42,7 +44,43 @@ public abstract class GenericDynamoRepository<T>(IDynamoDBContext context, strin
         try
         {
             T? model = await context.LoadAsync<T>(idValue, rangeKeyValue, configuration, cancellationToken);
-            return model;
+            return Maybe.From(model)
+                .ToResult(GenericPersistenceErrors.NoRecordsFound);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<T>(HandleError(e));
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a single entity of type T from the DynamoDB table using a specified index name and index value.
+    /// </summary>
+    /// <param name="indexName">The name of the index used to query the table.</param>
+    /// <param name="indexValue">The value of the index key to be used for the query.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
+    /// or an error result if no records are found or an error occurs during the operation.
+    /// </returns>
+    protected async Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+        CancellationToken cancellationToken)
+    {
+        QueryConfig queryConfig = new()
+        {
+            IndexName = indexName,
+            OverrideTableName = tableConfigKey
+        };
+
+        try
+        {
+            IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
+            List<T>? models = await search.GetRemainingAsync(cancellationToken);
+
+            return Maybe.From(models)
+                .ToResult(GenericPersistenceErrors.NoRecordsFound)
+                .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound)
+                .Map(list => list[0]);
         }
         catch (Exception e)
         {

@@ -5,14 +5,18 @@
         <AssemblyName>VibraHeka.Infrastructure.IntegrationTests</AssemblyName>
     </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\src\Web\appsettings.Test.json"
+          Link="appsettings.Test.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  
     <ItemGroup>
         <PackageReference Include="Bogus" />
         <PackageReference Include="CSharpFunctionalExtensions" />
-        <PackageReference Include="DotEnv.Core" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="Moq" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />
         <PackageReference Include="NUnit.Analyzers">

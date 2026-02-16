@@ -49,7 +49,6 @@ public class CreateTherapistCommandHandlerTest
         Assert.That(result.Value, Is.EqualTo("new-user-id"));
         _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == "new-user-id" &&
-            u.CognitoId == "new-user-id" &&
             u.Email == command.TherapistData.Email &&
             u.FirstName == command.TherapistData.FirstName &&
             u.Role == UserRole.Therapist &&

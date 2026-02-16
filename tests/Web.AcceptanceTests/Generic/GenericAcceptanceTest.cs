@@ -177,7 +177,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         UserEntity adminUserEntity = new()
         {
             Id = ID,
-            CognitoId = userId,
             Email = email,
             FirstName = username,
             Role = UserRole.Admin,
