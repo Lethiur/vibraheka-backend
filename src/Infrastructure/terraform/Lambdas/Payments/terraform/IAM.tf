@@ -35,7 +35,7 @@ resource "aws_iam_policy" "stripe_lambda_dynamodb_policy" {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem"
         ],
-        Resource = var.dynamodb_table_arn
+        Resource = ["${var.dynamodb_table_arn}/*", var.dynamodb_table_arn]
       }
     ]
   })
