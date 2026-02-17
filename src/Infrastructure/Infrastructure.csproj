@@ -26,4 +26,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="terraform\Lambdas\Payments\src\Application\" />
+  </ItemGroup>
 </Project>

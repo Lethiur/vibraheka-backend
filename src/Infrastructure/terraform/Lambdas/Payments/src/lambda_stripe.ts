@@ -1,11 +1,8 @@
 ﻿import {EventBridgeEvent, Context} from 'aws-lambda';
 import Stripe from 'stripe';
-import DynamoDBClient from "./Utils/DynamoDBClient";
-import SubscriptionEntity from "./Entities/SubscriptionEntity";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2026-01-28.clover'
-});
+import {UseCase as SuccessfulPaymentUseCase} from "@Domain/Composition/ProcessSuccessfullPaymentComposition";
+import {SubscriptionErrors} from "@Domain/Errors/SubscriptionErrors";
+import {Result} from "neverthrow";
 
 interface StripeEventDetail {
     type: string;
@@ -14,11 +11,7 @@ interface StripeEventDetail {
 
 // Lambda handler
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
-
-    const dynamoDBClient: DynamoDBClient<SubscriptionEntity> = new DynamoDBClient<SubscriptionEntity>(process.env.DYNAMO_TABLE_NAME!);
-
-    console.log('Received EventBridge event:', JSON.stringify(event, null, 2));
-
+    
     const eventType = event.detail.type;
     const eventData = event.detail.data.object;
 
@@ -26,55 +19,21 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
         switch (eventType) {
             case 'checkout.session.completed':
                 const session = eventData as Stripe.Checkout.Session;
-                break;
-
-            case 'invoice.paid':
-                const invoicePaid = eventData as Stripe.Invoice;
-                const remaining = invoicePaid.amount_paid - invoicePaid.total
-                if (remaining == 0) {
-                    
-                }
-
-                if (typeof invoicePaid.customer === 'string') {
-                    const customerID: string = invoicePaid.customer as string;
-                    console.log('Processing paid invoice for customer:', customerID);
-                    
-                    const entity: SubscriptionEntity[] = await dynamoDBClient.queryIndexWithoutFilter('ExternalCustomer-Index', `ExternalCustomerID = :customerID`, {":customerID": customerID});
-
-                    if (entity.length > 0) {
-                        const subscriptionEntity: SubscriptionEntity = entity[0];
-                        if (subscriptionEntity.Status == "Active") {
-                            let date: Date = new Date(subscriptionEntity.EndDate);
-                            date.setMonth(date.getMonth() + 1);
-                            subscriptionEntity.EndDate = date;
-                        } else {
-                            subscriptionEntity.SubscriptionStatus = "Active";
-                            subscriptionEntity.Status = "InvoicePayed";
-                            let date: Date = new Date(subscriptionEntity.StartDate);
-                            date.setMonth(date.getMonth() + 1);
-                            subscriptionEntity.EndDate = date;
-                        }
-                        console.log("Updating subscription entity: ", subscriptionEntity)
-                        await dynamoDBClient.putItem(subscriptionEntity);
-                    } else {
-                        console.log("No subscription found for customer: ", customerID);
-                    }
-                }
                 
-                console.log('Invoice paid:', invoicePaid);
-                // TODO: marcar renovación como exitosa en tu DB
                 break;
-
+            case 'invoice.paid':
+                const invoicePaid : Stripe.Invoice = eventData as Stripe.Invoice;
+                const result : Result<void, SubscriptionErrors> = await SuccessfulPaymentUseCase.Execute(invoicePaid);
+                if (result.isErr()) {
+                    console.log(`Error while processing payment: ${result.error}`)
+                }
+                break;
             case 'invoice.payment_failed':
                 console.log('Invoice payment failed:', eventData);
-                // TODO: notificar fallo y actualizar estado en tu DB
                 break;
-
             case 'customer.subscription.deleted':
                 console.log('Subscription deleted:', eventData);
-                // TODO: marcar suscripción como cancelada en tu DB
                 break;
-
             default:
                 console.log('Evento no manejado:', eventType);
         }

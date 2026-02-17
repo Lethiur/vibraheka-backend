@@ -16,6 +16,7 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository,
         {
              SubscriptionID = Guid.NewGuid().ToString(),
              StartDate = DateTime.UtcNow,
+             EndDate = DateTime.UtcNow,
              ExternalCustomerID = user.CustomerID,
              UserID = user.Id,
              ExternalSubscriptionItemID = config.SubscriptionID,

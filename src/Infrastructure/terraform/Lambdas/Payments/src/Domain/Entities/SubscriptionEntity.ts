@@ -1,8 +1,8 @@
 export default interface SubscriptionEntity {
     SubscriptionID : string;
     UserID: string;
-    StartDate: Date;
-    EndDate: Date;
+    StartDate: string;
+    EndDate: string;
     ExternalSubscriptionID: string;
     ExternalSubscriptionItemID: string;
     ExternalCustomerID: string;
