@@ -68,7 +68,7 @@ public class AddAttachmentCommandHandlerTest
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
+        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Success(templateEntity));
         _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, attachmentName, NoCancellation))
             .ReturnsAsync(Success(attachmentUrl));
@@ -102,7 +102,7 @@ public class AddAttachmentCommandHandlerTest
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None ))
             .ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
+        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));
 
         // When: handling the add-attachment command.
@@ -127,7 +127,7 @@ public class AddAttachmentCommandHandlerTest
         EmailEntity templateEntity = CreateTemplateEntity();
         AddAttachmentCommand command = CreateCommand(fileStream);
 
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
+        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Success(templateEntity));
         _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, DefaultAttachmentName, NoCancellation))
             .ReturnsAsync(Failure<string>(errorMessage));
@@ -157,7 +157,7 @@ public class AddAttachmentCommandHandlerTest
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId))
+        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Success(templateEntity));
         _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, DefaultAttachmentName, NoCancellation))
             .ReturnsAsync(Success(DefaultAttachmentUrl));

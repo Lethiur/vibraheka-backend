@@ -7,7 +7,7 @@ using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.UpdateTemplateContentTest;
 
 [TestFixture]
 public class UpdateTemplateContentCommandHandlerTest
@@ -33,7 +33,7 @@ public class UpdateTemplateContentCommandHandlerTest
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock
@@ -55,7 +55,7 @@ public class UpdateTemplateContentCommandHandlerTest
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>("ET-002"));
 
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
@@ -74,7 +74,7 @@ public class UpdateTemplateContentCommandHandlerTest
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock

@@ -10,25 +10,9 @@ using VibraHeka.Infrastructure.Services;
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServiceTest;
 
 [TestFixture]
-public class GetTemplateByIDAsyncTest : TestBase
+public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
 {
-    private EmailTemplateService _service;
-    private EmailTemplateRepository _repository;
-    private IDynamoDBContext _context;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _context = CreateDynamoDBContext();
-        _repository = new EmailTemplateRepository(_context, _configuration);
-        _service = new EmailTemplateService(_repository);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _context?.Dispose();
-    }
+   
 
     [Test]
     [DisplayName("Should retrieve email template from DynamoDB when valid ID is provided")]
@@ -45,7 +29,7 @@ public class GetTemplateByIDAsyncTest : TestBase
             new SaveConfig() { OverrideTableName = _configuration.EmailTemplatesTable });
 
         // When: Retrieving the template through the service
-        Result<EmailEntity> result = await _service.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
 
         // Then: The operation should be successful and match the saved data
         Assert.That(result.IsSuccess, Is.True);
@@ -61,7 +45,7 @@ public class GetTemplateByIDAsyncTest : TestBase
         string nonExistentId = "non-existent-id-123";
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(nonExistentId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(nonExistentId, CancellationToken.None);
 
         // Then: Should return success with null or failure depending on repository implementation
         // Basándonos en GenericDynamoRepository, si LoadAsync devuelve null, suele devolverse success(null)
@@ -77,7 +61,7 @@ public class GetTemplateByIDAsyncTest : TestBase
         const string invalidId = "   ";
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId, CancellationToken.None);
 
         // Then: The service validation should catch it before repository
         Assert.That(result.IsFailure, Is.True);

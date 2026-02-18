@@ -28,16 +28,16 @@ public class GetTemplateByIDTest
         const string templateId = "welcome-email";
         EmailEntity template = new EmailEntity { ID = templateId, Path = "Welcome!" };
 
-        _repositoryMock.Setup(x => x.GetTemplateByID(templateId))
+        _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(template));
 
         // When: Getting the template by ID
-        Result<EmailEntity> result = await _service.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
 
         // Then: Should return success with the template
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(template));
-        _repositoryMock.Verify(x => x.GetTemplateByID(templateId), Times.Once);
+        _repositoryMock.Verify(x => x.GetTemplateByID(templateId, CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -50,12 +50,12 @@ public class GetTemplateByIDTest
         // Given: An invalid template ID
 
         // When: Getting the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId, CancellationToken.None);
 
         // Then: Should fail with InvalidTemplateID error without calling the repository
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
-        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None), Times.Never);
     }
 
     [Test]
@@ -66,11 +66,11 @@ public class GetTemplateByIDTest
         const string templateId = "non-existent";
         const string repoError = "Template not found in DB";
 
-        _repositoryMock.Setup(x => x.GetTemplateByID(templateId))
+        _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>(repoError));
 
         // When: Getting the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
 
         // Then: Should propagate the failure from the repository
         Assert.That(result.IsFailure, Is.True);

@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using Stripe.Checkout;
 using Stripe.Tax;
 using VibraHeka.Application.Common.Exceptions;
@@ -31,7 +32,7 @@ public class RegisterOrderTest : TestBase
         base.OneTimeSetUp();
         _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
         _paymentRepository = new PaymentsRepository(_stripeConfig);
-        _subscriptionRepository = new SubscriptionRepository( _configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper());
+        _subscriptionRepository = new SubscriptionRepository( _configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper(), LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionRepository>());
         _paymentService = new PaymentService(_paymentRepository, _subscriptionRepository, _userRepository);
     }
     
