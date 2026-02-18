@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using VibraHeka.Application;
 using VibraHeka.Infrastructure;
 using VibraHeka.Web.Middleware;
@@ -16,7 +17,6 @@ public class VibraHekaProgram
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         DefaultInboundClaimTypeMap.Clear();
-
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend",
@@ -37,7 +37,6 @@ public class VibraHekaProgram
             options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
         });;
         builder.Services.AddEndpointsApiExplorer();
-
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -75,15 +74,19 @@ public class VibraHekaProgram
                     }
                 };
             });
+        
         builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
+        builder.Host.UseSerilog();
         WebApplication app = builder.Build();
-        app.UseCors("AllowFrontend");
-
-// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
+        app.UseXRay("VibraHeka", builder.Configuration);
+        
+        app.UseMiddleware<TracingMiddleware>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseCors("AllowFrontend");
+        app.UseHsts();
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+        // app.UseRouting();
         app.MapControllers();
 
         app.UseSwaggerUi(settings =>

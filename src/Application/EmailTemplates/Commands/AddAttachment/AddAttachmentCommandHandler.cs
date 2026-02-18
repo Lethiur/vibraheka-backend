@@ -24,7 +24,7 @@ public class AddAttachmentCommandHandler(
 {
     public Task<Result<string>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
     {
-        return templatesService.GetTemplateByID(request.TemplateId)
+        return templatesService.GetTemplateByID(request.TemplateId, cancellationToken)
             .Bind(templateEntity => emailTemplateStorageService.AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
                 .Tap(url => templateEntity.Attachments.Add(url))
                 .Map(_ => templateEntity)

@@ -11,6 +11,7 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TracingBehaviour<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AdminAuthorizationBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         

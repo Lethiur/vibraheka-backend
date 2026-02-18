@@ -28,10 +28,19 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Riok.Mapperly" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Enrichers.Environment" />
+    <PackageReference Include="Serilog.Sinks.AwsCloudWatch" />
+    <PackageReference Include="Serilog.Sinks.Console" />
   </ItemGroup>
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\api\specification.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logging\" />
   </ItemGroup>
 
   <!-- Auto-generated Open API specification and Angular TypeScript clients -->

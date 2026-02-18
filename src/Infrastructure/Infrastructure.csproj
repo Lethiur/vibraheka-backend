@@ -7,9 +7,15 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" />
+    <PackageReference Include="AWS.Logger.AspNetCore" />
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" />
+    <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="AWSSDK.DynamoDBv2" />
     <PackageReference Include="AWSSDK.S3" />
+    <PackageReference Include="AWSXRayRecorder.Core" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.System.Net" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
@@ -20,6 +26,12 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
     <PackageReference Include="Riok.Mapperly" />
+    <PackageReference Include="scott.munro.AWSXRayRecorder.Core" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Enrichers.Environment" />
+    <PackageReference Include="Serilog.Sinks.AwsCloudWatch" />
+    <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Stripe.net" />
   </ItemGroup>
 

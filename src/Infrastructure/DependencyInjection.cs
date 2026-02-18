@@ -1,11 +1,22 @@
-﻿using Amazon.DynamoDBv2;
+﻿using Amazon;
+using Amazon.CloudWatchLogs;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 using Amazon.SimpleSystemsManagement;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.AwsCloudWatch;
 using Stripe;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Codes;
@@ -21,6 +32,8 @@ using VibraHeka.Infrastructure.Persistence;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Persistence.S3;
 using VibraHeka.Infrastructure.Services;
+using VibraHeka.Infrastructure.Tracer;
+using VibraHeka.Web.Logging;
 using SubscriptionService = VibraHeka.Infrastructure.Services.SubscriptionService;
 
 
@@ -30,6 +43,9 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
+        
+             
+           
         builder.Services.AddOptions<AWSConfig>().Bind(builder.Configuration.GetSection("AWS"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -39,7 +55,41 @@ public static class DependencyInjection
             .Bind(builder.Configuration.GetSection("Stripe"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+      
+        builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
+        builder.Services.AddAWSService<IAmazonDynamoDB>();
+        builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
+        builder.Services.AddAWSService<IAmazonS3>();
+        builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
+        AWSSDKHandler.RegisterXRayForAllServices();
+
+
+
+        CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
+        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials("Twingers", out AWSCredentials credentials);
+        var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            // Filtramos para que Microsoft no ensucie tanto (opcional)
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) 
+            .Enrich.FromLogContext()
+            // Aquí ocurre la magia: inyectamos el TraceId de X-Ray manualmente en cada log
+            .Enrich.With<XRayEnricher>()
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .WriteTo.AmazonCloudWatch( new CloudWatchSinkOptions()
+            {
+                LogGroupName = "/my-app/logs",
+                BatchSizeLimit = 100,
+                CreateLogGroup = true,
+                Period = TimeSpan.FromSeconds(1),
+                TextFormatter = new RenderedCompactJsonFormatter()
+            }, cloudWatchClient
+            )
+            .CreateLogger();
         
+        
+        
+        builder.Services.AddSingleton<ITracer, XRayTracer>();
         builder.Services.AddSingleton(sp =>
             sp.GetRequiredService<
                 IOptions<StripeConfig>>().Value);
@@ -111,9 +161,6 @@ public static class DependencyInjection
         
         builder.Services.AddSingleton(TimeProvider.System);
         
-        builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
-        builder.Services.AddAWSService<IAmazonDynamoDB>();
-        builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
-        builder.Services.AddAWSService<IAmazonS3>();
+     
     }
 }

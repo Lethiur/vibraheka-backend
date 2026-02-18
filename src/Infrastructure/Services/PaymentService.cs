@@ -4,6 +4,7 @@ using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
@@ -11,7 +12,7 @@ namespace VibraHeka.Infrastructure.Services;
 /// <summary>
 /// Provides services for managing payments and subscriptions using Stripe integration.
 /// </summary>
-public class PaymentService(IPaymentRepository PaymentRepository, ISubscriptionRepository subscriptionRepository, IUserRepository UserRepository) : IPaymentService
+public class PaymentService(IPaymentRepository PaymentRepository, IUserRepository UserRepository) : IPaymentService
 {
     /// <summary>
     /// Registers a subscription for a specific user, initiating the payment process and associating the subscription details.
@@ -37,11 +38,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, ISubscriptionR
                 return user;
             })
             .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, subscription, cancellationToken))
-            .BindTry(tuple =>
-            {
-                subscription.ExternalSubscriptionID = tuple.externalSubID;
-                return subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken).Map(_ => tuple.url);
-            });
+            .MapError(error => SubscriptionErrors.ErrorWhileSubscribing);
     }
 
     /// <summary>

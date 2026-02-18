@@ -23,7 +23,7 @@ public class ChangeTemplateForActionCommandHandler(
             .ToResult(UserErrors.InvalidUserID)
             .Bind(async userID => await PrivilegeService.HasRoleAsync(userID, UserRole.Admin, cancellationToken))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized) // Ensuring the user has admin roles
-            .Bind(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID))
+            .Bind(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken))
             .Bind(async template =>
             {
                 switch (request.ActionType)

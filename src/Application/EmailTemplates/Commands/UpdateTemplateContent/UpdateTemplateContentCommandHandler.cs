@@ -18,7 +18,7 @@ public class UpdateTemplateContentCommandHandler(
 {
     public Task<Result<Unit>> Handle(UpdateTemplateContentCommand request, CancellationToken cancellationToken)
     {
-        return emailTemplatesService.GetTemplateByID(request.TemplateID)
+        return emailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken)
             .Bind(templateEntity => emailTemplateStorageService.SaveTemplate(templateEntity.ID, request.TemplateStream, cancellationToken))
             .Map(_ => Unit.Value);
     }

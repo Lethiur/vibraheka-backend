@@ -17,7 +17,7 @@ public interface IPaymentRepository
     /// <param name="orderEntity">The subscription entity representing the subscription order details.</param>
     /// <param name="cancellationToken">Token used to halt the operation before it finishes</param>
     /// <returns>A task that represents the asynchronous operation, containing the payment initiation response as a string.</returns>
-    Task<Result<(string url, string externalSubID)>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+    Task<Result<string>> InitiateSubscriptionPaymentAsync(UserEntity payer,
         SubscriptionEntity orderEntity, CancellationToken cancellationToken);
 
     /// <summary>

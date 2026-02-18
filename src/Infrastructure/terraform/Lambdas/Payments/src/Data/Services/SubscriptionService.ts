@@ -40,6 +40,7 @@ export default class SubscriptionService implements ISubscriptionService {
 
         if (invoice.lines.data.length > 0) {
             const priceID = this.GetPriceIDFromLine(invoice.lines.data[0]);
+            const subscriptionID = invoice.lines.data[0].subscription as  string;
             if (priceID.isErr()) {
                 return err(priceID.error)
             }
@@ -51,6 +52,7 @@ export default class SubscriptionService implements ISubscriptionService {
                     endDate.setMonth(endDate.getMonth() + 1);
                     subscriptionData.EndDate = endDate.toISOString();
                     subscriptionData.SubscriptionStatus = 'Active';
+                    subscriptionData.ExternalSubscriptionID = subscriptionID;
                     subscriptionData.Status = 'InvoicePayed';
                     console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionID} renewing for one month`);
                     return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));

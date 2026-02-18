@@ -1,5 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
@@ -17,13 +19,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Implements ISubscriptionRepository for domain-specific functionality and inherits
 /// from GenericDynamoRepository for common data access operations.
 /// </summary>
-public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, SubscriptionEntityMapper mapper) : GenericDynamoRepository<SubscriptionDBModel>(context, config.SubscriptionTable), ISubscriptionRepository
+public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, SubscriptionEntityMapper mapper, ILogger<SubscriptionRepository> logger) : GenericDynamoRepository<SubscriptionDBModel>(context, config.SubscriptionTable, logger), ISubscriptionRepository
 {
-    protected override string HandleError(Exception ex)
-    {
-        return ex.Message;
-    }
-
     /// <summary>
     /// Retrieves the order status for a specific user based on their user ID.
     /// </summary>
@@ -32,6 +29,7 @@ public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, 
     /// <returns>A <see cref="Task"/> representing the asynchronous operation, containing a <see cref="Result"/> object with the <see cref="SubscriptionStatus"/> of the user's order.</returns>
     public Task<Result<SubscriptionEntity>> GetSubscriptionDetailsForUser(string userId, CancellationToken cancellationToken)
     {
+        logger.LogInformation($"Retrieving subscription details for user {userId}");
         return FindOneByIndex(config.SubscriptionUserIdIndex, userId, cancellationToken)
             .MapError(error =>
             {
@@ -54,7 +52,14 @@ public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, 
     public Task<Result<SubscriptionEntity>> SaveSubscriptionAsync(SubscriptionEntity subscriptionEntity,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("Saving subscription details for user {}", subscriptionEntity.UserID);
         return Save(mapper.ToInternal(subscriptionEntity), cancellationToken)
             .Map(_ => subscriptionEntity);
+    }
+
+    public Task<Result<Unit>> DeleteSubscriptionForUser(SubscriptionEntity subscriptionEntity, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Deleting subscription details for user {}", subscriptionEntity.UserID);
+        return Delete(mapper.ToInternal(subscriptionEntity), cancellationToken);
     }
 }

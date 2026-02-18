@@ -1,6 +1,8 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -18,8 +20,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Implements the IEmailTemplatesRepository interface for application-specific email template operations.
 /// Inherits from GenericDynamoRepository for shared data access behaviors.
 /// </remarks>
-public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config)
-    : GenericDynamoRepository<EmailTemplateDBModel>(context, config.EmailTemplatesTable), 
+public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config, ILogger<EmailTemplateRepository> logger)
+    : GenericDynamoRepository<EmailTemplateDBModel>(context, config.EmailTemplatesTable, logger), 
         IEmailTemplatesRepository
 {
     /// <summary>
@@ -28,9 +30,9 @@ public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config)
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
     /// <returns>A <c>Task</c> representing the asynchronous operation. The task result contains a <c>Result</c> object which is successful if the template exists, returning the corresponding <c>EmailEntity</c>; otherwise, it contains an error.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <c>templateID</c> is null or empty.</exception>
-    public Task<Result<EmailEntity>> GetTemplateByID(string templateID)
+    public Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken token)
     {
-        return FindByID(templateID)
+        return FindByID(templateID, token)
             .Ensure(model => model != null, EmailTemplateErrors.TemplateNotFound)
             .Map(model => model.ToDomain());
     }
@@ -59,15 +61,5 @@ public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config)
         {
             return list.Select(model => model.ToDomain());
         });
-    }
-
-    /// <summary>
-    /// Handles errors encountered during the execution of repository operations by converting exceptions into error messages.
-    /// </summary>
-    /// <param name="ex">The exception thrown during the operation.</param>
-    /// <returns>A string representation of the error message derived from the exception.</returns>
-    protected override string HandleError(Exception ex)
-    {
-        return ex.Message;
     }
 }

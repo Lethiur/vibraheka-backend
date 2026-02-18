@@ -29,5 +29,13 @@ public interface ISubscriptionService
     /// <param name="cancellationToken">The token used to cancel the operation if needed.</param>
     /// <returns>A task that represents the operation, containing the subscription entity associated with the specified user.</returns>
     public Task<Result<SubscriptionEntity>> GetSubscriptionForUser(string userID, CancellationToken cancellationToken);
-    
+
+
+    /// <summary>
+    /// Deletes a subscription for the specified user.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription is to be deleted.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the operation, containing a result object encapsulating the subscription ID of the deleted subscription or an error message.</returns>
+    public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken);
 }

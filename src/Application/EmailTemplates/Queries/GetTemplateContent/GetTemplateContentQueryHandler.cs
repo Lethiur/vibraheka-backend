@@ -7,7 +7,7 @@ public class GetTemplateContentQueryHandler(IEmailTemplatesService templatesServ
 {
     public Task<Result<string>> Handle(GetEmailTemplateContentQuery request, CancellationToken cancellationToken)
     {
-        return Result.Success(request.TemplateID).Bind(templatesService.GetTemplateByID)
+        return Result.Success(request.TemplateID).Bind((templateID) => templatesService.GetTemplateByID(templateID, cancellationToken))
             .Bind(emailTemplate => templateStorageService.GetTemplateContent(emailTemplate.ID, cancellationToken));
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Subscriptions.Commands;
 using VibraHeka.Application.Subscriptions.Commands.CancelSubscription;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
+using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionPortalUrl;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Mappers;
 
@@ -28,6 +29,21 @@ public class SubscriptionController(
         if (result.IsFailure)
         {
             Logger.LogError("Subscription creation failed: {Error}", result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    [HttpGet("details")]
+    [Authorize]
+    public async Task<IActionResult> GetSubscriptionPortal()
+    {
+        GetSubscriptionPortalQuery query = new();
+        Result<string> result = await mediator.Send(query);
+        if (result.IsFailure)
+        {
+            Logger.LogError("Failed to retrieve subscription details: {Error}", result.Error);
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 

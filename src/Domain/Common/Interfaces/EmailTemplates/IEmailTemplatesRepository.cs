@@ -12,7 +12,7 @@ public interface IEmailTemplatesRepository
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result"/>
     /// object wrapping the <see cref="EmailEntity"/> if found, or an error if the operation fails.</returns>
-    Task<Result<EmailEntity>> GetTemplateByID(string templateID);
+    Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken token);
 
     /// <summary>
     /// Saves an email template to the repository.
