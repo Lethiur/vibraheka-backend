@@ -1,8 +1,11 @@
 ﻿import {EventBridgeEvent, Context} from 'aws-lambda';
 import Stripe from 'stripe';
 import {UseCase as SuccessfulPaymentUseCase} from "@Domain/Composition/ProcessSuccessfullPaymentComposition";
+
 import {SubscriptionErrors} from "@Domain/Errors/SubscriptionErrors";
 import {Result} from "neverthrow";
+import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
+import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
 
 interface StripeEventDetail {
     type: string;
@@ -11,7 +14,7 @@ interface StripeEventDetail {
 
 // Lambda handler
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
-    
+
     const eventType = event.detail.type;
     const eventData = event.detail.data.object;
 
@@ -19,21 +22,38 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
         switch (eventType) {
             case 'checkout.session.completed':
                 const session = eventData as Stripe.Checkout.Session;
-                
-                break;
-            case 'invoice.paid':
-                const invoicePaid : Stripe.Invoice = eventData as Stripe.Invoice;
-                const result : Result<void, SubscriptionErrors> = await SuccessfulPaymentUseCase.Execute(invoicePaid);
-                if (result.isErr()) {
-                    console.log(`Error while processing payment: ${result.error}`)
-                }
+
                 break;
             case 'invoice.payment_failed':
-                console.log('Invoice payment failed:', eventData);
+            case 'invoice.paid':
+                const invoicePaid: Stripe.Invoice = eventData as Stripe.Invoice;
+                const invoiceResult: Result<void, SubscriptionErrors> = await SuccessfulPaymentUseCase.Execute(invoicePaid);
+                if (invoiceResult.isErr()) {
+                    console.log(`Error while processing payment: ${invoiceResult.error}`)
+                }
+                else {
+                    console.log('Payment processed successfully')
+                }
                 break;
             case 'customer.subscription.deleted':
-                console.log('Subscription deleted:', eventData);
+                const subscriptionCancelled : Stripe.Subscription = eventData as Stripe.Subscription;
+                let cancellationResult: Result<void, SubscriptionErrors> =  await CancelSubscriptionUseCase.Execute(subscriptionCancelled);
+                if (cancellationResult.isErr()) {
+                    console.log(`Error while processing subscription cancellation: ${cancellationResult.error}`)
+                } else {
+                    console.log('Subscription cancelled successfully')
+                }
                 break;
+            case 'customer.subscription.updated':
+                const subscriptionUpdated : Stripe.Subscription = eventData as Stripe.Subscription;
+                const updateResult : Result<void, SubscriptionErrors> = await UpdateSubscriptionUseCase.Execute(subscriptionUpdated);
+                if (updateResult.isErr()) {
+                    console.log(`Error while processing subscription update: ${updateResult.error}`)
+                } else {
+                    console.log('Subscription updated successfully')
+                }
+                break;
+                
             default:
                 console.log('Evento no manejado:', eventType);
         }

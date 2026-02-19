@@ -1,33 +1,48 @@
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Build.Framework;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class SubscriptionService(ISubscriptionRepository subscriptionRepository, IPaymentRepository paymentRepository, StripeConfig config, ILogger<SubscriptionService> logger) : ISubscriptionService
+public class SubscriptionService(
+    ISubscriptionRepository subscriptionRepository,
+    IPaymentRepository paymentRepository,
+    StripeConfig config,
+    ILogger<SubscriptionService> logger) : ISubscriptionService
 {
     public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Creating subscription for user {user.Id}");
-        SubscriptionEntity subscription = new()
-        {
-             SubscriptionID = Guid.NewGuid().ToString(),
-             StartDate = DateTime.UtcNow,
-             EndDate = DateTime.UtcNow,
-             ExternalCustomerID = user.CustomerID,
-             UserID = user.Id,
-             ExternalSubscriptionItemID = config.SubscriptionID,
-             Created = DateTime.UtcNow,
-             CreatedBy = user.CreatedBy,
-        };
-        
-        return subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
+        return subscriptionRepository.GetSubscriptionDetailsForUser(user.Id, cancellationToken)
+            .BindTryWhen(entity => entity.SubscriptionStatus == SubscriptionStatus.Cancelled, entity =>
+            {
+                logger.LogWarning("Subscription already exists for user {userId}. It is cancelled, Resetting to pending", user.Id);
+                entity.SubscriptionStatus = SubscriptionStatus.Created;
+                entity.Status = OrderStatus.Pending;
+                return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
+            })
+            .OnFailureCompensateWhen(error => error == SubscriptionErrors.NoSubscriptionFound, (_) =>
+            {
+                logger.LogInformation("No subscription found for user {userId}. Creating new subscription.", user.Id);
+                SubscriptionEntity entity = new()
+                {
+                    SubscriptionID = Guid.NewGuid().ToString(),
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
+                    ExternalCustomerID = user.CustomerID,
+                    UserID = user.Id,
+                    ExternalSubscriptionItemID = config.SubscriptionID,
+                    Created = DateTime.UtcNow,
+                    CreatedBy = user.CreatedBy,
+                };
+                return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
+            });
     }
 
     public Task<Result<Unit>> CancelSubscriptionForUser(string userID, CancellationToken cancellationToken)
@@ -39,7 +54,8 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository,
                 subscriptionEntity.SubscriptionStatus = SubscriptionStatus.ToBeCancelled;
                 return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
             })
-            .BindTry(subscriptionEntity => paymentRepository.CancelSubscriptionForUser(subscriptionEntity, cancellationToken))
+            .BindTry(subscriptionEntity =>
+                paymentRepository.CancelSubscriptionForUser(subscriptionEntity, cancellationToken))
             .Map(_ => Unit.Value);
     }
 
@@ -47,6 +63,17 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository,
     {
         logger.LogInformation($"Getting subscription details for user {userID}");
         return subscriptionRepository.GetSubscriptionDetailsForUser(userID, cancellationToken);
+    }
+
+    public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken)
+    {
+        return GetSubscriptionForUser(userID, cancellationToken)
+            .Ensure(entity => entity.SubscriptionStatus == SubscriptionStatus.ToBeCancelled,
+                SubscriptionErrors.SubscriptionIsActive)
+            .TapTry(entity => entity.SubscriptionStatus = SubscriptionStatus.Active)
+            .BindTry(subscriptionEntity =>
+                subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken))
+            .BindTry(entity => paymentRepository.ReactivateSubscriptionForUser(entity, cancellationToken));
     }
 
     public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken)

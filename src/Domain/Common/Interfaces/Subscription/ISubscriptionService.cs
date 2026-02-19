@@ -38,4 +38,7 @@ public interface ISubscriptionService
     /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the operation, containing a result object encapsulating the subscription ID of the deleted subscription or an error message.</returns>
     public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken);
+
+
+    public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken);
 }

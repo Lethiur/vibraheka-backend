@@ -5,5 +5,6 @@ public enum SubscriptionStatus
     Created,
     Active,
     ToBeCancelled,
-    Cancelled
+    Cancelled,
+    Inactive
 }

@@ -7,5 +7,4 @@ public enum OrderStatus
     InvoicePayed,
     PaymentFailed,
     Cancelled,
-    ToRenew
 }

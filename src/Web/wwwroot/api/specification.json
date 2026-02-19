@@ -588,6 +588,27 @@
         }
       }
     },
+    "/api/v1/subscriptions/reactivate": {
+      "patch": {
+        "tags": [
+          "Subscription"
+        ],
+        "operationId": "Subscription_ReactivateSubscription",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/subscriptions/details": {
       "get": {
         "tags": [

@@ -5,6 +5,8 @@ import {Result} from "neverthrow";
 export default interface ISubscriptionService {
 
     UpdateSubscriptionBasedOnPaymentDetails(invoice: Stripe.Invoice) : Promise<Result<void, SubscriptionErrors>>;
+    CancelSubscription(subscriptionData: Stripe.Subscription) : Promise<Result<void, SubscriptionErrors>>;
+    UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>>;
     
 }
 

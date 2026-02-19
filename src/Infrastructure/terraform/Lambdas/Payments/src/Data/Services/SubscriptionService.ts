@@ -18,7 +18,51 @@ export default class SubscriptionService implements ISubscriptionService {
      */
     constructor(private readonly Repository: ISubscriptionRepository) {
     }
+    
+    
+    public async CancelSubscription(subscriptionData: Stripe.Subscription) : Promise<Result<void, SubscriptionErrors>> {
+        const customerID = subscriptionData.customer as string;
+        const stripeSubscriptionID = subscriptionData.id as string;
+        const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
 
+        if (repositoryResult.isErr()) {
+            return err(repositoryResult.error);
+        }
+
+        const subscriptionEntity : SubscriptionEntity = repositoryResult.value;
+
+        if (stripeSubscriptionID === subscriptionEntity.ExternalSubscriptionID) {
+            subscriptionEntity.SubscriptionStatus = 'Cancelled';
+            return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
+        }
+
+        return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);
+    }
+
+    public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>> {
+        
+        const customerID = subscriptionData.customer as string;
+        const stripeSubscriptionID = subscriptionData.id as string;
+        const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
+        
+        if (repositoryResult.isErr()) {
+            if (repositoryResult.error === SubscriptionErrors.SUBSCRIPTION_NOT_FOUND) {
+                console.log(`Subscription for customer ${customerID} not found`)
+            }
+            return err(repositoryResult.error);
+        }
+        
+        const subscriptionEntity : SubscriptionEntity = repositoryResult.value;
+        
+        if (stripeSubscriptionID === subscriptionEntity.ExternalSubscriptionID) {
+            console.log("Received event for update subscription with date", subscriptionData.cancel_at)
+            subscriptionEntity.SubscriptionStatus = (subscriptionData.cancel_at ? 'ToBeCancelled' : 'Active');
+            return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
+        }
+
+        return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);
+    }
+    
     /**
      * Updates a subscription based on the provided payment details from a Stripe invoice.
      *
@@ -57,7 +101,11 @@ export default class SubscriptionService implements ISubscriptionService {
                     console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionID} renewing for one month`);
                     return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
                 } else {
-                    return err(SubscriptionErrors.INVOICE_NOT_PAID);
+                    subscriptionData.SubscriptionStatus = 'Inactive';
+                    subscriptionData.ExternalSubscriptionID = subscriptionID;
+                    subscriptionData.Status = 'PaymentFailed';
+                    console.log(`Invoice ${invoice.id} was not paid for subscription ${subscriptionData.ExternalSubscriptionID} setting status to inactive`);
+                    return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
                 }
             } else {
                 console.log(`Invoice ${invoice.id} received price ID ${price} and the subscription was for ${subscriptionData.ExternalSubscriptionID}`);

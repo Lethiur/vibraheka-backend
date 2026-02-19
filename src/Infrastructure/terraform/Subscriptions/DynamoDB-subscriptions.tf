@@ -36,7 +36,6 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-subscriptions" {
   global_secondary_index {
     name               = "User-Index"
     hash_key           = "UserID"
-    projection_type    = "INCLUDE"
-    non_key_attributes = ["SubscriptionID", "StartDate", "EndDate", "Status", "SubscriptionStatus", "ExternalSubscriptionID"]
+    projection_type    = "ALL"
   }
 }

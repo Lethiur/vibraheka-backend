@@ -16,6 +16,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// </summary>
 public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository> logger) : IPaymentRepository
 {
+    
     /// <summary>
     /// Initiates a payment process for a user's subscription.
     /// </summary>
@@ -49,7 +50,8 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                 ],
                 SuccessUrl = Config.PaymentSuccessUrl,
                 CancelUrl = Config.PaymentCancelUrl,
-                ClientReferenceId = Guid.NewGuid().ToString()
+                ClientReferenceId = orderEntity.SubscriptionID,
+                PaymentMethodCollection = "always",
             };
 
             SessionService sessionService = new();
@@ -139,7 +141,7 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                     Name = $"{payer.FirstName} {payer.MiddleName} {payer.LastName}",
                     Phone = payer.PhoneNumber,
                     Email = payer.Email, 
-                    Metadata = new Dictionary<string, string> { { "userId", payer.Id } }
+                    Metadata = new Dictionary<string, string> { { "userId", payer.Id } },
                 }, new RequestOptions()
                 {
                     IdempotencyKey  = $"create-customer:${payer.Id}"
@@ -188,7 +190,32 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
         
              await service.UpdateAsync(subscription.ExternalSubscriptionID, new SubscriptionUpdateOptions()
             {
-                CancelAtPeriodEnd = true
+                CancelAtPeriodEnd = true,
+            }, cancellationToken: cancellationToken);
+            
+            return Unit.Value;    
+        }  catch (StripeException stripeEx)
+        {
+            logger.LogError(stripeEx, "Stripe error while cancelling the subscription");
+            return Result.Failure<Unit>(InfrastructureSubscriptionErrors.StripeError);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while cancelling the subscription");
+            return Result.Failure<Unit>(GenericPersistenceErrors.GeneralError);
+        }
+    }
+
+    public async Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogInformation("Reactivating subscription for user {userId}", entity.UserID);
+            SubscriptionService service = new();
+        
+            await service.UpdateAsync(entity.ExternalSubscriptionID, new SubscriptionUpdateOptions()
+            {
+                CancelAtPeriodEnd = false,
             }, cancellationToken: cancellationToken);
             
             return Unit.Value;    

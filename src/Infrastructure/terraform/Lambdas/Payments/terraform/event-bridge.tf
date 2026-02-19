@@ -11,7 +11,8 @@ resource "aws_cloudwatch_event_rule" "stripe_rule" {
       "checkout.session.completed",
       "invoice.paid",
       "invoice.payment_failed",
-      "customer.subscription.deleted"
+      "customer.subscription.deleted",
+      "customer.subscription.updated"
     ]
     })
 }

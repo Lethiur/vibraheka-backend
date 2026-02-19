@@ -43,4 +43,6 @@ public interface IPaymentRepository
     /// <param name="cancellationToken">Token used to halt the operation before it completes.</param>
     /// <returns>A task that represents the asynchronous operation, containing the result of the cancellation process as a unit value.</returns>
     Task<Result<Unit>> CancelSubscriptionForUser(SubscriptionEntity subscription, CancellationToken cancellationToken);
+
+    Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken);
 }

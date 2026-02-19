@@ -32,4 +32,41 @@ public static class ResultExtensions
         
         return await compensateFunc(taskResult.Error);
     }
+
+    public static async Task<Result<T>> BindTryWhen<T>(this Task<Result<T>> result,
+        Func<T, bool> bindPredicate, Func<T, Task<Result<T>>> bindFunc)
+    {
+        Result<T> taskResult = await result;
+        if (taskResult.IsSuccess)
+        {
+            if (!bindPredicate(taskResult.Value))
+            {
+                return taskResult;
+            }
+            
+            return await bindFunc(taskResult.Value);
+        }
+        
+        return taskResult;
+        
+    }
+    
+    public static async Task<Result<T>> OnFailureCompensateWhen<T>(this Task<Result<T>> result,
+        Func<string, bool> compensationPredicate, Func<string, T> compensateFunc)
+    {
+
+        Result<T> taskResult = await result;
+        if (taskResult.IsSuccess)
+        {
+            return taskResult;
+        }
+        try
+        {
+            return compensateFunc(taskResult.Error);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<T>(e.Message);
+        }
+    }
 }

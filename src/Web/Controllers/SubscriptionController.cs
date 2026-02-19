@@ -1,9 +1,9 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Subscriptions.Commands;
 using VibraHeka.Application.Subscriptions.Commands.CancelSubscription;
+using VibraHeka.Application.Subscriptions.Commands.ReactivateSubscription;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionPortalUrl;
 using VibraHeka.Domain.Entities;
@@ -33,6 +33,20 @@ public class SubscriptionController(
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    [HttpPatch("reactivate")]
+    [Authorize]
+    public async Task<IActionResult> ReactivateSubscription()
+    {
+        ReactivateSubscriptionCommand command = new();
+        Result<Unit> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            Logger.LogError("Subscription reactivation failed: {Error}", result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 
     [HttpGet("details")]
