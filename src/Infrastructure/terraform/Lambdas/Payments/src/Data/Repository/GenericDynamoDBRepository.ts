@@ -190,9 +190,14 @@ export default class GenericDynamoDBRepository<T> {
      * @return {DynamoDBErrors} The categorized error type for the DynamoDB operation.
      */
     private HandleError(error: Error): DynamoDBErrors {
-        console.error('Error executing DynamoDB operation:', error);
-        if (error instanceof DynamoDBServiceException) {
-            return this.HandleDynamoDBError(error);
+        console.error('Error executing DynamoDB operation:', error?.constructor?.name);
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            "$metadata" in error
+        ) {
+            return this.HandleDynamoDBError(error as DynamoDBServiceException);
         }
         return DynamoDBErrors.UNEXPECTED_ERROR;
     }

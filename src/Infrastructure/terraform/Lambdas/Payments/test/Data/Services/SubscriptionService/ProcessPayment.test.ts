@@ -1,0 +1,123 @@
+﻿import SubscriptionService from "../../../../src/Data/Services/SubscriptionService";
+import ISubscriptionRepository from "../../../../src/Domain/Interfaces/ISubscriptionRepository";
+import {MockProxy, mock} from 'jest-mock-extended';
+import {ok, err, Result, Err} from "neverthrow";
+import {subEntry} from "../../../Utils/TestSubscriptionData";
+import {SubscriptionErrors} from "../../../../src/Domain/Errors/SubscriptionErrors";
+import Stripe from "stripe";
+import SubscriptionEntity from "../../../../src/Domain/Entities/SubscriptionEntity";
+
+describe('@SubscriptionService @ProcessPayment Test Suite', () => {
+
+    let SubService: SubscriptionService;
+    let mockRepository: MockProxy<ISubscriptionRepository>;
+    beforeEach(() => {
+
+        mockRepository = mock<ISubscriptionRepository>();
+        SubService = new SubscriptionService(mockRepository);
+    });
+
+    it('should process the payment just fine', async () => {
+
+        // Given: Some mocking
+        const entity : any = {
+            ExternalSubscriptionID: "test123-123",
+            ExternalSubscriptionItemID: "test-123",
+            StartDate: new Date()
+        };
+        
+        mockRepository.GetSubscriptionForCustomer.calledWith(expect.anything()).mockResolvedValue(ok(entity));
+        mockRepository.SaveSubscription.calledWith(expect.anything()).mockResolvedValue(ok(subEntry));
+
+        // When: Services is invoked
+        const serviceResult: Result<void, SubscriptionErrors> = await SubService.ProcessPayment({
+            status: 'paid',
+            id: "Holy shit bro",
+            customer: "123456789",
+            lines: {
+                data: [
+                    {
+                        subscription: "sub_test-123",
+                        pricing: {price_details: {price: "test-123"}}
+                    } as Stripe.InvoiceLineItem] as Stripe.InvoiceLineItem[]
+                
+            }
+        } as any);
+        
+        // Then: The result should be a success
+        expect(serviceResult.isOk()).toBeTruthy()
+        
+        // And: The save method should have been called with the right parameters
+        const endDate : Date = new Date(entity.StartDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+        expect(mockRepository.SaveSubscription).toHaveBeenCalledWith(expect.objectContaining({
+            SubscriptionStatus: 'Active',
+            ExternalSubscriptionID: "sub_test-123",
+            ExternalSubscriptionItemID: 'test-123',
+            Status: 'InvoicePayed',
+            StartDate: entity.StartDate,
+            EndDate: endDate.toISOString()
+        }));
+    });
+
+    it('should return an error if the subscription for the customer is not found', async () => {
+
+        // Given: Some mocking
+        mockRepository.GetSubscriptionForCustomer.calledWith(expect.anything()).mockResolvedValue(err(SubscriptionErrors.CUSTOMER_NOT_FOUND));
+        
+        mockRepository.SaveSubscription.calledWith(expect.anything()).mockResolvedValue(ok(subEntry));
+
+        // When: Services is invoked
+        const serviceResult: Result<void, SubscriptionErrors> = await SubService.ProcessPayment({
+            id: "Holy shit bro",
+            lines: {
+                data: [
+                    {
+                        subscription: "test-123",
+                        pricing: {price_details: {price: "test-123"}}
+                    } as Stripe.InvoiceLineItem] as Stripe.InvoiceLineItem[]
+
+            }
+        } as any);
+
+        // Then: The result should be a success
+        expect(serviceResult.isOk()).toBeFalsy();
+        
+        // And: The error should be CUSTOMER_NOT_FOUND
+        const error : Err<void, SubscriptionErrors> = serviceResult as Err<void, SubscriptionErrors>;
+        expect(error.error).toBe(SubscriptionErrors.CUSTOMER_NOT_FOUND);
+    });
+
+    it('should return an error if the subscription for the customer is not a string', async () => {
+
+        // Given: Some mocking
+        mockRepository.GetSubscriptionForCustomer.calledWith(expect.anything()).mockResolvedValue(err(SubscriptionErrors.CUSTOMER_NOT_FOUND));
+
+        mockRepository.SaveSubscription.calledWith(expect.anything()).mockResolvedValue(ok(subEntry));
+
+        // When: Services is invoked
+        const serviceResult: Result<void, SubscriptionErrors> = await SubService.ProcessPayment({
+            id: "Holy shit bro",
+            customer: 23,
+            lines: {
+                data: [
+                    {
+                        subscription: "test-123",
+                        pricing: {price_details: {price: "test-123"}}
+                    } as Stripe.InvoiceLineItem] as Stripe.InvoiceLineItem[]
+
+            }
+        } as any);
+
+        // Then: The result should be a success
+        expect(serviceResult.isOk()).toBeFalsy();
+
+        // And: The error should be CUSTOMER_NOT_FOUND
+        const error : Err<void, SubscriptionErrors> = serviceResult as Err<void, SubscriptionErrors>;
+        expect(error.error).toBe(SubscriptionErrors.CUSTOMER_NOT_FOUND);
+    });
+
+    it('should handle the case where', () => {
+
+    });
+});

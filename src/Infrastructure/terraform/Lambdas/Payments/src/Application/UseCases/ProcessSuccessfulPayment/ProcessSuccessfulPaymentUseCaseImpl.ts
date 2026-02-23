@@ -11,6 +11,6 @@ export default class ProcessSuccessfulPaymentUseCaseImpl implements IProcessSucc
     constructor(private readonly SubscriptionService : ISubscriptionService) {}
     
     public Execute(subscriptionData: Stripe.Invoice): Promise<Result<void, SubscriptionErrors>> {
-        return this.SubscriptionService.UpdateSubscriptionBasedOnPaymentDetails(subscriptionData);
+        return this.SubscriptionService.ProcessPayment(subscriptionData);
     }
 }

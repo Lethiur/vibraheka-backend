@@ -63,7 +63,6 @@ export default class SubscriptionRepositoryImpl extends GenericDynamoDBRepositor
                 console.error(`Unexpected error occurred while interacting with DynamoDB: ${dynamoError}`);
                 return SubscriptionErrors.UNEXPECTED_ERROR;
         }
-
     }
 
 }
