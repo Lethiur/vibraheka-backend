@@ -7,7 +7,7 @@ import {Result} from "neverthrow";
 import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
 import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
 
-interface StripeEventDetail {
+export interface StripeEventDetail {
     type: string;
     data: { object: any };
 }

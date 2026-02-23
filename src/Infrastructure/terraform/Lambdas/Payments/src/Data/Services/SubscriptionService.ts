@@ -44,7 +44,7 @@ export default class SubscriptionService implements ISubscriptionService {
         const customerID = subscriptionData.customer as string;
         const stripeSubscriptionID = subscriptionData.id as string;
         const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
-
+        
         if (repositoryResult.isErr()) {
             if (repositoryResult.error === SubscriptionErrors.SUBSCRIPTION_NOT_FOUND) {
                 console.log(`Subscription for customer ${customerID} not found`)
@@ -82,7 +82,7 @@ export default class SubscriptionService implements ISubscriptionService {
 
         const subscriptionData: SubscriptionEntity = repositoryResult.value;
 
-        if (invoice.lines.data.length > 0) {
+        if (invoice.lines?.data.length > 0) {
             const priceID = this.GetPriceIDFromLine(invoice.lines.data[0]);
             const subscriptionID = invoice.lines.data[0].subscription as string;
             if (priceID.isErr()) {
@@ -124,12 +124,10 @@ export default class SubscriptionService implements ISubscriptionService {
      *                                              or an error of type `SubscriptionErrors` if the customer ID is not found or is invalid.
      */
     private GetCustomerIDFromInvoice(invoice: Stripe.Invoice): Result<string, SubscriptionErrors> {
-
         if (typeof invoice.customer !== 'string' || !invoice.customer) {
             console.log(`The stripe customer is invalid or not expanded: ${invoice.customer}`);
             return err(SubscriptionErrors.CUSTOMER_NOT_FOUND);
         }
-
         return ok(invoice.customer);
     }
 
@@ -142,11 +140,10 @@ export default class SubscriptionService implements ISubscriptionService {
      */
     private GetPriceIDFromLine(lineData: Stripe.InvoiceLineItem): Result<string, SubscriptionErrors> {
 
-        try {
-            return ok(lineData.pricing?.price_details?.price as string);
-        } catch (error) {
+        if (!lineData.pricing?.price_details?.price) {
             return err(SubscriptionErrors.PRICE_ID_NOT_FOUND);
         }
+        return ok(lineData.pricing?.price_details?.price as string);
 
     }
 }

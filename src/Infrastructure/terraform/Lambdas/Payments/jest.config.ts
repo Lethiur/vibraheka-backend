@@ -1,8 +1,11 @@
 ﻿// jest.config.ts
-import { pathsToModuleNameMapper } from 'ts-jest';
-import fs from 'fs';
-import path from 'path';
+import { pathsToModuleNameMapper } from 'ts-jest'
+import { fileURLToPath } from 'url'
+import path from 'path'
+import fs from 'fs'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 const tsconfig = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, './tsconfig.json'), 'utf-8')
 );
