@@ -30,10 +30,11 @@ public class RegisterOrderTest : TestBase
     public void OneTimeSetup()
     {
         base.OneTimeSetUp();
+        // LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<GenericDynamoRepository<TestEntity>>()
         _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
-        _paymentRepository = new PaymentsRepository(_stripeConfig);
+        _paymentRepository = new PaymentsRepository(_stripeConfig, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<PaymentsRepository>());
         _subscriptionRepository = new SubscriptionRepository( _configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper(), LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionRepository>());
-        _paymentService = new PaymentService(_paymentRepository, _subscriptionRepository, _userRepository);
+        _paymentService = new PaymentService(_paymentRepository, _userRepository);
     }
     
     
