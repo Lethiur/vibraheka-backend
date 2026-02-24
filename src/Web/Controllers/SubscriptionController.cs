@@ -25,7 +25,7 @@ public class SubscriptionController(
     {
         AddSubscriptionCommand command = new();
         Result<string> result = await mediator.Send(command);
-
+        Logger.LogInformation("Subscription created successfully!!@#!@#!@#!@#");
         if (result.IsFailure)
         {
             Logger.LogError("Subscription creation failed: {Error}", result.Error);

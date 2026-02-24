@@ -5,6 +5,7 @@ using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SettingsServiceTest;

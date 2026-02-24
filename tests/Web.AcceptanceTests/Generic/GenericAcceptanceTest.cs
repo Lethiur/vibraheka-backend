@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using Serilog;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
@@ -30,12 +32,15 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
     public GenericAcceptanceTest()
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .WriteTo.Sink(new NUnitSerilogSink())
+            .CreateLogger();
+
         TheFaker = new Faker();
         Factory = new WebApplicationFactory<TAppClass>()
-            
             .WithWebHostBuilder(builder =>
             {
-               
                 AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
                 builder.ConfigureAppConfiguration((_, configBuilder) =>
                 {
@@ -44,6 +49,12 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
                     configBuilder.AddJsonFile("appSettings.Test.json", optional: false)
                         .AddEnvironmentVariables();
+                });
+
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<ILoggerFactory>(_ =>
+                        new Serilog.Extensions.Logging.SerilogLoggerFactory(Log.Logger, dispose: false));
                 });
             });
     }
@@ -127,7 +138,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
-        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        HttpResponseMessage patchAsJsonAsync =
+            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         return userID;
     }
@@ -146,7 +158,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
-        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        HttpResponseMessage patchAsJsonAsync =
+            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         await PromoteToAdmin(username, email, userID);
         return userID;
@@ -195,7 +208,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         };
 
         await repository.AddAsync(adminUserEntity);
-            
     }
 
     /// <summary>
@@ -215,9 +227,10 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         IServiceScope scope = Factory.Services.CreateScope();
         T obj = scope.ServiceProvider.GetRequiredService<T>();
-        
+
         return obj;
     }
+
     protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
         string fileContent)
     {

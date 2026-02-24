@@ -41,4 +41,6 @@ public interface ISubscriptionService
 
 
     public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken);
+
+    public Task<Result<Unit>> MarkSubscriptionAsPaymentFailedForUser(string userID, CancellationToken cancellationToken);
 }

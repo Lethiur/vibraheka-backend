@@ -3,6 +3,7 @@ using Amazon.SimpleSystemsManagement.Model;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 

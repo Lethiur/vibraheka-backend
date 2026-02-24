@@ -1,4 +1,5 @@
-﻿using VibraHeka.Application.Common.Exceptions;
+using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Middleware;
@@ -8,7 +9,7 @@ namespace VibraHeka.Web.Middleware;
 /// Captures unhandled exceptions that occur during the processing of HTTP requests
 /// and converts them into appropriate HTTP responses.
 /// </summary>
-public class ExceptionHandlingMiddleware(RequestDelegate next)
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
     /// <summary>
     /// Processes an HTTP request by invoking the next delegate in the middleware pipeline.
@@ -25,6 +26,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -44,6 +46,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
             context.Response.StatusCode = 401;
             return context.Response.WriteAsJsonAsync(ResponseEntity.FromError("Unauthorized"));
         }
+
         context.Response.StatusCode = 400;
         return context.Response.WriteAsJsonAsync(ResponseEntity.FromError(exception.Message));
     }

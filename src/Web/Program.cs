@@ -78,6 +78,7 @@ public class VibraHekaProgram
         builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
         builder.Host.UseSerilog();
         WebApplication app = builder.Build();
+        app.UseSerilogRequestLogging();
         app.UseXRay("VibraHeka", builder.Configuration);
         
         app.UseMiddleware<TracingMiddleware>();

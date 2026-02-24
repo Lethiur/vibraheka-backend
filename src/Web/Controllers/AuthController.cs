@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
@@ -29,13 +30,18 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] [Required] RegisterUserCommand command)
     {
+        Log.ForContext<AuthController>().Information("STATIC Register endpoint called for email {Email}", command.Email);
+        Logger.LogInformation("Register endpoint called for email {Email}", command.Email);
         Result<UserRegistrationResult> id = await mediator.Send(command);
 
         if (!id.IsFailure)
         {
+            Logger.LogInformation("Register endpoint succeeded for email {Email} with userId {UserId}",
+                command.Email, id.Value.UserId);
             return new OkObjectResult(ResponseEntity.FromSuccess(id.Value));
         }
 
+        Logger.LogWarning("Register endpoint failed for email {Email} with error {Error}", command.Email, id.Error);
         return new BadRequestObjectResult(ResponseEntity.FromError(id.Error));
     }
 

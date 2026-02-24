@@ -28,9 +28,11 @@ public class SubscribeTest : GenericSubscriptionAcceptanceTest
 
         // When
         HttpResponseMessage response = await Client.PutAsync("/api/v1/subscriptions", null);
+        string responseBody = await response.Content.ReadAsStringAsync();
 
         // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK),
+            $"Expected OK but got {(int)response.StatusCode} ({response.StatusCode}). Body: {responseBody}");
 
         ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<string>();
         string? checkoutUrl = entity.GetContentAs<string>();

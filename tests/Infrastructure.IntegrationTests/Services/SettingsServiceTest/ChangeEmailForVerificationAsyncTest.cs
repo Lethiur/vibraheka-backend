@@ -5,7 +5,7 @@ using Amazon.Runtime.CredentialManagement;
 using Amazon.SimpleSystemsManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;

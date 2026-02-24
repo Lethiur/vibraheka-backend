@@ -50,12 +50,13 @@ public class SubscriptionService(
         logger.LogInformation($"Canceling subscription for user {userID}");
         return GetSubscriptionForUser(userID, cancellationToken)
             .BindTry(subscriptionEntity =>
+                paymentRepository.CancelSubscriptionForUser(subscriptionEntity, cancellationToken)
+                    .Map(_ => subscriptionEntity))
+            .BindTry(subscriptionEntity =>
             {
                 subscriptionEntity.SubscriptionStatus = SubscriptionStatus.ToBeCancelled;
                 return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
             })
-            .BindTry(subscriptionEntity =>
-                paymentRepository.CancelSubscriptionForUser(subscriptionEntity, cancellationToken))
             .Map(_ => Unit.Value);
     }
 
@@ -70,15 +71,33 @@ public class SubscriptionService(
         return GetSubscriptionForUser(userID, cancellationToken)
             .Ensure(entity => entity.SubscriptionStatus == SubscriptionStatus.ToBeCancelled,
                 SubscriptionErrors.SubscriptionIsActive)
-            .TapTry(entity => entity.SubscriptionStatus = SubscriptionStatus.Active)
             .BindTry(subscriptionEntity =>
-                subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken))
-            .BindTry(entity => paymentRepository.ReactivateSubscriptionForUser(entity, cancellationToken));
+                paymentRepository.ReactivateSubscriptionForUser(subscriptionEntity, cancellationToken)
+                    .Map(_ => subscriptionEntity))
+            .BindTry(subscriptionEntity =>
+            {
+                subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Active;
+                return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
+            })
+            .Map(_ => Unit.Value);
     }
 
     public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken)
     {
         return GetSubscriptionForUser(userID, cancellationToken)
             .BindTry(entity => subscriptionRepository.DeleteSubscriptionForUser(entity, cancellationToken));
+    }
+
+    public Task<Result<Unit>> MarkSubscriptionAsPaymentFailedForUser(string userID, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Marking subscription as payment failed for user {userID}", userID);
+        return GetSubscriptionForUser(userID, cancellationToken)
+            .BindTry(subscriptionEntity =>
+            {
+                subscriptionEntity.Status = OrderStatus.PaymentFailed;
+                subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Inactive;
+                return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
+            })
+            .Map(_ => Unit.Value);
     }
 }
