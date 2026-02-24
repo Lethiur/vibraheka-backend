@@ -1,5 +1,4 @@
-using Microsoft.Extensions.Logging;
-using VibraHeka.Application.Common.Exceptions;
+﻿using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Middleware;

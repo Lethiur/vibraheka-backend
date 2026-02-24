@@ -6,13 +6,13 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Strategies;
 using Bogus;
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Serilog;
+using Serilog.Formatting.Display;
+using Serilog.Sinks.NUnit;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
@@ -34,7 +34,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
-            .WriteTo.Sink(new NUnitSerilogSink())
+            .WriteTo.Sink(new NUnitSink(new MessageTemplateTextFormatter("TU PUTA MADRE")))
             .CreateLogger();
 
         TheFaker = new Faker();
@@ -46,15 +46,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
                 {
                     // Borra config anterior
                     configBuilder.Sources.Clear();
-
                     configBuilder.AddJsonFile("appSettings.Test.json", optional: false)
                         .AddEnvironmentVariables();
-                });
-
-                builder.ConfigureServices(services =>
-                {
-                    services.AddSingleton<ILoggerFactory>(_ =>
-                        new Serilog.Extensions.Logging.SerilogLoggerFactory(Log.Logger, dispose: false));
                 });
             });
     }

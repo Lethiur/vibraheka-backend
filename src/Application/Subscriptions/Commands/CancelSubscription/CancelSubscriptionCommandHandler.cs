@@ -1,7 +1,6 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.Subscriptions.Commands.CancelSubscription;
 

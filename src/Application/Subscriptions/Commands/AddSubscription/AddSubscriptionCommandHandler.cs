@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;

@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.Payments;

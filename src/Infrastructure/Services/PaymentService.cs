@@ -1,7 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using Stripe;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;

@@ -6,12 +6,10 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 using Amazon.SimpleSystemsManagement;
-using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -70,10 +68,8 @@ public static class DependencyInjection
         var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
-            // Filtramos para que Microsoft no ensucie tanto (opcional)
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) 
             .Enrich.FromLogContext()
-            // Aquí ocurre la magia: inyectamos el TraceId de X-Ray manualmente en cada log
             .Enrich.With<XRayEnricher>()
             .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .WriteTo.AmazonCloudWatch( new CloudWatchSinkOptions()

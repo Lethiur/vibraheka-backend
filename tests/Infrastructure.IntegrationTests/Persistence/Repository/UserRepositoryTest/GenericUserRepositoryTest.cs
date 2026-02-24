@@ -1,7 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;

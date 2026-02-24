@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Net.Http.Headers;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;

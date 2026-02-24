@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions.Validation;
 

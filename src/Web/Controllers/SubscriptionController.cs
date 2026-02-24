@@ -23,6 +23,7 @@ public class SubscriptionController(
     [Produces("application/json")]
     public async Task<IActionResult> Subscribe()
     {
+        Logger.LogCritical("NAMESPACE DE ESTE LOGGER: " + typeof(SubscriptionController).Namespace);
         AddSubscriptionCommand command = new();
         Result<string> result = await mediator.Send(command);
         Logger.LogInformation("Subscription created successfully!!@#!@#!@#!@#");

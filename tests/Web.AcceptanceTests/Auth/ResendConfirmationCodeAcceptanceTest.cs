@@ -1,8 +1,6 @@
 using System.Net;
-using System.Net.Http.Json;
 using Bogus;
 using NUnit.Framework;
-using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
 

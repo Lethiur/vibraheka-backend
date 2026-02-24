@@ -6,7 +6,6 @@ using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Entities;
-using static System.Text.Encoding;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 

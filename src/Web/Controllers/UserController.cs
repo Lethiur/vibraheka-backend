@@ -1,4 +1,3 @@
-using Amazon.XRay.Recorder.Core;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
