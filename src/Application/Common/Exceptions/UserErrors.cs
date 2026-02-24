@@ -45,7 +45,9 @@ public class UserErrors
     /// <summary>
     /// Represents the error code indicating that the user has exceeded the allowed number of attempts for a specific operation or action.
     /// </summary>
-    public const string TooManyAttempts = "E-006";
+    public const string TooManyAttempts = "E-008";
+    
+    public const string EmailTooLong = "E-007";
 
 
 

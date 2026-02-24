@@ -153,7 +153,7 @@ public class RegisterUserCommandValidatorTests
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
 
         // Then: Should have validation error for full name
-        result.ShouldHaveValidationErrorFor(x => x.FullName)
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
               .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
@@ -170,7 +170,7 @@ public class RegisterUserCommandValidatorTests
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
 
         // Then: Should have validation error for full name
-        result.ShouldHaveValidationErrorFor(x => x.FullName)
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
               .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
@@ -191,7 +191,7 @@ public class RegisterUserCommandValidatorTests
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
 
         // Then: Should not have validation error for full name
-        result.ShouldNotHaveValidationErrorFor(x => x.FullName);
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
     }
 
     #endregion
@@ -213,7 +213,7 @@ public class RegisterUserCommandValidatorTests
               .WithErrorMessage(UserErrors.InvalidEmail);
         result.ShouldHaveValidationErrorFor(x => x.Password)
               .WithErrorMessage(UserErrors.InvalidPassword);
-        result.ShouldHaveValidationErrorFor(x => x.FullName)
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
               .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
@@ -244,7 +244,7 @@ public class RegisterUserCommandValidatorTests
         // Then: Should have validation error only for email
         result.ShouldHaveValidationErrorFor(x => x.Email);
         result.ShouldNotHaveValidationErrorFor(x => x.Password);
-        result.ShouldNotHaveValidationErrorFor(x => x.FullName);
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
     }
 
     [Test]
@@ -260,7 +260,7 @@ public class RegisterUserCommandValidatorTests
         // Then: Should have validation error only for password
         result.ShouldNotHaveValidationErrorFor(x => x.Email);
         result.ShouldHaveValidationErrorFor(x => x.Password);
-        result.ShouldNotHaveValidationErrorFor(x => x.FullName);
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
     }
 
     [Test]
@@ -276,7 +276,7 @@ public class RegisterUserCommandValidatorTests
         // Then: Should have validation error only for full name
         result.ShouldNotHaveValidationErrorFor(x => x.Email);
         result.ShouldNotHaveValidationErrorFor(x => x.Password);
-        result.ShouldHaveValidationErrorFor(x => x.FullName);
+        result.ShouldHaveValidationErrorFor(x => x.FirstName);
     }
 
     #endregion
@@ -328,7 +328,7 @@ public class RegisterUserCommandValidatorTests
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
 
         // Then: Should have only one error for full name
-        IEnumerable<ValidationFailure> fullNameErrors = result.Errors.Where(e => e.PropertyName == nameof(RegisterUserCommand.FullName));
+        IEnumerable<ValidationFailure> fullNameErrors = result.Errors.Where(e => e.PropertyName == nameof(RegisterUserCommand.FirstName));
         IEnumerable<ValidationFailure> validationFailures = fullNameErrors.ToList();
         Assert.That(validationFailures.Count(), Is.EqualTo(1));
         Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidFullName));

@@ -31,7 +31,7 @@ public class RegisterUserCommandHandlerTest
         const string cognitoId = "cognito-123";
 
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FullName))
+            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FirstName))
             .ReturnsAsync(Result.Success(cognitoId));
 
         _userRepositoryMock
@@ -49,7 +49,7 @@ public class RegisterUserCommandHandlerTest
         _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == cognitoId &&
             u.Email == command.Email &&
-            u.FirstName == command.FullName)), Times.Once);
+            u.FirstName == command.FirstName)), Times.Once);
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class RegisterUserCommandHandlerTest
         // Given
         RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe","Europe/Madrid");
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FullName))
+            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FirstName))
             .ReturnsAsync(Result.Failure<string>("E-002"));
 
         // When
@@ -76,7 +76,7 @@ public class RegisterUserCommandHandlerTest
         // Given
         RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "Europe/Madrid");
         _userServiceMock
-            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FullName))
+            .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FirstName))
             .ReturnsAsync(Result.Success("cognito-123"));
 
         _userRepositoryMock

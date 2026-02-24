@@ -60,6 +60,12 @@ public static class ResultExtensions
         {
             return taskResult;
         }
+
+        if (!compensationPredicate(taskResult.Error))
+        {
+            return Result.Failure<T>(taskResult.Error);
+        }
+
         try
         {
             return compensateFunc(taskResult.Error);

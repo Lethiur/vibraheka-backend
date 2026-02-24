@@ -109,7 +109,8 @@ public abstract class GenericDynamoRepository<T>(
     protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
         SaveConfig saveConfig = new() { OverrideTableName = tableConfigKey };
-        logger.BeginScope(new Dictionary<string, object> { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity().Id });
+        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
+            { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity()?.Id });
         try
         {
             await context.SaveAsync(entity, saveConfig, token);
@@ -145,7 +146,8 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<IEnumerable<T>>> GetAll(CancellationToken cancellationToken)
     {
-        logger.BeginScope(new Dictionary<string, object> { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity().Id });
+        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
+            { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity()?.Id });
         ScanConfig configuration = new() { OverrideTableName = tableConfigKey };
 
         try

@@ -1,5 +1,5 @@
 ﻿resource "aws_iam_role" "VH_cognito_ses_role" {
-  name = "cognito-ses-role"
+  name = "cognito-ses-role-${terraform.workspace}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -14,6 +14,7 @@
 }
 
 resource "aws_iam_role_policy" "VH_cognito_ses_policy" {
+  name = "cognito-role-email-${terraform.workspace}"
   role = aws_iam_role.VH_cognito_ses_role.id
 
   policy = jsonencode({

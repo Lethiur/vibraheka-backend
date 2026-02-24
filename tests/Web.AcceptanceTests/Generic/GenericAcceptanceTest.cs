@@ -1,8 +1,12 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
+using Amazon.XRay.Recorder.Core.Strategies;
 using Bogus;
 using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,14 +32,17 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         TheFaker = new Faker();
         Factory = new WebApplicationFactory<TAppClass>()
+            
             .WithWebHostBuilder(builder =>
             {
+               
+                AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
                 builder.ConfigureAppConfiguration((_, configBuilder) =>
                 {
                     // Borra config anterior
                     configBuilder.Sources.Clear();
 
-                    configBuilder.AddJsonFile("appsettings.Development.json", optional: false)
+                    configBuilder.AddJsonFile("appSettings.Test.json", optional: false)
                         .AddEnvironmentVariables();
                 });
             });
@@ -44,6 +51,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [SetUp]
     public void Setup()
     {
+        AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("VH-ACCEPTANCE-TEST"));
         Client = Factory.CreateClient();
     }
 

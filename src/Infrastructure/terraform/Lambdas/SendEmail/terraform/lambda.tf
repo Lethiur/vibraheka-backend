@@ -1,10 +1,5 @@
-
-
-
-
-# Pol�tica para SSM (leer par�metros)
 resource "aws_iam_role_policy" "VH_ssm_read_parameters" {
-  name = "ssm-read-parameters-policy"
+  name = "ssm-read-parameters-policy-${terraform.workspace}"
   role = aws_iam_role.VH_email_lambda_role.id
 
   policy = jsonencode({

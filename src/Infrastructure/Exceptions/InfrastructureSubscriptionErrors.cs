@@ -2,5 +2,5 @@
 
 public class InfrastructureSubscriptionErrors
 {
-    public static readonly string StripeError = "IS-001";
+    public const string StripeError = "IS-001";
 }

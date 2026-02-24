@@ -7,3 +7,10 @@ output "dynamodb_subscription_table_arn" {
   value = aws_dynamodb_table.vibraheka-dynamodb-subscriptions.arn
   description = "The ARN of the subscriptions table"
 }
+
+output "subscriptions_user_id_index_name" {
+  value = one([
+    for gsi in aws_dynamodb_table.vibraheka-dynamodb-subscriptions.global_secondary_index : gsi.name
+    if gsi.hash_key == "UserID"
+  ])
+}

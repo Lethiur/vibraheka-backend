@@ -28,12 +28,15 @@ public class AWSConfig
     [Required]
     public string UsersTable { get; set; } = string.Empty;
 
+    #if DEBUG
     /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores code-related data.
     /// This property is used to define the table location for managing and accessing code entities within the AWS infrastructure.
     /// </summary>
     [Required]
     public string CodesTable { get; set; } = string.Empty;
+    
+    #endif
 
     /// <summary>
     /// Gets or sets the unique identifier for the AWS Cognito client application.

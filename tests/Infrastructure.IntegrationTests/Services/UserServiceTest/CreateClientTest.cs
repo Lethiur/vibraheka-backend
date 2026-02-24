@@ -40,6 +40,7 @@ public class CreateClientTest : TestBase
     [DisplayName("Should throw DataException when AWS profile is missing in configuration")]
     public void ShouldThrowDataExceptionWhenProfileIsMissing()
     {
+        _configuration.Profile = null!;
         // When/Then: Instantiating the service should trigger CreateClient and throw
         DataException? ex =
             Assert.Throws<DataException>(() => new UserService(_configuration, _loggerMock, _userRepositoryMock));

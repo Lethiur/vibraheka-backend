@@ -1,8 +1,8 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
-using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Domain.Models.Results.User;
@@ -13,61 +13,183 @@ namespace VibraHeka.Web.AcceptanceTests.Admin;
 [TestFixture]
 public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
 {
-    
     [Test]
     public async Task ShouldReturn403IfUserIsNotAdmin()
     {
-        // Given: registered user
+        // Given: Registered user
         string email = TheFaker.Internet.Email();
         string therapistEmail = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        
-        // And: Authenticated
+
+        // And: Authenticated as non-admin
         AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
-        
-        // And: Header added
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
-        
-        // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(new UserDTO(){Email = therapistEmail, FirstName = TheFaker.Person.FullName}));
-        
-        // Then: The result should be 403
+
+        // And: Authorization header with user token
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
+
+        // When: Calling Create Therapist endpoint
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
+            CreateValidDTO(therapistEmail));
+
+        // Then: Request is unauthorized
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
     [Test]
     public async Task ShouldReturn403IfNotAuthenticated()
     {
-        
-        // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(new UserDTO(){Email = TheFaker.Internet.Email(), FirstName = TheFaker.Person.FullName}));
-        
-        // Then: The result should be 403
+        // Given: No authentication token
+
+        // When: Calling Create Therapist endpoint
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
+            CreateValidDTO());
+
+        // Then: Request is unauthorized
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
     [Test]
     public async Task ShouldAddTherapistIfLoggedInAsAdmin()
     {
-        // Given: A registered admin
+        // Given: Registered admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        
-        // And: Authenticated
+
+        // And: Authenticated as admin
         AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
-        
-        // And: Header added
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
-        
-        // When: The Create therapist is invoked
-        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistCommand(new UserDTO(){Email = TheFaker.Internet.Email(), FirstName = TheFaker.Person.FullName}));
-        
-        // Then: The result should be 200
+
+        // And: Authorization header with admin token
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
+
+        // When: Calling Create Therapist endpoint with valid payload
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
+            CreateValidDTO(TheFaker.Internet.Email(), "Valid Therapist", "middle name", "last name", "bio"));
+
+        // Then: Response is OK
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        
-        // And: The therapist should be added
+
+        // And: API response marks operation as success
         ResponseEntity entity = await postAsJsonAsync.GetAsResponseEntity();
         Assert.That(entity.Success, Is.True);
     }
-    
+
+    [TestCase(null, UserErrors.InvalidEmail)]
+    [TestCase("", UserErrors.InvalidEmail)]
+    [TestCase("   ", UserErrors.InvalidEmail)]
+    [TestCase("invalid-email", UserErrors.InvalidEmail)]
+    [TestCase("AB", UserErrors.InvalidFullName, "FirstName")]
+    [TestCase(null, UserErrors.InvalidFullName, "FirstName")]
+    [TestCase("", UserErrors.InvalidFullName, "FirstName")]
+    [TestCase("   ", UserErrors.InvalidFullName, "FirstName")]
+    [TestCase("AB", UserErrors.InvalidFullName, "MiddleName")]
+    [TestCase("AB", UserErrors.InvalidFullName, "LastName")]
+    public async Task ShouldReturnBadRequestWhenNameOrEmailIsInvalid(string? invalidValue, string expectedErrorCode,
+        string targetField = "Email")
+    {
+        // Given: Authenticated as admin
+        await AuthenticateAsAdmin();
+
+        // And: Payload with invalid email/name field
+        UserDTO command = CreateCommandWithOverride(targetField, invalidValue);
+
+        // When: Calling Create Therapist endpoint
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
+            command);
+
+        // Then: Response is BadRequest with expected validation error
+        await AssertBadRequestWithError(response, expectedErrorCode);
+    }
+
+    [TestCase("BioTooLong", UserErrors.InvalidForm)]
+    [TestCase("ProfilePictureUrlInvalid", UserErrors.InvalidForm)]
+    [TestCase("PhoneInvalidFormat", UserErrors.InvalidForm)]
+    [TestCase("PhoneTooLong", UserErrors.InvalidForm)]
+    [TestCase("EmailTooLong", UserErrors.EmailTooLong)]
+    public async Task ShouldReturnBadRequestWhenFormatRulesAreBroken(string scenario, string expectedErrorCode)
+    {
+        // Given: Authenticated as admin
+        await AuthenticateAsAdmin();
+
+        // And: Payload with invalid format/length for the scenario
+        UserDTO command = CreateInvalidFormatCommand(scenario);
+
+        // When: Calling Create Therapist endpoint
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
+            command);
+
+        // Then: Response is BadRequest with expected validation error
+        await AssertBadRequestWithError(response, expectedErrorCode);
+    }
+
+    private async Task AuthenticateAsAdmin()
+    {
+        // Given: Admin account
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
+
+        // When: Authenticating as admin
+        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+
+        // Then: Admin bearer token is set
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+    }
+
+    private static async Task AssertBadRequestWithError(HttpResponseMessage response, string expectedErrorCode)
+    {
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        ResponseEntity entity = await response.GetAsResponseEntity();
+        Assert.That(entity.Success, Is.False);
+        Assert.That(entity.ErrorCode, Does.Contain(expectedErrorCode));
+    }
+
+    private UserDTO CreateCommandWithOverride(string targetField, string? value)
+    {
+        UserDTO validDTO = CreateValidDTO();
+        switch (targetField)
+        {
+            case "Email" : validDTO.Email = value!; break;
+            case "FirstName": validDTO.FirstName = value!; break;
+            case "MiddleName": validDTO.MiddleName = value!; break;
+            case "LastName": validDTO.LastName = value!; break;
+        }
+
+        return validDTO;
+    }
+
+    private UserDTO CreateInvalidFormatCommand(string scenario)
+    {
+        return scenario switch
+        {
+            "BioTooLong" => CreateValidDTO(bio: new string('a', 1001)),
+            "ProfilePictureUrlInvalid" => CreateValidDTO(profilePictureUrl: "ftp://invalid-url.com/image.png"),
+            "PhoneInvalidFormat" => CreateValidDTO(phoneNumber: "abc-123"),
+            "PhoneTooLong" => CreateValidDTO(phoneNumber: new string('1', 31)),
+            "EmailTooLong" => CreateValidDTO(email: $"{new string('a', 315)}@example.com"),
+            _ => CreateValidDTO()
+        };
+    }
+
+    private UserDTO CreateValidDTO(
+        string? email = null,
+        string? firstName = null,
+        string? middleName = null,
+        string? lastName = null,
+        string? bio = null,
+        string? profilePictureUrl = null,
+        string? phoneNumber = null)
+    {
+        return new UserDTO
+        {
+            Email = email ?? $"{Guid.NewGuid():N}@example.com",
+            FirstName = firstName ?? "Valid Therapist",
+            MiddleName = middleName ?? "Valid Middle",
+            LastName = lastName ?? "Valid Last",
+            Bio = bio ?? string.Empty,
+            ProfilePictureUrl = profilePictureUrl ?? "https://example.com/avatar.png",
+            PhoneNumber = phoneNumber ?? "+34911111222",
+            TimezoneID = "Europe/Madrid"
+        };
+    }
 }

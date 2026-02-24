@@ -39,3 +39,5 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-subscriptions" {
     projection_type    = "ALL"
   }
 }
+
+

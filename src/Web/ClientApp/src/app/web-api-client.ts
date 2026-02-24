@@ -1612,7 +1612,7 @@ export interface IProblemDetails {
 export class RegisterUserCommand implements IRegisterUserCommand {
     email?: string;
     password?: string;
-    fullName?: string;
+    firstName?: string;
     timeZoneID?: string;
 
     constructor(data?: IRegisterUserCommand) {
@@ -1628,7 +1628,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
         if (_data) {
             this.email = _data["email"];
             this.password = _data["password"];
-            this.fullName = _data["fullName"];
+            this.firstName = _data["firstName"];
             this.timeZoneID = _data["timeZoneID"];
         }
     }
@@ -1644,7 +1644,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
         data = typeof data === 'object' ? data : {};
         data["email"] = this.email;
         data["password"] = this.password;
-        data["fullName"] = this.fullName;
+        data["firstName"] = this.firstName;
         data["timeZoneID"] = this.timeZoneID;
         return data;
     }
@@ -1653,7 +1653,7 @@ export class RegisterUserCommand implements IRegisterUserCommand {
 export interface IRegisterUserCommand {
     email?: string;
     password?: string;
-    fullName?: string;
+    firstName?: string;
     timeZoneID?: string;
 }
 

@@ -1,6 +1,6 @@
 ﻿
 resource "aws_cloudwatch_event_rule" "stripe_rule" {
-  name          = "stripe-subscriptions-rule"
+  name          = "stripe-subscriptions-rule-${terraform.workspace}"
   event_bus_name = "aws.partner/stripe.com/ed_test_61U8OhWNACpdhq6GG16U8LJp90CQBOsqL618O7RCiVVA"
   
   event_pattern = jsonencode({

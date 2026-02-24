@@ -22,7 +22,7 @@ public class TracingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest,
     {
         AWSXRayRecorder.Instance.AddAnnotation("RequestType", typeof(TRequest).Name);
         AWSXRayRecorder.Instance.AddAnnotation("TraceId", _tracer.GetTraceId());
-        AWSXRayRecorder.Instance.AddMetadata("RequestPayload", request);
+        AWSXRayRecorder.Instance.AddMetadata("RequestPayloadType", typeof(TRequest).FullName ?? typeof(TRequest).Name);
         try
         {
             return await next(ct);

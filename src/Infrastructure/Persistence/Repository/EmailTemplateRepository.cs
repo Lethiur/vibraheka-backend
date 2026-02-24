@@ -7,6 +7,7 @@ using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
@@ -34,7 +35,15 @@ public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config,
     {
         return FindByID(templateID, token)
             .Ensure(model => model != null, EmailTemplateErrors.TemplateNotFound)
-            .Map(model => model.ToDomain());
+            .Map(model => model.ToDomain())
+            .MapError(error =>
+            {
+                return error switch
+                {
+                    GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
+                    _ => error
+                };
+            });
     }
 
     /// <summary>

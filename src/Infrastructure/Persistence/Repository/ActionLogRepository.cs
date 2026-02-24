@@ -6,6 +6,7 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
@@ -37,7 +38,15 @@ public class ActionLogRepository(IDynamoDBContext context, AWSConfig config, ILo
     {
         return FindByIdAndRangeKey(userID, action, cancellationToken)
             .Ensure(record => record != null, ActionLogErrors.ActionLogNotFound)
-            .MapTry(a => a.ToDomain());
+            .MapTry(a => a.ToDomain())
+            .MapError(e =>
+            {
+                return e switch
+                {
+                    GenericPersistenceErrors.NoRecordsFound => ActionLogErrors.ActionLogNotFound,
+                    _ => e
+                };
+            });
     }
 
     /// <summary>

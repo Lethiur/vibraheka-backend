@@ -11,4 +11,4 @@ namespace VibraHeka.Application.Users.Commands.RegisterUser;
 /// It is designed to be handled by an appropriate command handler,
 /// ensuring implementation details are managed separately.
 /// </remarks>
-public record RegisterUserCommand(string Email, string Password, string FullName, string TimeZoneID) : IRequest<Result<UserRegistrationResult>>;
+public record RegisterUserCommand(string Email, string Password, string FirstName, string TimeZoneID) : IRequest<Result<UserRegistrationResult>>;

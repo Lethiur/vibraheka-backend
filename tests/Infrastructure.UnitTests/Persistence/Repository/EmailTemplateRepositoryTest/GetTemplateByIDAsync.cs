@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using static System.Threading.CancellationToken;
 
@@ -64,6 +65,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
 
         // Then: Should fail with the handled error message
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("DynamoDB error"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
+
     }
 }

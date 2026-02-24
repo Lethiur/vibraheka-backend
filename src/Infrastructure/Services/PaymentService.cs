@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Stripe;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
@@ -24,7 +25,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     public Task<Result<string>> RegisterSubscriptionAsync(string userID, SubscriptionEntity subscription,
         CancellationToken cancellationToken)
     {
-        return GetByIdAsync(userID, cancellationToken)
+        return GetUserByID(userID, cancellationToken)
             .BindTry(async user =>
             {
                 if (string.IsNullOrEmpty(user.CustomerID))
@@ -38,7 +39,15 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                 return user;
             })
             .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, subscription, cancellationToken))
-            .MapError(error => SubscriptionErrors.ErrorWhileSubscribing);
+            .MapError(error =>
+            {
+                return error switch
+                {
+                    InfrastructureSubscriptionErrors.StripeError => SubscriptionErrors.ErrorWhileSubscribing,
+                    GenericPersistenceErrors.GeneralError => SubscriptionErrors.ErrorWhileSubscribing,
+                    _ => error
+                };
+            });
     }
 
     /// <summary>
@@ -49,7 +58,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     /// <returns>A result containing the subscription details URL if successful, or an error message if the operation fails.</returns>
     public Task<Result<string>> GetSubscriptionDetailsUrlAsync(string userID, CancellationToken cancellationToken)
     {
-        return GetByIdAsync(userID, cancellationToken)
+        return GetUserByID(userID, cancellationToken)
             .BindTry(userEntity => PaymentRepository.GetSubscriptionPanelUrlAsync(userEntity, cancellationToken));
     }
 
@@ -59,7 +68,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     /// <param name="id">The unique identifier of the user to retrieve.</param>
     /// <param name="cancellationToken">The token used to signal cancellation of the operation.</param>
     /// <returns>A result containing the user entity if found, or an error indicating that the user ID is invalid.</returns>
-    public Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
+    public Task<Result<UserEntity>> GetUserByID(string id, CancellationToken cancellationToken)
     {
         return Maybe.From(id)
             .ToResult(UserErrors.InvalidUserID)
@@ -70,7 +79,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                 return error switch
                 {
                     InfrastructureUserErrors.UserNotFound => UserErrors.UserNotFound,
-                    _ => AppErrors.UnknownError
+                    _ => error
                 };
             });
     }

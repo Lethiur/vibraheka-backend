@@ -41,5 +41,8 @@ resource "aws_dynamodb_table" "vibraheka-dynamodb-users" {
     projection_type    = "INCLUDE"
     non_key_attributes =  ["Id", "Email", "FirstName", "MiddleName", "Last Name", "Role", "TimezoneID"]
   }
-  
+}
+
+output "dynamodb-users-name" {
+  value = aws_dynamodb_table.vibraheka-dynamodb-users.name
 }

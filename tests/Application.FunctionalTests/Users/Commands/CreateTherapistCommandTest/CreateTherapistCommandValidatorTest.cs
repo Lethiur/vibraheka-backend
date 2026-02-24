@@ -22,7 +22,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith", Bio = "  ASDFASDF", LastName = "Test", MiddleName = "Test", PhoneNumber = "6359875", TimezoneID = "Europe/Madrid"});
 
 
         // When

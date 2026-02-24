@@ -16,7 +16,7 @@ resource "aws_dynamodb_table" "VibraHeka_PAM_verification_codes" {
   }
 }
 
-output "verification_codes_table" {
+output "verification_codes_table_name" {
   value = aws_dynamodb_table.VibraHeka_PAM_verification_codes.name 
   description = "The name of the terraform table that stores the codes. Only available in test environment"
 }

@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using static VibraHeka.Domain.Exceptions.ActionLogErrors;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.PrivilegeServiceTest;
@@ -68,9 +69,7 @@ public class CanExecuteActionTest : GenericPrivilegeServiceTest
         
         // Then: Should return false
         Assert.That(canExecuteAction.IsSuccess, Is.False);
-        Assert.That(canExecuteAction.Error, Is.EqualTo("Database error"));
-        
-        
+        Assert.That(canExecuteAction.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
         
         // And: Mocks should have been invoked only once
         _actionLogRepositoryMock.Verify(repo => repo.GetActionLogForUser(It.IsAny<string>(), It.IsAny<ActionType>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -92,7 +91,7 @@ public class CanExecuteActionTest : GenericPrivilegeServiceTest
         
         // Then: Should return false
         Assert.That(canExecuteAction.IsSuccess, Is.False);
-        Assert.That(canExecuteAction.Error, Is.EqualTo("Database error"));
+        Assert.That(canExecuteAction.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
         
         // And: Mocks should have been invoked only once
         _actionLogRepositoryMock.Verify(repo => repo.GetActionLogForUser(It.IsAny<string>(), It.IsAny<ActionType>(), It.IsAny<CancellationToken>()), Times.Once);

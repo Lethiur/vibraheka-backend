@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using Amazon.S3;
+using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplateStorageRepositoryTest;
@@ -41,7 +41,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageRepositoryInteg
 
         Assert.That(
             async () => await Repository.GetTemplateContent(templateId, TestCancellationToken),
-            Throws.TypeOf<AmazonS3Exception>());
+            Throws.TypeOf<NoSuchKeyException>());
     }
 }
 

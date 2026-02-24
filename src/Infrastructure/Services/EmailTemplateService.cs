@@ -3,6 +3,7 @@ using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -23,7 +24,15 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
             .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id, cancellationToken))
-            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound);
+            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound)
+            .MapError(error =>
+            {
+                return error switch
+                {
+                    GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
+                    _ => error
+                };
+            });
     }
 
     /// <summary>
@@ -69,6 +78,14 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
                 entity.Name = newTemplateName;
                 entity.LastModified = DateTime.UtcNow;
                 EmailTemplateRepository.SaveTemplate(entity, token);
-            }).Map(_ => Unit.Value);
+            }).Map(_ => Unit.Value)
+                .MapError(error =>
+                {
+                    return error switch
+                    {
+                        GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
+                        _ => error
+                    };
+                });
     }
 }

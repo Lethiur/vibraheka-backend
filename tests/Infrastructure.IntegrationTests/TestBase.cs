@@ -2,6 +2,8 @@
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Bogus;
 using Microsoft.Extensions.Configuration;
 using Stripe;
@@ -26,6 +28,8 @@ public abstract class TestBase
         _configuration = CreateAWSConfig();
         _stripeConfig = CreateStripeConfig();
         _faker = new Faker();
+        Segment segment = new Segment("VH-TEST");
+        AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
     }
 
     protected IConfigurationRoot CreateTestConfiguration()

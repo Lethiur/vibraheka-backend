@@ -1,10 +1,11 @@
 ﻿resource "aws_s3_bucket" "VH_user_material" {
   bucket = "vibraheka-user-material-${terraform.workspace}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "VH_user_material_access" {
+  
   bucket = aws_s3_bucket.VH_user_material.id
-
   block_public_acls       = true
   ignore_public_acls      = true
 
@@ -23,7 +24,6 @@ resource "aws_s3_bucket_ownership_controls" "VH_user_material_ownership" {
 
 resource "aws_s3_bucket_policy" "VH_user_material_public_read_objects" {
   bucket = aws_s3_bucket.VH_user_material.id
-
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

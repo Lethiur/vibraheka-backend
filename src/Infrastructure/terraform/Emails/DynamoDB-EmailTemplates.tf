@@ -17,6 +17,6 @@ resource "aws_dynamodb_table" "VH_email_templates" {
   }
 }
 
-output "VH_email_templates" {
+output "email_templates_table_name" {
   value = aws_dynamodb_table.VH_email_templates.name
 }

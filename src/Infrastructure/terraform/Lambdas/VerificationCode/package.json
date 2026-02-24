@@ -6,7 +6,8 @@
   "scripts": {
     "test": "test",
     "build": "esbuild ./lambda_create.ts --bundle --platform=node --target=node20.11 --outdir=dist",
-    "zip" : "npx zip-cli -i dist -o lambda_create.zip"
+    "zip" : "npx zip-cli -i dist -o lambda_create.zip",
+    "zip:windows": "powershell -Command \"Compress-Archive -Path dist\\* -DestinationPath lambda.zip -Force\""
   },
   "author": "Twingers Corporation",
   "license": "ISC",

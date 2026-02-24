@@ -1,4 +1,6 @@
 ﻿using Amazon;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 using VibraHeka.Infrastructure.Persistence.S3;
 
@@ -6,6 +8,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplate
 
 public abstract class GenericEmailTemplateStorageRepositoryIntegrationTest : TestBase
 {
+    
     protected IAmazonS3 S3 = null!;
     protected EmailTemplateStorageRepository Repository = default!;
     protected CancellationToken TestCancellationToken;
@@ -16,11 +19,17 @@ public abstract class GenericEmailTemplateStorageRepositoryIntegrationTest : Tes
     {
         base.OneTimeSetUp();
         RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
-
-        S3 = new AmazonS3Client(new AmazonS3Config
+        Console.WriteLine($"Profile: {_configuration.Profile}");
+        CredentialProfileStoreChain profileStore = new CredentialProfileStoreChain();
+        if (!profileStore.TryGetAWSCredentials(_configuration.Profile, out AWSCredentials credentials))
         {
-            RegionEndpoint = region,
-            Profile = new Profile(_configuration.Profile)
+            throw new InvalidOperationException(
+                $"AWS profile '{_configuration.Profile}' was not found in the shared credentials/config files.");
+        }
+
+        S3 = new AmazonS3Client(credentials, new AmazonS3Config
+        {
+            RegionEndpoint = region
         });
 
         BucketName = _configuration.EmailTemplatesBucketName;
