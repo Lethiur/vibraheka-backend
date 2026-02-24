@@ -25,7 +25,7 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserProfileFromId([FromRoute(Name = "id")] string userID)
     {
-        Logger.Log(LogLevel.Information, "Getting user profile for user with ID {UserID}", userID);
+        Logger.Log(LogLevel.Information, "Getting user profile for user with ID {UserID}" , userID);
         GetUserProfileQuery query = new(userID);
         Result<UserDTO> result = await mediator.Send(query);
         

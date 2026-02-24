@@ -2,37 +2,13 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServiceTest;
 
 [TestFixture]
-public class GetAllTemplateTest : TestBase
+public class GetAllTemplateTest : GenericEmailTemplateServiceTest
 {
-    private IDynamoDBContext _context;
-    private EmailTemplateRepository _repository;
-    private EmailTemplateService _service;
-    private string _tableName;
-
-    [SetUp]
-    public void SetUp()
-    {
-        // Given
-        _context = CreateDynamoDBContext();
-        _tableName = _configuration.EmailTemplatesTable;
-
-        // Inicializamos el repositorio con la configuración y el contexto de la base
-        _repository = new EmailTemplateRepository(_context, _configuration);
-        _service = new EmailTemplateService(_repository);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _context?.Dispose();
-    }
-
+    
     [Test]
     public async Task ShouldGetAllTemplatesFromDynamoDB()
     {
@@ -47,7 +23,7 @@ public class GetAllTemplateTest : TestBase
         };
 
         // Guardamos las plantillas usando el contexto real en la tabla de test
-        SaveConfig config = new SaveConfig() { OverrideTableName = _tableName };
+        SaveConfig config = new() { OverrideTableName = _configuration.EmailTemplatesTable };
         await _context.SaveAsync(template1, config, CancellationToken.None);
         await _context.SaveAsync(template2, config, CancellationToken.None);
 

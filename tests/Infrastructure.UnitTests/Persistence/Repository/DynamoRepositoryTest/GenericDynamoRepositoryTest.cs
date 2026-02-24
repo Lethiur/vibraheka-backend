@@ -1,4 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
 
@@ -14,6 +16,7 @@ public abstract class GenericDynamoRepositoryTest
     [SetUp]
     public void SetUp()
     {
+        AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("mock"));
         _contextMock = new Mock<IDynamoDBContext>();
         _configMock = new AWSConfig();
         _repository = new TestableDynamoRepository(_contextMock.Object, TableName);

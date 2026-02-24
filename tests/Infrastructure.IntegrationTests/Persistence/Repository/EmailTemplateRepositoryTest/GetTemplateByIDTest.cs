@@ -22,7 +22,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         await SeedTemplate(templateId, expectedPath);
 
         // When: Retrieving the template by ID
-        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId, CancellationToken.None);
 
         // Then: Should return success and match the seeded data
         Assert.That(result.IsSuccess, Is.True);
@@ -42,7 +42,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         string nonExistentId = "non-existent-id-" + Guid.NewGuid();
 
         // When: Trying to retrieve it
-        Result<EmailEntity> result = await Repository.GetTemplateByID(nonExistentId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(nonExistentId, CancellationToken.None);
 
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);

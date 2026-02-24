@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using static System.Threading.CancellationToken;
 
@@ -24,7 +25,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
             .ReturnsAsync(template);
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId, None);
 
         // Then: Should return success with the template
         Assert.That(result.IsSuccess, Is.True);
@@ -43,7 +44,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
             .ReturnsAsync((EmailTemplateDBModel)null!);
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId, None);
 
         // Then: Should return success but the value should be null (comportamiento de LoadAsync)
         Assert.That(result.IsSuccess, Is.False);
@@ -60,10 +61,11 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
             .ThrowsAsync(new Exception("DynamoDB error"));
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId);
+        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId, None);
 
         // Then: Should fail with the handled error message
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("DynamoDB error"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
+
     }
 }

@@ -38,7 +38,7 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
     public async Task<Result<UserRegistrationResult>> Handle(RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        Result<string> cognitoId = await user.RegisterUserAsync(request.Email, request.Password, request.FullName);
+        Result<string> cognitoId = await user.RegisterUserAsync(request.Email, request.Password, request.FirstName);
         
         return await cognitoId.Bind(async realCognitoId =>
         {
@@ -46,10 +46,10 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
             {
                 Id =realCognitoId,
                 Email = request.Email,
-                FirstName = request.FullName,
-                CognitoId = realCognitoId,
+                FirstName = request.FirstName,
                 Created = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
+                TimezoneID = request.TimeZoneID
             };
 
             Result<string> addAsync = await users.AddAsync(newUserEntity);

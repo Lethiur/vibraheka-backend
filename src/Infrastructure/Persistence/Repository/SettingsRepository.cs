@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Settings;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;

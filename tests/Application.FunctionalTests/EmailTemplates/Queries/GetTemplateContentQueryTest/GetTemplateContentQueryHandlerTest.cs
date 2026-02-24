@@ -32,7 +32,7 @@ public class GetTemplateContentQueryHandlerTest
         string expectedContent = "content";
 
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(query.TemplateID))
+            .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock
@@ -55,7 +55,7 @@ public class GetTemplateContentQueryHandlerTest
         GetEmailTemplateContentQuery query = new("template-1");
         string errorMessage = "ET-002";
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(query.TemplateID))
+            .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>(errorMessage));
 
         // When
@@ -77,7 +77,7 @@ public class GetTemplateContentQueryHandlerTest
         string errorMessage = "S3-FAIL";
 
         _templatesServiceMock
-            .Setup(x => x.GetTemplateByID(query.TemplateID))
+            .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock

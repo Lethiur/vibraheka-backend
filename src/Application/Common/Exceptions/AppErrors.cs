@@ -2,7 +2,6 @@
 
 public class AppErrors
 {
-    
     public const string UnknownError = "E-999";
-
+    public const string TaskHalted = "E-998";
 }

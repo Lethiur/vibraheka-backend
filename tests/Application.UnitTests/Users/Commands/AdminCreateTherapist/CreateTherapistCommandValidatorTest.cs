@@ -4,6 +4,7 @@ using FluentValidation.TestHelper;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
+using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
@@ -27,14 +28,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailIsEmptyOrNull(string? email)
     {
         // Given: Command with invalid email
-        CreateTherapistCommand command = new CreateTherapistCommand(email!, "John Doe");
+        CreateTherapistCommand command =
+            new CreateTherapistCommand(new UserDTO() { Email = email!, FirstName = "Dr. Smith" });
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for email
-        result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserErrors.InvalidEmail);
+        result.ShouldHaveValidationErrorFor(x => x.TherapistData.Email)
+            .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("invalid-email", TestName = "No @ symbol")]
@@ -45,14 +48,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailFormatIsInvalid(string email)
     {
         // Given: Command with invalid email format
-        CreateTherapistCommand command = new CreateTherapistCommand(email, "John Doe");
+        CreateTherapistCommand command =
+            new CreateTherapistCommand(new UserDTO() { Email = email, FirstName = "Dr. Smith" });
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for email
-        result.ShouldHaveValidationErrorFor(x => x.Email)
-              .WithErrorMessage(UserErrors.InvalidEmail);
+        result.ShouldHaveValidationErrorFor(x => x.TherapistData.Email)
+            .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
     [TestCase("therapist@example.com", TestName = "Basic valid email")]
@@ -61,13 +66,14 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenEmailFormatIsValid(string email)
     {
         // Given: Command with valid email format
-        CreateTherapistCommand command = new CreateTherapistCommand(email, "John Doe");
+        CreateTherapistCommand command =
+            new CreateTherapistCommand(new UserDTO() { Email = email, FirstName = "Dr. Smith" });
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should not have validation error for email
-        result.ShouldNotHaveValidationErrorFor(x => x.Email);
+        result.ShouldNotHaveValidationErrorFor(x => x.TherapistData.Email);
     }
 
     #endregion
@@ -81,14 +87,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenNameIsEmptyOrNull(string? name)
     {
         // Given: Command with invalid name
-        CreateTherapistCommand command = new CreateTherapistCommand("therapist@example.com", name!);
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name!, MiddleName = "Test", LastName = "Test", Bio = "Test", TimezoneID = "Europe/Madrid", PhoneNumber = "6359875", ProfilePictureUrl = "test"});
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for name
-        result.ShouldHaveValidationErrorFor(x => x.Name)
-              .WithErrorMessage(UserErrors.InvalidFullName);
+        result.ShouldHaveValidationErrorFor(x => x.TherapistData.FirstName)
+            .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
     [TestCase("John Doe", TestName = "Normal name")]
@@ -97,13 +104,14 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenNameIsValid(string name)
     {
         // Given: Command with valid name
-        CreateTherapistCommand command = new CreateTherapistCommand("therapist@example.com", name);
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name });
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should not have validation error for name
-        result.ShouldNotHaveValidationErrorFor(x => x.Name);
+        result.ShouldNotHaveValidationErrorFor(x => x.TherapistData.FirstName);
     }
 
     #endregion
@@ -115,7 +123,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenAllFieldsAreValid()
     {
         // Given: Command with all valid fields
-        CreateTherapistCommand command = new CreateTherapistCommand("therapist@example.com", "John Doe");
+        CreateTherapistCommand command = new(new UserDTO()
+        {
+            Email = "test@therapist.com",
+            FirstName = "Dr. Smith",
+            Bio = "  ASDFASDF",
+            LastName = "Test",
+            MiddleName = "Test",
+            PhoneNumber = "6359875",
+            TimezoneID = "Europe/Madrid"
+        });
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
@@ -133,16 +150,20 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty email
-        CreateTherapistCommand command = new CreateTherapistCommand("", "John Doe");
+        CreateTherapistCommand command = new(new UserDTO() { Email = "", FirstName = " " });
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have only one error for email
-        IEnumerable<ValidationFailure> emailErrors = result.Errors.Where(e => e.PropertyName == nameof(CreateTherapistCommand.Email));
+        IEnumerable<ValidationFailure> emailErrors =
+            result.Errors.Where(e => e.PropertyName == "TherapistData.Email").ToList();
         IEnumerable<ValidationFailure> validationFailures = emailErrors.ToList();
-        Assert.That(validationFailures.Count(), Is.EqualTo(1));
-        Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidEmail));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(validationFailures.Count(), Is.EqualTo(1));
+            Assert.That(validationFailures.First().ErrorMessage, Is.EqualTo(UserErrors.InvalidEmail));
+        }
     }
 
     #endregion

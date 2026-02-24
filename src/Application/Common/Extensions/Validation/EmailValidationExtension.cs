@@ -9,8 +9,9 @@ namespace VibraHeka.Application.Common.Extensions.Validation;
 public static class EmailValidationExtension
 {
     private static readonly Regex EmailRegex = new(
-        @"^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled
+        @"^(?!\.)(?!.*\.{2})[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(250)
     );
 
     /// <summary>
@@ -21,13 +22,12 @@ public static class EmailValidationExtension
     /// <returns>An instance of <c>IRuleBuilderOptions</c> that indicates the validation rule for a valid email address.</returns>
     public static IRuleBuilderOptions<T, string> ValidEmail<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
-        return ruleBuilder.NotEmpty().WithMessage(UserErrors.InvalidEmail).NotNull()
-            .WithMessage(UserErrors.InvalidEmail).Must(BeValidEmail)
-            .WithMessage(UserErrors.InvalidEmail).Must(BeValidEmail);
+        return ruleBuilder.Must(BeValidEmail).WithMessage(UserErrors.InvalidEmail);
     }
 
     private static bool BeValidEmail(string email)
     {
+        if (string.IsNullOrWhiteSpace(email)) return false;
        
         bool doesMatch = EmailRegex.IsMatch(email.Trim());
         if (doesMatch)

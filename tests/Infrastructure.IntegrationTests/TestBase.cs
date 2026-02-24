@@ -1,11 +1,16 @@
-﻿using Amazon;
+﻿using System.ComponentModel.DataAnnotations;
+using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Bogus;
-using DotEnv.Core;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
+using Stripe;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+using static System.ComponentModel.DataAnnotations.Validator;
 
 namespace VibraHeka.Infrastructure.IntegrationTests;
 
@@ -13,68 +18,96 @@ public abstract class TestBase
 {
     protected AWSConfig _configuration;
     protected Faker _faker;
+    protected StripeConfig _stripeConfig;
+    private IConfigurationRoot _config;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        new EnvLoader().Load();
-        _configuration = CreateTestConfiguration();
+        _config = CreateTestConfiguration();
+        _configuration = CreateAWSConfig();
+        _stripeConfig = CreateStripeConfig();
         _faker = new Faker();
+        Segment segment = new Segment("VH-TEST");
+        AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
     }
 
-    protected AWSConfig CreateTestConfiguration()
+    protected IConfigurationRoot CreateTestConfiguration()
     {
-        string userPoolId = Environment.GetEnvironmentVariable("TEST_COGNITO_USER_POOL_ID")
-                            ?? throw new InvalidOperationException(
-                                "COGNITO_USER_POOL_ID environment variable is required");
-
-        string clientId = Environment.GetEnvironmentVariable("TEST_COGNITO_CLIENT_ID")
-                          ?? throw new InvalidOperationException("COGNITO_CLIENT_ID environment variable is required");
-
-        string verificationCodesTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_CODES_TABLE")
-                                        ?? throw new InvalidOperationException(
-                                            "TEST_DYNAMO_CODES_TABLE environment variable is required");
-
-        string usersTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_USERS_TABLE") ??
-                            throw new InvalidOperationException(
-                                "TEST_DYNAMO_USERS_TABLE environment variable is required");
-        
-        string templatesTable = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATE_TABLE")
-                                ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATE_TABLE environment variable is required");
-
-        string emailTemplatesBucketName = Environment.GetEnvironmentVariable("TEST_EMAIL_TEMPLATES_BUCKET_NAME") ?? throw new InvalidOperationException("TEST_EMAIL_TEMPLATES_BUCKET_NAME environment variable is required");
-        string actionLogTable = Environment.GetEnvironmentVariable("TEST_DYNAMO_ACTION_LOG_TABLE") ?? throw new InvalidOperationException("TEST_DYNAMO_ACTION_LOG_TABLE environment variable is required");
-        _configuration = Options.Create(new AWSConfig()
-        {
-            CodesTable = verificationCodesTable,
-            UserPoolId = userPoolId,
-            ClientId = clientId,
-            UsersTable = usersTable,
-            EmailTemplatesTable = templatesTable,
-            EmailTemplatesBucketName = emailTemplatesBucketName,
-            Profile = Environment.GetEnvironmentVariable("AWS_PROFILE") ?? throw new InvalidOperationException("AWS_PROFILE environment variable is required"),
-            Location = "eu-west-1",
-            ActionLogTable = actionLogTable
-        }).Value;
-        return _configuration;
+        return new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.Test.json", optional: false)
+            .AddEnvironmentVariables()
+            .Build();
     }
-    
+
+    private AWSConfig CreateAWSConfig()
+    {
+        AWSConfig awsConfig = _config.GetSection("AWS").Get<AWSConfig>()
+                              ?? throw new InvalidOperationException("Missing AWS config section.");
+        ValidateObject(
+            awsConfig, new ValidationContext(awsConfig), validateAllProperties: true);
+        
+        return awsConfig;
+    }
+
+    private StripeConfig CreateStripeConfig()
+    {
+        StripeConfig stripeConfig = _config.GetSection("Stripe").Get<StripeConfig>()
+                                    ?? throw new InvalidOperationException("Missing Stripe config section.");
+
+        ValidateObject(
+            stripeConfig, new ValidationContext(stripeConfig), validateAllProperties: true);
+
+        StripeConfiguration.ApiKey = stripeConfig.SecretKey;
+        return stripeConfig;
+    }
+
     protected IDynamoDBContext CreateDynamoDBContext()
     {
-    
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) })).Build();
-        
+                new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) }))
+            .Build();
+
         return dynamoDbContext;
     }
-    
+
     protected AppSettingsEntity CreateAppSettings()
     {
         return new AppSettingsEntity();
     }
     
+        
+    protected UserEntity CreateValidUser()
+    {
+        return new UserEntity(
+            Guid.NewGuid().ToString(),
+            _faker.Internet.Email(),
+            _faker.Person.FirstName
+        )
+        {
+            LastName = _faker.Person.LastName,
+            MiddleName = _faker.Person.UserName,
+            PhoneNumber = "1234567890",
+            Bio = _faker.Lorem.Paragraph(),
+            TimezoneID = _faker.Address.Locale,
+            Role = UserRole.User,
+            Created = DateTime.UtcNow,
+            LastModified = DateTime.UtcNow
+        };
+    }
     
+    protected async Task CleanupUser(string userId, IDynamoDBContext dynamoContext)
+    {
+        try
+        {
+            await dynamoContext.DeleteAsync<UserDBModel>(userId);
+            Console.WriteLine($"Cleanup: Deleted user {userId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Warning: Could not cleanup user {userId}: {ex.Message}");
+        }
+    }
     
-    
-
 }

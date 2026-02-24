@@ -10,7 +10,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
         
         RuleFor(x => x.Password).Cascade(CascadeMode.Stop).ValidPassword();
-        RuleFor(x => x.FullName)
+        RuleFor(x => x.FirstName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(UserErrors.InvalidFullName)

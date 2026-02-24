@@ -7,6 +7,7 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -69,27 +70,26 @@ public class PrivilegeService(
     /// </returns>
     public Task<Result<bool>> CanExecuteAction(string userId, ActionType action, CancellationToken cancellationToken)
     {
-        return  Maybe.From(userId).ToResult(PrivilegeErrors.InvalidID)
-            .BindTry(id => ActionLogRepository.GetActionLogForUser(id, action, cancellationToken))
-            .BindTry(async entity =>
-            {
-                TimeSpan timeElapsed = DateTimeOffset.UtcNow - entity.Timestamp;
-                if (timeElapsed.TotalMinutes < 1)
-                {
-                    return false;
-                }
-                entity.Timestamp = DateTimeOffset.UtcNow;
-                return await ActionLogRepository.SaveActionLog(entity, cancellationToken).Map(_ => true);
-            })
+        return Maybe.From(userId).ToResult(PrivilegeErrors.InvalidID)
+            .BindTry(
+                id => ActionLogRepository.GetActionLogForUser(id, action, cancellationToken),
+                _ => GenericPersistenceErrors.GeneralError)
             .OnFailureCompensateWhen(
                 error => error == ActionLogErrors.ActionLogNotFound,
-                _ =>
-            {
-                ActionLogEntity entity = new()
+                _ => new ActionLogEntity
                 {
-                    ID = userId, Action = action, Timestamp = DateTimeOffset.UtcNow
-                };
-                return ActionLogRepository.SaveActionLog(entity, cancellationToken).Map(_ => true);
-            });
+                    Action = action,
+                    ID = userId,
+                    Timestamp = DateTimeOffset.UnixEpoch
+                })
+            .Ensure(
+                entity => (DateTimeOffset.UtcNow - entity.Timestamp).TotalMinutes > 1,
+                ActionLogErrors.ActionOnCooldwon)
+            .TapTry(entity => entity.Timestamp = DateTimeOffset.UtcNow)
+            .BindTry(
+                entity => ActionLogRepository.SaveActionLog(entity, cancellationToken),
+                _ => GenericPersistenceErrors.GeneralError)
+            .Map(_ => true)
+            .OnFailureCompensateWhen(error => error == ActionLogErrors.ActionOnCooldwon, _ => false);
     }
 }

@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.EmailTemplateRepositoryTest;
@@ -65,7 +66,8 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryTest
 
         // Then
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("Dynamo save error"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
+
     }
 }
 

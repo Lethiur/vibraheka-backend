@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
+using VibraHeka.Infrastructure.Exceptions;
 using static System.Threading.CancellationToken;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
@@ -43,6 +44,6 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
 
         // Then: Should return failure with the handled error message
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo("Handled: Write Error"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
 }

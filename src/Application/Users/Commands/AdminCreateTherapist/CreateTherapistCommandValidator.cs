@@ -1,22 +1,95 @@
-﻿using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions.Validation;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
 /// <summary>
 /// Validator for the <c>CreateTherapistCommand</c> class.
-/// Ensures that all required properties of the command are valid according to the specified rules.
+/// Ensures that all required properties are valid according to business rules.
 /// </summary>
-/// <remarks>
-/// The validation logic includes the following rules:
-/// - The <c>Email</c> property must be a valid and non-empty email address.
-/// - The <c>Name</c> property must not be empty and will return a specific error message if validation fails.
-/// </remarks>
 public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapistCommand>
 {
     public CreateTherapistCommandValidator()
     {
-        RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
-        RuleFor(x => x.Name).Cascade(CascadeMode.Stop).NotEmpty().WithMessage(UserErrors.InvalidFullName);
+        ClassLevelCascadeMode = CascadeMode.Stop;
+
+        RuleFor(x => x.TherapistData)
+            .NotNull()
+            .WithMessage(UserErrors.InvalidForm);
+
+        RuleFor(x => x.TherapistData.Email)
+            .Cascade(CascadeMode.Stop)
+            .MaximumLength(320)
+            .WithMessage(UserErrors.EmailTooLong)
+            .ValidEmail()
+            .WithMessage(UserErrors.InvalidEmail);
+
+        RuleFor(x => x.TherapistData.FirstName)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithMessage(UserErrors.InvalidFullName)
+            .Must(name => !string.IsNullOrWhiteSpace(name))
+            .WithMessage(UserErrors.InvalidFullName)
+            .MinimumLength(3)
+            .WithMessage(UserErrors.InvalidFullName)
+            .MaximumLength(100)
+            .WithMessage(UserErrors.InvalidFullName);
+
+        RuleFor(x => x.TherapistData.MiddleName)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithMessage(UserErrors.InvalidFullName)
+            .Must(name => !string.IsNullOrWhiteSpace(name))
+            .WithMessage(UserErrors.InvalidFullName)
+            .MinimumLength(3)
+            .WithMessage(UserErrors.InvalidFullName)
+            .MaximumLength(100)
+            .WithMessage(UserErrors.InvalidFullName);
+
+        RuleFor(x => x.TherapistData.LastName)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithMessage(UserErrors.InvalidFullName)
+            .Must(name => !string.IsNullOrWhiteSpace(name))
+            .WithMessage(UserErrors.InvalidFullName)
+            .MinimumLength(3)
+            .WithMessage(UserErrors.InvalidFullName)
+            .MaximumLength(100)
+            .WithMessage(UserErrors.InvalidFullName);
+
+        RuleFor(x => x.TherapistData.Bio)
+            .MaximumLength(1000)
+            .WithMessage(UserErrors.InvalidForm);
+
+        RuleFor(x => x.TherapistData.ProfilePictureUrl)
+            .Cascade(CascadeMode.Stop)
+            .MaximumLength(2048)
+            .WithMessage(UserErrors.InvalidForm)
+            .Must(BeAbsoluteHttpUrl)
+            .WithMessage(UserErrors.InvalidForm)
+            .When(x => !string.IsNullOrWhiteSpace(x.TherapistData.ProfilePictureUrl) && !string.IsNullOrEmpty(x.TherapistData.ProfilePictureUrl));
+
+        RuleFor(x => x.TherapistData.PhoneNumber)
+            .Cascade(CascadeMode.Stop)
+            .MaximumLength(30)
+            .WithMessage(UserErrors.InvalidForm)
+            .Matches(@"^\+?[0-9\s\-\(\)]*$")
+            .WithMessage(UserErrors.InvalidForm)
+            .When(x => !string.IsNullOrWhiteSpace(x.TherapistData.PhoneNumber) && !string.IsNullOrEmpty(x.TherapistData.PhoneNumber));
+
+        RuleFor(x => x.TherapistData.TimezoneID)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithMessage(UserErrors.InvalidForm)
+            .Must(tz => !string.IsNullOrWhiteSpace(tz))
+            .WithMessage(UserErrors.InvalidForm)
+            .MaximumLength(100)
+            .WithMessage(UserErrors.InvalidForm);
+    }
+
+    private static bool BeAbsoluteHttpUrl(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)
+               && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 }

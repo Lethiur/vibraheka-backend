@@ -3,6 +3,7 @@ using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Services;
 
@@ -17,13 +18,21 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{EmailEntity}"/> object
     /// wrapping the email template if found, or an error if the operation fails.</returns>
-    public Task<Result<EmailEntity>> GetTemplateByID(string templateID)
+    public Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken cancellationToken)
     {
         return  Maybe.From(templateID)
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
-            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id))
-            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound);
+            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id, cancellationToken))
+            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound)
+            .MapError(error =>
+            {
+                return error switch
+                {
+                    GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
+                    _ => error
+                };
+            });
     }
 
     /// <summary>
@@ -63,12 +72,20 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return
             Maybe.From(templateID)
                 .ToResult(EmailTemplateErrors.InvalidTempalteID)
-                .Map(GetTemplateByID)
+                .Map(GetTemplateByID, token)
             .Tap(entity =>
             {
                 entity.Name = newTemplateName;
                 entity.LastModified = DateTime.UtcNow;
                 EmailTemplateRepository.SaveTemplate(entity, token);
-            }).Map(_ => Unit.Value);
+            }).Map(_ => Unit.Value)
+                .MapError(error =>
+                {
+                    return error switch
+                    {
+                        GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
+                        _ => error
+                    };
+                });
     }
 }

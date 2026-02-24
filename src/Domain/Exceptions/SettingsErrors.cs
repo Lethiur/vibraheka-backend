@@ -1,7 +1,7 @@
-﻿namespace VibraHeka.Application.Common.Exceptions;
+﻿namespace VibraHeka.Domain.Exceptions;
 
 public class SettingsErrors
 {
-    public const string VerificationEmailTemplateUpdateFailed = "S-000";
-    public const string InvalidVerificationEmailTemplate = "S-001";
+    public const string VerificationEmailTemplateUpdateFailed = "SET-000";
+    public const string InvalidVerificationEmailTemplate = "SET-001";
 }

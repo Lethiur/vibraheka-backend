@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using Amazon.S3;
 using CSharpFunctionalExtensions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateStorageServiceTest;

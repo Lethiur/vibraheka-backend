@@ -21,8 +21,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
             Id = userId,
             Email = "therapist@test.com",
             FirstName = "Test Therapist",
-            Role = UserRole.Therapist,
-            CognitoId = "cognito-123"
+            Role = UserRole.Therapist
         };
         await _userRepository.AddAsync(userEntity);
 
@@ -45,8 +44,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
             Id = userId,
             Email = "admin@test.com",
             FirstName = "Test Admin",
-            Role = UserRole.Admin,
-            CognitoId = "cognito-456"
+            Role = UserRole.Admin
         };
         await _userRepository.AddAsync(userEntity);
         

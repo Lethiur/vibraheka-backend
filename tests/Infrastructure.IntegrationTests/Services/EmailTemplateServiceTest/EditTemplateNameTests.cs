@@ -5,31 +5,13 @@ using MediatR;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServiceTest;
 
 [TestFixture]
-public class EditTemplateNameTests : TestBase
+public class EditTemplateNameTests : GenericEmailTemplateServiceTest
 {
-    private IDynamoDBContext _context;
-    private EmailTemplateRepository _repository;
-    private EmailTemplateService _service;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _context = CreateDynamoDBContext();
-        _repository = new EmailTemplateRepository(_context, _configuration);
-        _service = new EmailTemplateService(_repository);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _context?.Dispose();
-    }
+  
 
     [Test]
     [DisplayName("Should update template name and last modified when template exists")]
@@ -90,7 +72,7 @@ public class EditTemplateNameTests : TestBase
         DateTimeOffset start = DateTimeOffset.UtcNow;
         while (DateTimeOffset.UtcNow - start < timeout)
         {
-            Result<EmailEntity> result = await _service.GetTemplateByID(templateId);
+            Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
             if (result.IsSuccess && result.Value.Name == expectedName) return result.Value;
             await Task.Delay(250);
         }

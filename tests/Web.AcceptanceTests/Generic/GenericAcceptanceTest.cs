@@ -1,12 +1,18 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
+using Amazon.XRay.Recorder.Core.Strategies;
 using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Serilog;
+using Serilog.Formatting.Display;
+using Serilog.Sinks.NUnit;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
@@ -26,16 +32,21 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
     public GenericAcceptanceTest()
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .WriteTo.Sink(new NUnitSink(new MessageTemplateTextFormatter("TU PUTA MADRE")))
+            .CreateLogger();
+
         TheFaker = new Faker();
         Factory = new WebApplicationFactory<TAppClass>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, configBuilder) =>
+                AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
+                builder.ConfigureAppConfiguration((_, configBuilder) =>
                 {
                     // Borra config anterior
                     configBuilder.Sources.Clear();
-
-                    configBuilder.AddJsonFile("appsettings.Development.json", optional: false)
+                    configBuilder.AddJsonFile("appSettings.Test.json", optional: false)
                         .AddEnvironmentVariables();
                 });
             });
@@ -44,6 +55,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [SetUp]
     public void Setup()
     {
+        AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("VH-ACCEPTANCE-TEST"));
         Client = Factory.CreateClient();
     }
 
@@ -56,8 +68,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [OneTimeTearDown]
     public void TearDown()
     {
-        Client?.Dispose();
-        Factory?.Dispose();
+        Client.Dispose();
+        Factory.Dispose();
     }
 
     /// <summary>
@@ -98,7 +110,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
             new RegisterUserCommand(
-                email, password, username)
+                email, password, username, "Europe/Madrid")
         );
         ResponseEntity asResponseEntityAndContentAs =
             await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
@@ -119,7 +131,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
-        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        HttpResponseMessage patchAsJsonAsync =
+            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         return userID;
     }
@@ -138,7 +151,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
-        HttpResponseMessage patchAsJsonAsync = await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        HttpResponseMessage patchAsJsonAsync =
+            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         await PromoteToAdmin(username, email, userID);
         return userID;
@@ -168,7 +182,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="email">The email address of the admin user.</param>
     /// <param name="ID">The ID of the user to promote to admin</param>
     /// <returns>The unique identifier of the newly created admin user.</returns>
-    private async Task<string> PromoteToAdmin(string username, string email, string ID)
+    private async Task PromoteToAdmin(string username, string email, string ID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
@@ -177,7 +191,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         UserEntity adminUserEntity = new()
         {
             Id = ID,
-            CognitoId = userId,
             Email = email,
             FirstName = username,
             Role = UserRole.Admin,
@@ -188,8 +201,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         };
 
         await repository.AddAsync(adminUserEntity);
-            
-        return userId;
     }
 
     /// <summary>
@@ -209,9 +220,10 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         IServiceScope scope = Factory.Services.CreateScope();
         T obj = scope.ServiceProvider.GetRequiredService<T>();
-        
+
         return obj;
     }
+
     protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
         string fileContent)
     {

@@ -22,7 +22,7 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: A command
         Faker faker = new();
-        RegisterUserCommand command = new(faker.Internet.Email(), "Password123@", "Hola policia");
+        RegisterUserCommand command = new(faker.Internet.Email(), "Password123@", "Hola policia", "Europe/Madrid");
         
         // When: The client is invoked
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/auth/register", command);
@@ -69,7 +69,7 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldNotAllowRegistrationWithWrongData(string email, string password, string fullName, string expectedErrorKeyword)
     {
         // Given: A command with invalid data
-        RegisterUserCommand command = new(email, password, fullName);
+        RegisterUserCommand command = new(email, password, fullName, "Europe/Madrid");
     
         // When: The client is invoked
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/register", command);
@@ -92,8 +92,8 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A valid user command
         Faker faker = new();
         string? email = faker.Internet.Email();
-        RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe");
-        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith");
+        RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe", "Europe/Madrid");
+        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith", "Europe/Madrid");
 
         // When: We register the user for the first time
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", firstCommand);

@@ -1,8 +1,6 @@
 using System.Net;
-using System.Net.Http.Json;
 using Bogus;
 using NUnit.Framework;
-using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -17,8 +15,8 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         // Given: A registered but not confirmed user
         Faker faker = new();
         string email = faker.Internet.Email();
-        RegisterUserCommand registerCommand = new(email, "Password123@", "John Doe");
-        await Client.PostAsJsonAsync("/api/v1/auth/register", registerCommand);
+        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        
 
         // When: Resending the confirmation code
         HttpResponseMessage response = await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");

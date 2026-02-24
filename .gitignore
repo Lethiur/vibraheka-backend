@@ -16,6 +16,14 @@
 # Mono auto generated files
 mono_crash.*
 
+# Secret keys shit
+src/Web/appSettings.Test.json
+src/Web/appsettings.Development.json
+src/Infrastructure/terraform/terraform_apply.ps1
+src/Infrastructure/terraform/.terraform/
+src/Infrastructure/terraform/Lambdas/**/dist/
+src/Infrastructure/terraform/Lambdas/**/*.zip
+
 # Build results
 tools/
 [Dd]ebug/

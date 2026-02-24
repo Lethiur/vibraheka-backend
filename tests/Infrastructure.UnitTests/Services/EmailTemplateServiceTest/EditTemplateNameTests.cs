@@ -42,7 +42,7 @@ public class EditTemplateNameTests
         EmailEntity? savedEntity = null;
 
         _repositoryMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(template));
 
         _repositoryMock
@@ -60,7 +60,7 @@ public class EditTemplateNameTests
         Assert.That(savedEntity.Name, Is.EqualTo(newName));
         Assert.That(savedEntity.LastModified, Is.GreaterThan(initialLastModified));
 
-        _repositoryMock.Verify(x => x.GetTemplateByID(templateId), Times.Once);
+        _repositoryMock.Verify(x => x.GetTemplateByID(templateId, CancellationToken.None), Times.Once);
         _repositoryMock.Verify(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -76,7 +76,7 @@ public class EditTemplateNameTests
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
 
-        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>()), Times.Never);
+        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None), Times.Never);
         _repositoryMock.Verify(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -88,7 +88,7 @@ public class EditTemplateNameTests
         const string templateId = "missing-template";
 
         _repositoryMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success<EmailEntity>(null!));
 
         // When
@@ -110,7 +110,7 @@ public class EditTemplateNameTests
         const string repositoryError = "some-error";
 
         _repositoryMock
-            .Setup(x => x.GetTemplateByID(templateId))
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>(repositoryError));
 
         // When

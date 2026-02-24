@@ -5,6 +5,7 @@ using VibraHeka.Application.Admin.Queries.GetAllTherapists;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Web.Controllers;
 
@@ -25,9 +26,10 @@ public class AdminController(IMediator mediator)
     [Authorize]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public async Task<IActionResult> CreateTherapist([FromBody] CreateTherapistCommand command)
+    public async Task<IActionResult> CreateTherapist([FromBody] UserDTO command)
     {
-        Result<string> result = await mediator.Send(command);
+        CreateTherapistCommand createTherapistCommand = new(command);
+        Result<string> result = await mediator.Send(createTherapistCommand);
 
         if (result.IsFailure)
         {

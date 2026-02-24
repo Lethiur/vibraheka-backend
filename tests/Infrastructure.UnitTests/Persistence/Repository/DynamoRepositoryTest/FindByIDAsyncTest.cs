@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
 
@@ -41,7 +42,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
 
         // Then: Should return failure with the handled error message
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo("Handled: DB Connection Error"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
 
 }

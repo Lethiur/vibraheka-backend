@@ -9,7 +9,6 @@ using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;

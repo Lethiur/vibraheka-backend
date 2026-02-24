@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.EmailTemplateRepositoryTest;
@@ -50,7 +51,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
         Result<IEnumerable<VibraHeka.Domain.Entities.EmailEntity>> result = await Repository.GetAllTemplates(CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("Scan failed"));
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
 }
 

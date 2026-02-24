@@ -20,6 +20,7 @@ public class GetUserProfileQueryHandler(ICurrentUserService currentUserService, 
                     FirstName = user.FirstName,
                     MiddleName = user.MiddleName,
                     LastName = user.LastName, 
+                    TimezoneID = user.TimezoneID,
                     ProfilePictureUrl = user.ProfilePictureUrl,
                 };
 

@@ -1,5 +1,3 @@
-using System;
-using FluentValidation;
 using VibraHeka.Application.Common.Exceptions;
 
 namespace VibraHeka.Application.Users.Commands.UpdateUserProfile;

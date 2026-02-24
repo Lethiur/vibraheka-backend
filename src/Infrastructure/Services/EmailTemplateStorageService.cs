@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
-using VibraHeka.Domain.Exceptions;
 using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
 
 namespace VibraHeka.Infrastructure.Services;
