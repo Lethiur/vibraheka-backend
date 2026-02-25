@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
@@ -14,13 +15,15 @@ public class GetVerificationEmailTemplateAsyncTest
 {
      private Mock<IAmazonSimpleSystemsManagement> SsmClientMock;
     private SettingsRepository Repository;
-    private const string ParameterName = "/VibraHeka/VerificationEmailTemplate";
+    private AWSConfig config;
+    private const string ParameterName = "/TEST/VerificationEmailTemplate";
 
     [SetUp]
     public void SetUp()
     {
+        config = new AWSConfig() { SettingsNameSpace = "TEST" };
         SsmClientMock = new Mock<IAmazonSimpleSystemsManagement>();
-        Repository = new SettingsRepository(SsmClientMock.Object);
+        Repository = new SettingsRepository(SsmClientMock.Object, config);
     }
 
     [Test]

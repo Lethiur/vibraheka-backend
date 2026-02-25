@@ -24,7 +24,7 @@ public class GetTemplatesForActionsTest : TestBase
         };
 
         _ssmClient = new AmazonSimpleSystemsManagementClient(config);
-        _repository = new SettingsRepository(_ssmClient);
+        _repository = new SettingsRepository(_ssmClient, _configuration);
         _appSettings = CreateAppSettings();
         // Cargamos los settings iniciales desde la configuración de TestBase
         _service = new SettingsService(_repository, _appSettings);

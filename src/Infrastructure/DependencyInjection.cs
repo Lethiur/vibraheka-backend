@@ -41,9 +41,6 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
-        
-             
-           
         builder.Services.AddOptions<AWSConfig>().Bind(builder.Configuration.GetSection("AWS"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -60,11 +57,11 @@ public static class DependencyInjection
         builder.Services.AddAWSService<IAmazonS3>();
         builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
         AWSSDKHandler.RegisterXRayForAllServices();
+        AWSConfig? awsConfig = builder.Configuration.GetSection("AWS").Get<AWSConfig>();
 
-
-
+        
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
-        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials("Twingers", out AWSCredentials credentials);
+        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
         var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
@@ -98,7 +95,7 @@ public static class DependencyInjection
 
         configurationManager.AddSystemsManager(options =>
         {
-            options.Path = "/VibraHeka/";
+            options.Path = $"/{awsConfig?.SettingsNameSpace}/";
             options.ReloadAfter = TimeSpan.FromSeconds(2); 
             options.Optional = true;
         });

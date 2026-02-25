@@ -5,11 +5,12 @@ using MediatR;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
 
-public class SettingsRepository(IAmazonSimpleSystemsManagement SsmClient) : ISettingsRepository
+public class SettingsRepository(IAmazonSimpleSystemsManagement SsmClient, AWSConfig config) : ISettingsRepository
 {
     /// <summary>
     /// Updates the verification email template in the AWS Systems Manager Parameter Store.
@@ -25,7 +26,7 @@ public class SettingsRepository(IAmazonSimpleSystemsManagement SsmClient) : ISet
             await SsmClient.PutParameterAsync(
                 new PutParameterRequest
                 {
-                    Name = "/VibraHeka/VerificationEmailTemplate",
+                    Name = $"/{config.SettingsNameSpace}/VerificationEmailTemplate",
                     Value = emailTemplate,
                     Type = ParameterType.String,
                     Overwrite = true

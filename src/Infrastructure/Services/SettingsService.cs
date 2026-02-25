@@ -36,6 +36,11 @@ public class SettingsService(ISettingsRepository Repository, AppSettingsEntity a
         return updateVerificationEmailTemplateAsync;
     }
 
+    public async Task<Result<Unit>> ChangeEmailForResetPasswordAsync(string email, CancellationToken cancellationToken)
+    {
+        
+    }
+
     /// <summary>
     /// Retrieves all templates used for actions.
     /// Fetches all available instances of <see cref="TemplateForActionEntity"/> from the repository.

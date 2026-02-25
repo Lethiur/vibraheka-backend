@@ -38,7 +38,7 @@ public class SettingsServiceIntegrationTests : TestBase
             RegionEndpoint = region
         });
 
-        _repository = new SettingsRepository(_ssmClient);
+        _repository = new SettingsRepository(_ssmClient, _configuration);
         _service = new SettingsService(_repository, CreateAppSettings());
     }
 

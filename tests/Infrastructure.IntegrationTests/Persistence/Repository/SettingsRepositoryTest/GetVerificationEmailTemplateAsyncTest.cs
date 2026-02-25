@@ -22,7 +22,7 @@ public class GetVerificationEmailTemplateAsyncTest : TestBase
 
         // Usamos un Profile para asegurar que se conecta a la cuenta de sandbox/test
         _ssmClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
-        _repository = new SettingsRepository(_ssmClient);
+        _repository = new SettingsRepository(_ssmClient, _configuration);
     }
 
     [OneTimeTearDown]

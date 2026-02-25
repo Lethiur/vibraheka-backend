@@ -43,6 +43,7 @@ function processTemplate(template: string, data: Record<string, string | number>
 
 export const handler: CustomEmailSenderTriggerHandler = async (event: CustomEmailSenderTriggerEvent) => {
     try {
+        event.triggerSource = "CustomEmailSender_ForgotPassword";
         // Step 1: Validate all required environment variables are present
         const env = validateEnvironment();
         console.log(event)

@@ -3,6 +3,7 @@ using Amazon.SimpleSystemsManagement.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
+using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
@@ -11,14 +12,15 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SettingsRepo
 [TestFixture]
 public class SettingsRepositoryTests
 {
-    private Mock<IAmazonSimpleSystemsManagement> _ssmClientMock;
-    private SettingsRepository _repository;
+    private Mock<IAmazonSimpleSystemsManagement> SsmClientMock;
+    private SettingsRepository Repository;
+    private AWSConfig config;
 
     [SetUp]
     public void SetUp()
-    {
-        _ssmClientMock = new Mock<IAmazonSimpleSystemsManagement>();
-        _repository = new SettingsRepository(_ssmClientMock.Object);
+    { config = new AWSConfig() { SettingsNameSpace = "TEST" };
+        SsmClientMock = new Mock<IAmazonSimpleSystemsManagement>();
+        Repository = new SettingsRepository(SsmClientMock.Object, config);
     }
 
     [Test]
@@ -28,11 +30,11 @@ public class SettingsRepositoryTests
         string emailTemplate = "<html><body>Verify</body></html>";
         CancellationToken cancellationToken = CancellationToken.None;
 
-        _ssmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
+        SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
             .ReturnsAsync(new PutParameterResponse());
 
         // When: Se intenta actualizar el template en el repositorio
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
 
         // Then: El resultado debe indicar éxito y contener el valor Unit
         Assert.That(result.IsSuccess, Is.True);
@@ -46,11 +48,11 @@ public class SettingsRepositoryTests
         string emailTemplate = "template";
         CancellationToken cancellationToken = CancellationToken.None;
 
-        _ssmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
+        SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
             .ThrowsAsync(new ParameterLimitExceededException("Limit reached"));
 
         // When: Se intenta realizar la actualización del parámetro
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
 
         // Then: Se debe capturar la excepción y retornar el error de negocio correspondiente
         Assert.That(result.IsFailure, Is.True);
@@ -64,11 +66,11 @@ public class SettingsRepositoryTests
         string emailTemplate = "template";
         CancellationToken cancellationToken = CancellationToken.None;
 
-        _ssmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
+        SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
             .ThrowsAsync(new TooManyUpdatesException("Too many updates"));
 
         // When: Se solicita la actualización del template
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
 
         // Then: El resultado debe fallar con el error de actualización excesiva
         Assert.That(result.IsFailure, Is.True);
@@ -82,11 +84,11 @@ public class SettingsRepositoryTests
         string emailTemplate = "template";
         CancellationToken cancellationToken = CancellationToken.None;
 
-        _ssmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
+        SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
             .ThrowsAsync(new AmazonSimpleSystemsManagementException("Access Denied"));
 
         // When: El repositorio intenta comunicarse con AWS
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
 
         // Then: Se mapea el error genérico de SSM a una denegación de acceso en la infraestructura
         Assert.That(result.IsFailure, Is.True);
@@ -100,11 +102,11 @@ public class SettingsRepositoryTests
         string emailTemplate = "template";
         CancellationToken cancellationToken = CancellationToken.None;
 
-        _ssmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
+        SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), cancellationToken))
             .ThrowsAsync(new Exception("Generic error"));
 
         // When: Ocurre el fallo durante la ejecución del método
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, cancellationToken);
 
         // Then: El repositorio debe asegurar que se retorne un error inesperado genérico
         Assert.That(result.IsFailure, Is.True);

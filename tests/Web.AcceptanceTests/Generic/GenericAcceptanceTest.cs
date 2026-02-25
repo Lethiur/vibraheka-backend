@@ -109,9 +109,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     protected async Task<string> RegisterUser(string username, string email, string password)
     {
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
-            new RegisterUserCommand(
-                email, password, username, "Europe/Madrid")
-        );
+                new RegisterUserCommand(email, password, username, "TEST", "TEST","Europe/Madrid"));
+        
         ResponseEntity asResponseEntityAndContentAs =
             await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
         UserRegistrationResult? registerUserResponse =

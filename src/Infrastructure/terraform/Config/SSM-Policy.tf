@@ -1,6 +1,6 @@
 
 resource "aws_iam_policy" "VH_ssm_policy" {
-  name        = "Policy_Read_App_Settings"
+  name        = "Policy_Read_App_Settings_${terraform.workspace}"
   description = "Permite leer CUALQUIER cosa dentro de /mi-app/ sin tocar Terraform"
 
   policy = jsonencode({
@@ -22,6 +22,24 @@ resource "aws_iam_policy" "VH_ssm_policy" {
 
 resource "aws_ssm_parameter" "VH_verification_email_template" {
   name = "/${var.ssm_namespace}/VerificationEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_verification_email_template" {
+  name = "/${var.ssm_namespace}/RecoverPasswordEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_verification_email_template" {
+  name = "/${var.ssm_namespace}/PasswordChangedTemplate"
   type = "String"
   value = "test"
   lifecycle {

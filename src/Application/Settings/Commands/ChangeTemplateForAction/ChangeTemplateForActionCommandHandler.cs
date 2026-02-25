@@ -30,6 +30,8 @@ public class ChangeTemplateForActionCommandHandler(
                 {
                     case ActionType.UserVerification:
                         return await SettingsService.ChangeEmailForVerificationAsync(request.TemplateID, cancellationToken);
+                    case ActionType.PasswordReset:
+                        
                     default:
                         return Result.Failure<Unit>(EmailTemplateErrors.InvalidAction);
                 }

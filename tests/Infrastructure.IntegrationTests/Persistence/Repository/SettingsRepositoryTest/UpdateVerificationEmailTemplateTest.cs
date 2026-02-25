@@ -23,7 +23,7 @@ public class UpdateVerificationEmailTemplateTest : TestBase
         base.OneTimeSetUp();
         AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new AmazonSimpleSystemsManagementConfig() { Profile = new Profile(_configuration.Profile) };
         _ssmClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
-        _repository = new SettingsRepository(_ssmClient);
+        _repository = new SettingsRepository(_ssmClient, _configuration);
         _faker = new Faker();
     }
 

@@ -86,8 +86,11 @@ public class AWSConfig
 
     /// <summary>
     /// Gets or sets the name of the index on the Subscription table used for querying subscriptions by user ID.
-    /// This property is utilized to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
+    /// This property is used to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
     /// </summary>
     [Required]
     public string SubscriptionUserIdIndex { get; set; } = string.Empty;
+
+    [Required]
+    public string SettingsNameSpace { get; set; } = string.Empty;
 }
