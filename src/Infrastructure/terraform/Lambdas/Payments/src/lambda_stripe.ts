@@ -1,4 +1,4 @@
-﻿import {EventBridgeEvent, Context} from 'aws-lambda';
+import {EventBridgeEvent, Context} from 'aws-lambda';
 import Stripe from 'stripe';
 import {UseCase as SuccessfulPaymentUseCase} from "@Domain/Composition/ProcessSuccessfullPaymentComposition";
 
@@ -6,6 +6,7 @@ import {SubscriptionErrors} from "@Domain/Errors/SubscriptionErrors";
 import {Result} from "neverthrow";
 import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
 import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
+import {CheckoutSessionExpiredUseCase} from "@Domain/Composition/ProcessCheckoutSessionExpiredComposition";
 
 export interface StripeEventDetail {
     type: string;
@@ -30,6 +31,10 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 const invoiceResult: Result<void, SubscriptionErrors> = await SuccessfulPaymentUseCase.Execute(invoicePaid);
                 if (invoiceResult.isErr()) {
                     console.log(`Error while processing payment: ${invoiceResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: invoiceResult.error
+                    };
                 }
                 else {
                     console.log('Payment processed successfully')
@@ -53,7 +58,16 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                     console.log('Subscription updated successfully')
                 }
                 break;
-                
+            case 'checkout.session.expired':
+                const expiredSession = eventData as Stripe.Checkout.Session;
+                const expiredResult: Result<void, SubscriptionErrors> = await CheckoutSessionExpiredUseCase.Execute(expiredSession);
+
+                if (expiredResult.isErr()) {
+                    console.log(`Error while processing checkout session expiration: ${expiredResult.error}`)
+                } else {
+                    console.log('Checkout session expired processed successfully')
+                }
+                break;
             default:
                 console.log('Evento no manejado:', eventType);
         }

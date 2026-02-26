@@ -51,6 +51,40 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     }
 
     [Test]
+    public async Task ShouldUpdatePasswordResetTemplateSuccessfullyWhenUserIsAdmin()
+    {
+        // Given: A registered and confirmed admin user
+        string email = TheFaker.Internet.Email();
+        string username = TheFaker.Person.FullName;
+        string templateID = Guid.NewGuid().ToString();
+        await RegisterAndConfirmAdmin(username, email, ThePassword);
+
+        // And: The user is authenticated
+        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+        // And: Template in the DB
+        await SeedEmailTemplate(templateID, "test/password-reset-email.html");
+
+        // And: A command to change the template
+        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.PasswordReset);
+
+        // When: The admin attempts to change the template
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
+
+        // Then: The response should be 200 OK
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
+
+        // Happy Path check: Verify association in the all-templates list
+        HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
+        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
+        IEnumerable<TemplateForActionEntity>? associations = listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
+        Assert.That(associations!.Any(a => a.ActionType == ActionType.PasswordReset && a.TemplateID == templateID), Is.True);
+    }
+
+    [Test]
     public async Task ShouldReturnUnauthorizedWhenNonAdminAttemptsToChangeTemplate()
     {
         // Given: A registered and confirmed standard user

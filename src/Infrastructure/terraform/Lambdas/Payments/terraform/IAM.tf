@@ -1,4 +1,4 @@
-﻿
+
 resource "aws_iam_policy" "stripe_put_events" {
   name        = "StripeEventBridgePolicy-${terraform.workspace}"
   description = "Allow Stripe to put events on EventBridge"
@@ -7,7 +7,7 @@ resource "aws_iam_policy" "stripe_put_events" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect   = "Allow"
         Action   = "events:PutEvents"
         Resource = var.stripe_event_bus_arn
       }

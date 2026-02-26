@@ -29,7 +29,7 @@ resource "aws_ssm_parameter" "VH_verification_email_template" {
   }
 }
 
-resource "aws_ssm_parameter" "VH_verification_email_template" {
+resource "aws_ssm_parameter" "VH_password_reset_email_template" {
   name = "/${var.ssm_namespace}/RecoverPasswordEmailTemplate"
   type = "String"
   value = "test"
@@ -38,7 +38,7 @@ resource "aws_ssm_parameter" "VH_verification_email_template" {
   }
 }
 
-resource "aws_ssm_parameter" "VH_verification_email_template" {
+resource "aws_ssm_parameter" "VH_password_changed_email_template" {
   name = "/${var.ssm_namespace}/PasswordChangedTemplate"
   type = "String"
   value = "test"

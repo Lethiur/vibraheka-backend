@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Settings;
@@ -16,19 +17,21 @@ namespace VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 public class GetTemplatesForActionQueryHandler(
     ISettingsService SettingsService,
     ICurrentUserService CurrentUserService,
-    IPrivilegeService PrivilegeService)
+    ILogger<GetTemplatesForActionQueryHandler> Logger)
     : IRequestHandler<GetTemplatesForActionQuery, Result<IEnumerable<TemplateForActionEntity>>>
 {
     public Task<Result<IEnumerable<TemplateForActionEntity>>> Handle(GetTemplatesForActionQuery request,
         CancellationToken cancellationToken)
     {
-        return Maybe.From<string>(CurrentUserService.UserId)
+        return Task.FromResult(Maybe.From(CurrentUserService.UserId)
             .Where(userID =>
                 !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await PrivilegeService.HasRoleAsync(userID, UserRole.Admin, cancellationToken))
-            .Ensure(hasRole => hasRole, UserErrors.NotAuthorized)
-            .Bind(_ => SettingsService.GetAllTemplatesForActions());
+            .BindTry(_ => SettingsService.GetAllTemplatesForActions(), exception =>
+            {
+                Logger.LogError(exception, "Problem retrieving templates for actions");
+                return AppErrors.GenericError;
+            }));
 
     }
 }

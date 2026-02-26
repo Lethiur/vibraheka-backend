@@ -816,7 +816,13 @@
           "firstName": {
             "type": "string"
           },
-          "timeZoneID": {
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "timeZone": {
             "type": "string"
           }
         }

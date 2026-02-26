@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
@@ -17,121 +17,97 @@ namespace VibraHeka.Application.FunctionalTests.Settings.Commands.ChangeTemplate
 public class ChangeTemplateCommandHandlerTest
 {
     private Mock<ISettingsService> settingsServiceMock;
-    private Mock<ICurrentUserService> CurrentUserServiceMock;
-    private Mock<IPrivilegeService> PrivilegeServiceMock;
-    private Mock<IEmailTemplatesService> EmailTemplatesServiceMock;
-    private ChangeTemplateForActionCommandHandler Handler;
+    private Mock<ICurrentUserService> currentUserServiceMock;
+    private Mock<IEmailTemplatesService> emailTemplatesServiceMock;
+    private ChangeTemplateForActionCommandHandler handler;
 
     [SetUp]
     public void SetUp()
     {
         settingsServiceMock = new Mock<ISettingsService>();
-        CurrentUserServiceMock = new Mock<ICurrentUserService>();
-        PrivilegeServiceMock = new Mock<IPrivilegeService>();
-        EmailTemplatesServiceMock = new Mock<IEmailTemplatesService>();
+        currentUserServiceMock = new Mock<ICurrentUserService>();
+        emailTemplatesServiceMock = new Mock<IEmailTemplatesService>();
 
-        Handler = new ChangeTemplateForActionCommandHandler(
+        handler = new ChangeTemplateForActionCommandHandler(
             settingsServiceMock.Object,
-            CurrentUserServiceMock.Object,
-            PrivilegeServiceMock.Object,
-            EmailTemplatesServiceMock.Object);
+            currentUserServiceMock.Object,
+            emailTemplatesServiceMock.Object);
     }
 
     [Test]
     public async Task ShouldHandleInvalidUserID()
     {
-        // Arrange
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(string.Empty);
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("1", ActionType.UserVerification);
+        currentUserServiceMock.Setup(x => x.UserId).Returns(string.Empty);
+        ChangeTemplateForActionCommand command = new("1", ActionType.UserVerification);
 
-        // Act
-        Result<Unit> result = await Handler.Handle(command, CancellationToken.None);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
     }
 
     [Test]
-    public async Task ShouldReturnNotAuthorizedErrorIfUserIsNotAdmin()
-    {
-        // Arrange
-        const string userId = "user-123";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(false);
-
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("1", ActionType.UserVerification);
-
-        // Act
-        Result<Unit> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-    }
-
-    [Test]
     public async Task ShouldReturnFailureIfTemplateDoesNotExist()
     {
-        // Arrange
-        const string userId = "admin-123";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(true);
-        
-        EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None))
+        currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>("Template not found"));
 
         ChangeTemplateForActionCommand command = new("99", ActionType.UserVerification);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
-        // Act
-        Result<Unit> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Assert
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("Template not found"));
     }
 
     [Test]
-    public async Task ShouldReturnInvalidActionErrorIfActionIsInvalid()
+    public async Task ShouldCallVerificationSettingsServiceBranch()
     {
-        // Arrange
-        const string userId = "admin-123";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
-        EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID("1", CancellationToken.None)).ReturnsAsync(Result.Success(new EmailEntity()));
-
-        // Usamos un cast o un valor no contemplado en el switch si el enum lo permite
-        ChangeTemplateForActionCommand command = new("1", ActionType.PasswordReset);
-
-        // Act
-        Result<Unit> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidAction));
-    }
-
-    [Test]
-    public async Task ShouldCallSettingsServiceAndReturnSuccessIfEverythingIsOk()
-    {
-        // Arrange
-        const string userId = "admin-123";
         const string templateId = "1";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
-        EmailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None)).ReturnsAsync(Result.Success(new EmailEntity()));
+        currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(new EmailEntity()));
         settingsServiceMock.Setup(x => x.ChangeEmailForVerificationAsync(templateId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));
 
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateId, ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(templateId, ActionType.UserVerification);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
-        // Act
-        Result<Unit> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Assert
         Assert.That(result.IsSuccess, Is.True);
         settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
+        settingsServiceMock.Verify(x => x.ChangeEmailForResetPasswordAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldCallPasswordResetSettingsServiceBranch()
+    {
+        const string templateId = "1";
+        currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(new EmailEntity()));
+        settingsServiceMock.Setup(x => x.ChangeEmailForResetPasswordAsync(templateId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(Unit.Value));
+
+        ChangeTemplateForActionCommand command = new(templateId, ActionType.PasswordReset);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
+
+        Assert.That(result.IsSuccess, Is.True);
+        settingsServiceMock.Verify(x => x.ChangeEmailForResetPasswordAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
+        settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldReturnInvalidActionErrorIfActionIsInvalid()
+    {
+        const string templateId = "1";
+        currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(new EmailEntity()));
+
+        ChangeTemplateForActionCommand command = new(templateId, ActionType.UserRegistered);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
+
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidAction));
     }
 }

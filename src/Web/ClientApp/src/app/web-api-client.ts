@@ -1613,7 +1613,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
     email?: string;
     password?: string;
     firstName?: string;
-    timeZoneID?: string;
+    middleName?: string;
+    lastName?: string;
+    timeZone?: string;
 
     constructor(data?: IRegisterUserCommand) {
         if (data) {
@@ -1629,7 +1631,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
             this.email = _data["email"];
             this.password = _data["password"];
             this.firstName = _data["firstName"];
-            this.timeZoneID = _data["timeZoneID"];
+            this.middleName = _data["middleName"];
+            this.lastName = _data["lastName"];
+            this.timeZone = _data["timeZone"];
         }
     }
 
@@ -1645,7 +1649,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
         data["email"] = this.email;
         data["password"] = this.password;
         data["firstName"] = this.firstName;
-        data["timeZoneID"] = this.timeZoneID;
+        data["middleName"] = this.middleName;
+        data["lastName"] = this.lastName;
+        data["timeZone"] = this.timeZone;
         return data;
     }
 }
@@ -1654,7 +1660,9 @@ export interface IRegisterUserCommand {
     email?: string;
     password?: string;
     firstName?: string;
-    timeZoneID?: string;
+    middleName?: string;
+    lastName?: string;
+    timeZone?: string;
 }
 
 export class VerifyUserCommand implements IVerifyUserCommand {

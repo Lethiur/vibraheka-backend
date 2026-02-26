@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
@@ -15,7 +16,7 @@ public class GetAllTemplatesForActionTest
 {
    private Mock<ISettingsService> SettingsServiceMock;
     private Mock<ICurrentUserService> CurrentUserServiceMock;
-    private Mock<IPrivilegeService> PrivilegeServiceMock;
+    private Mock<ILogger<GetTemplatesForActionQueryHandler>> LoggerMock;
     private GetTemplatesForActionQueryHandler Handler;
 
     [SetUp]
@@ -23,12 +24,11 @@ public class GetAllTemplatesForActionTest
     {
         SettingsServiceMock = new Mock<ISettingsService>();
         CurrentUserServiceMock = new Mock<ICurrentUserService>();
-        PrivilegeServiceMock = new Mock<IPrivilegeService>();
-
+        LoggerMock = new Mock<ILogger<GetTemplatesForActionQueryHandler>>();
         Handler = new GetTemplatesForActionQueryHandler(
             SettingsServiceMock.Object,
             CurrentUserServiceMock.Object,
-            PrivilegeServiceMock.Object);
+            LoggerMock.Object);
     }
 
     [Test]
@@ -44,28 +44,9 @@ public class GetAllTemplatesForActionTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
-        PrivilegeServiceMock.VerifyNoOtherCalls();
+        LoggerMock.VerifyNoOtherCalls();
     }
-
-    [Test]
-    public async Task ShouldReturnNotAuthorizedErrorWhenUserIsNotAdmin()
-    {
-        // Given
-        const string userId = "user-123";
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(Result.Success(false));
-        GetTemplatesForActionQuery query = new GetTemplatesForActionQuery();
-
-        // When
-        Result<IEnumerable<TemplateForActionEntity>> result = await Handler.Handle(query, CancellationToken.None);
-
-        // Then
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        SettingsServiceMock.VerifyNoOtherCalls();
-    }
-
+    
     [Test]
     public async Task ShouldReturnTemplatesWhenUserIsAdminAndServiceSucceeds()
     {
@@ -77,8 +58,6 @@ public class GetAllTemplatesForActionTest
         };
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(Result.Success(true));
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Success<IEnumerable<TemplateForActionEntity>>(expectedTemplates));
         
@@ -101,8 +80,6 @@ public class GetAllTemplatesForActionTest
         const string errorMessage = "Database Error";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
-        PrivilegeServiceMock.Setup(x => x.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(Result.Success(true));
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Failure<IEnumerable<TemplateForActionEntity>>(errorMessage));
         

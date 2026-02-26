@@ -17,6 +17,10 @@ public class SubscriptionEntity : BaseAuditableEntity
     public string ExternalSubscriptionID { get; set; } = string.Empty;
     
     public string ExternalCustomerID { get; set; } = string.Empty;
+
+    public string CheckoutSessionUrl { get; set; } = string.Empty;
+
+    public DateTimeOffset CheckoutSessionExpiresAt { get; set; } = DateTimeOffset.UtcNow;
     
     public OrderType OrderType { get; set; } = OrderType.Subscription;
     

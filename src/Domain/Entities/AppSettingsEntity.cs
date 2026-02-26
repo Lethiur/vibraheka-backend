@@ -14,7 +14,7 @@ public class AppSettingsEntity
         set { lock(_lock) _verificationEmailTemplate = value; }
     }
 
-    public string EmailForResetPassword 
+    public string PasswordChangedTemplate 
     { 
         get { lock(_lock) return _emailForResetPassword; }
         set { lock(_lock) _emailForResetPassword = value; }

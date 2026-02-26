@@ -42,7 +42,7 @@ public class SubscriptionService(
                     CreatedBy = user.CreatedBy,
                 };
                 return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
-            });
+            }).TapError(error => logger.LogError(error, "Error while creating subscription for user {userId}", user.Id));
     }
 
     public Task<Result<Unit>> CancelSubscriptionForUser(string userID, CancellationToken cancellationToken)
@@ -64,6 +64,11 @@ public class SubscriptionService(
     {
         logger.LogInformation($"Getting subscription details for user {userID}");
         return subscriptionRepository.GetSubscriptionDetailsForUser(userID, cancellationToken);
+    }
+
+    public Task<Result<SubscriptionEntity>> SaveSubscription(SubscriptionEntity subscriptionEntity, CancellationToken cancellationToken)
+    {
+        return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
     }
 
     public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken)

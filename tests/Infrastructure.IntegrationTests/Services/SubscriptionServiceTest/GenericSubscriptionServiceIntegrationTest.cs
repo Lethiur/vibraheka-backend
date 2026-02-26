@@ -13,8 +13,12 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionService
 
 public class SuccessPaymentRepositoryStub : IPaymentRepository
 {
-    public Task<Result<string>> InitiateSubscriptionPaymentAsync(UserEntity payer, SubscriptionEntity orderEntity, CancellationToken cancellationToken)
-        => Task.FromResult(Result.Success("https://checkout.test"));
+    public Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer, SubscriptionEntity orderEntity, CancellationToken cancellationToken)
+        => Task.FromResult(Result.Success(new SubscriptionCheckoutSessionEntity()
+        {
+            Url = "https://checkout.test",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+        }));
 
     public Task<Result<string>> GetSubscriptionPanelUrlAsync(UserEntity payer, CancellationToken cancellationToken)
         => Task.FromResult(Result.Success("https://portal.test"));

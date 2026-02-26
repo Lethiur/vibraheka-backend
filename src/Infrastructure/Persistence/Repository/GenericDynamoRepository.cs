@@ -114,6 +114,7 @@ public abstract class GenericDynamoRepository<T>(
         try
         {
             await context.SaveAsync(entity, saveConfig, token);
+            logger.LogInformation("Successfully saved entity of type {EntityType}", typeof(T).Name);
             return Unit.Value;
         }
         catch (Exception e)
