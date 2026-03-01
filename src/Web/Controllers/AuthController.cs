@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
+using VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
@@ -134,5 +136,65 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess("Confirmation code resent successfully"));
+    }
+
+    /// <summary>
+    /// Starts the password recovery flow for the provided user email.
+    /// </summary>
+    /// <param name="command">Command containing the user email.</param>
+    /// <returns>An <see cref="IActionResult"/> describing whether the request was accepted.</returns>
+    [HttpPost("forgot-password")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> StartPasswordRecovery([FromBody] [Required] StartPasswordRecoveryCommand command)
+    {
+        Logger.LogInformation("Starting password recovery endpoint for email {Email}", command.Email);
+        Result<Unit> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            Logger.LogWarning("Password recovery start failed for email {Email} with error {Error}", command.Email, result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess("If the account exists, a recovery email has been sent."));
+    }
+
+    /// <summary>
+    /// Confirms password recovery using an encrypted reset token and the new password pair.
+    /// </summary>
+    /// <param name="command">Command containing encrypted token and new password values.</param>
+    /// <returns>An <see cref="IActionResult"/> with operation status.</returns>
+    [HttpPost("forgot-password/confirm")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ConfirmPasswordRecovery([FromBody] [Required] ConfirmPasswordRecoveryCommand command)
+    {
+        Logger.LogInformation("Confirming password recovery endpoint called");
+        Result<Unit> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            Logger.LogWarning("Password recovery confirmation failed with error {Error}", result.Error);
+
+            return result.Error switch
+            {
+                UserErrors.UserNotFound => new NotFoundObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.InvalidPasswordResetToken => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.PasswordResetTokenExpired => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.PasswordResetTokenAlreadyUsed => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.InvalidPassword => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.WrongVerificationCode => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                UserErrors.ExpiredCode => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                _ => new BadRequestObjectResult(ResponseEntity.FromError(result.Error))
+            };
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(Unit.Value));
     }
 }

@@ -62,31 +62,7 @@ public static class DependencyInjection
         
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
-        var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
 
-        // Avoid overriding a logger already configured by the host (e.g. tests).
-        // if (Log.Logger.GetType().FullName == "Serilog.Core.Pipeline.SilentLogger")
-        // {
-        //     Log.Logger = new LoggerConfiguration()
-        //         .MinimumLevel.Information()
-        //         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        //         .Enrich.FromLogContext()
-        //         .Enrich.With<XRayEnricher>()
-        //         .WriteTo.Console(outputTemplate: "[{SourceContext}] [{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-        //         .WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
-        //             {
-        //                 LogGroupName = "/my-app/logs",
-        //                 BatchSizeLimit = 100,
-        //                 CreateLogGroup = true,
-        //                 Period = TimeSpan.FromSeconds(1),
-        //                 TextFormatter = new RenderedCompactJsonFormatter()
-        //             }, cloudWatchClient
-        //         )
-        //         .CreateLogger();
-        // }
-        
-        
-        
         
         builder.Services.AddSingleton<ITracer, XRayTracer>();
         builder.Services.AddSingleton(sp =>
@@ -123,8 +99,10 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton<SubscriptionEntityMapper>();
         builder.Services.AddSingleton<VerificationCodeEntityMapper>();
+        builder.Services.AddSingleton<UsersCodeMapper>();
         
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
+        builder.Services.AddScoped<IUserCodeRepository, UserCodeRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
 
@@ -157,6 +135,8 @@ public static class DependencyInjection
         // Users
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IUserCodeService, UserCodeService>();
+        builder.Services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         
         builder.Services.AddSingleton(TimeProvider.System);
         

@@ -75,6 +75,11 @@ public class AWSConfig
     public string Profile { get; set; } = string.Empty;
 
     /// <summary>
+    /// Secret used to encrypt and authenticate password reset tokens exchanged with the frontend.
+    /// </summary>
+    public string PasswordResetTokenSecret { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores action log entries.
     /// This property is used to define the table location for tracking and managing user or system activities within the AWS infrastructure.
     /// </summary>

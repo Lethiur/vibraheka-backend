@@ -17,7 +17,10 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace VibraHeka.Infrastructure.Services;
 
-public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRepository userRepository) : IUserService
+public class UserService(
+    AWSConfig config,
+    ILogger<UserService> logger,
+    IUserRepository userRepository) : IUserService
 {
     protected IAmazonCognitoIdentityProvider _client = CreateClient(config);
     private readonly string _userPoolId = config.UserPoolId;
@@ -146,6 +149,70 @@ public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRep
     }
 
     /// <summary>
+    /// Starts the Cognito forgot-password workflow for the provided email.
+    /// </summary>
+    /// <param name="email">The email address associated with the user account.</param>
+    /// <returns>A result indicating whether Cognito accepted the request.</returns>
+    public async Task<Result<Unit>> StartPasswordRecoveryAsync(string email)
+    {
+        try
+        {
+            logger.LogInformation("Starting Cognito forgot password flow for user {Email}", email);
+            ForgotPasswordRequest request = new()
+            {
+                ClientId = _clientId,
+                Username = email
+            };
+
+            await _client.ForgotPasswordAsync(request);
+            logger.LogInformation("Cognito forgot password flow started for user {Email}", email);
+            return Result.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while starting password recovery for user {Email}", email);
+            return MapCognitoException<Unit>(ex);
+        }
+    }
+
+    /// <summary>
+    /// Confirms password recovery in Cognito using a recovery code.
+    /// </summary>
+    /// <param name="email">Email associated with the account.</param>
+    /// <param name="recoveryCode">Recovery code issued by Cognito.</param>
+    /// <param name="newPassword">The new password that should be set.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A result indicating success or failure.</returns>
+    public async Task<Result<Unit>> ConfirmPasswordRecoveryAsync(
+        string email,
+        string recoveryCode,
+        string newPassword,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogInformation("Confirming Cognito forgot password flow for user {Email}", email);
+            ConfirmForgotPasswordRequest request = new()
+            {
+                ClientId = _clientId,
+                Username = email,
+                ConfirmationCode = recoveryCode,
+                Password = newPassword
+            };
+
+            await _client.ConfirmForgotPasswordAsync(request, cancellationToken);
+            logger.LogInformation("Cognito password recovery confirmed for user {Email}", email);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while confirming password recovery for user {Email}", email);
+            return MapCognitoException<Unit>(ex);
+        }
+
+        return Result.Success(Unit.Value);
+    }
+
+    /// <summary>
     /// Retrieves the unique user identifier (User ID) associated with the specified email address from the Cognito user pool.
     /// </summary>
     /// <param name="email">The email address of the user whose User ID is to be retrieved.</param>
@@ -210,16 +277,6 @@ public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRep
         
     }
 
-    public Task<Result<Unit>> InitiatePasswordRecovery(string email, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<Unit>> ConfirmPasswordFromRecovery(PasswordRecoveryEntity entity, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     /// <summary>
     /// Confirms a user's registration by verifying the provided confirmation code.
     /// </summary>
@@ -271,6 +328,7 @@ public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRep
 
             TooManyFailedAttemptsException => Result.Failure<T>(UserErrors.TooManyAttempts),
             LimitExceededException => Result.Failure<T>(UserErrors.LimitExceeded),
+            TooManyRequestsException => Result.Failure<T>(UserErrors.LimitExceeded),
 
             // Fallback: unexpected
             _ => Result.Failure<T>(UserErrors.UnexpectedError)

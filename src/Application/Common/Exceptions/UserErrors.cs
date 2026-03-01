@@ -79,4 +79,10 @@ public class UserErrors
     public const string TooManyAttempts = "US-012";
     
     public const string EmailTooLong = "US-013";
+
+    public const string InvalidPasswordResetToken = "US-014";
+
+    public const string PasswordResetTokenExpired = "US-015";
+
+    public const string PasswordResetTokenAlreadyUsed = "US-016";
 }
