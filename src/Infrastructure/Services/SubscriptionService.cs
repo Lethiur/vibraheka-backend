@@ -17,7 +17,7 @@ public class SubscriptionService(
     StripeConfig config,
     ILogger<SubscriptionService> logger) : ISubscriptionService
 {
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, CancellationToken cancellationToken)
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
     {
         return subscriptionRepository.GetSubscriptionDetailsForUser(user.Id, cancellationToken)
             .BindTryWhen(entity => entity.SubscriptionStatus == SubscriptionStatus.Cancelled, entity =>
@@ -25,6 +25,9 @@ public class SubscriptionService(
                 logger.LogWarning("Subscription already exists for user {userId}. It is cancelled, Resetting to pending", user.Id);
                 entity.SubscriptionStatus = SubscriptionStatus.Created;
                 entity.Status = OrderStatus.Pending;
+                entity.StartDate = DateTime.UtcNow;
+                entity.CheckoutSessionUrl = context.Url;
+                entity.CheckoutSessionExpiresAt = context.ExpiresAt;
                 return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
             })
             .OnFailureCompensateWhen(error => error == SubscriptionErrors.NoSubscriptionFound, (_) =>
@@ -40,6 +43,8 @@ public class SubscriptionService(
                     ExternalSubscriptionItemID = config.SubscriptionID,
                     Created = DateTime.UtcNow,
                     CreatedBy = user.CreatedBy,
+                    CheckoutSessionExpiresAt = context.ExpiresAt,
+                    CheckoutSessionUrl = context.Url
                 };
                 return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
             }).TapError(error => logger.LogError(error, "Error while creating subscription for user {userId}", user.Id));

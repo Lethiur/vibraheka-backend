@@ -1,9 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Amazon;
+using Amazon.CloudWatchLogs;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.AwsCloudWatch;
 using VibraHeka.Application;
 using VibraHeka.Infrastructure;
 using VibraHeka.Web.Middleware;
@@ -11,7 +17,7 @@ using static System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler;
 
 namespace VibraHeka.Web;
 
-public class VibraHekaProgram
+public partial class VibraHekaProgram
 {
     public static void Main(string[] args)
     {
@@ -28,7 +34,7 @@ public class VibraHekaProgram
                         .AllowCredentials(); 
                 });
         });
-// Add services to the container.
+
         builder.AddApplicationServices();
         builder.AddWebServices();
         builder.Services.AddControllers().AddJsonOptions(options =>
@@ -74,20 +80,67 @@ public class VibraHekaProgram
                     }
                 };
             });
-        
+        IConfigurationSection settingsSection = builder.Configuration.GetSection("Settings");
         builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
-        builder.Host.UseSerilog();
+        
+        bool useSerilog = settingsSection.GetValue<bool>("UseSerilog");
+        if (useSerilog)
+        {
+            builder.Host.UseSerilog((context, services, configuration) => 
+            {
+                configuration
+                    .ReadFrom.Configuration(context.Configuration)
+                    .ReadFrom.Services(services)
+                    .Enrich.FromLogContext();
+
+                string? profile = context.Configuration["AWS:Profile"] ?? context.Configuration["AWSLogging:Profile"];
+                string regionName = context.Configuration["AWS:Location"]
+                    ?? context.Configuration["AWSLogging:Region"]
+                    ?? RegionEndpoint.EUWest1.SystemName;
+
+                RegionEndpoint region = RegionEndpoint.GetBySystemName(regionName);
+                AWSCredentials? credentials = null;
+
+                if (!string.IsNullOrWhiteSpace(profile))
+                {
+                    CredentialProfileStoreChain profileChain = new();
+                    profileChain.TryGetAWSCredentials(profile, out credentials);
+                }
+
+                IAmazonCloudWatchLogs cloudWatchClient = credentials is null
+                    ? new AmazonCloudWatchLogsClient(region)
+                    : new AmazonCloudWatchLogsClient(credentials, region);
+
+                configuration.WriteTo.AmazonCloudWatch(
+                    new CloudWatchSinkOptions
+                    {
+                        LogGroupName = context.Configuration["AWSLogging:LogGroup"] ?? "/my-app/logs",
+                        BatchSizeLimit = context.Configuration.GetValue<int?>("Serilog:WriteTo:1:Args:batchSizeLimit") ?? 100,
+                        CreateLogGroup = context.Configuration.GetValue<bool?>("Serilog:WriteTo:1:Args:createLogGroup") ?? true,
+                        Period = TimeSpan.FromSeconds(1),
+                        TextFormatter = new RenderedCompactJsonFormatter()
+                    },
+                    cloudWatchClient);
+            }, preserveStaticLogger: true);    
+        }
+        
         WebApplication app = builder.Build();
-        app.UseSerilogRequestLogging();
+        if (useSerilog)
+        {
+            app.UseSerilogRequestLogging();    
+        }
+        
+        app.UseRouting();
+        app.UseCors("AllowFrontend");
+        app.UseAuthentication();
+        app.UseAuthorization();
+        
         app.UseXRay("VibraHeka", builder.Configuration);
         
         app.UseMiddleware<TracingMiddleware>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseCors("AllowFrontend");
-        app.UseHsts();
-        app.UseHttpsRedirection();
         app.UseStaticFiles();
-        // app.UseRouting();
+
         app.MapControllers();
 
         app.UseSwaggerUi(settings =>

@@ -44,61 +44,81 @@ public class AddSubscriptionCommandHandlerTest
     }
 
     [Test]
-    public async Task ShouldReturnUrlWhenSubscriptionAndPaymentSucceed()
+    public async Task ShouldReturnCheckoutSessionWhenSubscriptionAndPaymentSucceed()
     {
+        MockSequence sequence = new();
         UserEntity user = new() { Id = "user-1", CustomerID = "cus-1" };
         SubscriptionEntity subscription = new() { UserID = "user-1", SubscriptionID = "sub-1" };
+        SubscriptionCheckoutSessionEntity session = new()
+        {
+            Url = "https://checkout.test",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            PaymentSessionID = "cs_123",
+            InternalPaymentID = "ref_123",
+        };
 
-        _userServiceMock.Setup(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()))
+        _userServiceMock.InSequence(sequence).Setup(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(user));
-        _subscriptionServiceMock.Setup(x => x.CreateSubscription(user, It.IsAny<CancellationToken>()))
+        _paymentServiceMock.InSequence(sequence).Setup(x => x.RegisterSubscriptionAsync("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(session));
+        _subscriptionServiceMock.InSequence(sequence).Setup(x => x.CreateSubscription(user, session, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(subscription));
-        _paymentServiceMock.Setup(x => x.RegisterSubscriptionAsync("user-1", subscription, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success("https://checkout.test"));
 
-        Result<string> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo("https://checkout.test"));
-        _subscriptionServiceMock.Verify(x => x.DeleteSubscriptionForUser(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.That(result.Value.Url, Is.EqualTo("https://checkout.test"));
+        _userServiceMock.Verify(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _paymentServiceMock.Verify(x => x.RegisterSubscriptionAsync("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _subscriptionServiceMock.Verify(x => x.CreateSubscription(user, session, It.IsAny<CancellationToken>()), Times.Once);
+        _paymentServiceMock.Verify(x => x.CancelSubscriptionPayment(It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task ShouldDeleteSubscriptionAndMapErrorWhenPaymentFails()
+    public async Task ShouldRollbackStripeSessionWhenCreateSubscriptionFails()
     {
+        MockSequence sequence = new();
         UserEntity user = new() { Id = "user-1", CustomerID = "cus-1" };
-        SubscriptionEntity subscription = new() { UserID = "user-1", SubscriptionID = "sub-1" };
+        SubscriptionCheckoutSessionEntity session = new()
+        {
+            Url = "https://checkout.test",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            PaymentSessionID = "cs_rollback",
+            InternalPaymentID = "ref_rollback",
+        };
 
-        _userServiceMock.Setup(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()))
+        _userServiceMock.InSequence(sequence).Setup(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(user));
-        _subscriptionServiceMock.Setup(x => x.CreateSubscription(user, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(subscription));
-        _paymentServiceMock.Setup(x => x.RegisterSubscriptionAsync("user-1", subscription, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<string>("IS-001"));
-        _subscriptionServiceMock.Setup(x => x.DeleteSubscriptionForUser("user-1", It.IsAny<CancellationToken>()))
+        _paymentServiceMock.InSequence(sequence).Setup(x => x.RegisterSubscriptionAsync("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(session));
+        _subscriptionServiceMock.InSequence(sequence).Setup(x => x.CreateSubscription(user, session, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure<SubscriptionEntity>("DB_ERROR"));
+        _paymentServiceMock.InSequence(sequence).Setup(x => x.CancelSubscriptionPayment(session, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));
 
-        Result<string> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.ErrorWhileSubscribing));
-        _subscriptionServiceMock.Verify(x => x.DeleteSubscriptionForUser("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _userServiceMock.Verify(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _paymentServiceMock.Verify(x => x.RegisterSubscriptionAsync("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _subscriptionServiceMock.Verify(x => x.CreateSubscription(user, session, It.IsAny<CancellationToken>()), Times.Once);
+        _paymentServiceMock.Verify(x => x.CancelSubscriptionPayment(session, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
-    public async Task ShouldDeleteSubscriptionAndMapErrorWhenUserLookupFails()
+    public async Task ShouldMapErrorWhenUserLookupFails()
     {
         _userServiceMock.Setup(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<UserEntity>("E-003"));
-        _subscriptionServiceMock.Setup(x => x.DeleteSubscriptionForUser("user-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(Unit.Value));
 
-        Result<string> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await _handler.Handle(new AddSubscriptionCommand(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.ErrorWhileSubscribing));
-        _subscriptionServiceMock.Verify(x => x.CreateSubscription(It.IsAny<UserEntity>(), It.IsAny<CancellationToken>()), Times.Never);
-        _paymentServiceMock.Verify(x => x.RegisterSubscriptionAsync(It.IsAny<string>(), It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
-        _subscriptionServiceMock.Verify(x => x.DeleteSubscriptionForUser("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _userServiceMock.Verify(x => x.GetUserByID("user-1", It.IsAny<CancellationToken>()), Times.Once);
+        _paymentServiceMock.Verify(x => x.RegisterSubscriptionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _subscriptionServiceMock.Verify(x => x.CreateSubscription(It.IsAny<UserEntity>(), It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
+        _paymentServiceMock.Verify(x => x.CancelSubscriptionPayment(It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

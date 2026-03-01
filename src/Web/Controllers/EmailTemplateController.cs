@@ -159,6 +159,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Consumes("application/json")]
     public async Task<IActionResult> ChangeTemplateName([FromBody] EditTemplateNameRequest request)
     {
+        Logger.LogInformation("Changing template name for template with ID '{TemplateID}' to '{NewTemplateName}'", request.TemplateID, request.NewTemplateName);
         EditTemplateNameCommand command = new(request.TemplateID, request.NewTemplateName);
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)

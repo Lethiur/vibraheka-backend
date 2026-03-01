@@ -40,6 +40,8 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryTe
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.SubscriptionID, Is.EqualTo("sub-1"));
         Assert.That(result.Value.UserID, Is.EqualTo("user-1"));
+        ContextMock.Verify(x => x.QueryAsync<SubscriptionDBModel>("user-1", It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -59,6 +61,8 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryTe
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.NoSubscriptionFound));
+        ContextMock.Verify(x => x.QueryAsync<SubscriptionDBModel>("user-1", It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -74,5 +78,6 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryTe
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(AppErrors.UnknownError));
+        ContextMock.Verify(x => x.QueryAsync<SubscriptionDBModel>("user-1", It.IsAny<QueryConfig>()), Times.Once);
     }
 }

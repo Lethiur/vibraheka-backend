@@ -6,6 +6,7 @@ using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Bogus;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
@@ -20,6 +21,7 @@ public abstract class TestBase
     protected Faker _faker;
     protected StripeConfig _stripeConfig;
     private IConfigurationRoot _config;
+    private ILoggerFactory? _loggerFactory;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -30,6 +32,26 @@ public abstract class TestBase
         _faker = new Faker();
         Segment segment = new Segment("VH-TEST");
         AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
+        _loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.ClearProviders();
+            builder.SetMinimumLevel(LogLevel.Debug);
+            builder.AddProvider(new NUnitLoggerProvider());
+        });
+    }
+
+    [OneTimeTearDown]
+    public void DisposeTestLoggerFactory()
+    {
+        _loggerFactory?.Dispose();
+    }
+
+    protected ILogger<T> CreateTestLogger<T>()
+    {
+        if (_loggerFactory is null)
+            throw new InvalidOperationException("LoggerFactory is not initialized.");
+
+        return _loggerFactory.CreateLogger<T>();
     }
 
     protected IConfigurationRoot CreateTestConfiguration()

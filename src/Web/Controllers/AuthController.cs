@@ -30,7 +30,6 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] [Required] RegisterUserCommand command)
     {
-        Log.ForContext<AuthController>().Information("STATIC Register endpoint called for email {Email}", command.Email);
         Logger.LogInformation("Register endpoint called for email {Email}", command.Email);
         Result<UserRegistrationResult> id = await mediator.Send(command);
 

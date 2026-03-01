@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
@@ -17,10 +18,9 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     /// Registers a subscription for a specific user, initiating the payment process and associating the subscription details.
     /// </summary>
     /// <param name="userID">The unique identifier of the user for whom the subscription is being registered.</param>
-    /// <param name="subscription">The subscription entity containing details about the subscription to be registered.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation if needed.</param>
     /// <returns>A result containing the subscription ID if successful, or an error message in case of failure.</returns>
-    public Task<Result<string>> RegisterSubscriptionAsync(string userID, SubscriptionEntity subscription,
+    public Task<Result<SubscriptionCheckoutSessionEntity>> RegisterSubscriptionAsync(string userID,
         CancellationToken cancellationToken)
     {
         return GetUserByID(userID, cancellationToken)
@@ -36,7 +36,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                 }
                 return user;
             })
-            .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, subscription, cancellationToken))
+            .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, cancellationToken))
             .MapError(error =>
             {
                 return error switch
@@ -80,5 +80,11 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                     _ => error
                 };
             });
+    }
+
+    public Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity,
+        CancellationToken token)
+    {
+        return PaymentRepository.CancelSubscriptionPayment(entity, token);
     }
 }

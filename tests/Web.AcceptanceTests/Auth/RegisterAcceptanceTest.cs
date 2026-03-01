@@ -59,9 +59,9 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     [TestCase("test@example.com", "Password123@", "  A  ", UserErrors.InvalidFullName)] // FullName con espacios al inicio/final
     
     // === EDGE CASES COMBINADOS ===
-    [TestCase(null, null, null, "E-006 | E-001 | E-007")] 
-    [TestCase("", "", "", "E-006 | E-001 | E-007")]
-    [TestCase("   ", "   ", "   ", "E-006 | E-001 | E-007")] 
+    [TestCase(null, null, null, "US-006 | US-001 | US-007")] 
+    [TestCase("", "", "", "US-006 | US-001 | US-007")]
+    [TestCase("   ", "   ", "   ", "US-006 | US-001 | US-007")] 
     
     [DisplayName("Should not allow registration with wrong data")]
     public async Task ShouldNotAllowRegistrationWithWrongData(string email, string password, string fullName, string expectedErrorKeyword)

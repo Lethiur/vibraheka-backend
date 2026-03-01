@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Amazon.SimpleSystemsManagement;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -20,16 +20,16 @@ public abstract class GenericSettingsRepositoryTest : TestBase
 
         // Usamos un Profile para asegurar que se conecta a la cuenta de sandbox/test
         SSMClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
-        Repository = new SettingsRepository(SSMClient, _configuration, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SettingsRepository>());
+        Repository = new SettingsRepository(SSMClient, _configuration, CreateTestLogger<SettingsRepository>());
         VerificationParameterName = $"/{_configuration.SettingsNameSpace}/VerificationEmailTemplate";
         PasswordChangedParameterName = $"/{_configuration.SettingsNameSpace}/PasswordChangedTemplate";
     }
 
     [OneTimeTearDown]
-    [TearDown]
     public void TearDown()
     {
         SSMClient?.Dispose();
     }
     
 }
+

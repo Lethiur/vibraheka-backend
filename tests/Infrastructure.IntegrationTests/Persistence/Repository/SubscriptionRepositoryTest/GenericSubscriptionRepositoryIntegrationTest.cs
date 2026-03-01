@@ -20,7 +20,7 @@ public abstract class GenericSubscriptionRepositoryIntegrationTest : TestBase
             _configuration,
             _dynamoDbContext,
             new SubscriptionEntityMapper(),
-            LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionRepository>());
+            CreateTestLogger<SubscriptionRepository>());
     }
 
     [OneTimeTearDown]
@@ -29,3 +29,4 @@ public abstract class GenericSubscriptionRepositoryIntegrationTest : TestBase
         _dynamoDbContext.Dispose();
     }
 }
+

@@ -63,22 +63,28 @@ public static class DependencyInjection
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
         var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) 
-            .Enrich.FromLogContext()
-            .Enrich.With<XRayEnricher>()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.AmazonCloudWatch( new CloudWatchSinkOptions()
-            {
-                LogGroupName = "/my-app/logs",
-                BatchSizeLimit = 100,
-                CreateLogGroup = true,
-                Period = TimeSpan.FromSeconds(1),
-                TextFormatter = new RenderedCompactJsonFormatter()
-            }, cloudWatchClient
-            )
-            .CreateLogger();
+
+        // Avoid overriding a logger already configured by the host (e.g. tests).
+        // if (Log.Logger.GetType().FullName == "Serilog.Core.Pipeline.SilentLogger")
+        // {
+        //     Log.Logger = new LoggerConfiguration()
+        //         .MinimumLevel.Information()
+        //         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+        //         .Enrich.FromLogContext()
+        //         .Enrich.With<XRayEnricher>()
+        //         .WriteTo.Console(outputTemplate: "[{SourceContext}] [{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+        //         .WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
+        //             {
+        //                 LogGroupName = "/my-app/logs",
+        //                 BatchSizeLimit = 100,
+        //                 CreateLogGroup = true,
+        //                 Period = TimeSpan.FromSeconds(1),
+        //                 TextFormatter = new RenderedCompactJsonFormatter()
+        //             }, cloudWatchClient
+        //         )
+        //         .CreateLogger();
+        // }
+        
         
         
         

@@ -18,7 +18,7 @@ public abstract class GenericActionLogRepositoryIntegrationTest : TestBase
         _repository = new ActionLogRepository(
             _dynamoDbContext,
             _configuration,
-            LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<ActionLogRepository>());
+            CreateTestLogger<ActionLogRepository>());
     }
 
     [OneTimeTearDown]
@@ -27,3 +27,4 @@ public abstract class GenericActionLogRepositoryIntegrationTest : TestBase
         _dynamoDbContext.Dispose();
     }
 }
+

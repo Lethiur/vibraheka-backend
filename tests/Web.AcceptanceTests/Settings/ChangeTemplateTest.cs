@@ -77,6 +77,8 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
 
+        await Task.Delay(2500);
+        
         // Happy Path check: Verify association in the all-templates list
         HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
         ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();

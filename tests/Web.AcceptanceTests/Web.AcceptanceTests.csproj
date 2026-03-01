@@ -10,9 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <Content Update="appsettings.Development.json">
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -29,10 +26,6 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="Microsoft.Playwright" />
         <PackageReference Include="Riok.Mapperly" />
-        <PackageReference Include="Serilog" />
-        <PackageReference Include="Serilog.AspNetCore" />
-        <PackageReference Include="Serilog.Extensions.Logging" />
-        <PackageReference Include="Serilog.Sinks.NUnit" />
         <PackageReference Include="Shouldly" />
         <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" />
         <PackageReference Include="SpecFlow.NUnit" />

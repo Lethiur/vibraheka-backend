@@ -1,4 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
@@ -16,7 +16,7 @@ public abstract class GenericEmailTemplateRepositoryIntegrationTest : TestBase
     {
         base.OneTimeSetUp();
         DynamoContext = CreateDynamoDBContext();
-        Repository = new EmailTemplateRepository(DynamoContext, _configuration, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<EmailTemplateRepository>());
+        Repository = new EmailTemplateRepository(DynamoContext, _configuration, CreateTestLogger<EmailTemplateRepository>());
         _faker = new Faker();
     }
 
@@ -26,4 +26,5 @@ public abstract class GenericEmailTemplateRepositoryIntegrationTest : TestBase
         DynamoContext?.Dispose();
     }
 }
+
 

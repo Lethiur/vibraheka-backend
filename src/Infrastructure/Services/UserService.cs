@@ -92,7 +92,7 @@ public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRep
     {
         try
         {
-            AdminInitiateAuthRequest request = new AdminInitiateAuthRequest
+            AdminInitiateAuthRequest request = new()
             {
                 UserPoolId = _userPoolId,
                 ClientId = _clientId,
@@ -208,6 +208,16 @@ public class UserService(AWSConfig config, ILogger<UserService> logger, IUserRep
         }).BindTry(userRepository.AddAsync)
         .Map(_ => Unit.Value);
         
+    }
+
+    public Task<Result<Unit>> InitiatePasswordRecovery(string email, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<Unit>> ConfirmPasswordFromRecovery(PasswordRecoveryEntity entity, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>

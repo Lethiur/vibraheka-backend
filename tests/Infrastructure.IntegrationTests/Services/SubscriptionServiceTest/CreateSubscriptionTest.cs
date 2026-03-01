@@ -11,6 +11,12 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
     public async Task ShouldCreateSubscriptionWhenUserHasNoSubscription()
     {
         // Given
+        SubscriptionCheckoutSessionEntity checkoutSession = new()
+        {
+            Url = "https://checkout.integration.test",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+        };
+
         UserEntity user = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -19,12 +25,13 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         };
 
         // When
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.UserID, Is.EqualTo(user.Id));
         Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(user.CustomerID));
+        Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(checkoutSession.Url));
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
     }
 }

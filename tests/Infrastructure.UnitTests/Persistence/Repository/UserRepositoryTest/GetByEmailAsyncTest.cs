@@ -31,6 +31,8 @@ public class GetByEmailAsyncTest : GenericUserRepositoryTest
         // Then: Should return true
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.True);
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -51,5 +53,7 @@ public class GetByEmailAsyncTest : GenericUserRepositoryTest
         // Then: Should return false
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.False);
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(CancellationToken.None), Times.Once);
     }
 }

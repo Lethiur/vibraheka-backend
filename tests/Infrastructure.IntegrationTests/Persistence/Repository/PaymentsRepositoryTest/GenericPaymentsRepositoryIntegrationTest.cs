@@ -12,6 +12,7 @@ public abstract class GenericPaymentsRepositoryIntegrationTest : TestBase
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _repository = new PaymentsRepository(_stripeConfig, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<PaymentsRepository>());
+        _repository = new PaymentsRepository(_stripeConfig, CreateTestLogger<PaymentsRepository>());
     }
 }
+

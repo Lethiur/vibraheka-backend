@@ -1,4 +1,4 @@
-﻿using Amazon;
+using Amazon;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SimpleSystemsManagement;
@@ -34,8 +34,8 @@ public abstract class GenericSettingsServiceTest : TestBase
             RegionEndpoint = region
         });
         _appSettings = CreateAppSettings();
-        _repository = new SettingsRepository(_ssmClient, _configuration, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SettingsRepository>());
-        _service = new SettingsService(_repository, _appSettings, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SettingsService>());
+        _repository = new SettingsRepository(_ssmClient, _configuration, CreateTestLogger<SettingsRepository>());
+        _service = new SettingsService(_repository, _appSettings, CreateTestLogger<SettingsService>());
     }
 
     [TearDown]
@@ -44,3 +44,4 @@ public abstract class GenericSettingsServiceTest : TestBase
         _ssmClient?.Dispose();
     }
 }
+

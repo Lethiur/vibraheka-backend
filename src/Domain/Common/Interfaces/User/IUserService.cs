@@ -82,4 +82,20 @@ public interface IUserService
     /// The task result contains a <see cref="Result"/> indicating whether the update operation was successful.
     /// </returns>
     Task<Result<Unit>> UpdateUserAsync(UserEntity newUserData, string updater, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Result<Unit>> InitiatePasswordRecovery(string email, CancellationToken cancellationToken);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Result<Unit>> ConfirmPasswordFromRecovery(PasswordRecoveryEntity entity, CancellationToken cancellationToken);
 }

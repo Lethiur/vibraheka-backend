@@ -35,6 +35,8 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         // Then: Should return success with 2 users
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.Count(), Is.EqualTo(2));
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(role, It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(default), Times.Once);
     }
 
     [Test]
@@ -54,6 +56,8 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         // Then: Should return success with empty collection
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.Empty);
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(default), Times.Once);
     }
 
     [Test]
@@ -70,6 +74,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         // Then: Should fail and contain the message
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Does.Contain("Query Error"));
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()), Times.Once);
     }
 
 }

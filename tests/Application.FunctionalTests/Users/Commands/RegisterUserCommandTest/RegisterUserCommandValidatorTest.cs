@@ -38,7 +38,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new(email, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
 
 
         // When
@@ -59,7 +59,7 @@ public class RegisterUserCommandValidatorTest
     public async Task ShouldHaveErrorWhenPasswordIsInvalid(string password)
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", password, "John Doe", "TEST", "TEST","Europe/Madrid");
 
 
         // When

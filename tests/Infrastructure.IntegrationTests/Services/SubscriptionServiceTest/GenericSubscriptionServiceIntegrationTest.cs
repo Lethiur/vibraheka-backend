@@ -13,11 +13,14 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionService
 
 public class SuccessPaymentRepositoryStub : IPaymentRepository
 {
-    public Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer, SubscriptionEntity orderEntity, CancellationToken cancellationToken)
+    public Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+        CancellationToken cancellationToken)
         => Task.FromResult(Result.Success(new SubscriptionCheckoutSessionEntity()
         {
             Url = "https://checkout.test",
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            PaymentSessionID = "cs_test",
+            InternalPaymentID = "ref_test",
         }));
 
     public Task<Result<string>> GetSubscriptionPanelUrlAsync(UserEntity payer, CancellationToken cancellationToken)
@@ -30,6 +33,9 @@ public class SuccessPaymentRepositoryStub : IPaymentRepository
         => Task.FromResult(Result.Success(Unit.Value));
 
     public Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken)
+        => Task.FromResult(Result.Success(Unit.Value));
+
+    public Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity, CancellationToken cancellationToken)
         => Task.FromResult(Result.Success(Unit.Value));
 }
 
@@ -48,13 +54,13 @@ public abstract class GenericSubscriptionServiceIntegrationTest : TestBase
             _configuration,
             _dynamoDbContext,
             new SubscriptionEntityMapper(),
-            LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionRepository>());
+            CreateTestLogger<SubscriptionRepository>());
 
         _service = new SubscriptionService(
             _subscriptionRepository,
             new SuccessPaymentRepositoryStub(),
             _stripeConfig,
-            LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionService>());
+            CreateTestLogger<SubscriptionService>());
     }
 
     [OneTimeTearDown]
@@ -63,3 +69,4 @@ public abstract class GenericSubscriptionServiceIntegrationTest : TestBase
         _dynamoDbContext.Dispose();
     }
 }
+

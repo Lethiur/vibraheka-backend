@@ -21,6 +21,7 @@ public class UserIdTest
 
         // Then
         Assert.That(result, Is.Null);
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
     }
 
     [Test]
@@ -42,6 +43,7 @@ public class UserIdTest
 
         // Then
         Assert.That(result, Is.Null);
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
     }
 
     [Test]
@@ -63,5 +65,6 @@ public class UserIdTest
 
         // Then
         Assert.That(result, Is.EqualTo("user-123"));
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
     }
 }

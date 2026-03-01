@@ -1,4 +1,6 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Amazon.Runtime.Internal.Util;
+using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
@@ -12,10 +14,11 @@ namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 public class ChangeTemplateForActionCommandHandler(
     ISettingsService SettingsService,
     ICurrentUserService CurrentUserService,
-    IEmailTemplatesService EmailTemplatesService) : IRequestHandler<ChangeTemplateForActionCommand, Result<Unit>>
+    IEmailTemplatesService EmailTemplatesService, ILogger<ChangeTemplateForActionCommandHandler> logger) : IRequestHandler<ChangeTemplateForActionCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ChangeTemplateForActionCommand request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Executing command for changing template for action: {ActionType}", request.ActionType);
         return await Maybe.From(CurrentUserService.UserId)
             .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)

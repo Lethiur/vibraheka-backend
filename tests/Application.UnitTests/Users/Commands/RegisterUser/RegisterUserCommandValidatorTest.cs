@@ -212,7 +212,7 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenAllFieldsAreInvalid()
     {
         // Given: Command with all invalid fields
-        RegisterUserCommand command = new("test@example.com", "Password123!", "A", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("", "", "A", "TEST", "TEST","Europe/Madrid");
 
 
         // When: Validating the command

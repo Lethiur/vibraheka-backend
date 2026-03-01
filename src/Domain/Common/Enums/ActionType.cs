@@ -5,5 +5,5 @@ public enum ActionType
     UserRegistered,
     UserVerification,
     RequestVerificationCode,
-    PasswordReset
+    PasswordReset,
 }

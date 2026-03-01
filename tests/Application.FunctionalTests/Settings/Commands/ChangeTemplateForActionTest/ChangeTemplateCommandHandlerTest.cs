@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
@@ -31,7 +32,7 @@ public class ChangeTemplateCommandHandlerTest
         handler = new ChangeTemplateForActionCommandHandler(
             settingsServiceMock.Object,
             currentUserServiceMock.Object,
-            emailTemplatesServiceMock.Object);
+            emailTemplatesServiceMock.Object, NullLogger<ChangeTemplateForActionCommandHandler>.Instance);
     }
 
     [Test]

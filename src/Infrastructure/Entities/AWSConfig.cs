@@ -13,6 +13,10 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string EmailTemplatesBucketName { get; set; } = string.Empty;
+    
+    
+    [Required]
+    public string UserCodesTable { get; set; } = string.Empty;  
 
     /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores email templates.
