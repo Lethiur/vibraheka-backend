@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;

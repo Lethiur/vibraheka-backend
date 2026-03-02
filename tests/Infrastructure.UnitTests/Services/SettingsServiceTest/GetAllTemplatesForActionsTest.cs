@@ -16,7 +16,7 @@ public class GetAllTemplatesForActionsTest : GenericSettingsServiceTest
         const string resetPasswordTemplate = "reset-id-456";
 
         AppSettings.VerificationEmailTemplate = verificationTemplate;
-        AppSettings.PasswordChangedTemplate = resetPasswordTemplate;
+        AppSettings.RecoverPasswordEmailTemplate = resetPasswordTemplate;
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = Service.GetAllTemplatesForActions();
@@ -40,7 +40,7 @@ public class GetAllTemplatesForActionsTest : GenericSettingsServiceTest
     {
         // Given
         AppSettings.VerificationEmailTemplate = string.Empty;
-        AppSettings.PasswordChangedTemplate = string.Empty;
+        AppSettings.RecoverPasswordEmailTemplate = string.Empty;
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = Service.GetAllTemplatesForActions();

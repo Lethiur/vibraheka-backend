@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 namespace VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 

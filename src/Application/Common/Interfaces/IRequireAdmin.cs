@@ -1,4 +1,4 @@
-namespace VibraHeka.Application.Common.Interfaces;
+﻿namespace VibraHeka.Application.Common.Interfaces;
 
 public interface IRequireAdmin
 {

@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Common.Enums;
+﻿namespace VibraHeka.Domain.Common.Enums;
 
 public enum SubscriptionStatus
 {

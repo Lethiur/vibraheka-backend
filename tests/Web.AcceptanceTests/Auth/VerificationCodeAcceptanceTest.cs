@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Queries.GetCode;

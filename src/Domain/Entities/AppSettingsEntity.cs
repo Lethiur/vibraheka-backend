@@ -4,20 +4,19 @@ public class AppSettingsEntity
 {
     private readonly object _lock = new();
     private string _verificationEmailTemplate = string.Empty;
-    private string _emailForResetPassword = string.Empty;
+    private string _recoverPasswordEmailTemplate = string.Empty;
 
     public string ID { get; set; } = string.Empty;
 
-    public string VerificationEmailTemplate 
-    { 
-        get { lock(_lock) return _verificationEmailTemplate; }
-        set { lock(_lock) _verificationEmailTemplate = value; }
+    public string VerificationEmailTemplate
+    {
+        get { lock (_lock) return _verificationEmailTemplate; }
+        set { lock (_lock) _verificationEmailTemplate = value; }
     }
 
-    public string PasswordChangedTemplate 
-    { 
-        get { lock(_lock) return _emailForResetPassword; }
-        set { lock(_lock) _emailForResetPassword = value; }
+    public string RecoverPasswordEmailTemplate
+    {
+        get { lock (_lock) return _recoverPasswordEmailTemplate; }
+        set { lock (_lock) _recoverPasswordEmailTemplate = value; }
     }
-    
 }

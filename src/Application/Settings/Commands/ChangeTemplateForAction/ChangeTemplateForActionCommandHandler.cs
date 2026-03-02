@@ -23,13 +23,13 @@ public class ChangeTemplateForActionCommandHandler(
             .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
             .BindTry(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken))
-            .Bind(async template =>
+            .BindTry(async template =>
             {
                 return request.ActionType switch
                 {
                     ActionType.UserVerification => await SettingsService.ChangeEmailForVerificationAsync(
                         request.TemplateID, cancellationToken),
-                    ActionType.PasswordReset => await SettingsService.ChangeEmailForResetPasswordAsync(
+                    ActionType.PasswordReset => await SettingsService.ChangeRecoverPasswordEmailTemplateAsync(
                         request.TemplateID, cancellationToken),
                     _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
                 };

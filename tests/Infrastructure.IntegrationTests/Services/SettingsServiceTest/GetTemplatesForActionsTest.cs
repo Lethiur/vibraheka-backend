@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SettingsServiceTest;
@@ -10,9 +10,9 @@ public class GetTemplatesForActionsTest : GenericSettingsServiceTest
     public void ShouldReturnCurrentStateOfTemplatesFromMemory()
     {
         const string verificationTemplate = "verification-memory-value";
-        const string passwordChangedTemplate = "password-changed-memory-value";
+        const string RecoverPasswordEmailTemplate = "password-changed-memory-value";
         _appSettings.VerificationEmailTemplate = verificationTemplate;
-        _appSettings.PasswordChangedTemplate = passwordChangedTemplate;
+        _appSettings.RecoverPasswordEmailTemplate = RecoverPasswordEmailTemplate;
 
         Result<IEnumerable<TemplateForActionEntity>> result = _service.GetAllTemplatesForActions();
 
@@ -20,6 +20,6 @@ public class GetTemplatesForActionsTest : GenericSettingsServiceTest
         List<TemplateForActionEntity> templates = result.Value.ToList();
         Assert.That(templates, Has.Count.EqualTo(2));
         Assert.That(templates[0].TemplateID, Is.EqualTo(verificationTemplate));
-        Assert.That(templates[1].TemplateID, Is.EqualTo(passwordChangedTemplate));
+        Assert.That(templates[1].TemplateID, Is.EqualTo(RecoverPasswordEmailTemplate));
     }
 }

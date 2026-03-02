@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Entities;
+﻿namespace VibraHeka.Domain.Entities;
 
 public class SubscriptionCheckoutSessionEntity
 {

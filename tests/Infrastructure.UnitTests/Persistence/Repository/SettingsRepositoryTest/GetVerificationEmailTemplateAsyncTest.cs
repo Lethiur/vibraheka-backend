@@ -1,4 +1,4 @@
-using Amazon.SimpleSystemsManagement;
+﻿using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using CSharpFunctionalExtensions;
 using Moq;

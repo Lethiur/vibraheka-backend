@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.Users.Queries.GetProfile;

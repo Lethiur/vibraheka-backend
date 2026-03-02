@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Entities;
+﻿namespace VibraHeka.Domain.Entities;
 
 /// <summary>
 /// Represents the data prepared by the payment flow before persisting a pending subscription.

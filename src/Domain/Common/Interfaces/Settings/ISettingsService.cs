@@ -27,7 +27,7 @@ public interface ISettingsService
     /// <param name="emailTemplate">The new email template to be used after password changes.</param>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation.</returns>
-    Task<Result<Unit>> ChangeEmailForResetPasswordAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves the email template used for verification.
@@ -41,7 +41,7 @@ public interface ISettingsService
     /// </summary>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{String}</c> containing the password changed template or a domain error.</returns>
-    Task<Result<string>> GetPasswordChangedTemplateAsync(CancellationToken cancellationToken);
+    Task<Result<string>> GetRecoverPasswordEmailTemplateAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves all templates available for specific actions from the settings service.

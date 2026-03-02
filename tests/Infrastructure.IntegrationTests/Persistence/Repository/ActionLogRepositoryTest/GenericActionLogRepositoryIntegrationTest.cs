@@ -1,4 +1,4 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Infrastructure.Persistence.Repository;

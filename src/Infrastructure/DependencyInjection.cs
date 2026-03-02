@@ -83,7 +83,6 @@ public static class DependencyInjection
         });
         
         builder.Services.Configure<AppSettingsEntity>(configurationManager);
-        builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AppSettingsEntity>>().Value);
         
         
         StripeConfig? stripeConfig = builder.Configuration

@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 
 namespace VibraHeka.Domain.Common.Interfaces.User;

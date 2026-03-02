@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Exceptions;
+﻿namespace VibraHeka.Domain.Exceptions;
 
 public class VibraHekaException : Exception
 {

@@ -1,4 +1,4 @@
-using Riok.Mapperly.Abstractions;
+﻿using Riok.Mapperly.Abstractions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
 

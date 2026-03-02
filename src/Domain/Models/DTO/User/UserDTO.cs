@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Models.Results.User;
+﻿namespace VibraHeka.Domain.Models.Results.User;
 
 public class UserDTO
 {

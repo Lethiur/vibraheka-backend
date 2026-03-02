@@ -1,4 +1,4 @@
-using Amazon.SimpleSystemsManagement;
+﻿using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
@@ -26,10 +26,6 @@ public class SettingsRepository(
     public async Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate,
         CancellationToken cancellationToken)
     {
-        string? traceId = GetTraceIdSafe();
-        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
-            { ["TraceId"] = traceId });
-
         try
         {
             await ssmClient.PutParameterAsync(
@@ -40,7 +36,7 @@ public class SettingsRepository(
                     Type = ParameterType.String,
                     Overwrite = true
                 }, cancellationToken);
-
+            logger.LogInformation("Verification email template updated successfully");
             return Result.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -56,29 +52,25 @@ public class SettingsRepository(
     /// <param name="emailTemplate">The email template to be stored as a parameter in AWS Systems Manager.</param>
     /// <param name="cancellationToken">The cancellation token to listen for cancellations.</param>
     /// <returns>A <see cref="Result{T}"/> indicating the success or failure of the operation.</returns>
-    public async Task<Result<Unit>> UpdatePasswordChangedTemplateAsync(string emailTemplate,
+    public async Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate,
         CancellationToken cancellationToken)
     {
-        string? traceId = GetTraceIdSafe();
-        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
-            { ["TraceId"] = traceId });
-
         try
         {
             await ssmClient.PutParameterAsync(
                 new PutParameterRequest
                 {
-                    Name = $"/{config.SettingsNameSpace}/PasswordChangedTemplate",
+                    Name = $"/{config.SettingsNameSpace}/RecoverPasswordEmailTemplate",
                     Value = emailTemplate,
                     Type = ParameterType.String,
                     Overwrite = true
                 }, cancellationToken);
-
+            logger.LogInformation($"/{config.SettingsNameSpace}/RecoverPasswordEmailTemplate updated successfully with templateID {emailTemplate}");
             return Result.Success(Unit.Value);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error while updating parameter {ParameterName}", "PasswordChangedTemplate");
+            logger.LogError(ex, "Error while updating parameter {ParameterName}", "/{config.SettingsNameSpace}/RecoverPasswordEmailTemplate");
             return MapSsmException<Unit>(ex);
         }
     }
@@ -114,7 +106,7 @@ public class SettingsRepository(
     /// Retrieves the password changed email template stored in the AWS Systems Manager Parameter Store.
     /// </summary>
     /// <returns>A <see cref="Result{T}"/> containing the template value if successful, or an infrastructure error code if it fails.</returns>
-    public async Task<Result<string>> GetPasswordChangedTemplateAsync()
+    public async Task<Result<string>> GetRecoverPasswordEmailTemplateAsync()
     {
         string? traceId = GetTraceIdSafe();
         using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
@@ -124,7 +116,7 @@ public class SettingsRepository(
         {
             GetParameterResponse response = await ssmClient.GetParameterAsync(new GetParameterRequest
             {
-                Name = $"/{config.SettingsNameSpace}/PasswordChangedTemplate",
+                Name = $"/{config.SettingsNameSpace}/RecoverPasswordEmailTemplate",
                 WithDecryption = true
             });
 
@@ -132,7 +124,7 @@ public class SettingsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error while getting parameter {ParameterName}", "PasswordChangedTemplate");
+            logger.LogError(ex, "Error while getting parameter {ParameterName}", "RecoverPasswordEmailTemplate");
             return MapSsmException<string>(ex);
         }
     }

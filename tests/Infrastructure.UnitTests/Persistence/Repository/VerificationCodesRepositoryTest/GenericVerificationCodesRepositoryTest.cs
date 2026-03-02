@@ -1,4 +1,4 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Mappers;

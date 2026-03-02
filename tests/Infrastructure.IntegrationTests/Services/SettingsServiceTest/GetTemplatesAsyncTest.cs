@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SettingsServiceTest;
 
@@ -18,12 +18,12 @@ public class GetTemplatesAsyncTest : GenericSettingsServiceTest
     }
 
     [Test]
-    public async Task ShouldGetPasswordChangedTemplateAfterUpdate()
+    public async Task ShouldGetRecoverPasswordEmailTemplateAfterUpdate()
     {
         string expectedTemplate = $"password-template-{_faker.Random.Guid()}";
-        await _service.ChangeEmailForResetPasswordAsync(expectedTemplate, CancellationToken.None);
+        await _service.ChangeRecoverPasswordEmailTemplateAsync(expectedTemplate, CancellationToken.None);
 
-        Result<string> result = await _service.GetPasswordChangedTemplateAsync(CancellationToken.None);
+        Result<string> result = await _service.GetRecoverPasswordEmailTemplateAsync(CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(expectedTemplate));

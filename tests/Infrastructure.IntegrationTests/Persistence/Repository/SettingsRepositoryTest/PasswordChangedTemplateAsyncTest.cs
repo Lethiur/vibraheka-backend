@@ -1,4 +1,4 @@
-using Amazon.SimpleSystemsManagement;
+﻿using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
@@ -6,14 +6,14 @@ using MediatR;
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SettingsRepositoryTest;
 
 [TestFixture]
-public class PasswordChangedTemplateAsyncTest : GenericSettingsRepositoryTest
+public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTest
 {
     [Test]
-    public async Task ShouldUpdatePasswordChangedTemplateSuccessfully()
+    public async Task ShouldUpdateRecoverPasswordEmailTemplateSuccessfully()
     {
         string emailTemplate = $"<html><body>Password Changed {_faker.Random.Guid()}</body></html>";
 
-        Result<Unit> result = await Repository.UpdatePasswordChangedTemplateAsync(emailTemplate, CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateRecoverPasswordEmailTemplateAsync(emailTemplate, CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
 
@@ -26,7 +26,7 @@ public class PasswordChangedTemplateAsyncTest : GenericSettingsRepositoryTest
     }
 
     [Test]
-    public async Task ShouldGetPasswordChangedTemplateSuccessfully()
+    public async Task ShouldGetRecoverPasswordEmailTemplateSuccessfully()
     {
         string expectedTemplate = $"password-template-{_faker.Random.Guid()}";
         await SSMClient.PutParameterAsync(new PutParameterRequest
@@ -37,7 +37,7 @@ public class PasswordChangedTemplateAsyncTest : GenericSettingsRepositoryTest
             Overwrite = true
         });
 
-        Result<string> result = await Repository.GetPasswordChangedTemplateAsync();
+        Result<string> result = await Repository.GetRecoverPasswordEmailTemplateAsync();
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(expectedTemplate));

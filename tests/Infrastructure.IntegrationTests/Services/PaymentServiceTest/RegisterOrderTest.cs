@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Stripe.Checkout;
 using VibraHeka.Application.Common.Exceptions;

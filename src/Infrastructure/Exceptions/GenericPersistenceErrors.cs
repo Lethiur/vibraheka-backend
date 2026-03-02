@@ -1,4 +1,4 @@
-namespace VibraHeka.Infrastructure.Exceptions;
+﻿namespace VibraHeka.Infrastructure.Exceptions;
 
 public class GenericPersistenceErrors
 {

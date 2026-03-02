@@ -1,6 +1,7 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
@@ -17,7 +18,7 @@ namespace VibraHeka.Infrastructure.Services;
 /// </summary>
 public class SettingsService(
     ISettingsRepository repository,
-    AppSettingsEntity appSettings,
+    IOptionsMonitor<AppSettingsEntity> appSettingsMonitor,
     ILogger<SettingsService> Logger) : ISettingsService
 {
     /// <summary>
@@ -56,18 +57,18 @@ public class SettingsService(
     /// <param name="emailTemplate">The new email template to be used after password changes.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Result{Unit}"/> indicating whether the operation succeeded.</returns>
-    public async Task<Result<Unit>> ChangeEmailForResetPasswordAsync(string emailTemplate,
+    public async Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(string emailTemplate,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(emailTemplate))
         {
-            return Result.Failure<Unit>(SettingsErrors.InvalidPasswordChangedTemplate);
+            return Result.Failure<Unit>(SettingsErrors.InvalidRecoverPasswordEmailTemplate);
         }
 
         try
         {
             Result<Unit> repositoryResult =
-                await repository.UpdatePasswordChangedTemplateAsync(emailTemplate, cancellationToken);
+                await repository.UpdateRecoverPasswordEmailTemplateAsync(emailTemplate, cancellationToken);
 
             return repositoryResult.IsFailure
                 ? Result.Failure<Unit>(MapInfrastructureErrorForUpdate(repositoryResult.Error, true))
@@ -103,11 +104,11 @@ public class SettingsService(
     /// </summary>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Result{String}"/> containing the template or a domain-level error.</returns>
-    public async Task<Result<string>> GetPasswordChangedTemplateAsync(CancellationToken cancellationToken)
+    public async Task<Result<string>> GetRecoverPasswordEmailTemplateAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        Result<string> repositoryResult = await repository.GetPasswordChangedTemplateAsync();
+        Result<string> repositoryResult = await repository.GetRecoverPasswordEmailTemplateAsync();
         if (repositoryResult.IsFailure)
         {
             return Result.Failure<string>(MapInfrastructureErrorForGet(repositoryResult.Error, true));
@@ -122,6 +123,8 @@ public class SettingsService(
     /// <returns>A <see cref="Result{IEnumerable{TemplateForActionEntity}}"/> containing available templates.</returns>
     public Result<IEnumerable<TemplateForActionEntity>> GetAllTemplatesForActions()
     {
+        AppSettingsEntity appSettings = appSettingsMonitor.CurrentValue;
+
         List<TemplateForActionEntity> templates =
         [
             new()
@@ -130,7 +133,7 @@ public class SettingsService(
             },
             new()
             {
-                TemplateID = appSettings.PasswordChangedTemplate, ActionType = ActionType.PasswordReset
+                TemplateID = appSettings.RecoverPasswordEmailTemplate, ActionType = ActionType.PasswordReset
             }
         ];
 
@@ -141,18 +144,18 @@ public class SettingsService(
     /// Maps infrastructure repository errors to domain errors for update operations.
     /// </summary>
     /// <param name="infrastructureError">The error code returned by the repository.</param>
-    /// <param name="isPasswordChangedTemplate">Indicates whether the error belongs to the password changed template flow.</param>
+    /// <param name="isRecoverPasswordEmailTemplate">Indicates whether the error belongs to the password changed template flow.</param>
     /// <returns>A domain-level error code.</returns>
-    private static string MapInfrastructureErrorForUpdate(string infrastructureError, bool isPasswordChangedTemplate)
+    private static string MapInfrastructureErrorForUpdate(string infrastructureError, bool isRecoverPasswordEmailTemplate)
     {
         return infrastructureError switch
         {
-            InfrastructureConfigErrors.ParameterLimitExceeded => isPasswordChangedTemplate
-                ? SettingsErrors.PasswordChangedTemplateUpdateFailed
+            InfrastructureConfigErrors.ParameterLimitExceeded => isRecoverPasswordEmailTemplate
+                ? SettingsErrors.RecoverPasswordEmailTemplateUpdateFailed
                 : SettingsErrors.VerificationEmailTemplateUpdateFailed,
 
-            InfrastructureConfigErrors.TooManyUpdates => isPasswordChangedTemplate
-                ? SettingsErrors.PasswordChangedTemplateUpdateFailed
+            InfrastructureConfigErrors.TooManyUpdates => isRecoverPasswordEmailTemplate
+                ? SettingsErrors.RecoverPasswordEmailTemplateUpdateFailed
                 : SettingsErrors.VerificationEmailTemplateUpdateFailed,
             _ => SettingsErrors.GenericError
         };
@@ -162,14 +165,14 @@ public class SettingsService(
     /// Maps infrastructure repository errors to domain errors for retrieval operations.
     /// </summary>
     /// <param name="infrastructureError">The error code returned by the repository.</param>
-    /// <param name="isPasswordChangedTemplate">Indicates whether the error belongs to the password changed template flow.</param>
+    /// <param name="isRecoverPasswordEmailTemplate">Indicates whether the error belongs to the password changed template flow.</param>
     /// <returns>A domain-level error code.</returns>
-    private static string MapInfrastructureErrorForGet(string infrastructureError, bool isPasswordChangedTemplate)
+    private static string MapInfrastructureErrorForGet(string infrastructureError, bool isRecoverPasswordEmailTemplate)
     {
         return infrastructureError switch
         {
-            InfrastructureConfigErrors.ParameterNotFound => isPasswordChangedTemplate
-                ? SettingsErrors.InvalidPasswordChangedTemplate
+            InfrastructureConfigErrors.ParameterNotFound => isRecoverPasswordEmailTemplate
+                ? SettingsErrors.InvalidRecoverPasswordEmailTemplate
                 : SettingsErrors.InvalidVerificationEmailTemplate,
             InfrastructureConfigErrors.AccessDenied => SettingsErrors.GenericError,
             AppErrors.GenericError => SettingsErrors.GenericError,

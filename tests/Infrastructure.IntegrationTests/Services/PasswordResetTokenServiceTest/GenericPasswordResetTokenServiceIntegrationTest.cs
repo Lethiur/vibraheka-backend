@@ -1,4 +1,4 @@
-using VibraHeka.Domain.Common.Interfaces.User;
+﻿using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PasswordResetTokenServiceTest;

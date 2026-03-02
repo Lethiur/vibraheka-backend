@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Net;
 using System.Net.Http.Json;
 using VibraHeka.Domain.Entities;

@@ -1,4 +1,4 @@
-using Amazon.XRay.Recorder.Core;
+﻿using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Enums;

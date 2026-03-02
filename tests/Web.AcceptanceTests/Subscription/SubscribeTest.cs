@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;

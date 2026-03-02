@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Data;
 using System.Net;
 using System.Net.Http.Json;
@@ -29,33 +29,33 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     }
     
    // === EMAIL TESTS ===
-    [TestCase("", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email vacío
+    [TestCase("", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email vacÃ­o
     [TestCase(null, "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email null
     [TestCase("   ", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email solo espacios
-    [TestCase("invalid-email", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email formato inválido
+    [TestCase("invalid-email", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email formato invÃ¡lido
     [TestCase("@domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin parte local
     [TestCase("user@", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin dominio
     [TestCase("user.domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin @
     
     // === PASSWORD TESTS ===
-    [TestCase("test@example.com", "", "John Doe", UserErrors.InvalidPassword)] // Password vacío
+    [TestCase("test@example.com", "", "John Doe", UserErrors.InvalidPassword)] // Password vacÃ­o
     [TestCase("test@example.com", null, "John Doe", UserErrors.InvalidPassword)] // Password null
     [TestCase("test@example.com", "   ", "John Doe", UserErrors.InvalidPassword)] // Password solo espacios
     [TestCase("test@example.com", "1", "John Doe", UserErrors.InvalidPassword)] // Password 1 char
     [TestCase("test@example.com", "12", "John Doe", UserErrors.InvalidPassword)] // Password 2 chars
     [TestCase("test@example.com", "123", "John Doe", UserErrors.InvalidPassword)] // Password 3 chars
     [TestCase("test@example.com", "1234", "John Doe", UserErrors.InvalidPassword)] // Password 4 chars
-    [TestCase("test@example.com", "12345", "John Doe", UserErrors.InvalidPassword)] // Password 5 chars (límite)
+    [TestCase("test@example.com", "12345", "John Doe", UserErrors.InvalidPassword)] // Password 5 chars (lÃ­mite)
     
     // === FULLNAME TESTS ===
-    [TestCase("test@example.com", "Password123@", "", UserErrors.InvalidFullName)] // FullName vacío
+    [TestCase("test@example.com", "Password123@", "", UserErrors.InvalidFullName)] // FullName vacÃ­o
     [TestCase("test@example.com", "Password123@", null, UserErrors.InvalidFullName)] // FullName null
     [TestCase("test@example.com", "Password123@", "   ", UserErrors.InvalidFullName)] // FullName solo espacios
     [TestCase("test@example.com", "Password123@", "\t", UserErrors.InvalidFullName)] // FullName solo tab
-    [TestCase("test@example.com", "Password123@", "\n", UserErrors.InvalidFullName)] // FullName solo salto de línea
+    [TestCase("test@example.com", "Password123@", "\n", UserErrors.InvalidFullName)] // FullName solo salto de lÃ­nea
     [TestCase("test@example.com", "Password123@", "\r\n", UserErrors.InvalidFullName)] // FullName CRLF
     [TestCase("test@example.com", "Password123@", "A", UserErrors.InvalidFullName)] // FullName 1 char
-    [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (límite)
+    [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (lÃ­mite)
     [TestCase("test@example.com", "Password123@", "  A  ", UserErrors.InvalidFullName)] // FullName con espacios al inicio/final
     
     // === EDGE CASES COMBINADOS ===

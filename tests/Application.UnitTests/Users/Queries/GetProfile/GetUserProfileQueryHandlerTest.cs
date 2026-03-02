@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Users.Queries.GetProfile;

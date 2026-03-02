@@ -1,4 +1,4 @@
-using Amazon.SimpleSystemsManagement;
+﻿using Amazon.SimpleSystemsManagement;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@ public abstract class GenericSettingsRepositoryTest
     protected SettingsRepository Repository;
     protected AWSConfig config;
     protected const string VerificationParameterName = "/TEST/VerificationEmailTemplate";
-    protected const string PasswordChangedParameterName = "/TEST/PasswordChangedTemplate";
+    protected const string PasswordChangedParameterName = "/TEST/RecoverPasswordEmailTemplate";
 
     [SetUp]
     public void SetUp()

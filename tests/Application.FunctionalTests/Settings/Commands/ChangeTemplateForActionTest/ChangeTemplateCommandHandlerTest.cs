@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -76,7 +76,7 @@ public class ChangeTemplateCommandHandlerTest
 
         Assert.That(result.IsSuccess, Is.True);
         settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
-        settingsServiceMock.Verify(x => x.ChangeEmailForResetPasswordAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        settingsServiceMock.Verify(x => x.ChangeRecoverPasswordEmailTemplateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -86,14 +86,14 @@ public class ChangeTemplateCommandHandlerTest
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));
-        settingsServiceMock.Setup(x => x.ChangeEmailForResetPasswordAsync(templateId, It.IsAny<CancellationToken>()))
+        settingsServiceMock.Setup(x => x.ChangeRecoverPasswordEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));
 
         ChangeTemplateForActionCommand command = new(templateId, ActionType.PasswordReset);
         Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
-        settingsServiceMock.Verify(x => x.ChangeEmailForResetPasswordAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
+        settingsServiceMock.Verify(x => x.ChangeRecoverPasswordEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
         settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 

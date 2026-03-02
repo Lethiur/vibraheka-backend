@@ -1,4 +1,4 @@
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 using VibraHeka.Domain.Common.Enums;

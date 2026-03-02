@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Entities;
+﻿namespace VibraHeka.Domain.Entities;
 
 /// <summary>
 /// Represents a generic response entity that encapsulates the result of an operation.

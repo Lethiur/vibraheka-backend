@@ -33,7 +33,7 @@ public interface ISettingsRepository
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// the success or failure of the operation.
     /// </returns>
-    Task<Result<Unit>> UpdatePasswordChangedTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken token);
 
     /// <summary>
     /// Retrieves the verification email template from the settings repository.
@@ -51,6 +51,6 @@ public interface ISettingsRepository
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{String}"/>
     /// holding the current password changed email template, or an error indicating the failure of the operation.
     /// </returns>
-    Task<Result<string>> GetPasswordChangedTemplateAsync();
+    Task<Result<string>> GetRecoverPasswordEmailTemplateAsync();
     
 }

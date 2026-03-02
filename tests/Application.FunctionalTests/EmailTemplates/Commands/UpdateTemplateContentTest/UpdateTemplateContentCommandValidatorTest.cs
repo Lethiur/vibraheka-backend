@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;

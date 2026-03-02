@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Exceptions;
 
@@ -29,11 +29,11 @@ public class ChangeEmailForVerificationAsyncTest : GenericSettingsServiceTest
     }
 
     [Test]
-    public async Task ShouldUpdatePasswordChangedTemplateSuccessfully()
+    public async Task ShouldUpdateRecoverPasswordEmailTemplateSuccessfully()
     {
         string newTemplate = $"password-changed-template-{_faker.Random.Guid()}";
 
-        Result<Unit> result = await _service.ChangeEmailForResetPasswordAsync(newTemplate, CancellationToken.None);
+        Result<Unit> result = await _service.ChangeRecoverPasswordEmailTemplateAsync(newTemplate, CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
     }
@@ -41,11 +41,11 @@ public class ChangeEmailForVerificationAsyncTest : GenericSettingsServiceTest
     [TestCase("")]
     [TestCase("   ")]
     [TestCase(null!)]
-    public async Task ShouldReturnFailureWhenPasswordChangedTemplateIsInvalid(string invalidTemplate)
+    public async Task ShouldReturnFailureWhenRecoverPasswordEmailTemplateIsInvalid(string invalidTemplate)
     {
-        Result<Unit> result = await _service.ChangeEmailForResetPasswordAsync(invalidTemplate, CancellationToken.None);
+        Result<Unit> result = await _service.ChangeRecoverPasswordEmailTemplateAsync(invalidTemplate, CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(SettingsErrors.InvalidPasswordChangedTemplate));
+        Assert.That(result.Error, Is.EqualTo(SettingsErrors.InvalidRecoverPasswordEmailTemplate));
     }
 }

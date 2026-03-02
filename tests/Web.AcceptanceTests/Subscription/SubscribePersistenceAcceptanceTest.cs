@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using CSharpFunctionalExtensions;
 using NUnit.Framework;
 using VibraHeka.Domain.Common.Enums;

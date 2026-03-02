@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Bogus;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;

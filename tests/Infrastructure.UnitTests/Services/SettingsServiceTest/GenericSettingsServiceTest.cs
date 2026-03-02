@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
@@ -12,12 +13,16 @@ public abstract class GenericSettingsServiceTest
     protected SettingsService Service;
     protected Mock<ILogger<SettingsService>> LoggerMock;
     protected AppSettingsEntity AppSettings;
+    protected Mock<IOptionsMonitor<AppSettingsEntity>> AppSettingsMonitorMock;
+
     [SetUp]
     public void SetUp()
     {
         RepositoryMock = new Mock<ISettingsRepository>();
         LoggerMock = new Mock<ILogger<SettingsService>>();
         AppSettings = new AppSettingsEntity();
-        Service = new SettingsService(RepositoryMock.Object, AppSettings, LoggerMock.Object);
+        AppSettingsMonitorMock = new Mock<IOptionsMonitor<AppSettingsEntity>>();
+        AppSettingsMonitorMock.Setup(monitor => monitor.CurrentValue).Returns(() => AppSettings);
+        Service = new SettingsService(RepositoryMock.Object, AppSettingsMonitorMock.Object, LoggerMock.Object);
     }
 }

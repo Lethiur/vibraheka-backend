@@ -42,13 +42,13 @@ export default class EmailTemplateService implements IEmailTemplateService {
      */
     public RenderPasswordResetTemplate(username: string, token: string, resetLink: string): ResultAsync<string, EmailSenderErrors> {
         console.log("Rendering password reset email template", {username});
-        return ResultAsync.fromPromise(Promise.resolve(resetLink), err => EmailSenderErrors.TEMPLATE_RENDER_FAILED);
-        // return this.GetTemplateHtml(this.passwordResetTemplateParameterName).andThen(templateHtml => this.ProcessTemplate(templateHtml, {
-        //     code: token,
-        //     resetToken: token,
-        //     resetLink,
-        //     username
-        // }));
+        
+        return this.GetTemplateHtml(this.passwordResetTemplateParameterName).andThen(templateHtml => this.ProcessTemplate(templateHtml, {
+            code: token,
+            resetToken: token,
+            resetLink,
+            username
+        }));
     }
 
     /**

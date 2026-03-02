@@ -186,8 +186,8 @@ public class RegisterUserCommandValidatorTests
     [TestCase("José María", TestName = "Accented characters")]
     [TestCase("O'Connor-Smith", TestName = "Apostrophe and hyphen")]
     [TestCase("Van der Berg", TestName = "Multiple words")]
-    [TestCase("李小明", TestName = "Chinese characters")]
-    [TestCase("محمد عبدالله", TestName = "Arabic characters")]
+    [TestCase("???", TestName = "Chinese characters")]
+    [TestCase("???? ???????", TestName = "Arabic characters")]
     [TestCase("ABC", TestName = "3 characters - minimum valid")]
     [DisplayName("Should pass when full name is valid")]
     public void ShouldPassValidationWhenFullNameIsValid(string fullName)

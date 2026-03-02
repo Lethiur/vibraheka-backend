@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentValidation.TestHelper;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;

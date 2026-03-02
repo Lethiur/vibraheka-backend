@@ -1,4 +1,4 @@
-using Amazon;
+﻿using Amazon;
 using Amazon.SimpleSystemsManagement;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -22,7 +22,7 @@ public abstract class GenericSettingsRepositoryTest : TestBase
         SSMClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
         Repository = new SettingsRepository(SSMClient, _configuration, CreateTestLogger<SettingsRepository>());
         VerificationParameterName = $"/{_configuration.SettingsNameSpace}/VerificationEmailTemplate";
-        PasswordChangedParameterName = $"/{_configuration.SettingsNameSpace}/PasswordChangedTemplate";
+        PasswordChangedParameterName = $"/{_configuration.SettingsNameSpace}/RecoverPasswordEmailTemplate";
     }
 
     [OneTimeTearDown]

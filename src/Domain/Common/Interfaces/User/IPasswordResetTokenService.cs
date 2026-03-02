@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Domain.Common.Interfaces.User;

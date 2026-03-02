@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Infrastructure.Services;

@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Interfaces;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;

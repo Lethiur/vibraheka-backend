@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Infrastructure.Persistence.Repository;
 

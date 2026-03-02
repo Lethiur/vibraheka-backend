@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Models.Results;
+﻿namespace VibraHeka.Domain.Models.Results;
 
 /// <summary>
 /// Represents the decoded payload contained in a password reset token.

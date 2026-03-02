@@ -1,4 +1,4 @@
-using Amazon.XRay.Recorder.Core;
+﻿using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using VibraHeka.Domain.Common.Interfaces;
 
