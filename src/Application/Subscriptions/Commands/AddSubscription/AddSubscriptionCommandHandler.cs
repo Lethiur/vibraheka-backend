@@ -33,7 +33,7 @@ public class AddSubscriptionCommandHandler(
                         userId,
                         error))
                     .Map(_ => context.CheckoutSession)
-                    .OnFailureCompensateWhen(_ => true, async error =>
+                    .OnFailureCompensate(async error =>
                     {
                         Result<Unit> rollbackResult =
                             await paymentService.CancelSubscriptionPayment(context.CheckoutSession, cancellationToken);
