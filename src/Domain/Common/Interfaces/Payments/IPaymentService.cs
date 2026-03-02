@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Entities;
 
@@ -10,6 +10,16 @@ namespace VibraHeka.Domain.Common.Interfaces.Payments;
 /// </summary>
 public interface IPaymentService
 {
+    /// <summary>
+    /// Prepares the subscription payment context and guarantees the user has an external Stripe customer.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user registering the subscription.</param>
+    /// <param name="cancellationToken">A token to observe cancellation requests.</param>
+    /// <returns>
+    /// A result containing all required data to persist a pending subscription and expose the checkout session.
+    /// </returns>
+    Task<Result<SubscriptionContext>> PrepareSubscriptionAsync(string userID, CancellationToken cancellationToken);
+
     /// <summary>
     /// Registers a subscription for a user with the given subscription details.
     /// </summary>

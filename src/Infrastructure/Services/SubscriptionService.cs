@@ -17,37 +17,49 @@ public class SubscriptionService(
     StripeConfig config,
     ILogger<SubscriptionService> logger) : ISubscriptionService
 {
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
+    public Task<Result<SubscriptionEntity>> CreateSubscription(SubscriptionContext preparation, CancellationToken cancellationToken)
     {
-        return subscriptionRepository.GetSubscriptionDetailsForUser(user.Id, cancellationToken)
+        return subscriptionRepository.GetSubscriptionDetailsForUser(preparation.UserID, cancellationToken)
             .BindTryWhen(entity => entity.SubscriptionStatus == SubscriptionStatus.Cancelled, entity =>
             {
-                logger.LogWarning("Subscription already exists for user {userId}. It is cancelled, Resetting to pending", user.Id);
+                logger.LogWarning("Subscription already exists for user {userId}. It is cancelled, Resetting to pending", preparation.UserID);
                 entity.SubscriptionStatus = SubscriptionStatus.Created;
                 entity.Status = OrderStatus.Pending;
                 entity.StartDate = DateTime.UtcNow;
-                entity.CheckoutSessionUrl = context.Url;
-                entity.CheckoutSessionExpiresAt = context.ExpiresAt;
+                entity.CheckoutSessionUrl = preparation.CheckoutSession.Url;
+                entity.CheckoutSessionExpiresAt = preparation.CheckoutSession.ExpiresAt;
+                entity.ExternalCustomerID = preparation.ExternalCustomerID;
                 return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
             })
             .OnFailureCompensateWhen(error => error == SubscriptionErrors.NoSubscriptionFound, (_) =>
             {
-                logger.LogInformation("No subscription found for user {userId}. Creating new subscription.", user.Id);
+                logger.LogInformation("No subscription found for user {userId}. Creating new subscription.", preparation.UserID);
                 SubscriptionEntity entity = new()
                 {
                     SubscriptionID = Guid.NewGuid().ToString(),
                     StartDate = DateTime.UtcNow,
                     EndDate = DateTime.UtcNow,
-                    ExternalCustomerID = user.CustomerID,
-                    UserID = user.Id,
+                    ExternalCustomerID = preparation.ExternalCustomerID,
+                    UserID = preparation.UserID,
                     ExternalSubscriptionItemID = config.SubscriptionID,
                     Created = DateTime.UtcNow,
-                    CreatedBy = user.CreatedBy,
-                    CheckoutSessionExpiresAt = context.ExpiresAt,
-                    CheckoutSessionUrl = context.Url
+                    CheckoutSessionExpiresAt = preparation.CheckoutSession.ExpiresAt,
+                    CheckoutSessionUrl = preparation.CheckoutSession.Url
                 };
                 return subscriptionRepository.SaveSubscriptionAsync(entity, cancellationToken);
-            }).TapError(error => logger.LogError(error, "Error while creating subscription for user {userId}", user.Id));
+            }).TapError(error => logger.LogError(error, "Error while creating subscription for user {userId}", preparation.UserID));
+    }
+
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
+    {
+        SubscriptionContext preparation = new()
+        {
+            UserID = user.Id,
+            ExternalCustomerID = user.CustomerID,
+            CheckoutSession = context
+        };
+
+        return CreateSubscription(preparation, cancellationToken);
     }
 
     public Task<Result<Unit>> CancelSubscriptionForUser(string userID, CancellationToken cancellationToken)
