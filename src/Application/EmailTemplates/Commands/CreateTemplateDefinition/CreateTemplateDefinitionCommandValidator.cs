@@ -1,4 +1,4 @@
-using VibraHeka.Domain.Exceptions;
+﻿using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 

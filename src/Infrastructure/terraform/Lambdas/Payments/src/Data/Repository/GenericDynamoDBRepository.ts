@@ -83,6 +83,7 @@ export default class GenericDynamoDBRepository<T> {
             if (result.Items && result.Items.length > 0) {
                 return ok(result.Items.map(item => unmarshall(item)) as T[]);
             } else {
+                console.log(`No items found in the index. ${indexName}`);
                 return err(DynamoDBErrors.ITEM_NOT_FOUND);
             }
         } catch (error) {

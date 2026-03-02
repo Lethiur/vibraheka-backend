@@ -1,37 +1,13 @@
 ﻿using System.ComponentModel;
-using Amazon;
-using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
-using Bogus;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Common.Interfaces.Settings;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SettingsRepositoryTest;
 
 [TestFixture]
-public class UpdateVerificationEmailTemplateTest : TestBase
+public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
 {
-    private ISettingsRepository _repository;
-    private IAmazonSimpleSystemsManagement _ssmClient;
-    private const string ParameterName = "/VibraHeka/VerificationEmailTemplate";
-
-    [OneTimeSetUp]
-    public void OneTimeSetup()
-    {
-        base.OneTimeSetUp();
-        AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new AmazonSimpleSystemsManagementConfig() { Profile = new Profile(_configuration.Profile) };
-        _ssmClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
-        _repository = new SettingsRepository(_ssmClient);
-        _faker = new Faker();
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _ssmClient?.Dispose();
-    }
 
     #region UpdateVerificationEmailTemplate - Success Cases
 
@@ -43,13 +19,13 @@ public class UpdateVerificationEmailTemplateTest : TestBase
         string emailTemplate = $"<html><body><h1>Verify your email</h1><p>{_faker.Lorem.Sentence()}</p></body></html>";
 
         // When: Updating the template in SSM
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(emailTemplate, CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, CancellationToken.None);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
 
         // And: Verify the value was actually stored in AWS SSM
-        GetParameterResponse? response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
+        GetParameterResponse? response = await SSMClient.GetParameterAsync(new GetParameterRequest { Name = VerificationParameterName });
         Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate));
     }
 
@@ -58,16 +34,16 @@ public class UpdateVerificationEmailTemplateTest : TestBase
     public async Task ShouldOverwriteExistingTemplate()
     {
         // Given: An initial template already in SSM
-        await _repository.UpdateVerificationEmailTemplateAsync("initial template", CancellationToken.None);
+        await Repository.UpdateVerificationEmailTemplateAsync("initial template", CancellationToken.None);
         string newTemplate = "updated template " + _faker.Random.Guid();
 
         // When: Updating the same parameter
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(newTemplate, CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(newTemplate, CancellationToken.None);
 
         // Then: Should succeed and reflect the new value
         Assert.That(result.IsSuccess, Is.True);
         
-        GetParameterResponse? response = await _ssmClient.GetParameterAsync(new GetParameterRequest { Name = ParameterName });
+        GetParameterResponse? response = await SSMClient.GetParameterAsync(new GetParameterRequest { Name = VerificationParameterName });
         Assert.That(response.Parameter.Value, Is.EqualTo(newTemplate));
     }
 
@@ -83,7 +59,7 @@ public class UpdateVerificationEmailTemplateTest : TestBase
         string largeTemplate = new string('A', 3000); 
 
         // When: Updating the template
-        Result<Unit> result = await _repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);
 
         // Then: Should return success if within limits
         Assert.That(result.IsSuccess, Is.True);

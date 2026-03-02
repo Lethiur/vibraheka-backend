@@ -10,6 +10,7 @@ public static class DependencyInjection
         builder.Services.AddHttpContextAccessor();
         
         builder.Services.AddSingleton<SubscriptionMapper>();
+        builder.Services.AddSingleton<CreateSubscriptionMapper>();
         
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);

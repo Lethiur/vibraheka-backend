@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionPortalUrl;
@@ -13,11 +13,13 @@ public class GetSubscriptionPortalQueryHandlerTest
     [Test]
     public async Task ShouldReturnPortalUrlForCurrentUser()
     {
+        MockSequence sequence = new();
         Mock<ICurrentUserService> currentUserMock = new();
         Mock<IPaymentService> paymentServiceMock = new();
 
-        currentUserMock.Setup(x => x.UserId).Returns("user-1");
-        paymentServiceMock.Setup(x => x.GetSubscriptionDetailsUrlAsync("user-1", It.IsAny<CancellationToken>()))
+        currentUserMock.InSequence(sequence).SetupGet(x => x.UserId).Returns("user-1");
+        paymentServiceMock.InSequence(sequence)
+            .Setup(x => x.GetSubscriptionDetailsUrlAsync("user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success("https://portal.test"));
 
         GetSubscriptionPortalQueryHandler handler = new(currentUserMock.Object, paymentServiceMock.Object);
@@ -26,5 +28,8 @@ public class GetSubscriptionPortalQueryHandlerTest
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo("https://portal.test"));
+        currentUserMock.VerifyGet(x => x.UserId, Times.Once);
+        paymentServiceMock.Verify(x => x.GetSubscriptionDetailsUrlAsync("user-1", It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

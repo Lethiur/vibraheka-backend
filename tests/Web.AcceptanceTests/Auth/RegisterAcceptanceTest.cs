@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Data;
 using System.Net;
 using System.Net.Http.Json;
@@ -21,9 +21,7 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldRegisterANewUser()
     {
         // Given: A command
-        Faker faker = new();
-        RegisterUserCommand command = new(faker.Internet.Email(), "Password123@", "Hola policia", "Europe/Madrid");
-        
+        RegisterUserCommand command = new(TheFaker.Internet.Email(), "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
         // When: The client is invoked
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/auth/register", command);
 
@@ -31,45 +29,46 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     }
     
    // === EMAIL TESTS ===
-    [TestCase("", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email vacío
+    [TestCase("", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email vacÃ­o
     [TestCase(null, "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email null
     [TestCase("   ", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email solo espacios
-    [TestCase("invalid-email", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email formato inválido
+    [TestCase("invalid-email", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email formato invÃ¡lido
     [TestCase("@domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin parte local
     [TestCase("user@", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin dominio
     [TestCase("user.domain.com", "Password123@", "John Doe", UserErrors.InvalidEmail)] // Email sin @
     
     // === PASSWORD TESTS ===
-    [TestCase("test@example.com", "", "John Doe", UserErrors.InvalidPassword)] // Password vacío
+    [TestCase("test@example.com", "", "John Doe", UserErrors.InvalidPassword)] // Password vacÃ­o
     [TestCase("test@example.com", null, "John Doe", UserErrors.InvalidPassword)] // Password null
     [TestCase("test@example.com", "   ", "John Doe", UserErrors.InvalidPassword)] // Password solo espacios
     [TestCase("test@example.com", "1", "John Doe", UserErrors.InvalidPassword)] // Password 1 char
     [TestCase("test@example.com", "12", "John Doe", UserErrors.InvalidPassword)] // Password 2 chars
     [TestCase("test@example.com", "123", "John Doe", UserErrors.InvalidPassword)] // Password 3 chars
     [TestCase("test@example.com", "1234", "John Doe", UserErrors.InvalidPassword)] // Password 4 chars
-    [TestCase("test@example.com", "12345", "John Doe", UserErrors.InvalidPassword)] // Password 5 chars (límite)
+    [TestCase("test@example.com", "12345", "John Doe", UserErrors.InvalidPassword)] // Password 5 chars (lÃ­mite)
     
     // === FULLNAME TESTS ===
-    [TestCase("test@example.com", "Password123@", "", UserErrors.InvalidFullName)] // FullName vacío
+    [TestCase("test@example.com", "Password123@", "", UserErrors.InvalidFullName)] // FullName vacÃ­o
     [TestCase("test@example.com", "Password123@", null, UserErrors.InvalidFullName)] // FullName null
     [TestCase("test@example.com", "Password123@", "   ", UserErrors.InvalidFullName)] // FullName solo espacios
     [TestCase("test@example.com", "Password123@", "\t", UserErrors.InvalidFullName)] // FullName solo tab
-    [TestCase("test@example.com", "Password123@", "\n", UserErrors.InvalidFullName)] // FullName solo salto de línea
+    [TestCase("test@example.com", "Password123@", "\n", UserErrors.InvalidFullName)] // FullName solo salto de lÃ­nea
     [TestCase("test@example.com", "Password123@", "\r\n", UserErrors.InvalidFullName)] // FullName CRLF
     [TestCase("test@example.com", "Password123@", "A", UserErrors.InvalidFullName)] // FullName 1 char
-    [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (límite)
+    [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (lÃ­mite)
     [TestCase("test@example.com", "Password123@", "  A  ", UserErrors.InvalidFullName)] // FullName con espacios al inicio/final
     
     // === EDGE CASES COMBINADOS ===
-    [TestCase(null, null, null, "E-006 | E-001 | E-007")] 
-    [TestCase("", "", "", "E-006 | E-001 | E-007")]
-    [TestCase("   ", "   ", "   ", "E-006 | E-001 | E-007")] 
+    [TestCase(null, null, null, "US-006 | US-001 | US-007")] 
+    [TestCase("", "", "", "US-006 | US-001 | US-007")]
+    [TestCase("   ", "   ", "   ", "US-006 | US-001 | US-007")] 
     
     [DisplayName("Should not allow registration with wrong data")]
     public async Task ShouldNotAllowRegistrationWithWrongData(string email, string password, string fullName, string expectedErrorKeyword)
     {
         // Given: A command with invalid data
-        RegisterUserCommand command = new(email, password, fullName, "Europe/Madrid");
+        RegisterUserCommand command = new(email, password, fullName, "TEST", "TEST","Europe/Madrid");
+
     
         // When: The client is invoked
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/register", command);
@@ -92,8 +91,8 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A valid user command
         Faker faker = new();
         string? email = faker.Internet.Email();
-        RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe", "Europe/Madrid");
-        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith", "Europe/Madrid");
+        RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe", "test","test", "Europe/Madrid");
+        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith", "test","test",  "Europe/Madrid");
 
         // When: We register the user for the first time
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", firstCommand);

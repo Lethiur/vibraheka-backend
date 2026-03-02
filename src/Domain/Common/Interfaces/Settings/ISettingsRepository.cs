@@ -23,6 +23,19 @@ public interface ISettingsRepository
     Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate, CancellationToken token);
 
     /// <summary>
+    /// Updates the password changed email template in the settings repository.
+    /// </summary>
+    /// <param name="emailTemplate">
+    /// The password changed email template to be updated.
+    /// </param>
+    /// <param name="token">The cancellation token to listen for cancellations.</param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
+    /// the success or failure of the operation.
+    /// </returns>
+    Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
     /// Retrieves the verification email template from the settings repository.
     /// </summary>
     /// <returns>
@@ -30,5 +43,14 @@ public interface ISettingsRepository
     /// holding the current verification email template, or an error indicating the failure of the operation.
     /// </returns>
     Task<Result<string>> GetVerificationEmailTemplateAsync();
+
+    /// <summary>
+    /// Retrieves the password changed email template from the settings repository.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{String}"/>
+    /// holding the current password changed email template, or an error indicating the failure of the operation.
+    /// </returns>
+    Task<Result<string>> GetRecoverPasswordEmailTemplateAsync();
     
 }

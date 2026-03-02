@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
@@ -14,12 +14,14 @@ public class GetSubscriptionDetailsQueryHandlerTest
     [Test]
     public async Task ShouldReturnSubscriptionForCurrentUser()
     {
+        MockSequence sequence = new();
         Mock<ISubscriptionService> subscriptionServiceMock = new();
         Mock<ICurrentUserService> currentUserMock = new();
         SubscriptionEntity expected = new() { UserID = "user-1", SubscriptionID = "sub-1" };
 
-        currentUserMock.Setup(x => x.UserId).Returns("user-1");
-        subscriptionServiceMock.Setup(x => x.GetSubscriptionForUser("user-1", It.IsAny<CancellationToken>()))
+        currentUserMock.InSequence(sequence).SetupGet(x => x.UserId).Returns("user-1");
+        subscriptionServiceMock.InSequence(sequence)
+            .Setup(x => x.GetSubscriptionForUser("user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(expected));
 
         GetSubscriptionDetailsQueryHandler handler = new(subscriptionServiceMock.Object, currentUserMock.Object);
@@ -28,5 +30,8 @@ public class GetSubscriptionDetailsQueryHandlerTest
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.SubscriptionID, Is.EqualTo("sub-1"));
+        currentUserMock.VerifyGet(x => x.UserId, Times.Once);
+        subscriptionServiceMock.Verify(x => x.GetSubscriptionForUser("user-1", It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

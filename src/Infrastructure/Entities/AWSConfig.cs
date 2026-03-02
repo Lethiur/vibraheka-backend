@@ -13,6 +13,10 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string EmailTemplatesBucketName { get; set; } = string.Empty;
+    
+    
+    [Required]
+    public string UserCodesTable { get; set; } = string.Empty;  
 
     /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores email templates.
@@ -71,6 +75,11 @@ public class AWSConfig
     public string Profile { get; set; } = string.Empty;
 
     /// <summary>
+    /// Secret used to encrypt and authenticate password reset tokens exchanged with the frontend.
+    /// </summary>
+    public string PasswordResetTokenSecret { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores action log entries.
     /// This property is used to define the table location for tracking and managing user or system activities within the AWS infrastructure.
     /// </summary>
@@ -86,8 +95,11 @@ public class AWSConfig
 
     /// <summary>
     /// Gets or sets the name of the index on the Subscription table used for querying subscriptions by user ID.
-    /// This property is utilized to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
+    /// This property is used to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
     /// </summary>
     [Required]
     public string SubscriptionUserIdIndex { get; set; } = string.Empty;
+
+    [Required]
+    public string SettingsNameSpace { get; set; } = string.Empty;
 }

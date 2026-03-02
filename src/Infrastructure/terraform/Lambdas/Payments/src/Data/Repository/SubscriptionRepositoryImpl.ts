@@ -1,4 +1,4 @@
-﻿import GenericDynamoDBRepository from "@Data/Repository/GenericDynamoDBRepository";
+import GenericDynamoDBRepository from "@Data/Repository/GenericDynamoDBRepository";
 import SubscriptionEntity from "@Domain/Entities/SubscriptionEntity";
 import ISubscriptionRepository from "@Domain/Interfaces/ISubscriptionRepository";
 import {Result} from "neverthrow";
@@ -44,8 +44,17 @@ export default class SubscriptionRepositoryImpl extends GenericDynamoDBRepositor
      * @return {Promise<Result<SubscriptionEntity, SubscriptionErrors>>} A promise resolving to a result object containing either the subscription entity on success or subscription-related errors on failure.
      */
     public async GetSubscriptionForCustomer(customerID: string): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
+        console.log(`Getting subscription for customer ${customerID}`);
         const dynamoDBResult: Result<SubscriptionEntity[], DynamoDBErrors> = await this.QueryIndexWithoutFilter('ExternalCustomer-Index', `ExternalCustomerID = :customerID`, {":customerID": {"S" : customerID}});
         return dynamoDBResult.map(subList => subList[0]).mapErr(this.HandleDynamoError)
+    }
+
+    public async DeleteSubscription(subscriptionEntity: SubscriptionEntity): Promise<Result<void, SubscriptionErrors>> {
+        const deleteResult: Result<number, DynamoDBErrors> = await this.Delete({
+            SubscriptionID: { S: subscriptionEntity.SubscriptionID }
+        });
+
+        return deleteResult.map(_ => void (0)).mapErr(this.HandleDynamoError);
     }
 
     /**

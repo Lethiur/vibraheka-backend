@@ -1,4 +1,4 @@
-namespace VibraHeka.Web.Entities;
+﻿namespace VibraHeka.Web.Entities;
 
 /// <summary>
 /// Represents a request to edit the name of an existing template.

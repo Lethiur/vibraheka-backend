@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Net;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;

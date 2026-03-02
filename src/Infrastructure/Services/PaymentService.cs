@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
@@ -14,13 +15,12 @@ namespace VibraHeka.Infrastructure.Services;
 public class PaymentService(IPaymentRepository PaymentRepository, IUserRepository UserRepository) : IPaymentService
 {
     /// <summary>
-    /// Registers a subscription for a specific user, initiating the payment process and associating the subscription details.
+    /// Prepares the subscription payment flow and returns all data required by the application layer.
     /// </summary>
-    /// <param name="userID">The unique identifier of the user for whom the subscription is being registered.</param>
-    /// <param name="subscription">The subscription entity containing details about the subscription to be registered.</param>
+    /// <param name="userID">The unique identifier of the user requesting the subscription.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation if needed.</param>
-    /// <returns>A result containing the subscription ID if successful, or an error message in case of failure.</returns>
-    public Task<Result<string>> RegisterSubscriptionAsync(string userID, SubscriptionEntity subscription,
+    /// <returns>A result containing the prepared subscription context.</returns>
+    public Task<Result<SubscriptionContext>> PrepareSubscriptionAsync(string userID,
         CancellationToken cancellationToken)
     {
         return GetUserByID(userID, cancellationToken)
@@ -28,15 +28,24 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
             {
                 if (string.IsNullOrEmpty(user.CustomerID))
                 {
-                    return await PaymentRepository.RegisterCustomerAsync(user, cancellationToken).BindTry(customrID =>
-                    {
-                        user.CustomerID = customrID;
-                        return UserRepository.AddAsync(user);
-                    }).Map(_ => user);
+                    return await PaymentRepository.RegisterCustomerAsync(user, cancellationToken)
+                        .BindTry(customerId =>
+                        {
+                            user.CustomerID = customerId;
+                            return UserRepository.AddAsync(user);
+                        })
+                        .Map(_ => user);
                 }
+
                 return user;
             })
-            .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, subscription, cancellationToken))
+            .BindTry(userEntity => PaymentRepository.InitiateSubscriptionPaymentAsync(userEntity, cancellationToken)
+                .Map(checkoutSession => new SubscriptionContext
+                {
+                    UserID = userEntity.Id,
+                    ExternalCustomerID = userEntity.CustomerID,
+                    CheckoutSession = checkoutSession
+                }))
             .MapError(error =>
             {
                 return error switch
@@ -46,6 +55,19 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                     _ => error
                 };
             });
+    }
+
+    /// <summary>
+    /// Registers a subscription for a specific user, initiating the payment process and associating the subscription details.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user for whom the subscription is being registered.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation if needed.</param>
+    /// <returns>A result containing the subscription ID if successful, or an error message in case of failure.</returns>
+    public Task<Result<SubscriptionCheckoutSessionEntity>> RegisterSubscriptionAsync(string userID,
+        CancellationToken cancellationToken)
+    {
+        return PrepareSubscriptionAsync(userID, cancellationToken)
+            .Map(preparation => preparation.CheckoutSession);
     }
 
     /// <summary>
@@ -80,5 +102,11 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
                     _ => error
                 };
             });
+    }
+
+    public Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity,
+        CancellationToken token)
+    {
+        return PaymentRepository.CancelSubscriptionPayment(entity, token);
     }
 }

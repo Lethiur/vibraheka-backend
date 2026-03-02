@@ -13,11 +13,10 @@ public interface IPaymentRepository
     /// Initiates a subscription payment for the specified user and subscription order.
     /// </summary>
     /// <param name="payer">The user entity representing the payer initiating the subscription payment.</param>
-    /// <param name="orderEntity">The subscription entity representing the subscription order details.</param>
     /// <param name="cancellationToken">Token used to halt the operation before it finishes</param>
     /// <returns>A task that represents the asynchronous operation, containing the payment initiation response as a string.</returns>
-    Task<Result<string>> InitiateSubscriptionPaymentAsync(UserEntity payer,
-        SubscriptionEntity orderEntity, CancellationToken cancellationToken);
+    Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves the URL of the subscription panel for the specified user.
@@ -44,4 +43,6 @@ public interface IPaymentRepository
     Task<Result<Unit>> CancelSubscriptionForUser(SubscriptionEntity subscription, CancellationToken cancellationToken);
 
     Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken);
+    
+    Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity, CancellationToken cancellationToken);
 }

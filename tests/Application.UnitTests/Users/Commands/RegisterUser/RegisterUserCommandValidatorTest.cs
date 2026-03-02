@@ -27,7 +27,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenEmailIsEmptyOrNull(string? email)
     {
         // Given: Command with invalid email
-        RegisterUserCommand command = new RegisterUserCommand(email!, "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new(email!, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -47,7 +48,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenEmailFormatIsInvalid(string email)
     {
         // Given: Command with invalid email format
-        RegisterUserCommand command = new RegisterUserCommand(email, "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new(email, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -65,7 +67,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldPassValidationWhenEmailFormatIsValid(string email)
     {
         // Given: Command with valid email format
-        RegisterUserCommand command = new RegisterUserCommand(email, "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new(email, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -85,7 +88,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenPasswordIsEmptyOrNull(string? password)
     {
         // Given: Command with invalid password
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", password!, "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", password!, "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -104,7 +108,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenPasswordIsTooShort(string password)
     {
         // Given: Command with short password
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", password, "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", password, "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -124,7 +129,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldPassValidationWhenPasswordLengthIsValid(string password)
     {
         // Given: Command with valid password length
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", password, "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", password, "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -147,7 +153,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenFullNameIsEmptyOrNull(string? fullName)
     {
         // Given: Command with invalid full name
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", fullName!, "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", fullName!, "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -164,7 +171,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenFullNameIsTooShort(string fullName)
     {
         // Given: Command with short full name
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!",fullName, "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", fullName, "TEST", "TEST","Europe/Madrid");
+        ;
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -178,14 +186,15 @@ public class RegisterUserCommandValidatorTests
     [TestCase("José María", TestName = "Accented characters")]
     [TestCase("O'Connor-Smith", TestName = "Apostrophe and hyphen")]
     [TestCase("Van der Berg", TestName = "Multiple words")]
-    [TestCase("李小明", TestName = "Chinese characters")]
-    [TestCase("محمد عبدالله", TestName = "Arabic characters")]
+    [TestCase("???", TestName = "Chinese characters")]
+    [TestCase("???? ???????", TestName = "Arabic characters")]
     [TestCase("ABC", TestName = "3 characters - minimum valid")]
     [DisplayName("Should pass when full name is valid")]
     public void ShouldPassValidationWhenFullNameIsValid(string fullName)
     {
         // Given: Command with valid full name
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!",fullName, "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", fullName, "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -203,7 +212,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenAllFieldsAreInvalid()
     {
         // Given: Command with all invalid fields
-        RegisterUserCommand command = new RegisterUserCommand("invalid-email", "123", "A", "Europe/Madrid");
+        RegisterUserCommand command = new("", "", "A", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -222,7 +232,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldPassValidationWhenAllFieldsAreValid()
     {
         // Given: Command with all valid fields
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -236,7 +247,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenOnlyEmailIsInvalid()
     {
         // Given: Command with only invalid email
-        RegisterUserCommand command = new RegisterUserCommand("invalid-email", "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("invalid-email", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -252,7 +264,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenOnlyPasswordIsInvalid()
     {
         // Given: Command with only invalid password
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "123", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "123", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -268,7 +281,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldFailValidationWhenOnlyFullNameIsInvalid()
     {
         // Given: Command with only invalid full name
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", "A", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "e", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -288,7 +302,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty email (should fail NotEmpty and not continue to EmailAddress)
-        RegisterUserCommand command = new RegisterUserCommand("", "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -305,7 +320,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldStopValidationOnFirstPasswordErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty password
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -322,7 +338,8 @@ public class RegisterUserCommandValidatorTests
     public void ShouldStopValidationOnFirstFullNameErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty full name
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", "", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -345,7 +362,8 @@ public class RegisterUserCommandValidatorTests
         // Given: Command with very long email
         string longLocalPart = new string('a', 60); // Just under the 64 character limit
         string longEmail = $"{longLocalPart}@example.com";
-        RegisterUserCommand command = new RegisterUserCommand(longEmail, "Password123!", "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new(longEmail, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -363,7 +381,8 @@ public class RegisterUserCommandValidatorTests
     {
         // Given: Command with very long password
         string longPassword = new string('A', 1000);
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", longPassword, "John Doe", "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", longPassword, "John Doe", "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);
@@ -378,7 +397,8 @@ public class RegisterUserCommandValidatorTests
     {
         // Given: Command with very long full name
         string longName = new string('A', 500);
-        RegisterUserCommand command = new RegisterUserCommand("test@example.com", "Password123!", longName, "Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", longName, "TEST", "TEST","Europe/Madrid");
+
 
         // When: Validating the command
         TestValidationResult<RegisterUserCommand>? result = _validator.TestValidate(command);

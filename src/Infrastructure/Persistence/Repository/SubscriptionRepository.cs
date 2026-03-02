@@ -1,4 +1,4 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -52,7 +52,7 @@ public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, 
     public Task<Result<SubscriptionEntity>> SaveSubscriptionAsync(SubscriptionEntity subscriptionEntity,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Saving subscription details for user {}", subscriptionEntity.UserID);
+        logger.LogInformation("Saving subscription details for user {UserID}", subscriptionEntity.UserID);
         return Save(mapper.ToInternal(subscriptionEntity), cancellationToken)
             .Map(_ => subscriptionEntity);
     }

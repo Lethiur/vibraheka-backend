@@ -1,4 +1,4 @@
-using VibraHeka.Application.Common.Extensions.Validation;
+﻿using VibraHeka.Application.Common.Extensions.Validation;
 
 namespace VibraHeka.Application.Users.Queries.GetCode;
 

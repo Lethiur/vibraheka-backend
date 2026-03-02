@@ -146,6 +146,8 @@ export interface IAuthClient {
     auth_ConfirmUser(command: VerifyUserCommand): Observable<void>;
     auth_Authenticate(command: AuthenticateUserCommand): Observable<void>;
     auth_ResendConfirmationCode(email: string | undefined): Observable<void>;
+    auth_StartPasswordRecovery(command: StartPasswordRecoveryCommand): Observable<void>;
+    auth_ConfirmPasswordRecovery(command: ConfirmPasswordRecoveryCommand): Observable<void>;
 }
 
 @Injectable({
@@ -372,6 +374,123 @@ export class AuthClient implements IAuthClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_StartPasswordRecovery(command: StartPasswordRecoveryCommand): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/forgot-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_StartPasswordRecovery(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_StartPasswordRecovery(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_StartPasswordRecovery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_ConfirmPasswordRecovery(command: ConfirmPasswordRecoveryCommand): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/forgot-password/confirm";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_ConfirmPasswordRecovery(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_ConfirmPasswordRecovery(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_ConfirmPasswordRecovery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1613,7 +1732,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
     email?: string;
     password?: string;
     firstName?: string;
-    timeZoneID?: string;
+    middleName?: string;
+    lastName?: string;
+    timeZone?: string;
 
     constructor(data?: IRegisterUserCommand) {
         if (data) {
@@ -1629,7 +1750,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
             this.email = _data["email"];
             this.password = _data["password"];
             this.firstName = _data["firstName"];
-            this.timeZoneID = _data["timeZoneID"];
+            this.middleName = _data["middleName"];
+            this.lastName = _data["lastName"];
+            this.timeZone = _data["timeZone"];
         }
     }
 
@@ -1645,7 +1768,9 @@ export class RegisterUserCommand implements IRegisterUserCommand {
         data["email"] = this.email;
         data["password"] = this.password;
         data["firstName"] = this.firstName;
-        data["timeZoneID"] = this.timeZoneID;
+        data["middleName"] = this.middleName;
+        data["lastName"] = this.lastName;
+        data["timeZone"] = this.timeZone;
         return data;
     }
 }
@@ -1654,7 +1779,9 @@ export interface IRegisterUserCommand {
     email?: string;
     password?: string;
     firstName?: string;
-    timeZoneID?: string;
+    middleName?: string;
+    lastName?: string;
+    timeZone?: string;
 }
 
 export class VerifyUserCommand implements IVerifyUserCommand {
@@ -1735,6 +1862,86 @@ export class AuthenticateUserCommand implements IAuthenticateUserCommand {
 export interface IAuthenticateUserCommand {
     email?: string;
     password?: string;
+}
+
+export class StartPasswordRecoveryCommand implements IStartPasswordRecoveryCommand {
+    email?: string;
+
+    constructor(data?: IStartPasswordRecoveryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): StartPasswordRecoveryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartPasswordRecoveryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IStartPasswordRecoveryCommand {
+    email?: string;
+}
+
+export class ConfirmPasswordRecoveryCommand implements IConfirmPasswordRecoveryCommand {
+    encryptedToken?: string;
+    newPassword?: string;
+    newPasswordConfirmation?: string;
+
+    constructor(data?: IConfirmPasswordRecoveryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.encryptedToken = _data["encryptedToken"];
+            this.newPassword = _data["newPassword"];
+            this.newPasswordConfirmation = _data["newPasswordConfirmation"];
+        }
+    }
+
+    static fromJS(data: any): ConfirmPasswordRecoveryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConfirmPasswordRecoveryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["encryptedToken"] = this.encryptedToken;
+        data["newPassword"] = this.newPassword;
+        data["newPasswordConfirmation"] = this.newPasswordConfirmation;
+        return data;
+    }
+}
+
+export interface IConfirmPasswordRecoveryCommand {
+    encryptedToken?: string;
+    newPassword?: string;
+    newPasswordConfirmation?: string;
 }
 
 export class EditTemplateNameRequest implements IEditTemplateNameRequest {

@@ -1,4 +1,4 @@
-using VibraHeka.Application.Common.Exceptions;
+﻿using VibraHeka.Application.Common.Exceptions;
 
 namespace VibraHeka.Application.Users.Commands.UpdateUserProfile;
 

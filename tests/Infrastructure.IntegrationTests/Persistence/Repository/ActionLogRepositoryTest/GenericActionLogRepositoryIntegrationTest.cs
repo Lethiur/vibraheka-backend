@@ -1,4 +1,4 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -18,7 +18,7 @@ public abstract class GenericActionLogRepositoryIntegrationTest : TestBase
         _repository = new ActionLogRepository(
             _dynamoDbContext,
             _configuration,
-            LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<ActionLogRepository>());
+            CreateTestLogger<ActionLogRepository>());
     }
 
     [OneTimeTearDown]
@@ -27,3 +27,4 @@ public abstract class GenericActionLogRepositoryIntegrationTest : TestBase
         _dynamoDbContext.Dispose();
     }
 }
+

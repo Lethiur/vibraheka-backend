@@ -38,6 +38,9 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e.ID == "t1" && e.Name == "n1" && e.Path == "p1"));
         Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e.ID == "t2" && e.Name == "n2" && e.Path == "p2"));
+        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>(),
+            It.Is<ScanConfig>(cfg => cfg.OverrideTableName == TableName)), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -52,6 +55,8 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
+        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>(),
+            It.IsAny<ScanConfig>()), Times.Once);
     }
 }
 

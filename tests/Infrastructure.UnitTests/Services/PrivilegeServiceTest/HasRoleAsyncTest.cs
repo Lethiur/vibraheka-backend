@@ -44,6 +44,7 @@ public class HasRoleAsyncTest
         // Then: Should return success with true
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.True);
+        _userRepositoryMock.Verify(x => x.GetByIdAsync(userId, CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -63,6 +64,7 @@ public class HasRoleAsyncTest
         // Then: Should return success with false
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.False);
+        _userRepositoryMock.Verify(x => x.GetByIdAsync(userId, CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -82,6 +84,7 @@ public class HasRoleAsyncTest
         // Then: Should return failure with the repository error
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
+        _userRepositoryMock.Verify(x => x.GetByIdAsync(userId, CancellationToken.None), Times.Once);
         
     }
 }

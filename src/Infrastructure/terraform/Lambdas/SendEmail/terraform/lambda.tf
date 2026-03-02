@@ -36,6 +36,11 @@ resource "aws_lambda_function" "send_email" {
       SES_FROM_EMAIL                      = var.ses_email_from
       SES_CONFIG_SET                      = var.ses_config_set_name
       SSM_TEMPLATE_NAME_PARAM             = var.ssm_verification_template_param
+      SSM_VERIFICATION_TEMPLATE_NAME_PARAM = var.ssm_verification_template_param
+      SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM = var.ssm_password_reset_template_param
+      PASSWORD_RESET_TOKEN_SECRET         = var.password_reset_token_secret
+      PASSWORD_RESET_FRONTEND_URL         = var.password_reset_frontend_url
+      PASSWORD_RESET_TOKEN_TTL_MINUTES    = tostring(var.password_reset_token_ttl_minutes)
       KEY_ARN                             = var.kms_arn
       KEY_ALIAS                           = var.kms_alias_name
       AWS_NODEJS_CONNECTION_REUSE_ENABLED = "1"

@@ -1,4 +1,4 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
@@ -27,6 +27,12 @@ public class SubscriptionDBModel : BaseAuditableDBModel
     
     [DynamoDBProperty]
     public string ExternalCustomerID { get; set; } = string.Empty;
+
+    [DynamoDBProperty]
+    public string CheckoutSessionUrl { get; set; } = string.Empty;
+
+    [DynamoDBProperty(typeof(DateTimeOffsetConverter))]
+    public DateTimeOffset CheckoutSessionExpiresAt { get; set; } = DateTimeOffset.UtcNow;
     
     [DynamoDBProperty(typeof(EnumStringConverter<OrderType>))]
     public OrderType OrderType { get; set; } = OrderType.Subscription;

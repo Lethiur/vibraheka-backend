@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
@@ -11,10 +11,8 @@ public class InitiateSubscriptionPaymentAsyncTest : GenericPaymentsRepositoryTes
     public async Task ShouldReturnGeneralErrorWhenPayerIsNull()
     {
         // Given
-        SubscriptionEntity subscription = new() { ExternalSubscriptionItemID = "price_1", SubscriptionID = "sub-1" };
-
         // When
-        Result<string> result = await Repository.InitiateSubscriptionPaymentAsync(null!, subscription, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await Repository.InitiateSubscriptionPaymentAsync(null!, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

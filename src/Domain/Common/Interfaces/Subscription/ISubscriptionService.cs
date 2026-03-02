@@ -7,11 +7,23 @@ namespace VibraHeka.Domain.Common.Interfaces.Orders;
 public interface ISubscriptionService
 {
     /// <summary>
+    /// Creates a pending subscription from a previously prepared payment context.
+    /// </summary>
+    /// <param name="preparation">Prepared data returned by the payment flow.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the operation, containing the persisted subscription entity.</returns>
+    public Task<Result<SubscriptionEntity>> CreateSubscription(SubscriptionContext preparation,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Creates a subscription for the specified user.
     /// </summary>
     /// <param name="user">The user entity for which the subscription is being created.</param>
+    /// <param name="context"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A task that represents the operation, containing the subscription ID as a string.</returns>
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, CancellationToken cancellationToken);
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user,
+        SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken);
 
 
     /// <summary>

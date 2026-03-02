@@ -26,6 +26,9 @@ resource "aws_s3_bucket_ownership_controls" "VH_email_templates_ownership" {
 resource "aws_s3_bucket_policy" "VH_email_templates_public_read_objects" {
   bucket = aws_s3_bucket.VH_email_templates.id
 
+  # CRÍTICO: Esperar a que el candado de Public Access se abra
+  depends_on = [aws_s3_bucket_public_access_block.VH_email_templates_access]
+  
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

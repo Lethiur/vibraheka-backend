@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Stripe;
@@ -16,16 +16,11 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// </summary>
 public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository> logger) : IPaymentRepository
 {
-    
     /// <summary>
     /// Initiates a payment process for a user's subscription.
     /// </summary>
     /// <param name="payer">
     ///     The user initiating the payment. Contains user-related details such as ID, email, and other relevant information.
-    /// </param>
-    /// <param name="orderEntity">
-    ///     The subscription order entity for which the payment is being initiated. Includes subscription details,
-    ///     such as subscription ID, start and end dates, and external identifiers.
     /// </param>
     /// <param name="cancellationToken">Token used to halt the operation mid way if needed</param>
     /// <returns>
@@ -35,10 +30,12 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
     /// <exception cref="NotImplementedException">
     /// Thrown if the method has not been implemented.
     /// </exception>
-    public async Task<Result<string>> InitiateSubscriptionPaymentAsync(UserEntity payer, SubscriptionEntity orderEntity, CancellationToken cancellationToken)
+    public async Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+        CancellationToken cancellationToken)
     {
         try
         {
+            DateTime expirationDate = DateTime.UtcNow.AddHours(23);
             SessionCreateOptions options = new()
             {
                 Mode = "subscription",
@@ -46,31 +43,43 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                 PaymentMethodTypes = Config.PaymentMethodsAccepted,
                 LineItems =
                 [
-                    new SessionLineItemOptions { Price = orderEntity.ExternalSubscriptionItemID, Quantity = 1 }
+                    new SessionLineItemOptions { Price = Config.SubscriptionID, Quantity = 1 }
                 ],
                 SuccessUrl = Config.PaymentSuccessUrl,
                 CancelUrl = Config.PaymentCancelUrl,
-                ClientReferenceId = orderEntity.SubscriptionID,
+                ClientReferenceId = Guid.NewGuid().ToString(),
                 PaymentMethodCollection = "always",
+                ExpiresAt = expirationDate
             };
 
             SessionService sessionService = new();
             Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
 
-            return (session.Url);
+            if (session != null)
+            {
+                return new SubscriptionCheckoutSessionEntity
+                {
+                    ExpiresAt = session.ExpiresAt,
+                    Url = session.Url,
+                    PaymentSessionID = session.Id,
+                    InternalPaymentID = session.ClientReferenceId,
+                };
+            }
+
+            logger.LogError("Stripe error while initiating subscription payment, stripe session is NULL");
+            return Result.Failure<SubscriptionCheckoutSessionEntity>(InfrastructureSubscriptionErrors.StripeError);
         }
         catch (StripeException stripeEx)
         {
             logger.LogError(stripeEx, "Stripe error while initiating subscription payment");
-            return Result.Failure<string>(InfrastructureSubscriptionErrors.StripeError);
+            return Result.Failure<SubscriptionCheckoutSessionEntity>(InfrastructureSubscriptionErrors.StripeError);
         }
-        
+
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while initiating subscription payment");
-            return Result.Failure<string>(GenericPersistenceErrors.GeneralError);
+            return Result.Failure<SubscriptionCheckoutSessionEntity>(GenericPersistenceErrors.GeneralError);
         }
-        
     }
 
     /// <summary>
@@ -140,15 +149,14 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                 {
                     Name = $"{payer.FirstName} {payer.MiddleName} {payer.LastName}",
                     Phone = payer.PhoneNumber,
-                    Email = payer.Email, 
+                    Email = payer.Email,
                     Metadata = new Dictionary<string, string> { { "userId", payer.Id } },
-                }, new RequestOptions()
-                {
-                    IdempotencyKey  = $"create-customer:${payer.Id}"
-                }, cancellationToken: cancellationToken);
+                }, new RequestOptions() { IdempotencyKey = $"create-customer:${payer.Id}" },
+                cancellationToken: cancellationToken);
 
-            return customer.Id;    
-        }  catch (StripeException stripeEx)
+            return customer.Id;
+        }
+        catch (StripeException stripeEx)
         {
             logger.LogError(stripeEx, "Stripe error while creating the customer");
             return Result.Failure<string>(InfrastructureSubscriptionErrors.StripeError);
@@ -158,8 +166,6 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
             logger.LogError(ex, "Unexpected error while creating the customer");
             return Result.Failure<string>(GenericPersistenceErrors.GeneralError);
         }
-        
-        
     }
 
     /// <summary>
@@ -180,21 +186,20 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
     /// <exception cref="StripeException">
     /// Thrown if an error occurs while communicating with the Stripe payment gateway.
     /// </exception>
-    public async Task<Result<Unit>> CancelSubscriptionForUser( SubscriptionEntity subscription,
+    public async Task<Result<Unit>> CancelSubscriptionForUser(SubscriptionEntity subscription,
         CancellationToken cancellationToken)
     {
         try
         {
             logger.LogInformation("Cancelling subscription for user {userId}", subscription.UserID);
             SubscriptionService service = new();
-        
-             await service.UpdateAsync(subscription.ExternalSubscriptionID, new SubscriptionUpdateOptions()
-            {
-                CancelAtPeriodEnd = true,
-            }, cancellationToken: cancellationToken);
-            
-            return Unit.Value;    
-        }  catch (StripeException stripeEx)
+
+            await service.UpdateAsync(subscription.ExternalSubscriptionID,
+                new SubscriptionUpdateOptions() { CancelAtPeriodEnd = true, }, cancellationToken: cancellationToken);
+
+            return Unit.Value;
+        }
+        catch (StripeException stripeEx)
         {
             logger.LogError(stripeEx, "Stripe error while cancelling the subscription");
             return Result.Failure<Unit>(InfrastructureSubscriptionErrors.StripeError);
@@ -206,20 +211,20 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
         }
     }
 
-    public async Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity,
+        CancellationToken cancellationToken)
     {
         try
         {
             logger.LogInformation("Reactivating subscription for user {userId}", entity.UserID);
             SubscriptionService service = new();
-        
-            await service.UpdateAsync(entity.ExternalSubscriptionID, new SubscriptionUpdateOptions()
-            {
-                CancelAtPeriodEnd = false,
-            }, cancellationToken: cancellationToken);
-            
-            return Unit.Value;    
-        }  catch (StripeException stripeEx)
+
+            await service.UpdateAsync(entity.ExternalSubscriptionID,
+                new SubscriptionUpdateOptions() { CancelAtPeriodEnd = false, }, cancellationToken: cancellationToken);
+
+            return Unit.Value;
+        }
+        catch (StripeException stripeEx)
         {
             logger.LogError(stripeEx, "Stripe error while cancelling the subscription");
             return Result.Failure<Unit>(InfrastructureSubscriptionErrors.StripeError);
@@ -227,6 +232,28 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while cancelling the subscription");
+            return Result.Failure<Unit>(GenericPersistenceErrors.GeneralError);
+        }
+    }
+
+    public async Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            SessionService service = new();
+            await service.ExpireAsync(entity.PaymentSessionID, cancellationToken: cancellationToken);
+            logger.LogInformation("Subscription payment for session {PaymentSessionID} cancelled successfully", entity.PaymentSessionID);
+            return Unit.Value;
+        }
+        catch (StripeException stripeEx)
+        {
+            logger.LogError(stripeEx, "Stripe error while expiring the checkout session in stripe");
+            return Result.Failure<Unit>(InfrastructureSubscriptionErrors.StripeError);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while expiring the checkout session in stripe");
             return Result.Failure<Unit>(GenericPersistenceErrors.GeneralError);
         }
     }

@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentValidation.Results;
 using VibraHeka.Application.Users.Queries.GetProfile;
 

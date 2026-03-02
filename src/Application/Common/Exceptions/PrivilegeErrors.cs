@@ -1,4 +1,4 @@
-namespace VibraHeka.Application.Common.Exceptions;
+﻿namespace VibraHeka.Application.Common.Exceptions;
 
 public class PrivilegeErrors
 {

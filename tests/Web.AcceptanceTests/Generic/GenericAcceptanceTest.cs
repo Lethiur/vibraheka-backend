@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using Amazon.XRay.Recorder.Core;
@@ -6,13 +6,14 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Strategies;
 using Bogus;
 using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 using Serilog;
-using Serilog.Formatting.Display;
-using Serilog.Sinks.NUnit;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
@@ -32,23 +33,11 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
     public GenericAcceptanceTest()
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .WriteTo.Sink(new NUnitSink(new MessageTemplateTextFormatter("TU PUTA MADRE")))
-            .CreateLogger();
-
         TheFaker = new Faker();
         Factory = new WebApplicationFactory<TAppClass>()
             .WithWebHostBuilder(builder =>
             {
-                AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
-                builder.ConfigureAppConfiguration((_, configBuilder) =>
-                {
-                    // Borra config anterior
-                    configBuilder.Sources.Clear();
-                    configBuilder.AddJsonFile("appSettings.Test.json", optional: false)
-                        .AddEnvironmentVariables();
-                });
+                builder.UseEnvironment("Test");
             });
     }
 
@@ -62,6 +51,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [TearDown]
     public void Teardown()
     {
+
         Client.Dispose();
     }
 
@@ -109,9 +99,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     protected async Task<string> RegisterUser(string username, string email, string password)
     {
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
-            new RegisterUserCommand(
-                email, password, username, "Europe/Madrid")
-        );
+                new RegisterUserCommand(email, password, username, "TEST", "TEST","Europe/Madrid"));
+        
         ResponseEntity asResponseEntityAndContentAs =
             await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
         UserRegistrationResult? registerUserResponse =

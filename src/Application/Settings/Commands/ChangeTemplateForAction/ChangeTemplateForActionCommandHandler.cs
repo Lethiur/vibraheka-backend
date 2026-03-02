@@ -1,4 +1,6 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Amazon.Runtime.Internal.Util;
+using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
@@ -12,27 +14,25 @@ namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 public class ChangeTemplateForActionCommandHandler(
     ISettingsService SettingsService,
     ICurrentUserService CurrentUserService,
-    IPrivilegeService PrivilegeService,
-    IEmailTemplatesService EmailTemplatesService) : IRequestHandler<ChangeTemplateForActionCommand, Result<Unit>>
+    IEmailTemplatesService EmailTemplatesService, ILogger<ChangeTemplateForActionCommandHandler> logger) : IRequestHandler<ChangeTemplateForActionCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(ChangeTemplateForActionCommand request, CancellationToken cancellationToken)
     {
-        return await Maybe.From<string>(CurrentUserService.UserId)
-            .Where(userID =>
-                !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
+        logger.LogInformation("Executing command for changing template for action: {ActionType}", request.ActionType);
+        return await Maybe.From(CurrentUserService.UserId)
+            .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
-            .Bind(async userID => await PrivilegeService.HasRoleAsync(userID, UserRole.Admin, cancellationToken))
-            .Ensure(hasRole => hasRole, UserErrors.NotAuthorized) // Ensuring the user has admin roles
-            .Bind(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken))
-            .Bind(async template =>
+            .BindTry(hasRole => EmailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken))
+            .BindTry(async template =>
             {
-                switch (request.ActionType)
+                return request.ActionType switch
                 {
-                    case ActionType.UserVerification:
-                        return await SettingsService.ChangeEmailForVerificationAsync(request.TemplateID, cancellationToken);
-                    default:
-                        return Result.Failure<Unit>(EmailTemplateErrors.InvalidAction);
-                }
+                    ActionType.UserVerification => await SettingsService.ChangeEmailForVerificationAsync(
+                        request.TemplateID, cancellationToken),
+                    ActionType.PasswordReset => await SettingsService.ChangeRecoverPasswordEmailTemplateAsync(
+                        request.TemplateID, cancellationToken),
+                    _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
+                };
             });
     }
 }

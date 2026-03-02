@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Subscriptions.Commands;
@@ -16,6 +16,7 @@ namespace VibraHeka.Web.Controllers;
 public class SubscriptionController(
     IMediator mediator,
     SubscriptionMapper mapper,
+    CreateSubscriptionMapper checkoutMapper,
     ILogger<SubscriptionController> Logger)
 {
     [HttpPut]
@@ -23,17 +24,17 @@ public class SubscriptionController(
     [Produces("application/json")]
     public async Task<IActionResult> Subscribe()
     {
-        Logger.LogCritical("NAMESPACE DE ESTE LOGGER: " + typeof(SubscriptionController).Namespace);
+        Logger.LogInformation("Subscription created successfully");
         AddSubscriptionCommand command = new();
-        Result<string> result = await mediator.Send(command);
-        Logger.LogInformation("Subscription created successfully!!@#!@#!@#!@#");
+        Result<SubscriptionCheckoutSessionEntity> result = await mediator.Send(command);
+        
         if (result.IsFailure)
         {
             Logger.LogError("Subscription creation failed: {Error}", result.Error);
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return new OkObjectResult(ResponseEntity.FromSuccess(checkoutMapper.toDTO(result.Value)));
     }
 
     [HttpPatch("reactivate")]

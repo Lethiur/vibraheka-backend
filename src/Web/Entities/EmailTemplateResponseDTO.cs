@@ -1,4 +1,4 @@
-namespace VibraHeka.Web.Entities;
+﻿namespace VibraHeka.Web.Entities;
 
 public class EmailTemplateResponseDTO
 {

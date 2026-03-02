@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Settings.Queries.GetTemplateForAction;
@@ -10,4 +11,4 @@ namespace VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 /// This query encapsulates the information required to fetch a collection of <see cref="TemplateForActionEntity"/> objects.
 /// It is typically handled by an implementation of <see cref="IRequestHandler{TRequest, TResponse}"/>.
 /// </remarks>
-public record class GetTemplatesForActionQuery : IRequest<Result<IEnumerable<TemplateForActionEntity>>>;
+public record class GetTemplatesForActionQuery : IRequest<Result<IEnumerable<TemplateForActionEntity>>>, IRequireAdmin;

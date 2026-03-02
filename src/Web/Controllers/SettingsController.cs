@@ -26,6 +26,10 @@ public partial class SettingsController(IMediator mediator, ILogger<SettingsCont
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ChangeTemplate([FromBody][Required] ChangeTemplateForActionCommand command)
     {
+        Console.WriteLine(GetType().Assembly.FullName);
+        Logger.LogInformation("Changing template for action {ActionType} using template {TemplateID}",
+            command.ActionType, command.TemplateID);
+
         Result<Unit> send = await mediator.Send(command);
 
         if (send.IsFailure)

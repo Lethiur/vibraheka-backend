@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Payments;
@@ -21,7 +21,7 @@ public class GetSubscriptionDetailsUrlAsyncTest : TestBase
     {
         base.OneTimeSetUp();
         _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
-        _paymentRepository = new PaymentsRepository(_stripeConfig, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<PaymentsRepository>());
+        _paymentRepository = new PaymentsRepository(_stripeConfig, CreateTestLogger<PaymentsRepository>());
         _paymentService = new PaymentService(_paymentRepository, _userRepository);
     }
 
@@ -57,3 +57,4 @@ public class GetSubscriptionDetailsUrlAsyncTest : TestBase
         Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 }
+

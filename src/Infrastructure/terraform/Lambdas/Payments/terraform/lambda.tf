@@ -1,4 +1,4 @@
-﻿resource "aws_iam_role" "lambda_role" {
+resource "aws_iam_role" "lambda_role" {
   name = "stripe_lambda_role_${terraform.workspace}"
 
   assume_role_policy = jsonencode({
@@ -40,6 +40,22 @@ resource "aws_lambda_function" "stripe_lambda" {
       DYNAMO_TABLE_NAME = var.subscription_db_table_name
     }
   }
+
+  tags = {
+    Environment = terraform.workspace
+    Application = "VibraHeka"
+  }
+
+  # Ensure IAM policy attachments are fully applied before Lambda creation.
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_basic,
+    aws_iam_role_policy_attachment.lambda_dynamodb_attachment
+  ]
+}
+
+resource "aws_cloudwatch_log_group" "stripe_lambda_logs" {
+  name              = "/aws/lambda/${aws_lambda_function.stripe_lambda.function_name}"
+  retention_in_days = 7
 
   tags = {
     Environment = terraform.workspace

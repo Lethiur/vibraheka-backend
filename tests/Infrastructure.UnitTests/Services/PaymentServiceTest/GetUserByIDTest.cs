@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;

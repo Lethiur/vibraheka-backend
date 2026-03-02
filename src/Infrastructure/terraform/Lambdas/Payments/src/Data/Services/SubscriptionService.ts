@@ -1,4 +1,4 @@
-﻿import {SubscriptionErrors} from "@/Domain/Errors/SubscriptionErrors";
+import {SubscriptionErrors} from "@/Domain/Errors/SubscriptionErrors";
 import ISubscriptionService from "@Domain/Interfaces/ISubscriptionService";
 import {Result, err, ok} from "neverthrow";
 import Stripe from "stripe";
@@ -19,6 +19,22 @@ export default class SubscriptionService implements ISubscriptionService {
     constructor(private readonly Repository: ISubscriptionRepository) {
     }
 
+    public async DeleteSubscription(sessionData: Stripe.Checkout.Session): Promise<Result<void, SubscriptionErrors>> {
+        const customerID = sessionData.customer;
+
+        if (typeof customerID !== 'string' || !customerID) {
+            console.log(`The stripe customer is invalid or not expanded: ${customerID}`);
+            return err(SubscriptionErrors.CUSTOMER_NOT_FOUND);
+        }
+
+        const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
+
+        if (repositoryResult.isErr()) {
+            return err(repositoryResult.error);
+        }
+
+        return this.Repository.DeleteSubscription(repositoryResult.value);
+    }
 
     public async CancelSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>> {
         const customerID = subscriptionData.customer as string;
@@ -44,7 +60,7 @@ export default class SubscriptionService implements ISubscriptionService {
         const customerID = subscriptionData.customer as string;
         const stripeSubscriptionID = subscriptionData.id as string;
         const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
-        
+
         if (repositoryResult.isErr()) {
             if (repositoryResult.error === SubscriptionErrors.SUBSCRIPTION_NOT_FOUND) {
                 console.log(`Subscription for customer ${customerID} not found`)

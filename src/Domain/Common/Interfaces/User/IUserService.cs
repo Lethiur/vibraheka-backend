@@ -53,6 +53,23 @@ public interface IUserService
     Task<Result<Unit>> ResendVerificationCodeAsync(string email);
 
     /// <summary>
+    /// Starts the password recovery flow in Cognito for the specified email.
+    /// </summary>
+    /// <param name="email">The email address associated with the account.</param>
+    /// <returns>A result indicating whether the recovery process was started.</returns>
+    Task<Result<Unit>> StartPasswordRecoveryAsync(string email);
+
+    /// <summary>
+    /// Confirms password recovery in Cognito using the recovery code and the new password.
+    /// </summary>
+    /// <param name="email">Email associated with the account.</param>
+    /// <param name="recoveryCode">Recovery code issued by Cognito.</param>
+    /// <param name="newPassword">New password to set.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A result indicating whether the password was successfully updated.</returns>
+    Task<Result<Unit>> ConfirmPasswordRecoveryAsync(string email, string recoveryCode, string newPassword, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously retrieves the unique identifier of a user from AWS Cognito based on the provided email address.
     /// </summary>
     /// <param name="email">The email address of the user whose unique identifier is being retrieved.</param>

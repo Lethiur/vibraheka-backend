@@ -41,9 +41,6 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
-        
-             
-           
         builder.Services.AddOptions<AWSConfig>().Bind(builder.Configuration.GetSection("AWS"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -60,30 +57,12 @@ public static class DependencyInjection
         builder.Services.AddAWSService<IAmazonS3>();
         builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
         AWSSDKHandler.RegisterXRayForAllServices();
+        AWSConfig? awsConfig = builder.Configuration.GetSection("AWS").Get<AWSConfig>();
 
-
-
+        
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
-        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials("Twingers", out AWSCredentials credentials);
-        var cloudWatchClient = new AmazonCloudWatchLogsClient(credentials, RegionEndpoint.EUWest1);
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) 
-            .Enrich.FromLogContext()
-            .Enrich.With<XRayEnricher>()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.AmazonCloudWatch( new CloudWatchSinkOptions()
-            {
-                LogGroupName = "/my-app/logs",
-                BatchSizeLimit = 100,
-                CreateLogGroup = true,
-                Period = TimeSpan.FromSeconds(1),
-                TextFormatter = new RenderedCompactJsonFormatter()
-            }, cloudWatchClient
-            )
-            .CreateLogger();
-        
-        
+        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
+
         
         builder.Services.AddSingleton<ITracer, XRayTracer>();
         builder.Services.AddSingleton(sp =>
@@ -98,13 +77,12 @@ public static class DependencyInjection
 
         configurationManager.AddSystemsManager(options =>
         {
-            options.Path = "/VibraHeka/";
+            options.Path = $"/{awsConfig?.SettingsNameSpace}/";
             options.ReloadAfter = TimeSpan.FromSeconds(2); 
             options.Optional = true;
         });
         
         builder.Services.Configure<AppSettingsEntity>(configurationManager);
-        builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AppSettingsEntity>>().Value);
         
         
         StripeConfig? stripeConfig = builder.Configuration
@@ -120,8 +98,10 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton<SubscriptionEntityMapper>();
         builder.Services.AddSingleton<VerificationCodeEntityMapper>();
+        builder.Services.AddSingleton<UsersCodeMapper>();
         
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
+        builder.Services.AddScoped<IUserCodeRepository, UserCodeRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();
 
@@ -154,6 +134,8 @@ public static class DependencyInjection
         // Users
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IUserCodeService, UserCodeService>();
+        builder.Services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         
         builder.Services.AddSingleton(TimeProvider.System);
         

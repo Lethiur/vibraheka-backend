@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Users.Queries.GetProfile;
@@ -46,6 +46,8 @@ public class GetUserProfileQueryHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.PhoneNumber, Is.EqualTo("+34911111222"));
+        _userServiceMock.Verify(x => x.GetUserByID(userId, It.IsAny<CancellationToken>()), Times.Once);
+        _currentUserServiceMock.VerifyGet(x => x.UserId, Times.Once);
     }
 
     [Test]
@@ -71,6 +73,8 @@ public class GetUserProfileQueryHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.PhoneNumber, Is.EqualTo(string.Empty));
+        _userServiceMock.Verify(x => x.GetUserByID(targetUserId, It.IsAny<CancellationToken>()), Times.Once);
+        _currentUserServiceMock.VerifyGet(x => x.UserId, Times.Once);
     }
 }
 

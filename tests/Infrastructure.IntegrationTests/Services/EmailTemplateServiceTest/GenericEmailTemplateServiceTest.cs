@@ -15,7 +15,7 @@ public abstract class GenericEmailTemplateServiceTest : TestBase
     public void SetUp()
     {
         _context = CreateDynamoDBContext();
-        _repository = new EmailTemplateRepository(_context, _configuration, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<EmailTemplateRepository>());
+        _repository = new EmailTemplateRepository(_context, _configuration, CreateTestLogger<EmailTemplateRepository>());
         _service = new EmailTemplateService(_repository);
     }
 
@@ -25,3 +25,4 @@ public abstract class GenericEmailTemplateServiceTest : TestBase
         _context?.Dispose();
     }
 }
+

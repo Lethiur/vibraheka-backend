@@ -109,11 +109,10 @@ public abstract class GenericDynamoRepository<T>(
     protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
         SaveConfig saveConfig = new() { OverrideTableName = tableConfigKey };
-        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
-            { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity()?.Id });
         try
         {
             await context.SaveAsync(entity, saveConfig, token);
+            logger.LogInformation("Successfully saved entity of type {EntityType}", typeof(T).Name);
             return Unit.Value;
         }
         catch (Exception e)

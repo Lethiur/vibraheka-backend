@@ -1,4 +1,4 @@
-using VibraHeka.Application.Common.Extensions.Validation;
+﻿using VibraHeka.Application.Common.Extensions.Validation;
 using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;

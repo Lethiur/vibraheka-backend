@@ -1,4 +1,4 @@
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Domain.Exceptions;

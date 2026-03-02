@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 
 namespace VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;

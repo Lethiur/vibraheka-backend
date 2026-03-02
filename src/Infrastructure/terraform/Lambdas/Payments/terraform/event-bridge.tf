@@ -1,20 +1,21 @@
-﻿
+
 resource "aws_cloudwatch_event_rule" "stripe_rule" {
   name          = "stripe-subscriptions-rule-${terraform.workspace}"
   event_bus_name = "aws.partner/stripe.com/ed_test_61U8OhWNACpdhq6GG16U8LJp90CQBOsqL618O7RCiVVA"
   
   event_pattern = jsonencode({
-    "source": [
-      { "prefix": "aws.partner/stripe.com" }
+    "source" : [
+      { "prefix" : "aws.partner/stripe.com" }
     ],
-    "detail-type": [ 
+    "detail-type" : [
       "checkout.session.completed",
+      "checkout.session.expired",
       "invoice.paid",
       "invoice.payment_failed",
       "customer.subscription.deleted",
       "customer.subscription.updated"
     ]
-    })
+  })
 }
 
 resource "aws_cloudwatch_event_target" "stripe_lambda_target" {

@@ -1,28 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using Moq;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SettingsServiceTest;
 
 [TestFixture]
-public class GetAllTemplatesForActionsTest
+public class GetAllTemplatesForActionsTest : GenericSettingsServiceTest
 {
-    private Mock<ISettingsRepository> RepositoryMock;
-    private AppSettingsEntity AppSettings;
-    private SettingsService Service;
-
-    [SetUp]
-    public void SetUp()
-    {
-        RepositoryMock = new Mock<ISettingsRepository>();
-        // Creamos una instancia real de AppSettings ya que es una entidad de datos simple
-        AppSettings = new AppSettingsEntity();
-
-        Service = new SettingsService(RepositoryMock.Object, AppSettings);
-    }
 
     [Test]
     public void ShouldReturnTemplatesMappingCorrectlyFromAppSettings()
@@ -32,7 +16,7 @@ public class GetAllTemplatesForActionsTest
         const string resetPasswordTemplate = "reset-id-456";
 
         AppSettings.VerificationEmailTemplate = verificationTemplate;
-        AppSettings.EmailForResetPassword = resetPasswordTemplate;
+        AppSettings.RecoverPasswordEmailTemplate = resetPasswordTemplate;
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = Service.GetAllTemplatesForActions();
@@ -56,7 +40,7 @@ public class GetAllTemplatesForActionsTest
     {
         // Given
         AppSettings.VerificationEmailTemplate = string.Empty;
-        AppSettings.EmailForResetPassword = string.Empty;
+        AppSettings.RecoverPasswordEmailTemplate = string.Empty;
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = Service.GetAllTemplatesForActions();
