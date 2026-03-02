@@ -28,6 +28,7 @@ module "Lambda" {
   ses_config_name = module.Emails.ses_config_name
   ses_mail_from_domain = module.Emails.ses_email_from_domain
   ssm_email_verification_template_id_parameter_name = module.Config.ssm_email_verification_template_id_parameter_name
+  ssm_email_password_reset_template_id_parameter_name = module.Config.ssm_email_password_reset_template_id_parameter_name
   kms_users_arn = module.Users.kms_users_arn
   kms_users_key_alias_arn = module.Users.kms_users_key_alias_arn
   kms_users_key_alias_name = module.Users.kms_users_key_alias_name
@@ -37,6 +38,9 @@ module "Lambda" {
   ssm_read_parameters_policy_arn = module.Config.ssm_read_vh_parameters_policy_arn
   stripe_event_bus_arn =  var.stripe_event_bus_arn
   stripe_secret_key = var.stripe_api_key
+  password_reset_token_secret = var.password_reset_token_secret
+  password_reset_frontend_url = var.password_reset_frontend_url
+  password_reset_token_ttl_minutes = var.password_reset_token_ttl_minutes
   dynamodb_subscription_table = module.Subscriptions.dynamodb_subscription_table_name
   dynamodb_subscription_table_arn = module.Subscriptions.dynamodb_subscription_table_arn
 }

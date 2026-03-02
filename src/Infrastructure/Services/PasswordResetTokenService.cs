@@ -117,8 +117,14 @@ public class PasswordResetTokenService(AWSConfig config, ILogger<PasswordResetTo
             return Result.Failure<byte[]>(UserErrors.UnexpectedError);
         }
 
-        byte[] rawSecret = Encoding.UTF8.GetBytes(config.PasswordResetTokenSecret);
-        return SHA256.HashData(rawSecret);
+        string normalizedSecret = config.PasswordResetTokenSecret.Trim();
+        byte[] rawSecret = Encoding.UTF8.GetBytes(normalizedSecret);
+        byte[] derivedKey = SHA256.HashData(rawSecret);
+
+        string fingerprint = Convert.ToHexString(derivedKey)[..12];
+        logger.LogInformation("Password reset token key fingerprint: {Fingerprint}", fingerprint);
+
+        return derivedKey;
     }
 
     /// <summary>

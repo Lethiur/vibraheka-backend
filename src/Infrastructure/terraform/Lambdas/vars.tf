@@ -20,6 +20,20 @@ variable "s3_templates_name" {}
 
 variable "ssm_email_verification_template_id_parameter_name" {}
 
+variable "ssm_email_password_reset_template_id_parameter_name" {}
+
+variable "password_reset_token_secret" {
+  default = "test-only-change-this-secret-to-a-long-random-value"
+}
+
+variable "password_reset_frontend_url" {
+  default = ""
+}
+
+variable "password_reset_token_ttl_minutes" {
+  default = 15
+}
+
 variable "ssm_read_parameters_policy_arn" {}
 
 variable "dynamodb_codes_table_arn" {}

@@ -16,6 +16,10 @@ module "SendEmailLambda" {
   ses_config_set_name             = var.ses_config_name
   ses_email_from                  = var.ses_mail_from_domain
   ssm_verification_template_param = var.ssm_email_verification_template_id_parameter_name
+  ssm_password_reset_template_param = var.ssm_email_password_reset_template_id_parameter_name
+  password_reset_token_secret     = var.password_reset_token_secret
+  password_reset_frontend_url     = var.password_reset_frontend_url
+  password_reset_token_ttl_minutes = var.password_reset_token_ttl_minutes
   kms_alias_arn                   = var.kms_users_key_alias_arn
   kms_alias_name                  = var.kms_users_key_alias_name
   kms_arn                         = var.kms_users_arn
