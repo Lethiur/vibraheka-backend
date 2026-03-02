@@ -213,6 +213,41 @@ public class UserService(
     }
 
     /// <summary>
+    /// Changes the authenticated user's password in Cognito.
+    /// </summary>
+    /// <param name="accessToken">Access token from the current authenticated session.</param>
+    /// <param name="currentPassword">Current user password.</param>
+    /// <param name="newPassword">New password that should be set.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A result indicating whether the password was changed successfully.</returns>
+    public async Task<Result<Unit>> ChangePasswordAsync(
+        string accessToken,
+        string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogInformation("Changing password for authenticated user");
+            ChangePasswordRequest request = new()
+            {
+                AccessToken = accessToken,
+                PreviousPassword = currentPassword,
+                ProposedPassword = newPassword
+            };
+
+            await _client.ChangePasswordAsync(request, cancellationToken);
+            logger.LogInformation("Authenticated user password changed successfully");
+            return Result.Success(Unit.Value);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while changing authenticated user password");
+            return MapCognitoException<Unit>(ex);
+        }
+    }
+
+    /// <summary>
     /// Retrieves the unique user identifier (User ID) associated with the specified email address from the Cognito user pool.
     /// </summary>
     /// <param name="email">The email address of the user whose User ID is to be retrieved.</param>

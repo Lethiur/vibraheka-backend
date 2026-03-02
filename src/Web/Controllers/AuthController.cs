@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
+using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 using VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
@@ -191,6 +192,37 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
                 UserErrors.InvalidPassword => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
                 UserErrors.WrongVerificationCode => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
                 UserErrors.ExpiredCode => new BadRequestObjectResult(ResponseEntity.FromError(result.Error)),
+                _ => new BadRequestObjectResult(ResponseEntity.FromError(result.Error))
+            };
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(Unit.Value));
+    }
+
+    /// <summary>
+    /// Changes password for the currently authenticated user.
+    /// </summary>
+    /// <param name="command">Command containing current and new password values.</param>
+    /// <returns>An <see cref="IActionResult"/> with operation status.</returns>
+    [HttpPatch("change-password")]
+    [Authorize]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangeAuthenticatedPassword([FromBody] [Required] ChangeAuthenticatedPasswordCommand command)
+    {
+        Logger.LogInformation("Authenticated password change endpoint called");
+        Result<Unit> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            Logger.LogWarning("Authenticated password change failed with error {Error}", result.Error);
+
+            return result.Error switch
+            {
+                UserErrors.NotAuthorized => new UnauthorizedObjectResult(ResponseEntity.FromError(result.Error)),
                 _ => new BadRequestObjectResult(ResponseEntity.FromError(result.Error))
             };
         }

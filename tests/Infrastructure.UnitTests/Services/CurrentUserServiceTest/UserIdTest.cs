@@ -67,4 +67,60 @@ public class UserIdTest
         Assert.That(result, Is.EqualTo("user-123"));
         accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
     }
+
+    [Test]
+    public void ShouldReturnAccessTokenWhenAuthorizationHeaderContainsBearerToken()
+    {
+        // Given
+        DefaultHttpContext context = new();
+        context.Request.Headers.Authorization = "Bearer token-123";
+
+        Mock<IHttpContextAccessor> accessorMock = new();
+        accessorMock.Setup(x => x.HttpContext).Returns(context);
+        CurrentUserService service = new(accessorMock.Object);
+
+        // When
+        string? result = service.AccessToken;
+
+        // Then
+        Assert.That(result, Is.EqualTo("token-123"));
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
+    }
+
+    [Test]
+    public void ShouldReturnNullAccessTokenWhenAuthorizationHeaderIsMissing()
+    {
+        // Given
+        DefaultHttpContext context = new();
+
+        Mock<IHttpContextAccessor> accessorMock = new();
+        accessorMock.Setup(x => x.HttpContext).Returns(context);
+        CurrentUserService service = new(accessorMock.Object);
+
+        // When
+        string? result = service.AccessToken;
+
+        // Then
+        Assert.That(result, Is.Null);
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
+    }
+
+    [Test]
+    public void ShouldReturnNullAccessTokenWhenAuthorizationHeaderIsNotBearer()
+    {
+        // Given
+        DefaultHttpContext context = new();
+        context.Request.Headers.Authorization = "Basic abc123";
+
+        Mock<IHttpContextAccessor> accessorMock = new();
+        accessorMock.Setup(x => x.HttpContext).Returns(context);
+        CurrentUserService service = new(accessorMock.Object);
+
+        // When
+        string? result = service.AccessToken;
+
+        // Then
+        Assert.That(result, Is.Null);
+        accessorMock.VerifyGet(x => x.HttpContext, Times.Once);
+    }
 }

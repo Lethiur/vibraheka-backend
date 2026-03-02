@@ -148,6 +148,7 @@ export interface IAuthClient {
     auth_ResendConfirmationCode(email: string | undefined): Observable<void>;
     auth_StartPasswordRecovery(command: StartPasswordRecoveryCommand): Observable<void>;
     auth_ConfirmPasswordRecovery(command: ConfirmPasswordRecoveryCommand): Observable<void>;
+    auth_ChangeAuthenticatedPassword(command: ChangeAuthenticatedPasswordCommand): Observable<void>;
 }
 
 @Injectable({
@@ -491,6 +492,68 @@ export class AuthClient implements IAuthClient {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_ChangeAuthenticatedPassword(command: ChangeAuthenticatedPasswordCommand): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/change-password";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_ChangeAuthenticatedPassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_ChangeAuthenticatedPassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_ChangeAuthenticatedPassword(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1940,6 +2003,50 @@ export class ConfirmPasswordRecoveryCommand implements IConfirmPasswordRecoveryC
 
 export interface IConfirmPasswordRecoveryCommand {
     encryptedToken?: string;
+    newPassword?: string;
+    newPasswordConfirmation?: string;
+}
+
+export class ChangeAuthenticatedPasswordCommand implements IChangeAuthenticatedPasswordCommand {
+    currentPassword?: string;
+    newPassword?: string;
+    newPasswordConfirmation?: string;
+
+    constructor(data?: IChangeAuthenticatedPasswordCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.currentPassword = _data["currentPassword"];
+            this.newPassword = _data["newPassword"];
+            this.newPasswordConfirmation = _data["newPasswordConfirmation"];
+        }
+    }
+
+    static fromJS(data: any): ChangeAuthenticatedPasswordCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeAuthenticatedPasswordCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["currentPassword"] = this.currentPassword;
+        data["newPassword"] = this.newPassword;
+        data["newPasswordConfirmation"] = this.newPasswordConfirmation;
+        return data;
+    }
+}
+
+export interface IChangeAuthenticatedPasswordCommand {
+    currentPassword?: string;
     newPassword?: string;
     newPasswordConfirmation?: string;
 }
