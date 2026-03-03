@@ -16,4 +16,10 @@ public interface ICurrentUserService
     /// Typically, this property is used to track or validate actions performed in the
     /// context of a particular user.
     string? UserId { get; }
+
+    /// <summary>
+    /// Gets the access token of the current authenticated user.
+    /// This token is typically extracted from the bearer authorization header.
+    /// </summary>
+    string? AccessToken { get; }
 }

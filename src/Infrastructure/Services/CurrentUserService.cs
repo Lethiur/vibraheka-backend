@@ -21,5 +21,25 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
             ClaimsPrincipal? user = httpContextAccessor.HttpContext?.User;
             return user?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
-    } 
+    }
+
+    /// <summary>
+    /// Gets the raw JWT access token from the authorization header.
+    /// </summary>
+    public string? AccessToken
+    {
+        get
+        {
+            string? authorization = httpContextAccessor.HttpContext?.Request.Headers.Authorization;
+            if (string.IsNullOrWhiteSpace(authorization))
+            {
+                return null;
+            }
+
+            const string bearerPrefix = "Bearer ";
+            return authorization.StartsWith(bearerPrefix, StringComparison.OrdinalIgnoreCase)
+                ? authorization[bearerPrefix.Length..].Trim()
+                : null;
+        }
+    }
 }

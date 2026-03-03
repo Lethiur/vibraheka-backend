@@ -70,6 +70,20 @@ public interface IUserService
     Task<Result<Unit>> ConfirmPasswordRecoveryAsync(string email, string recoveryCode, string newPassword, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Changes the current user's password in Cognito using a valid access token.
+    /// </summary>
+    /// <param name="accessToken">Access token from the authenticated session.</param>
+    /// <param name="currentPassword">Current user password.</param>
+    /// <param name="newPassword">New password to set.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A result indicating success or failure.</returns>
+    Task<Result<Unit>> ChangePasswordAsync(
+        string accessToken,
+        string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously retrieves the unique identifier of a user from AWS Cognito based on the provided email address.
     /// </summary>
     /// <param name="email">The email address of the user whose unique identifier is being retrieved.</param>
