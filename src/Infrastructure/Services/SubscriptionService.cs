@@ -83,22 +83,27 @@ public class SubscriptionService(
         return subscriptionRepository.GetSubscriptionDetailsForUser(userID, cancellationToken);
     }
 
-    public Task<Result<SubscriptionEntity>> SaveSubscription(SubscriptionEntity subscriptionEntity, CancellationToken cancellationToken)
-    {
-        return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
-    }
-
     public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken)
     {
         return GetSubscriptionForUser(userID, cancellationToken)
             .Ensure(entity => entity.SubscriptionStatus == SubscriptionStatus.ToBeCancelled,
                 SubscriptionErrors.SubscriptionIsActive)
+            .Ensure(entity => entity.Status != OrderStatus.Cancelled && entity.Status != OrderStatus.PaymentFailed, SubscriptionErrors.SubscriptionIsCancelled)
             .BindTry(subscriptionEntity =>
                 paymentRepository.ReactivateSubscriptionForUser(subscriptionEntity, cancellationToken)
                     .Map(_ => subscriptionEntity))
             .BindTry(subscriptionEntity =>
             {
-                subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Active;
+                logger.LogInformation($"Reactivating subscription for user {subscriptionEntity.UserID} date {subscriptionEntity.StartDate}");
+                if (subscriptionEntity.Status == OrderStatus.OrderDelayed && subscriptionEntity.StartDate > DateTime.UtcNow)
+                {
+                    logger.LogInformation($"Subscription for user {subscriptionEntity.UserID} is delayed. Restoring trialing");
+                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Trialing;    
+                }
+                else
+                {
+                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Active;   
+                }
                 return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
             })
             .Map(_ => Unit.Value);

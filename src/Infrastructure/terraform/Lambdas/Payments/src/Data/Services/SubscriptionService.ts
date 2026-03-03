@@ -1,6 +1,6 @@
 import {SubscriptionErrors} from "@/Domain/Errors/SubscriptionErrors";
 import ISubscriptionService from "@Domain/Interfaces/ISubscriptionService";
-import {Result, err, ok} from "neverthrow";
+import {err, ok, Result} from "neverthrow";
 import Stripe from "stripe";
 import ISubscriptionRepository from "@Domain/Interfaces/ISubscriptionRepository";
 import SubscriptionEntity from "@Domain/Entities/SubscriptionEntity";
@@ -11,12 +11,16 @@ import SubscriptionEntity from "@Domain/Entities/SubscriptionEntity";
  */
 export default class SubscriptionService implements ISubscriptionService {
 
+    
+    private readonly StripeClient : Stripe;
+    
     /**
      * Constructs an instance of the class with the provided subscription repository.
      *
      * @param {ISubscriptionRepository} Repository - The subscription repository used for data operations.
      */
     constructor(private readonly Repository: ISubscriptionRepository) {
+        this.StripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
     }
 
     public async DeleteSubscription(sessionData: Stripe.Checkout.Session): Promise<Result<void, SubscriptionErrors>> {
@@ -49,6 +53,8 @@ export default class SubscriptionService implements ISubscriptionService {
 
         if (stripeSubscriptionID === subscriptionEntity.ExternalSubscriptionID) {
             subscriptionEntity.SubscriptionStatus = 'Cancelled';
+            subscriptionEntity.Status = 'PaymentFailed';
+            subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at! * 1000).toISOString();
             return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
         }
 
@@ -56,7 +62,7 @@ export default class SubscriptionService implements ISubscriptionService {
     }
 
     public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>> {
-
+        console.log("Actualizando subscripcion!");
         const customerID = subscriptionData.customer as string;
         const stripeSubscriptionID = subscriptionData.id as string;
         const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerID);
@@ -71,8 +77,30 @@ export default class SubscriptionService implements ISubscriptionService {
         const subscriptionEntity: SubscriptionEntity = repositoryResult.value;
 
         if (stripeSubscriptionID === subscriptionEntity.ExternalSubscriptionID) {
-            console.log("Received event for update subscription with date", subscriptionData.cancel_at)
-            subscriptionEntity.SubscriptionStatus = (subscriptionData.cancel_at ? 'ToBeCancelled' : 'Active');
+            console.log("Received event for update subscription with date", subscriptionData.cancel_at, " and status ", subscriptionData.status);
+
+            if (subscriptionData.pending_setup_intent != null) {
+                console.log("Subscription has pending setup intent, setting the order to payment pending");
+                subscriptionEntity.Status = 'PaymentPending';
+                subscriptionEntity.SubscriptionStatus = 'Trialing';
+            } else if (["past_due", "unpaid","incomplete", "incomplete_expired"].includes(subscriptionData.status)) {
+                console.log("Suscripcion actualizada pero no corresponde a accion del usuario, descartando");
+            } else {
+                
+                if (subscriptionData.cancel_at) {
+                    console.log("Cancel at is set, setting for cancellation");
+                    subscriptionEntity.SubscriptionStatus = 'ToBeCancelled';
+                } else {
+                    if (subscriptionEntity.Status === 'OrderDelayed') {
+                        console.log("Subscription is in trial mode, setting to trialing");
+                        subscriptionEntity.SubscriptionStatus = 'Trialing';
+                    } else {
+                        console.log("Subscription is not in trial mode, setting to active");
+                        subscriptionEntity.SubscriptionStatus = 'Active';
+                    }
+                }
+            }
+            
             return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
         }
 
@@ -107,14 +135,25 @@ export default class SubscriptionService implements ISubscriptionService {
             const price: string = priceID.value;
             if (price === subscriptionData.ExternalSubscriptionItemID) {
                 if (invoice.status === 'paid') {
-                    console.log(subscriptionData.StartDate)
-                    let endDate: Date = new Date(subscriptionData.StartDate);
-                    endDate.setMonth(endDate.getMonth() + 1);
-                    subscriptionData.EndDate = endDate.toISOString();
-                    subscriptionData.SubscriptionStatus = 'Active';
-                    subscriptionData.ExternalSubscriptionID = subscriptionID;
-                    subscriptionData.Status = 'InvoicePayed';
-                    console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionItemID} renewing for one month`);
+                    
+                    // TODO: Cuando haya diferentes planes, descuentso etc, cambiar esto porque peta
+                    if (invoice.billing_reason === 'subscription_create' && invoice.amount_paid == 0) {
+                        console.log(`Invoice ${invoice.id} is paid for subscription ${invoice.lines.data[0].parent?.subscription_item_details?.subscription} but the amount is 0, setting status to Trialing...`);
+                        const subscription : Stripe.Subscription = await this.StripeClient.subscriptions.retrieve(invoice.lines.data[0].parent?.subscription_item_details?.subscription!);
+                        subscriptionData.ExternalSubscriptionID = subscription.id;
+                        subscriptionData.SubscriptionStatus = 'Trialing';
+                        subscriptionData.Status = 'OrderDelayed'
+                        subscriptionData.StartDate = new Date(subscription.trial_end! * 1000).toISOString();
+                    }
+                    else {
+                        console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionItemID} renewing for one month`);
+                        let endDate: Date = new Date(subscriptionData.StartDate);
+                        endDate.setMonth(endDate.getMonth() + 1);
+                        subscriptionData.EndDate = endDate.toISOString();
+                        subscriptionData.SubscriptionStatus = 'Active';
+                        subscriptionData.Status = 'InvoicePayed';
+                    }
+                    
                     return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
                 } else {
                     subscriptionData.SubscriptionStatus = 'Inactive';

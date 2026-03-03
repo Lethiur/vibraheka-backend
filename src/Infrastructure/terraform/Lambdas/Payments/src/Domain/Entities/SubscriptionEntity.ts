@@ -9,8 +9,8 @@ export default interface SubscriptionEntity {
     OrderType: string;
     Status: string;
     SubscriptionStatus: string;
-    Created: Date;
+    Created: string;
     CreatedBy: string;
-    LastModified: Date;
+    LastModified: string;
     LastModifiedBy: string;
 }

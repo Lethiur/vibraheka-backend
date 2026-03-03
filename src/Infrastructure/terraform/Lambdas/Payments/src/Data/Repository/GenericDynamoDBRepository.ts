@@ -39,7 +39,7 @@ export default class GenericDynamoDBRepository<T> {
     public async PutItem(item: T): Promise<Result<T, DynamoDBErrors>> {
         const params: PutItemCommand = new PutItemCommand({
             TableName: this.TableName,
-            Item: marshall(item),
+            Item: marshall(item, {removeUndefinedValues: true}),
         });
 
         try {
@@ -49,9 +49,10 @@ export default class GenericDynamoDBRepository<T> {
                 console.error('Error putting item:', putOutput);
                 return err(DynamoDBErrors.UNEXPECTED_ERROR);
             }
-            console.log(`Successfully saved: ${item} requestID: ${putOutput.$metadata.requestId}`);
+            console.log(`Successfully saved: ${JSON.stringify(item)} requestID: ${putOutput.$metadata.requestId}`);
             return ok(item);
         } catch (error) {
+            console.log(error);
             return err(this.HandleError(error as Error))
         }
     }
@@ -87,6 +88,7 @@ export default class GenericDynamoDBRepository<T> {
                 return err(DynamoDBErrors.ITEM_NOT_FOUND);
             }
         } catch (error) {
+            console.log(error);
             return err(this.HandleError(error as Error))
         }
     }

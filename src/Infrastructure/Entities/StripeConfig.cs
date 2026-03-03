@@ -43,4 +43,10 @@ public class StripeConfig
     /// </summary>
     [Required]
     public string SubscriptionID { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the number of days for the trial period associated with a subscription.
+    /// This value determines the duration during which a user can use the service without incurring charges.
+    /// </summary>
+    public int TrialPeriodInDays { get; set; } = 0;
 }

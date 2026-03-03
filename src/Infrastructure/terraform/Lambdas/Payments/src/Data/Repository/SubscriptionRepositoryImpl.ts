@@ -22,6 +22,7 @@ import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 export default class SubscriptionRepositoryImpl extends GenericDynamoDBRepository<SubscriptionEntity> implements ISubscriptionRepository {
 
     constructor(Client: DynamoDBClient) {
+        console.log(process.env.DYNAMO_TABLE_NAME);
         super(process.env.DYNAMO_TABLE_NAME!, Client);
     }
 
@@ -44,7 +45,7 @@ export default class SubscriptionRepositoryImpl extends GenericDynamoDBRepositor
      * @return {Promise<Result<SubscriptionEntity, SubscriptionErrors>>} A promise resolving to a result object containing either the subscription entity on success or subscription-related errors on failure.
      */
     public async GetSubscriptionForCustomer(customerID: string): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
-        console.log(`Getting subscription for customer ${customerID}`);
+        console.log(`Getting subscription for customer ${customerID} from table ${process.env.DYNAMO_TABLE_NAME}`);
         const dynamoDBResult: Result<SubscriptionEntity[], DynamoDBErrors> = await this.QueryIndexWithoutFilter('ExternalCustomer-Index', `ExternalCustomerID = :customerID`, {":customerID": {"S" : customerID}});
         return dynamoDBResult.map(subList => subList[0]).mapErr(this.HandleDynamoError)
     }
