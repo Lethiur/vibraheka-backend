@@ -174,8 +174,6 @@ public class SettingsService(
             InfrastructureConfigErrors.ParameterNotFound => isRecoverPasswordEmailTemplate
                 ? SettingsErrors.InvalidRecoverPasswordEmailTemplate
                 : SettingsErrors.InvalidVerificationEmailTemplate,
-            InfrastructureConfigErrors.AccessDenied => SettingsErrors.GenericError,
-            AppErrors.GenericError => SettingsErrors.GenericError,
             _ => SettingsErrors.GenericError
         };
     }

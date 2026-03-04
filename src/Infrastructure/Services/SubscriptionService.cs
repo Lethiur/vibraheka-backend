@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
@@ -11,13 +12,29 @@ using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.Services;
 
+/// <summary>
+/// The SubscriptionService class is responsible for managing subscription-related functionalities
+/// including creation, cancellation, retrieval, reactivation, and deletion of subscriptions.
+/// It interacts with the subscription repository, payment repository, and utilizes configuration settings.
+/// </summary>
 public class SubscriptionService(
     ISubscriptionRepository subscriptionRepository,
     IPaymentRepository paymentRepository,
     StripeConfig config,
     ILogger<SubscriptionService> logger) : ISubscriptionService
 {
-    public Task<Result<SubscriptionEntity>> CreateSubscription(SubscriptionContext preparation, CancellationToken cancellationToken)
+    /// <summary>
+    /// Creates a subscription for the specified user based on the provided subscription checkout session details.
+    /// Prepares the subscription context, sets session-specific details, and processes the subscription creation
+    /// in the repository. Logs relevant information and handles error compensation for specific failure scenarios.
+    /// </summary>
+    /// <param name="user">The user entity for whom the subscription is being created.</param>
+    /// <param name="context">The subscription checkout session entity containing details about the subscription session.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object
+    /// with a <see cref="SubscriptionEntity"/> representing the created or updated subscription if successful, or an error if the operation fails.</returns>
+    public Task<Result<SubscriptionEntity>> CreateSubscription(SubscriptionContext preparation,
+        CancellationToken cancellationToken)
     {
         return subscriptionRepository.GetSubscriptionDetailsForUser(preparation.UserID, cancellationToken)
             .BindTryWhen(entity => entity.SubscriptionStatus == SubscriptionStatus.Cancelled, entity =>
@@ -50,7 +67,18 @@ public class SubscriptionService(
             }).TapError(error => logger.LogError(error, "Error while creating subscription for user {userId}", preparation.UserID));
     }
 
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user, SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
+    /// <summary>
+    /// Creates a new subscription for the specified user based on the provided checkout session details.
+    /// Updates the subscription context with user and session-specific information, and processes
+    /// a subscription creation request in the repository.
+    /// </summary>
+    /// <param name="user">The user entity for whom the subscription is being created.</param>
+    /// <param name="context">The subscription checkout session entity containing details about the subscription session.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object
+    /// with a <see cref="SubscriptionEntity"/> representing the created subscription if successful, or an error if the operation fails.</returns>
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user,
+        SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
     {
         SubscriptionContext preparation = new()
         {
@@ -62,6 +90,14 @@ public class SubscriptionService(
         return CreateSubscription(preparation, cancellationToken);
     }
 
+    /// <summary>
+    /// Cancels the subscription for a specified user. Updates the subscription status to indicate
+    /// that it is to be cancelled and invokes the payment repository to perform the cancellation.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription is to be cancelled.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object
+    /// with a <see cref="Unit"/> value if the operation succeeds, or an error if the operation fails.</returns>
     public Task<Result<Unit>> CancelSubscriptionForUser(string userID, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Canceling subscription for user {userID}");
@@ -83,6 +119,14 @@ public class SubscriptionService(
         return subscriptionRepository.GetSubscriptionDetailsForUser(userID, cancellationToken);
     }
 
+    /// <summary>
+    /// Reactivates a subscription for a given user. Validates the current subscription status
+    /// and performs necessary operations to mark the subscription as active.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription is to be reactivated.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object
+    /// with a <see cref="Unit"/> value if the operation succeeds, or an error if the operation fails.</returns>
     public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken)
     {
         return GetSubscriptionForUser(userID, cancellationToken)
@@ -109,22 +153,15 @@ public class SubscriptionService(
             .Map(_ => Unit.Value);
     }
 
+    /// <summary>
+    /// Deletes the subscription associated with a given user. Removes the subscription record from the repository.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription will be deleted.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object with a <see cref="Unit"/> value if the operation succeeds, or an error if the operation fails.</returns>
     public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken)
     {
         return GetSubscriptionForUser(userID, cancellationToken)
             .BindTry(entity => subscriptionRepository.DeleteSubscriptionForUser(entity, cancellationToken));
-    }
-
-    public Task<Result<Unit>> MarkSubscriptionAsPaymentFailedForUser(string userID, CancellationToken cancellationToken)
-    {
-        logger.LogInformation("Marking subscription as payment failed for user {userID}", userID);
-        return GetSubscriptionForUser(userID, cancellationToken)
-            .BindTry(subscriptionEntity =>
-            {
-                subscriptionEntity.Status = OrderStatus.PaymentFailed;
-                subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Inactive;
-                return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
-            })
-            .Map(_ => Unit.Value);
     }
 }

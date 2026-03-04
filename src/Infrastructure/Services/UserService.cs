@@ -344,7 +344,7 @@ public class UserService(
     /// <typeparam name="T">The type of the result that the operation will return in case of success.</typeparam>
     /// <param name="ex">The exception thrown during the execution of an operation in the Cognito service.</param>
     /// <returns>A <see cref="Result{T}"/> containing the appropriate error mapped from the exception, or a fallback error for unexpected exceptions.</returns>
-    private Result<T> MapCognitoException<T>(Exception ex)
+    protected virtual Result<T> MapCognitoException<T>(Exception ex)
     {
         // Map common Cognito exceptions to your domain/application error strings.
         // Add/remove cases as you discover them.

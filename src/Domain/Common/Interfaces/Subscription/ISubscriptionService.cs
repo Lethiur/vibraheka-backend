@@ -52,7 +52,11 @@ public interface ISubscriptionService
     public Task<Result<Unit>> DeleteSubscriptionForUser(string userID, CancellationToken cancellationToken);
 
 
+    /// <summary>
+    /// Reactivates a previously canceled or inactive subscription for a specified user.
+    /// </summary>
+    /// <param name="userID">The unique identifier of the user whose subscription is to be reactivated.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the operation, containing the result of the reactivation process.</returns>
     public Task<Result<Unit>> ReactivateSubscription(string userID, CancellationToken cancellationToken);
-
-    public Task<Result<Unit>> MarkSubscriptionAsPaymentFailedForUser(string userID, CancellationToken cancellationToken);
 }

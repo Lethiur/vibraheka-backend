@@ -116,46 +116,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
         
         return new FileInfo(filePath);
     }
-
-    /// <summary>
-    /// Retrieves a pre-signed URL to upload a file from a
-    /// different client to the bucket this client
-    /// is managing 
-    /// </summary>
-    /// <param name="key">The name of the file</param>
-    /// <param name="expiresInSeconds">The amount of time to initiate the upload</param>
-    /// <param name="md5Hash">The hash of the file</param>
-    /// <returns>A <see cref="Result"/> containing the pre-signed url or an error otherwise</returns>
-    protected async Task<Result<string>> GetUploadPreSignedUrl(string key, int expiresInSeconds, string md5Hash)
-    {
-        if (string.IsNullOrEmpty(key))
-        {
-            return Result.Failure<string>(InfrastructureFileManagementErrors.InvalidKey);
-        }
-
-        if (expiresInSeconds < 0)
-        {
-            return Result.Failure<string>(InfrastructureFileManagementErrors.InvalidExpiryDate);
-        }
-
-        if (string.IsNullOrEmpty(md5Hash))
-        {
-            return Result.Failure<string>(InfrastructureFileManagementErrors.InvalidHash);
-        }
-
-        GetPreSignedUrlRequest request = new()
-        {
-            BucketName = BucketName,
-            Key = key,
-            Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
-            Verb = HttpVerb.PUT,
-            Headers = { ContentMD5 = md5Hash },
-            ContentType = "application/octet-stream",
-        };
-
-        return await Client.GetPreSignedURLAsync(request);
-    }
-
+    
     /// <summary>
     /// Generates a pre-signed URL for downloading a file from an S3 bucket.
     /// </summary>

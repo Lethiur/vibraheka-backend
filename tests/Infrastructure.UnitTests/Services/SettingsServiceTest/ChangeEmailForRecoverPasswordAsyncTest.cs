@@ -48,4 +48,19 @@ public class ChangeRecoverPasswordEmailTemplateAsyncTest : GenericSettingsServic
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SettingsErrors.RecoverPasswordEmailTemplateUpdateFailed));
     }
+    
+    [Test]
+    public async Task ShouldMapUnknownInfrastructureErrorToGenericDomainError()
+    {
+        // Given: Some mocking
+        RepositoryMock.Setup(x => x.UpdateRecoverPasswordEmailTemplateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Unexpected error"));
+        
+        // When: Service is invoked
+        Result<Unit> result = await Service.ChangeRecoverPasswordEmailTemplateAsync("template", CancellationToken.None);
+        
+        // Then: Should return failure
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(SettingsErrors.GenericError));
+    }
 }

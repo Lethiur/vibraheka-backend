@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 
@@ -74,5 +75,22 @@ public class GetTemplatesAsyncTest : GenericSettingsServiceTest
         cts.Cancel();
 
         Assert.ThrowsAsync<OperationCanceledException>(() => Service.GetRecoverPasswordEmailTemplateAsync(cts.Token));
+    }
+    
+    [Test]
+    public async Task ShouldMapToGenericErrorWhenRepositoryThrowsUnexpectedException()
+    {
+        // Given: Some mocking
+        RepositoryMock.Setup(x => x.GetVerificationEmailTemplateAsync())
+            .ReturnsAsync(Result.Failure<string>(AppErrors.GenericError));
+        
+        // When: Service is invoked
+        Result<string> result = await Service.GetVerificationEmailTemplateAsync(CancellationToken.None);
+        
+        // Then: Should return failure
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(SettingsErrors.GenericError));
+        
+        
     }
 }
