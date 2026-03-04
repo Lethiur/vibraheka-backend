@@ -81,6 +81,46 @@ public class SettingsService(
         }
     }
 
+    public Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateUserWelcomeEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the user welcome email template");
+    }
+
+    public Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateSubscriptionThankYouEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the subscription thank-you email template");
+    }
+
+    public Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateTrialEndingSoonEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the trial ending soon email template");
+    }
+
+    public Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdatePasswordChangedEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the password changed email template");
+    }
+
     /// <summary>
     /// Retrieves the verification email template.
     /// </summary>
@@ -117,6 +157,38 @@ public class SettingsService(
         return repositoryResult;
     }
 
+    public Task<Result<string>> GetUserWelcomeEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetUserWelcomeEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetSubscriptionThankYouEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetSubscriptionThankYouEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetTrialEndingSoonEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetTrialEndingSoonEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetPasswordChangedEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetPasswordChangedEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
     /// <summary>
     /// Retrieves all templates used for actions.
     /// </summary>
@@ -134,6 +206,22 @@ public class SettingsService(
             new()
             {
                 TemplateID = appSettings.RecoverPasswordEmailTemplate, ActionType = ActionType.PasswordReset
+            },
+            new()
+            {
+                TemplateID = appSettings.UserWelcomeEmailTemplate, ActionType = ActionType.UserRegistered
+            },
+            new()
+            {
+                TemplateID = appSettings.SubscriptionThankYouEmailTemplate, ActionType = ActionType.SubscriptionThankYou
+            },
+            new()
+            {
+                TemplateID = appSettings.TrialEndingSoonEmailTemplate, ActionType = ActionType.TrialEndingSoon
+            },
+            new()
+            {
+                TemplateID = appSettings.PasswordChangedEmailTemplate, ActionType = ActionType.PasswordChanged
             }
         ];
 
@@ -176,5 +264,43 @@ public class SettingsService(
                 : SettingsErrors.InvalidVerificationEmailTemplate,
             _ => SettingsErrors.GenericError
         };
+    }
+
+    private async Task<Result<Unit>> UpdateTemplateAsync(
+        string templateId,
+        string invalidTemplateError,
+        Func<CancellationToken, Task<Result<Unit>>> repositoryCall,
+        CancellationToken cancellationToken,
+        string logOnException)
+    {
+        if (string.IsNullOrWhiteSpace(templateId))
+        {
+            return Result.Failure<Unit>(invalidTemplateError);
+        }
+
+        try
+        {
+            Result<Unit> repositoryResult = await repositoryCall(cancellationToken);
+            return repositoryResult.IsFailure
+                ? Result.Failure<Unit>(SettingsErrors.GenericError)
+                : Result.Success(Unit.Value);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(exception, "{Message}", logOnException);
+            return Result.Failure<Unit>(SettingsErrors.GenericError);
+        }
+    }
+
+    private async Task<Result<string>> GetTemplateAsync(
+        CancellationToken cancellationToken,
+        Func<Task<Result<string>>> repositoryCall,
+        string fallbackError)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Result<string> repositoryResult = await repositoryCall();
+        return repositoryResult.IsFailure
+            ? Result.Failure<string>(fallbackError)
+            : repositoryResult;
     }
 }

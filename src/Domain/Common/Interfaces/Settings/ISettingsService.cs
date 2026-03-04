@@ -30,6 +30,26 @@ public interface ISettingsService
     Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Updates the welcome email template sent to newly registered users.
+    /// </summary>
+    Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Updates the subscription thank-you email template.
+    /// </summary>
+    Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Updates the trial-ending-soon email template.
+    /// </summary>
+    Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Updates the password-changed confirmation email template.
+    /// </summary>
+    Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Retrieves the email template used for verification.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
@@ -42,6 +62,26 @@ public interface ISettingsService
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{String}</c> containing the password changed template or a domain error.</returns>
     Task<Result<string>> GetRecoverPasswordEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the welcome email template used for newly registered users.
+    /// </summary>
+    Task<Result<string>> GetUserWelcomeEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the subscription thank-you email template.
+    /// </summary>
+    Task<Result<string>> GetSubscriptionThankYouEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the trial-ending-soon email template.
+    /// </summary>
+    Task<Result<string>> GetTrialEndingSoonEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the password-changed confirmation email template.
+    /// </summary>
+    Task<Result<string>> GetPasswordChangedEmailTemplateAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves all templates available for specific actions from the settings service.

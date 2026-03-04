@@ -90,6 +90,35 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(foundAssociation, Is.True);
     }
 
+    [TestCase(ActionType.UserRegistered, "test/welcome-email.html")]
+    [TestCase(ActionType.SubscriptionThankYou, "test/subscription-thank-you-email.html")]
+    [TestCase(ActionType.TrialEndingSoon, "test/trial-ending-soon-email.html")]
+    [TestCase(ActionType.PasswordChanged, "test/password-changed-email.html")]
+    public async Task ShouldUpdateNewAdminManagedTemplatesSuccessfullyWhenUserIsAdmin(ActionType actionType, string templatePath)
+    {
+        // Given: a registered and authenticated admin user.
+        string email = TheFaker.Internet.Email();
+        string username = TheFaker.Person.FullName;
+        string templateID = Guid.NewGuid().ToString();
+        await RegisterAndConfirmAdmin(username, email, ThePassword);
+        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+        // And: a template entity exists in storage repository.
+        await SeedEmailTemplate(templateID, templatePath);
+
+        // When: changing association for the requested action type.
+        ChangeTemplateForActionCommand command = new(templateID, actionType);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
+
+        // Then: endpoint should accept and persist the association.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(actionType, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
+    }
+
     [Test]
     public async Task ShouldReturnUnauthorizedWhenNonAdminAttemptsToChangeTemplate()
     {

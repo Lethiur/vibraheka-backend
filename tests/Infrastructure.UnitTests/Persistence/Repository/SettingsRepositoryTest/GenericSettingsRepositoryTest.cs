@@ -15,7 +15,11 @@ public abstract class GenericSettingsRepositoryTest
     protected SettingsRepository Repository;
     protected AWSConfig config;
     protected const string VerificationParameterName = "/TEST/VerificationEmailTemplate";
-    protected const string PasswordChangedParameterName = "/TEST/RecoverPasswordEmailTemplate";
+    protected const string RecoverPasswordParameterName = "/TEST/RecoverPasswordEmailTemplate";
+    protected const string UserWelcomeParameterName = "/TEST/UserWelcomeEmailTemplate";
+    protected const string SubscriptionThankYouParameterName = "/TEST/SubscriptionThankYouEmailTemplate";
+    protected const string TrialEndingSoonParameterName = "/TEST/TrialEndingSoonEmailTemplate";
+    protected const string PasswordChangedParameterName = "/TEST/PasswordChangedEmailTemplate";
 
     [SetUp]
     public void SetUp()

@@ -25,7 +25,7 @@ public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTe
 
         GetParameterResponse response = await SSMClient.GetParameterAsync(new GetParameterRequest
         {
-            Name = PasswordChangedParameterName
+            Name = RecoverPasswordParameterName
         });
 
         Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate));
@@ -38,7 +38,7 @@ public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTe
         string expectedTemplate = $"password-template-{_faker.Random.Guid()}";
         await SSMClient.PutParameterAsync(new PutParameterRequest
         {
-            Name = PasswordChangedParameterName,
+            Name = RecoverPasswordParameterName,
             Value = expectedTemplate,
             Type = ParameterType.String,
             Overwrite = true
