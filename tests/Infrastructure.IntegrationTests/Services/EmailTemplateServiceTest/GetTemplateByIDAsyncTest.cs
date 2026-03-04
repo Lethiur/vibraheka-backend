@@ -65,4 +65,18 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }
+
+    [Test]
+    [DisplayName("Should return InvalidTemplateID when ID is null")]
+    public async Task ShouldReturnInvalidTemplateIdErrorWhenIdIsNull()
+    {
+        // Given: un template id nulo.
+
+        // When: se consulta una plantilla con id nulo.
+        Result<EmailEntity> result = await _service.GetTemplateByID(null!, CancellationToken.None);
+
+        // Then: debe fallar por id invalido.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
+    }
 }

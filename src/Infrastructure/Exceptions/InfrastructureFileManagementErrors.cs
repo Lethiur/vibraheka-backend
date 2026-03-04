@@ -5,7 +5,7 @@
 /// These error codes are used to classify and identify specific issues related
 /// to file management within the infrastructure layer.
 /// </summary>
-public static class InfrastructureFileManagementErrors
+public class InfrastructureFileManagementErrors
 {
     /// <summary>
     /// Error code indicating that an invalid key was provided during

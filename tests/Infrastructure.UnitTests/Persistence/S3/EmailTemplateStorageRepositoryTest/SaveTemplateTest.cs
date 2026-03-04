@@ -80,4 +80,5 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
             File.Delete(expectedTempPath);
         }
     }
+    
 }

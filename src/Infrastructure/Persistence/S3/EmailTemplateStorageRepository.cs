@@ -62,18 +62,6 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     }
 
     /// <summary>
-    /// Retrieves the S3 path of the specified email template based on its template ID.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template whose S3 path is to be retrieved.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A result containing the S3 path of the email template if successful; otherwise, an error result.</returns>
-    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
-    public Task<Result<string>> GetEmailTemplatePath(string templateID, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
     /// Saves an attachment associated with the specified email template ID into the storage repository.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to which the attachment belongs.</param>
@@ -102,32 +90,6 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
             }
         }
         
-    }
-
-    /// <summary>
-    /// Generates an authorization string that allows read access to the specified email template.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template for which the authorization string is being generated.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A result containing the authorization string if successful; otherwise, an error result.</returns>
-    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
-    public Task<Result<string>> GetAuthorizationStringForTemplateRead(string templateID,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Retrieves an authorization string required to perform write operations on the specified email template.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template for which the authorization string is generated.</param>
-    /// <param name="cancellationToken">A cancellation token that can be used to cancel the request.</param>
-    /// <returns>A result containing the authorization string if successful; otherwise, an error result.</returns>
-    /// <exception cref="NotImplementedException">Thrown when this method is not implemented.</exception>
-    public Task<Result<string>> GetAuthorizationStringForTemplateWrite(string templateID,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     /// <summary>

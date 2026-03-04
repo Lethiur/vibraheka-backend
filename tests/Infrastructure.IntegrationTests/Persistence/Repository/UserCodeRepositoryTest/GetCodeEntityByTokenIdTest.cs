@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -11,7 +12,7 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryIntegrationTe
     [Test]
     public async Task ShouldReturnUserCodeEntityWhenTokenExists()
     {
-        // Given: an existing token marker already stored in DynamoDB
+        // Given: un token marker existente en DynamoDB.
         string tokenId = Guid.NewGuid().ToString("N");
         UserCodeEntity seededEntity = new()
         {
@@ -25,10 +26,10 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryIntegrationTe
 
         await _repository.SaveCode(seededEntity, CancellationToken.None);
 
-        // When: requesting the marker by its token id
+        // When: se busca el marker por token id.
         Result<UserCodeEntity> result = await _repository.GetCodeEntityByTokenId(tokenId, CancellationToken.None);
 
-        // Then: the repository returns the mapped domain entity
+        // Then: debe devolverse la entidad correctamente mapeada.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.Code, Is.EqualTo(seededEntity.Code));
         Assert.That(result.Value.UserEmail, Is.EqualTo(seededEntity.UserEmail));
@@ -41,14 +42,29 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryIntegrationTe
     [Test]
     public async Task ShouldReturnNoRecordFoundWhenTokenDoesNotExist()
     {
-        // Given: a token id that does not exist in the UserCodes table
+        // Given: un token id inexistente.
         string tokenId = Guid.NewGuid().ToString("N");
 
-        // When: requesting the marker by that token id
+        // When: se busca un marker inexistente.
         Result<UserCodeEntity> result = await _repository.GetCodeEntityByTokenId(tokenId, CancellationToken.None);
 
-        // Then: the repository reports that no matching marker exists
+        // Then: debe devolverse error NoRecordFound.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserCodeErrors.NoRecordFound));
+    }
+
+    [Test]
+    public async Task ShouldMapUnexpectedPersistenceFailureToGenericAppError()
+    {
+        // Given: un cancellation token cancelado para forzar error interno de persistencia.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        // When: se busca el token con la operacion cancelada.
+        Result<UserCodeEntity> result = await _repository.GetCodeEntityByTokenId(Guid.NewGuid().ToString("N"), cts.Token);
+
+        // Then: debe mapearse al error generico de aplicacion.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(AppErrors.GenericError));
     }
 }

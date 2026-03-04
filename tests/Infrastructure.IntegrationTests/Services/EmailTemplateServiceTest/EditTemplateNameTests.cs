@@ -55,6 +55,21 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }
 
+    [TestCase(null)]
+    [TestCase("")]
+    [DisplayName("Should return InvalidTempalteID when template id is null or empty")]
+    public async Task ShouldReturnInvalidTemplateIdWhenTemplateIdIsNullOrEmpty(string? invalidTemplateId)
+    {
+        // Given: un template id invalido (null o vacio).
+
+        // When: se intenta editar el nombre con id invalido.
+        Result<Unit> result = await _service.EditTemplateName(invalidTemplateId!, "any-name", CancellationToken.None);
+
+        // Then: debe devolverse el error de id invalido.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
+    }
+
     [Test]
     [DisplayName("Should return TemplateNotFound when template does not exist")]
     public async Task ShouldReturnTemplateNotFoundWhenTemplateDoesNotExist()

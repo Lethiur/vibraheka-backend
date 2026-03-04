@@ -65,5 +65,21 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
         Assert.That(result.IsSuccess, Is.True);
     }
 
+    [Test]
+    [DisplayName("Should return generic error when operation is cancelled")]
+    public async Task ShouldReturnGenericErrorWhenCancellationIsRequested()
+    {
+        // Given: un token de cancelacion ya cancelado.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        // When: se intenta actualizar con la operacion cancelada.
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template-cancelled", cts.Token);
+
+        // Then: el repositorio debe mapear al error generico de aplicacion.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(VibraHeka.Application.Common.Exceptions.AppErrors.GenericError));
+    }
+
     #endregion
 }

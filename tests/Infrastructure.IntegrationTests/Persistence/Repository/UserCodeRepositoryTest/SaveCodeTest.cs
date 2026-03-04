@@ -1,8 +1,9 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserCodeRepositoryTest;
@@ -13,7 +14,7 @@ public class SaveCodeTest : GenericUserCodeRepositoryIntegrationTest
     [Test]
     public async Task ShouldPersistUserCodeRecordWhenSavingEntity()
     {
-        // Given: a valid user code entity ready to be stored in the UserCodes table
+        // Given: una entidad de codigo valida para persistir.
         string tokenId = Guid.NewGuid().ToString("N");
         UserCodeEntity entity = new()
         {
@@ -25,10 +26,10 @@ public class SaveCodeTest : GenericUserCodeRepositoryIntegrationTest
             LastModifiedBy = "integration-test"
         };
 
-        // When: the repository persists the entity
+        // When: se guarda la entidad en el repositorio.
         Result<Unit> result = await _repository.SaveCode(entity, CancellationToken.None);
 
-        // Then: the save succeeds and the persisted record matches the original payload
+        // Then: debe persistirse con los mismos datos en DynamoDB.
         Assert.That(result.IsSuccess, Is.True);
 
         UserCodeDBModel? persistedModel = await _dynamoDbContext.LoadAsync<UserCodeDBModel>(
@@ -46,5 +47,28 @@ public class SaveCodeTest : GenericUserCodeRepositoryIntegrationTest
         Assert.That(persistedModel.ExpiresAtUnix, Is.EqualTo(entity.ExpiresAtUnix));
 
         await CleanupTokenAsync(tokenId);
+    }
+
+    [Test]
+    public async Task ShouldReturnFailureWhenSaveOperationIsCancelled()
+    {
+        // Given: un cancellation token cancelado para provocar fallo de guardado.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        UserCodeEntity entity = new()
+        {
+            UserEmail = "cancelled@test.com",
+            ActionType = ActionType.PasswordReset,
+            Code = Guid.NewGuid().ToString("N"),
+            ExpiresAtUnix = DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds()
+        };
+
+        // When: se intenta persistir con la operacion cancelada.
+        Result<Unit> result = await _repository.SaveCode(entity, cts.Token);
+
+        // Then: debe retornar error general de persistencia.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
 }

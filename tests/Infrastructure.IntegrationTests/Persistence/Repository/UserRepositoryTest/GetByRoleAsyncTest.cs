@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
 
@@ -11,7 +13,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     [DisplayName("Should return a list of users when users with the specified role exist")]
     public async Task ShouldReturnListOfUsersWhenUsersWithRoleExist()
     {
-        // Given: Multiple users with the same role persisted in DynamoDB
+        // Given: usuarios persistidos con el mismo rol.
         UserRole role = UserRole.Therapist;
         UserEntity user1 = CreateValidUser();
         user1.Role = role;
@@ -21,40 +23,72 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         await _userRepository.AddAsync(user1);
         await _userRepository.AddAsync(user2);
 
-        // When: Retrieving users by role
+        // When: se consultan usuarios por rol.
         Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(role);
 
-        // Then: The operation should be successful and contain at least our two users
+        // Then: debe devolverse una lista que incluya ambos usuarios.
         Assert.That(result.IsSuccess, Is.True);
         List<UserEntity> users = result.Value.ToList();
-        Assert.That(users.Any(u => u.Id == user1.Id), Is.True, "Should contain the first user");
-        Assert.That(users.Any(u => u.Id == user2.Id), Is.True, "Should contain the second user");
-        Assert.That(users.All(u => u.Role == role), Is.True, "All returned users should have the requested role");
+        Assert.That(users.Any(u => u.Id == user1.Id), Is.True);
+        Assert.That(users.Any(u => u.Id == user2.Id), Is.True);
+        Assert.That(users.All(u => u.Role == role), Is.True);
 
-        // Cleanup
         await CleanupUser(user1.Id);
         await CleanupUser(user2.Id);
     }
-    
+
     [Test]
     [DisplayName("Should correctly map all domain properties when retrieving by role")]
     public async Task ShouldCorrectlyMapAllPropertiesWhenRetrievingByRole()
     {
-        // Given: A user with full data
+        // Given: un usuario con todos los datos principales.
         UserEntity userEntity = CreateValidUser();
         userEntity.Role = UserRole.Therapist;
         await _userRepository.AddAsync(userEntity);
 
-        // When: Retrieving by role
+        // When: se consulta por rol.
         Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(UserRole.Therapist);
 
-        // Then: The specific user should have all properties correctly mapped
+        // Then: las propiedades mapeadas deben coincidir.
         UserEntity retrievedUserEntity = result.Value.First(u => u.Id == userEntity.Id);
         Assert.That(retrievedUserEntity.FirstName, Is.EqualTo(userEntity.FirstName));
         Assert.That(retrievedUserEntity.Email, Is.EqualTo(userEntity.Email));
         Assert.That(retrievedUserEntity.Role, Is.EqualTo(UserRole.Therapist));
 
-        // Cleanup
         await CleanupUser(userEntity.Id);
+    }
+
+    [Test]
+    [DisplayName("Should return failure when querying a non-existing table")]
+    public async Task ShouldReturnFailureWhenQueryingNonExistingTable()
+    {
+        // Given: un repositorio apuntando a una tabla inexistente.
+        AWSConfig invalidConfig = new()
+        {
+            EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
+            UserCodesTable = _configuration.UserCodesTable,
+            EmailTemplatesTable = _configuration.EmailTemplatesTable,
+            UsersTable = $"non-existing-users-table-{Guid.NewGuid():N}",
+#if DEBUG
+            CodesTable = _configuration.CodesTable,
+#endif
+            ClientId = _configuration.ClientId,
+            UserPoolId = _configuration.UserPoolId,
+            Location = _configuration.Location,
+            Profile = _configuration.Profile,
+            PasswordResetTokenSecret = _configuration.PasswordResetTokenSecret,
+            ActionLogTable = _configuration.ActionLogTable,
+            SubscriptionTable = _configuration.SubscriptionTable,
+            SubscriptionUserIdIndex = _configuration.SubscriptionUserIdIndex,
+            SettingsNameSpace = _configuration.SettingsNameSpace
+        };
+        UserRepository invalidRepository = new(_dynamoContext, invalidConfig);
+
+        // When: se consulta por rol contra la tabla inexistente.
+        Result<IEnumerable<UserEntity>> result = await invalidRepository.GetByRoleAsync(UserRole.Therapist);
+
+        // Then: debe devolverse failure con mensaje de query.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Does.Contain("Error querying users by role"));
     }
 }

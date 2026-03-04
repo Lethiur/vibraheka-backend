@@ -2,6 +2,8 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
@@ -46,7 +48,23 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
 
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);
-        // Nota: EmailTemplateErrors.TemplateNotFound es el error esperado según el repositorio
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
+    }
+
+    [Test]
+    [DisplayName("Should return generic persistence error when operation is cancelled")]
+    public async Task ShouldReturnGenericPersistenceErrorWhenOperationIsCancelled()
+    {
+        // Given: un token de cancelacion cancelado.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        // When: se intenta recuperar plantilla con la operacion cancelada.
+        Result<EmailEntity> result = await Repository.GetTemplateByID(Guid.NewGuid().ToString("N"), cts.Token);
+
+        // Then: el repositorio debe mapear a error general de persistencia.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
 
     #endregion

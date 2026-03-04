@@ -63,4 +63,20 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
         // Cleanup
         await CleanupUser(complexId);
     }
+
+    [Test]
+    [DisplayName("Should return failure when operation is cancelled")]
+    public async Task ShouldReturnFailureWhenOperationIsCancelled()
+    {
+        // Given: un token de cancelacion ya cancelado.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        // When: se intenta obtener usuario con operacion cancelada.
+        Result<UserEntity> result = await _userRepository.GetByIdAsync(Guid.NewGuid().ToString(), cts.Token);
+
+        // Then: el repositorio debe devolver failure con mensaje de excepcion.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.Not.Null.And.Not.Empty);
+    }
 }

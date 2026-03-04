@@ -104,6 +104,12 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
             });
     }
 
+    /// <summary>
+    /// Cancels an existing subscription payment tied to the provided subscription checkout session entity.
+    /// </summary>
+    /// <param name="entity">The subscription checkout session entity containing details of the subscription to be canceled.</param>
+    /// <param name="token">The cancellation token to allow the operation to be canceled if necessary.</param>
+    /// <returns>A result indicating success or failure of the cancellation operation.</returns>
     public Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity,
         CancellationToken token)
     {
