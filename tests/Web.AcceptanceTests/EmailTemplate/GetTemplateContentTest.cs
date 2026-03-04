@@ -13,6 +13,19 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class GetTemplateContentTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenGettingContentWithoutAuthentication()
+    {
+        // Given: request without authorization header.
+
+        // When: reading template contents endpoint.
+        HttpResponseMessage response =
+            await Client.GetAsync($"/api/v1/email-templates/contents?templateID={Guid.NewGuid()}");
+
+        // Then: endpoint should reject unauthenticated request.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldReturnTemplateContentWhenTemplateHasFile()
     {
         // Given: An admin user
@@ -47,6 +60,7 @@ public class GetTemplateContentTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         ResponseEntity contentEntity = await response.GetAsResponseEntityAndContentAs<string>();
+        Assert.That(contentEntity.Success, Is.True);
         Assert.That(contentEntity.Content, Is.EqualTo(content));
     }
 

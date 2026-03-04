@@ -31,7 +31,11 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: Should return a JWT token
         ResponseEntity token = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
         AuthenticationResult? result = token.GetContentAs<AuthenticationResult>();
+        Assert.That(token.Success, Is.True);
         Assert.That(result, Is.Not.Null);
+        Assert.That(result!.UserID, Is.Not.Null.And.Not.Empty);
+        Assert.That(result.AccessToken, Is.Not.Null.And.Not.Empty);
+        Assert.That(result.RefreshToken, Is.Not.Null.And.Not.Empty);
         Assert.That(result!.Role, Is.EqualTo(UserRole.User));
     }
     

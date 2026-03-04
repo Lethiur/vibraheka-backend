@@ -29,11 +29,17 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        IEnumerable<EmailEntity>? templates = responseEntity.GetContentAs<IEnumerable<EmailEntity>>();
+        ResponseEntity responseEntity =
+            await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        IEnumerable<EmailTemplateResponseDTO>? templates =
+            responseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
 
         Assert.That(responseEntity.Success, Is.True);
         Assert.That(templates, Is.Not.Null);
+        foreach (EmailTemplateResponseDTO template in templates!)
+        {
+            Assert.That(template.TemplateID, Is.Not.Null.And.Not.Empty);
+        }
     }
 
     [Test]

@@ -12,6 +12,21 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenChangingContentsWithoutAuthentication()
+    {
+        // Given: a valid request payload but no authentication token.
+        using MultipartFormDataContent form = new();
+        form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
+        form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("content"))), "TemplateFile", "template.html");
+
+        // When: calling the change-contents endpoint.
+        HttpResponseMessage response = await Client.PatchAsync("/api/v1/email-templates/change-contents", form);
+
+        // Then: endpoint should reject unauthenticated access.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldChangeTemplateContentsWhenUserIsAdmin()
     {
         // Given: An admin user and an existing template skeleton
@@ -36,6 +51,8 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity updateEntity = await response.GetAsResponseEntity();
+        Assert.That(updateEntity.Success, Is.True);
 
         // Happy Path check: Verify content actually updated
         HttpResponseMessage contentResponse = await Client.GetAsync($"/api/v1/email-templates/contents?templateID={templateId}");

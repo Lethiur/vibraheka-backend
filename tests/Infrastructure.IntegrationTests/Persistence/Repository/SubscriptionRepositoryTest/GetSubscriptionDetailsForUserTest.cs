@@ -1,7 +1,11 @@
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Mappers;
+using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SubscriptionRepositoryTest;
 
@@ -49,5 +53,45 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryIn
         // Then: debe mapear al error funcional de no suscripcion encontrada.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.NoSubscriptionFound));
+    }
+
+    [Test]
+    public async Task ShouldMapFindOneByIndexCatchErrorToUnknownErrorWhenIndexIsInvalid()
+    {
+        // Given: un repositorio con indice invalido para forzar excepcion en Query/GetRemaining de FindOneByIndex.
+        AWSConfig invalidConfig = new()
+        {
+            EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
+            UserCodesTable = _configuration.UserCodesTable,
+            EmailTemplatesTable = _configuration.EmailTemplatesTable,
+            UsersTable = _configuration.UsersTable,
+#if DEBUG
+            CodesTable = _configuration.CodesTable,
+#endif
+            ClientId = _configuration.ClientId,
+            UserPoolId = _configuration.UserPoolId,
+            Location = _configuration.Location,
+            Profile = _configuration.Profile,
+            PasswordResetTokenSecret = _configuration.PasswordResetTokenSecret,
+            ActionLogTable = _configuration.ActionLogTable,
+            SubscriptionTable = _configuration.SubscriptionTable,
+            SubscriptionUserIdIndex = $"invalid-index-{Guid.NewGuid():N}",
+            SettingsNameSpace = _configuration.SettingsNameSpace
+        };
+
+        SubscriptionRepository invalidRepository = new(
+            invalidConfig,
+            _dynamoDbContext,
+            new SubscriptionEntityMapper(),
+            CreateTestLogger<SubscriptionRepository>());
+
+        // When: se consulta usando repositorio configurado con indice invalido.
+        Result<SubscriptionEntity> result =
+            await invalidRepository.GetSubscriptionDetailsForUser(Guid.NewGuid().ToString(), CancellationToken.None);
+
+        // Then: el catch de FindOneByIndex debe terminar mapeado como UnknownError.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(AppErrors.UnknownError));
+        Assert.That(result.Error, Is.Not.EqualTo(SubscriptionErrors.NoSubscriptionFound));
     }
 }

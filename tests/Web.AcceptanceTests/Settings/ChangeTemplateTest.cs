@@ -16,6 +16,19 @@ namespace VibraHeka.Web.AcceptanceTests.Settings;
 public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenNoAuthenticationIsProvided()
+    {
+        // Given: no authentication headers and a valid command payload.
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
+
+        // When: calling change-template endpoint without auth.
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
+
+        // Then: authorization middleware rejects the request.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldUpdateVerificationEmailTemplateSuccessfullyWhenUserIsAdmin()
     {
         // Given: A registered and confirmed admin user
@@ -42,12 +55,8 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
-        await Task.Delay(2500);
-        // Happy Path check: Verify association in the all-templates list
-        HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        IEnumerable<TemplateForActionEntity>? associations = listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(associations!.Any(a => a.ActionType == ActionType.UserVerification && a.TemplateID == templateID), Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(ActionType.UserVerification, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
     }
 
     [Test]
@@ -77,13 +86,8 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
 
-        await Task.Delay(2500);
-        
-        // Happy Path check: Verify association in the all-templates list
-        HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        IEnumerable<TemplateForActionEntity>? associations = listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(associations!.Any(a => a.ActionType == ActionType.PasswordReset && a.TemplateID == templateID), Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(ActionType.PasswordReset, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
     }
 
     [Test]
@@ -159,5 +163,27 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         };
 
         await repository.SaveTemplate(template, CancellationToken.None);
+    }
+
+    private async Task<bool> WaitForTemplateAssociation(ActionType actionType, string templateId, TimeSpan timeout)
+    {
+        DateTime deadline = DateTime.UtcNow.Add(timeout);
+        while (DateTime.UtcNow < deadline)
+        {
+            HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
+            ResponseEntity listResponseEntity =
+                await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
+            IEnumerable<TemplateForActionEntity>? associations =
+                listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
+
+            if (associations != null && associations.Any(a => a.ActionType == actionType && a.TemplateID == templateId))
+            {
+                return true;
+            }
+
+            await Task.Delay(300);
+        }
+
+        return false;
     }
 }

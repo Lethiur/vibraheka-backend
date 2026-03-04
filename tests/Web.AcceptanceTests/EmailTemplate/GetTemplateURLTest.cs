@@ -13,6 +13,18 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenGettingURLWithoutAuthentication()
+    {
+        // Given: request without bearer token.
+
+        // When: getting template URL.
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={Guid.NewGuid()}");
+
+        // Then: endpoint should return unauthorized.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldReturnTemplateURLWhenTemplateHasFile()
     {
         // Given: An admin user
@@ -41,6 +53,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         ResponseEntity urlEntity = await response.GetAsResponseEntityAndContentAs<string>();
+        Assert.That(urlEntity.Success, Is.True);
         Assert.That(urlEntity.Content, Is.Not.Empty);
         Assert.That(urlEntity.Content!.ToString()!.StartsWith("http"), Is.True);
     }

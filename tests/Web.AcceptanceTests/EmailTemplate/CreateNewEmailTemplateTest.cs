@@ -51,6 +51,8 @@ public class CreateNewEmailTemplateTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
 
         // Happy Path check: Verify template exists in the list
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");

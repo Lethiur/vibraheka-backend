@@ -11,6 +11,18 @@ namespace VibraHeka.Web.AcceptanceTests.Settings;
 public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenRequestIsUnauthenticated()
+    {
+        // Given: no authenticated user context.
+
+        // When: requesting all template associations.
+        HttpResponseMessage response = await Client.GetAsync("api/v1/settings/all-templates");
+
+        // Then: endpoint should reject request with unauthorized.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldReturnOkAndTemplatesListWhenUserIsAdmin()
     {
         // Given: An authenticated admin
@@ -26,8 +38,13 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         
         ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
+        IEnumerable<TemplateForActionEntity>? templates = responseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
         Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.Not.Null);
+        Assert.That(templates, Is.Not.Null);
+        foreach (TemplateForActionEntity template in templates!)
+        {
+            Assert.That(template.TemplateID, Is.Not.Null.And.Not.Empty);
+        }
     }
 
     [Test]
