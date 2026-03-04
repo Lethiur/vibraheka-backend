@@ -143,7 +143,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             return Result.Failure<string>(InfrastructureFileManagementErrors.InvalidHash);
         }
 
-        GetPreSignedUrlRequest request = new GetPreSignedUrlRequest
+        GetPreSignedUrlRequest request = new()
         {
             BucketName = BucketName,
             Key = key,
@@ -164,7 +164,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     /// <returns>A result containing the pre-signed URL if successful, or an error message if the operation fails.</returns>
     protected async Task<Result<string>> GetDownloadPreSignedUrl(string key, int expiresInSeconds)
     {
-        GetPreSignedUrlRequest request = new GetPreSignedUrlRequest
+        GetPreSignedUrlRequest request = new()
         {
             BucketName = BucketName,
             Key = key,

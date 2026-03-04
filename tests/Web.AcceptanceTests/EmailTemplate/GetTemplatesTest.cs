@@ -47,7 +47,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         
         // And: A newly created template
         string templateName = $"NewListTemplate-{TheFaker.Random.AlphaNumeric(8)}";
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(templateName), "TemplateName");
         form.Add(new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("{}"))), "File", "t.json");
         await Client.PutAsync("/api/v1/email-templates/create", form);

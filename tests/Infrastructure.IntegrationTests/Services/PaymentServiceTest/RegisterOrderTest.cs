@@ -131,7 +131,7 @@ public class RegisterOrderTest : TestBase
     
     public static string ExtractSessionId(string checkoutUrl)
     {
-        Uri uri = new Uri(checkoutUrl);
+        Uri uri = new(checkoutUrl);
 
         // Example path: /c/pay/cs_test_ABC123...
         string[] segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -148,7 +148,7 @@ public class RegisterOrderTest : TestBase
 
     private void AssertSessionBasedOnUrl(string url, UserEntity userEntity)
     {
-        SessionService service = new SessionService();
+        SessionService service = new();
         Session? session = service.Get(ExtractSessionId(url), new SessionGetOptions
         {
             Expand = new List<string>

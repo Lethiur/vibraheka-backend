@@ -30,7 +30,7 @@ public abstract class TestBase
         _configuration = CreateAWSConfig();
         _stripeConfig = CreateStripeConfig();
         _faker = new Faker();
-        Segment segment = new Segment("VH-TEST");
+        Segment segment = new("VH-TEST");
         AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
         _loggerFactory = LoggerFactory.Create(builder =>
         {

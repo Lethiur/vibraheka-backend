@@ -52,7 +52,7 @@ public class SaveEmailTemplateTest
     public async Task ShouldSaveTemplateAndReturnIdWhenEmailTemplateIsValid()
     {
         // Given
-        EmailEntity emailTemplate = new EmailEntity
+        EmailEntity emailTemplate = new()
         {
             ID = "template-id-123", Name = "Welcome", Path = "template-id-123"
         };
@@ -81,7 +81,7 @@ public class SaveEmailTemplateTest
     public async Task ShouldReturnFailureWhenRepositoryThrows()
     {
         // Given
-        EmailEntity emailTemplate = new EmailEntity
+        EmailEntity emailTemplate = new()
         {
             ID = "template-id-123", Name = "Welcome", Path = "template-id-123"
         };

@@ -17,7 +17,7 @@ public class RegisterUserAsyncTest : GenericUserServiceTest
         // Given: A valid user registration data
         const string email = "test@example.com";
         const string subId = "uuid-12345";
-        SignUpResponse response = new SignUpResponse { UserSub = subId };
+        SignUpResponse response = new() { UserSub = subId };
 
         _cognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
             .ReturnsAsync(response);

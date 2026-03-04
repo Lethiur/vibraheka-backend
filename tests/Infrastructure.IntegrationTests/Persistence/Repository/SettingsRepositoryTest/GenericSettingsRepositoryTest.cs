@@ -16,7 +16,7 @@ public abstract class GenericSettingsRepositoryTest : TestBase
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new AmazonSimpleSystemsManagementConfig() { Profile = new Profile("Twingers") };
+        AmazonSimpleSystemsManagementConfig amazonSimpleSystemsManagementConfig = new() { Profile = new Profile("Twingers") };
 
         // Usamos un Profile para asegurar que se conecta a la cuenta de sandbox/test
         SSMClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);

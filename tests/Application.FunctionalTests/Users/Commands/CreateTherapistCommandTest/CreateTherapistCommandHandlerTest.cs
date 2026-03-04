@@ -31,7 +31,7 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
 
         _userServiceMock
             .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
@@ -61,7 +61,7 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
 
         _userServiceMock
             .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
@@ -81,7 +81,7 @@ public class CreateTherapistCommandHandlerTest
     {
         // Given
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
 
         _userServiceMock
             .Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))

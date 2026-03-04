@@ -15,7 +15,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
     {
         // Given: A valid ID and an entity in DynamoDB
         const string id = "test-id";
-        TestEntity entity = new TestEntity { ID = id };
+        TestEntity entity = new() { ID = id };
         _contextMock.Setup(x => x.LoadAsync<TestEntity>(id, It.IsAny<LoadConfig>(), CancellationToken.None))
             .ReturnsAsync(entity);
 

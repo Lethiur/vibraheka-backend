@@ -360,7 +360,7 @@ public class RegisterUserCommandValidatorTests
     public void ShouldHandleVeryLongEmailWhenValidating()
     {
         // Given: Command with very long email
-        string longLocalPart = new string('a', 60); // Just under the 64 character limit
+        string longLocalPart = new('a', 60); // Just under the 64 character limit
         string longEmail = $"{longLocalPart}@example.com";
         RegisterUserCommand command = new(longEmail, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
 
@@ -380,7 +380,7 @@ public class RegisterUserCommandValidatorTests
     public void ShouldHandleVeryLongPasswordWhenValidating()
     {
         // Given: Command with very long password
-        string longPassword = new string('A', 1000);
+        string longPassword = new('A', 1000);
         RegisterUserCommand command = new("test@example.com", longPassword, "John Doe", "TEST", "TEST","Europe/Madrid");
 
 
@@ -396,7 +396,7 @@ public class RegisterUserCommandValidatorTests
     public void ShouldHandleVeryLongFullNameWhenValidating()
     {
         // Given: Command with very long full name
-        string longName = new string('A', 500);
+        string longName = new('A', 500);
         RegisterUserCommand command = new("test@example.com", "Password123!", longName, "TEST", "TEST","Europe/Madrid");
 
 

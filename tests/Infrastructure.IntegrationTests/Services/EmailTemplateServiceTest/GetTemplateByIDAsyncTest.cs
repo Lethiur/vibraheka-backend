@@ -18,7 +18,7 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
     {
         // Given: A template persisted in the DynamoDB table
         string templateId = $"test-template-{Guid.NewGuid()}";
-        EmailTemplateDBModel expectedTemplate = new EmailTemplateDBModel()
+        EmailTemplateDBModel expectedTemplate = new()
         {
             TemplateID = templateId, Path = "Integration Test Subject"
         };

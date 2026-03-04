@@ -14,7 +14,7 @@ public class GetUserByIDTest : GenericCognitoServiceTest
     public async Task ShouldReturnUserWhenUserExistsInDynamoDb()
     {
         // Given: A user persisted in DynamoDB
-        UserEntity originalUser = new UserEntity(
+        UserEntity originalUser = new(
             Guid.NewGuid().ToString(),
             _faker.Internet.Email(),
             _faker.Person.FullName)

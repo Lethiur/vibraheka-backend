@@ -39,7 +39,7 @@ public class UserService(
 
         if (!string.IsNullOrEmpty(profileName))
         {
-            CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
+            CredentialProfileStoreChain chain = new();
             if (chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
             {
                 return new AmazonCognitoIdentityProviderClient(credentials, new AmazonCognitoIdentityProviderConfig 
@@ -62,7 +62,7 @@ public class UserService(
     {
         try
         {
-            SignUpRequest request = new SignUpRequest
+            SignUpRequest request = new()
             {
                 ClientId = _clientId,
                 Username = email,
@@ -109,7 +109,7 @@ public class UserService(
 
             AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request);
             
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler handler = new();
             JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
             string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
 
@@ -256,7 +256,7 @@ public class UserService(
     {
         try
         {
-            AdminGetUserRequest request = new AdminGetUserRequest()
+            AdminGetUserRequest request = new()
             {
                 UserPoolId = _userPoolId,
                 Username = email

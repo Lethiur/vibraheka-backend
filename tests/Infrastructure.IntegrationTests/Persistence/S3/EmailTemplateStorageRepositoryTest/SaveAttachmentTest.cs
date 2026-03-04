@@ -16,7 +16,7 @@ public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryIntegrati
         string attachmentName = $"{Guid.NewGuid():N}.bin";
         byte[] expectedBytes = Encoding.UTF8.GetBytes("attachment-data");
 
-        await using MemoryStream attachmentStream = new MemoryStream(expectedBytes);
+        await using MemoryStream attachmentStream = new(expectedBytes);
         attachmentStream.Position = 2;
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
@@ -33,7 +33,7 @@ public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryIntegrati
                await S3.GetObjectAsync(BucketName, objectKey, TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 

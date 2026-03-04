@@ -23,8 +23,8 @@ public class AuthenticateUserAsync : GenericUserServiceTest
         const string expectedUserId = "user-guid-123";
         
         // Creamos un JWT real pero simple para que JwtSecurityTokenHandler pueda leerlo
-        JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-        SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+        JwtSecurityTokenHandler tokenHandler = new();
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([new Claim("sub", expectedUserId)]),
             Expires = DateTime.UtcNow.AddHours(1)
@@ -32,7 +32,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
         SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
         string? idToken = tokenHandler.WriteToken(token);
 
-        AdminInitiateAuthResponse authResponse = new AdminInitiateAuthResponse
+        AdminInitiateAuthResponse authResponse = new()
         {
             AuthenticationResult = new AuthenticationResultType
             {

@@ -12,7 +12,7 @@ public class GetUserProfileQueryHandler(ICurrentUserService currentUserService, 
         return userService.GetUserByID(request.UserID, cancellationToken)
             .MapTry(user =>
             {
-                UserDTO result = new UserDTO()
+                UserDTO result = new()
                 {
                     Id = user.Id,
                     Bio = user.Bio,

@@ -15,7 +15,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
         string templateId = Guid.NewGuid().ToString("N");
         string expectedContent = """{"template":"Hello","subject":"World"}""";
         byte[] expectedBytes = Encoding.UTF8.GetBytes(expectedContent);
-        MemoryStream templateStream = new MemoryStream(expectedBytes);
+        MemoryStream templateStream = new(expectedBytes);
 
         CancellationToken cancellationToken = CancellationToken.None;
 
@@ -59,7 +59,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
         string templateId = Guid.NewGuid().ToString("N");
         string content = """{"template":"Hello"}""";
         byte[] bytes = Encoding.UTF8.GetBytes(content);
-        MemoryStream templateStream = new MemoryStream(bytes);
+        MemoryStream templateStream = new(bytes);
 
         CancellationToken cancellationToken = CancellationToken.None;
 

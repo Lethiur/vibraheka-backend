@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel;
+using System.Data;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.EmailTemplateServiceTest;
@@ -26,7 +28,7 @@ public class GetTemplateByIDTest
     {
         // Given: A valid template ID and a template in the repository
         const string templateId = "welcome-email";
-        EmailEntity template = new EmailEntity { ID = templateId, Path = "Welcome!" };
+        EmailEntity template = new() { ID = templateId, Path = "Welcome!" };
 
         _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(template));
@@ -75,5 +77,36 @@ public class GetTemplateByIDTest
         // Then: Should propagate the failure from the repository
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(repoError));
+    }
+
+    [Test]
+    public async Task ShouldMapTheErrorFromTheRepository()
+    {
+        // Given: A valid ID but the repository cannot find the template
+        const string templateId = "non-existent";
+
+        _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Failure<EmailEntity>(GenericPersistenceErrors.NoRecordsFound));
+
+        // When: Getting the template
+        Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
+
+        // Then: Should propagate the failure from the repository
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
+    }
+
+    [Test]
+    public async Task ShouldBeAbleToHandleExceptionsFromTheRepository()
+    {
+        _repositoryMock.Setup(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None))
+            .ThrowsAsync(new DataException("Database error"));
+
+        // When: Getting the template
+        Result<EmailEntity> result = await _service.GetTemplateByID("TEST", CancellationToken.None);
+
+        // Then: Should propagate the failure from the repository
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
     }
 }

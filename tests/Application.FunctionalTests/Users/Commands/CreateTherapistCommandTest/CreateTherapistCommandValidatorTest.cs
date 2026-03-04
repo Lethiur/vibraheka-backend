@@ -22,7 +22,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith", Bio = "  ASDFASDF", LastName = "Test", MiddleName = "Test", PhoneNumber = "6359875", TimezoneID = "Europe/Madrid"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith", Bio = "  ASDFASDF", LastName = "Test", MiddleName = "Test", PhoneNumber = "6359875", TimezoneID = "Europe/Madrid"});
 
 
         // When
@@ -39,7 +39,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
     {
         // Given
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = email, FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = email, FirstName = "Dr. Smith"});
 
 
         // When
@@ -60,7 +60,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenNameIsInvalid(string name)
     {
         // Given
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = name});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = name});
 
 
         // When

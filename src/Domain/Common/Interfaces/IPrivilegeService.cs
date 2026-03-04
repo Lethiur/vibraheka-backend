@@ -19,16 +19,6 @@ public interface IPrivilegeService
     public Task<Result<bool>> HasRoleAsync(string userId, UserRole role, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Determines whether a user has permission to edit a specific resource.
-    /// </summary>
-    /// <param name="userId">The unique identifier of the user whose privileges are being validated.</param>
-    /// <param name="resourceId">The unique identifier of the resource to check edit permissions for.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a Result object wrapping a boolean value indicating whether the user has permission to edit the specified resource.
-    /// </returns>
-    public Task<Result<bool>> CanEditResource(string userId, string resourceId);
-
-    /// <summary>
     /// Determines whether a user has the privilege to execute a specific action.
     /// </summary>
     /// <param name="userId">The unique identifier of the user attempting to perform the specified action.</param>

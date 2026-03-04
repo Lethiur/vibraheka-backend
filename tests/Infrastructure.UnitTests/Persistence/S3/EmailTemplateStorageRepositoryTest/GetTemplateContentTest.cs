@@ -16,7 +16,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageRepositoryTest
         const string expectedJson = """{"template":"Hello"}""";
         byte[] bytes = Encoding.UTF8.GetBytes(expectedJson);
 
-        GetObjectResponse response = new GetObjectResponse
+        GetObjectResponse response = new()
         {
             ResponseStream = new MemoryStream(bytes)
         };

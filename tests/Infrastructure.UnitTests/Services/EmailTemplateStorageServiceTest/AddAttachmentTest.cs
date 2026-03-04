@@ -15,7 +15,7 @@ public class AddAttachmentTest : GenericEmailTemplateStorageServiceTest
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = "file.bin";
         byte[] bytes = Encoding.UTF8.GetBytes("payload");
-        using MemoryStream attachmentStream = new MemoryStream(bytes);
+        using MemoryStream attachmentStream = new(bytes);
 
         RepositoryMock
             .Setup(r => r.SaveAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken))
@@ -42,7 +42,7 @@ public class AddAttachmentTest : GenericEmailTemplateStorageServiceTest
         string attachmentName = "file.bin";
         byte[] bytes = Encoding.UTF8.GetBytes("payload");
 
-        using (MemoryStream attachmentStream = new MemoryStream(bytes))
+        using (MemoryStream attachmentStream = new(bytes))
         {
             RepositoryMock
                 .Setup(r => r.SaveAttachment(templateId, attachmentStream, attachmentName, TestCancellationToken))

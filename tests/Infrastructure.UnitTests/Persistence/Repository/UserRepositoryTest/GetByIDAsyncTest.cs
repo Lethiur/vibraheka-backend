@@ -18,7 +18,7 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
     {
         // Given: A valid ID and a corresponding model in DynamoDB
         const string userId = "test-id";
-        UserDBModel userModel = new UserDBModel 
+        UserDBModel userModel = new()
         { 
             Id = userId, 
             Email = "test@example.com", 

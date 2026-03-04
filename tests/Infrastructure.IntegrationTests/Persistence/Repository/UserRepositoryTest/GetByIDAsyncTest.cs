@@ -50,7 +50,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with a complex ID (if business logic allows it, otherwise just a Guid string)
         string complexId = $"user#test#{Guid.NewGuid()}";
-        UserEntity userEntity = new UserEntity(complexId, _faker.Internet.Email(), _faker.Person.FullName);
+        UserEntity userEntity = new(complexId, _faker.Internet.Email(), _faker.Person.FullName);
         await _userRepository.AddAsync(userEntity);
 
         // When: Retrieving the user

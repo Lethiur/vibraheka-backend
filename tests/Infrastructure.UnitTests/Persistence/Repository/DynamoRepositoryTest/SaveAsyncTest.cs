@@ -16,7 +16,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
     public async Task ShouldReturnSuccessUnitWhenSaveIsSuccessful()
     {
         // Given: An entity to save
-        TestEntity entity = new TestEntity { ID = "save-id" };
+        TestEntity entity = new() { ID = "save-id" };
         _contextMock.Setup(x => x.SaveAsync(entity, It.IsAny<SaveConfig>(), None))
             .Returns(Task.CompletedTask);
 
@@ -35,7 +35,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
     public async Task ShouldReturnFailureWhenSaveThrowsException()
     {
         // Given: A database error during save
-        TestEntity entity = new TestEntity { ID = "fail-id" };
+        TestEntity entity = new() { ID = "fail-id" };
         _contextMock.Setup(x => x.SaveAsync(entity, It.IsAny<SaveConfig>(), None))
             .ThrowsAsync(new Exception("Write Error"));
 

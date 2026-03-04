@@ -22,7 +22,7 @@ public abstract class GenericEmailTemplateStorageServiceIntegrationTest : TestBa
         base.OneTimeSetUp();
 
         RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
-        CredentialProfileStoreChain profileStore = new CredentialProfileStoreChain();
+        CredentialProfileStoreChain profileStore = new();
         if (!profileStore.TryGetAWSCredentials(_configuration.Profile, out AWSCredentials credentials))
         {
             throw new InvalidOperationException(

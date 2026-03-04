@@ -18,7 +18,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     public async Task ShouldVerifyAUser()
     {
         // Given: Some registered user
-        Faker faker = new Faker();
+        Faker faker = new();
         string email = faker.Internet.Email();
         string password = "Password123@";
         
@@ -61,7 +61,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     public async Task ShouldFailVerificationWithWrongCode()
     {
         // Given: Some registered user
-        Faker faker = new Faker();
+        Faker faker = new();
         string email = faker.Internet.Email();
         string password = "Password123@";
         string fullName = faker.Person.FullName;
@@ -140,13 +140,13 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     public async Task ShouldReturnBadRequestWhenVerificationCodeIsNumericButIncorrect()
     {
         // Given: A registered user and a command with a numeric but wrong code
-        Faker faker = new Faker();
+        Faker faker = new();
         string email = faker.Internet.Email();
         string password = "Password123@";
         string fullName = faker.Person.FullName;
 
         await RegisterUser(fullName, email, password);
-        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new(email, "123456");
 
         // When: Calling the confirm endpoint
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", command);

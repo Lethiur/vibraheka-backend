@@ -47,7 +47,7 @@ public class ExistByEmailAsync : GenericUserRepositoryTest
     {
         // Given: A user with a complex email address
         string complexEmail = $"Test.User+Filter-{Guid.NewGuid()}@vibraheka.io";
-        UserEntity userEntity = new UserEntity(Guid.NewGuid().ToString(), complexEmail, "Special Email User");
+        UserEntity userEntity = new(Guid.NewGuid().ToString(), complexEmail, "Special Email User");
         await _userRepository.AddAsync(userEntity);
 
         // When: Checking existence

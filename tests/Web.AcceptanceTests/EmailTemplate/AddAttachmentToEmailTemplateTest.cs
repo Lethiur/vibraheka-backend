@@ -184,7 +184,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
     {
         IEmailTemplatesRepository repository = GetObjectFromFactory<IEmailTemplatesRepository>();
 
-        EmailEntity template = new EmailEntity
+        EmailEntity template = new()
         {
             ID = templateId,
             Name = "Acceptance Template",
@@ -199,13 +199,13 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
     private static MultipartFormDataContent CreateAttachmentForm(string templateId, string attachmentName,
         string fileName, string contentType, byte[] fileBytes)
     {
-        MultipartFormDataContent form = new MultipartFormDataContent();
+        MultipartFormDataContent form = new();
 
         form.Add(new StringContent(templateId), "TemplateID");
         form.Add(new StringContent(attachmentName), "AttachmentName");
 
-        MemoryStream fileStream = new MemoryStream(fileBytes);
-        StreamContent filePart = new StreamContent(fileStream);
+        MemoryStream fileStream = new(fileBytes);
+        StreamContent filePart = new(fileStream);
         filePart.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
         form.Add(filePart, "File", fileName);

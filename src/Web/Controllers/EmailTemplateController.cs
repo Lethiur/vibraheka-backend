@@ -71,8 +71,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     public async Task<IActionResult> CreateNewEmailTemplate([FromForm] UploadEmailTemplateRequest request)
     {
 
-        CreateEmailTemplateCommand createEmailTemplateCommand =
-            new CreateEmailTemplateCommand(request.File.OpenReadStream(), request.TemplateName);
+        CreateEmailTemplateCommand createEmailTemplateCommand = new(request.File.OpenReadStream(), request.TemplateName);
         Result<Unit> mediatrResponse = await mediator.Send(createEmailTemplateCommand);
 
         if (mediatrResponse.IsFailure)
@@ -100,8 +99,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> AddAttachmentToTemplate([FromForm] UploadEmailTemplateAttachment request)
     {
-        AddAttachmentCommand command =
-            new AddAttachmentCommand(request.File.OpenReadStream(), request.TemplateID, request.AttachmentName);
+        AddAttachmentCommand command = new(request.File.OpenReadStream(), request.TemplateID, request.AttachmentName);
         Result<string> result = await mediator.Send(command);
 
         if (result.IsFailure)

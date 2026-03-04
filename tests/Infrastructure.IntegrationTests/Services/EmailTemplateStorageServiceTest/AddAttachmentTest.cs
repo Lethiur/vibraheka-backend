@@ -15,7 +15,7 @@ public class AddAttachmentTest : GenericEmailTemplateStorageServiceIntegrationTe
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = $"{Guid.NewGuid():N}.bin";
         byte[] expectedBytes = Encoding.UTF8.GetBytes("attachment-service");
-        await using MemoryStream attachmentStream = new MemoryStream(expectedBytes);
+        await using MemoryStream attachmentStream = new(expectedBytes);
 
         string objectKey = $"{templateId}/attachments/{attachmentName}";
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
@@ -34,7 +34,7 @@ public class AddAttachmentTest : GenericEmailTemplateStorageServiceIntegrationTe
         using (GetObjectResponse response = await S3.GetObjectAsync(BucketName, objectKey, TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 

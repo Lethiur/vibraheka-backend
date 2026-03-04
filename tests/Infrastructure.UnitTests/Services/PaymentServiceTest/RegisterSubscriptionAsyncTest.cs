@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Data;
+using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -80,5 +81,21 @@ public class RegisterSubscriptionAsyncTest : GenericPaymentServiceTest
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.ErrorWhileSubscribing));
+    }
+
+    [Test]
+    public async Task ShouldHandleExceptionsFromRepository()
+    {
+        UserEntity user = new() { Id = "user-1", CustomerID = "cus-1" };
+
+        _userRepositoryMock.Setup(x => x.GetByIdAsync("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(user));
+        _paymentRepositoryMock.Setup(x => x.InitiateSubscriptionPaymentAsync(user, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new DataException("Database error"));
+
+        Result<SubscriptionCheckoutSessionEntity> result = await _service.RegisterSubscriptionAsync("user-1", CancellationToken.None);
+
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
     }
 }

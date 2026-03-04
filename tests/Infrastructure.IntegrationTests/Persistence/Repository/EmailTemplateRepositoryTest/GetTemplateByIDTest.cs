@@ -55,7 +55,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
 
     private async Task SeedTemplate(string id, string path)
     {
-        EmailTemplateDBModel model = new EmailTemplateDBModel
+        EmailTemplateDBModel model = new()
         {
             TemplateID = id,
             Path = path,
@@ -64,7 +64,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
             LastModified = DateTimeOffset.UtcNow
         };
 
-        SaveConfig config = new SaveConfig()
+        SaveConfig config = new()
         {
             OverrideTableName = _configuration.EmailTemplatesTable
         };

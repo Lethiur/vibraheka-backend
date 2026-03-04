@@ -56,7 +56,7 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
     public async Task ShouldHandleLargeTemplateContent()
     {
         // Given: A large string (SSM Standard parameters support up to 4KB)
-        string largeTemplate = new string('A', 3000); 
+        string largeTemplate = new('A', 3000); 
 
         // When: Updating the template
         Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);

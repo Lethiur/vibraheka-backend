@@ -31,7 +31,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldSaveTemplateSuccessfullyWhenDeepPathProvided()
     {
         // Given: A template with a deep folder structure in S3
-        EmailEntity template = new EmailEntity 
+        EmailEntity template = new()
         { 
             ID = Guid.NewGuid().ToString(), 
             Path = "s3://my-bucket/templates/marketing/v1/user-welcome.html" 
@@ -82,7 +82,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     {
         // Given: An initial record
         string templateId = Guid.NewGuid().ToString();
-        EmailEntity template = new EmailEntity { ID = templateId, Path = "path/old.html" };
+        EmailEntity template = new() { ID = templateId, Path = "path/old.html" };
         await Repository.SaveTemplate(template, CancellationToken.None);
 
         // And: The same ID but a new S3 path

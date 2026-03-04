@@ -107,6 +107,8 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     public Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity,
         CancellationToken token)
     {
-        return PaymentRepository.CancelSubscriptionPayment(entity, token);
+        return Maybe.From(entity)
+            .ToResult(SubscriptionErrors.ErrorWhileSubscribing)
+            .BindTry(toInsert => PaymentRepository.CancelSubscriptionPayment(toInsert, token));
     }
 }

@@ -16,7 +16,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
     {
         // Given: A user persisted in the database with a specific role
         string userId = Guid.NewGuid().ToString();
-        UserEntity userEntity = new UserEntity
+        UserEntity userEntity = new()
         {
             Id = userId,
             Email = "therapist@test.com",
@@ -39,7 +39,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
     {
         // Given: An admin user in the database
         string userId = Guid.NewGuid().ToString();
-        UserEntity userEntity = new UserEntity
+        UserEntity userEntity = new()
         {
             Id = userId,
             Email = "admin@test.com",

@@ -32,7 +32,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         await SeedEmailTemplate(templateID, "test/verification-email.html");
 
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(templateID, ActionType.UserVerification);
 
         // When: The admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -67,7 +67,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         await SeedEmailTemplate(templateID, "test/password-reset-email.html");
 
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.PasswordReset);
+        ChangeTemplateForActionCommand command = new(templateID, ActionType.PasswordReset);
 
         // When: The admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -98,7 +98,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
         
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(Guid.NewGuid().ToString(), ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
 
         // When: The non-admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -117,7 +117,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing template with invalid ID
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("invalid-guid", ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new("invalid-guid", ActionType.UserVerification);
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
 
         // Then
@@ -136,7 +136,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing template to a non-existent one
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(Guid.NewGuid().ToString(), ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
 
         // Then

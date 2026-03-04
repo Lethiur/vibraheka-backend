@@ -23,7 +23,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         
         // And: A template created WITH a file (not a skeleton)
         string templateName = $"FullTemplate-{TheFaker.Random.AlphaNumeric(8)}";
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(templateName), "TemplateName");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("<html>Sample</html>"))), "File", "sample.html");
         

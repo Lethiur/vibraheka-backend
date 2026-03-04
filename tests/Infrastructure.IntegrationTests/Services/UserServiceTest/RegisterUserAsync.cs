@@ -147,7 +147,7 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         // Given: Very long full name (testing limits)
         string email = GenerateUniqueEmail();
         string password = "ValidPassword123!";
-        string fullName = new string('A', 200); // Very long name
+        string fullName = new('A', 200); // Very long name
 
         // When: Registering with long name
         Result<string> result = await _userService.RegisterUserAsync(email, password, fullName);
