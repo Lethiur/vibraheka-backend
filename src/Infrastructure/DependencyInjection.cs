@@ -2,8 +2,6 @@
 using Amazon.CloudWatchLogs;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 using Amazon.SimpleSystemsManagement;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
@@ -59,11 +57,6 @@ public static class DependencyInjection
         AWSSDKHandler.RegisterXRayForAllServices();
         AWSConfig? awsConfig = builder.Configuration.GetSection("AWS").Get<AWSConfig>();
 
-        
-        CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
-        amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
-
-        
         builder.Services.AddSingleton<ITracer, XRayTracer>();
         builder.Services.AddSingleton(sp =>
             sp.GetRequiredService<
