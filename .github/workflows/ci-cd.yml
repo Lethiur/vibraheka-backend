@@ -241,7 +241,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.test_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
 
       - name: Restore
         run: dotnet restore VibraHeka.slnx
@@ -288,7 +290,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
