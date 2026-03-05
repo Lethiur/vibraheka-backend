@@ -1,0 +1,121 @@
+name: Shutdown Environment
+
+on:
+  pull_request:
+    # Trigger cleanup when a PR lifecycle ends.
+    types: [closed]
+
+jobs:
+  terraform_destroy:
+    name: Destroy Terraform Workspace For Closed PR
+    runs-on: ubuntu-latest
+    # Avoid running with untrusted forks where secrets are not available.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      TERRAFORM_DIR: src/Infrastructure/terraform
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup Node.js for lambda packaging
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install zip tool
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Compute workspace name from PR branch
+        id: workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          RAW_REF="${{ github.event.pull_request.head.ref }}"
+          WORKSPACE="$(echo "$RAW_REF" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's#[^a-z0-9-]#-#g' \
+            | sed -E 's#-+#-#g' \
+            | sed -E 's#(^-|-$)##g' \
+            | cut -c1-63)"
+          if [[ -z "$WORKSPACE" ]]; then
+            WORKSPACE="default"
+          fi
+          echo "name=$WORKSPACE" >> "$GITHUB_OUTPUT"
+
+      - name: Guard protected workspaces
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ steps.workspace.outputs.name }}" in
+            default|main|staging|prod)
+              echo "skip_destroy=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "skip_destroy=false" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Build and package lambda artifacts
+        if: ${{ steps.guard.outputs.skip_destroy != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for lambda_dir in \
+            "src/Infrastructure/terraform/Lambdas/Payments" \
+            "src/Infrastructure/terraform/Lambdas/SendEmail" \
+            "src/Infrastructure/terraform/Lambdas/VerificationCode"
+          do
+            pushd "$lambda_dir" >/dev/null
+            npm ci
+            npm run build
+            npm run zip
+            popd >/dev/null
+          done
+
+      - name: Terraform init
+        if: ${{ steps.guard.outputs.skip_destroy != 'true' }}
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
+
+      - name: Terraform destroy workspace resources
+        if: ${{ steps.guard.outputs.skip_destroy != 'true' }}
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        env:
+          TF_VAR_prod_deployment: "false"
+          TF_VAR_create_ssh_key_pair: "true"
+          TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
+          TF_VAR_stripe_event_bus_arn: ${{ secrets.STRIPE_EVENT_BUS_ARN }}
+          TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          WS="${{ steps.workspace.outputs.name }}"
+
+          if ! terraform workspace select "$WS" >/dev/null 2>&1; then
+            echo "Workspace '$WS' does not exist. Nothing to destroy."
+            exit 0
+          fi
+
+          terraform destroy -auto-approve
+
+      - name: Delete terraform workspace after destroy
+        if: ${{ steps.guard.outputs.skip_destroy != 'true' }}
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          WS="${{ steps.workspace.outputs.name }}"
+          terraform workspace select default
+          terraform workspace delete "$WS" || true

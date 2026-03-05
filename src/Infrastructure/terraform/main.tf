@@ -1,6 +1,6 @@
 
 module "Config" {
-  source = "./Config"
+  source        = "./Config"
   ssm_namespace = terraform.workspace == "default" ? "VibraHeka" : "VibraHekaTest"
 }
 
@@ -9,10 +9,10 @@ module "Emails" {
 }
 
 module "Users" {
-  source = "./Users"
+  source                            = "./Users"
   lambda_save_verification_code_arn = module.Lambda.lambda_save_verification_code_arn
-  lambda_send_email_arn = module.Lambda.lambda_send_email_arn
-  prod_deployment = var.prod_deployment
+  lambda_send_email_arn             = module.Lambda.lambda_send_email_arn
+  prod_deployment                   = var.prod_deployment
 }
 
 module "Dev" {
@@ -20,29 +20,29 @@ module "Dev" {
 }
 
 module "Lambda" {
-  source = "./Lambdas"
-  s3_templates_arn = module.Emails.s3_email_templates_bucket_arn
-  s3_templates_name = module.Emails.s3_email_templates_bucket_name
-  ses_domain_arn = module.Emails.ses_email_domain_arn
-  ses_config_arn = module.Emails.ses_config_arn
-  ses_config_name = module.Emails.ses_config_name
-  ses_mail_from_domain = module.Emails.ses_email_from_domain
-  ssm_email_verification_template_id_parameter_name = module.Config.ssm_email_verification_template_id_parameter_name
+  source                                              = "./Lambdas"
+  s3_templates_arn                                    = module.Emails.s3_email_templates_bucket_arn
+  s3_templates_name                                   = module.Emails.s3_email_templates_bucket_name
+  ses_domain_arn                                      = module.Emails.ses_email_domain_arn
+  ses_config_arn                                      = module.Emails.ses_config_arn
+  ses_config_name                                     = module.Emails.ses_config_name
+  ses_mail_from_domain                                = module.Emails.ses_email_from_domain
+  ssm_email_verification_template_id_parameter_name   = module.Config.ssm_email_verification_template_id_parameter_name
   ssm_email_password_reset_template_id_parameter_name = module.Config.ssm_email_password_reset_template_id_parameter_name
-  kms_users_arn = module.Users.kms_users_arn
-  kms_users_key_alias_arn = module.Users.kms_users_key_alias_arn
-  kms_users_key_alias_name = module.Users.kms_users_key_alias_name
-  cognito_user_pool_arn = module.Users.cognito_pool_users_arn
-  dynamodb_codes_table_arn = module.Dev.dynamodb_table_codes_arn
-  dynamodb_codes_table_name = module.Dev.dynamodb_table_codes_name
-  ssm_read_parameters_policy_arn = module.Config.ssm_read_vh_parameters_policy_arn
-  stripe_event_bus_arn =  var.stripe_event_bus_arn
-  stripe_secret_key = var.stripe_api_key
-  password_reset_token_secret = var.password_reset_token_secret
-  password_reset_frontend_url = var.password_reset_frontend_url
-  password_reset_token_ttl_minutes = var.password_reset_token_ttl_minutes
-  dynamodb_subscription_table = module.Subscriptions.dynamodb_subscription_table_name
-  dynamodb_subscription_table_arn = module.Subscriptions.dynamodb_subscription_table_arn
+  kms_users_arn                                       = module.Users.kms_users_arn
+  kms_users_key_alias_arn                             = module.Users.kms_users_key_alias_arn
+  kms_users_key_alias_name                            = module.Users.kms_users_key_alias_name
+  cognito_user_pool_arn                               = module.Users.cognito_pool_users_arn
+  dynamodb_codes_table_arn                            = module.Dev.dynamodb_table_codes_arn
+  dynamodb_codes_table_name                           = module.Dev.dynamodb_table_codes_name
+  ssm_read_parameters_policy_arn                      = module.Config.ssm_read_vh_parameters_policy_arn
+  stripe_event_bus_arn                                = var.stripe_event_bus_arn
+  stripe_secret_key                                   = var.stripe_api_key
+  password_reset_token_secret                         = var.password_reset_token_secret
+  password_reset_frontend_url                         = var.password_reset_frontend_url
+  password_reset_token_ttl_minutes                    = var.password_reset_token_ttl_minutes
+  dynamodb_subscription_table                         = module.Subscriptions.dynamodb_subscription_table_name
+  dynamodb_subscription_table_arn                     = module.Subscriptions.dynamodb_subscription_table_arn
 }
 
 
@@ -52,4 +52,8 @@ module "ActionLog" {
 
 module "Subscriptions" {
   source = "./Subscriptions"
+}
+
+module "BackendApi" {
+  source = "./BackendApi"
 }

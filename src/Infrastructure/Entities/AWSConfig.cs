@@ -13,8 +13,11 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string EmailTemplatesBucketName { get; set; } = string.Empty;
-    
-    
+
+    /// <summary>
+    /// Gets or sets the name of the database table that stores user codes.
+    /// This property is used to specify the storage location for managing and retrieving codes associated with user operations in the database.
+    /// </summary>
     [Required]
     public string UserCodesTable { get; set; } = string.Empty;  
 

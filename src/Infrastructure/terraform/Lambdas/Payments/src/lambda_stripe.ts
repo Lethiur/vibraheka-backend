@@ -48,12 +48,7 @@ export async function stripeHandler (event: any)  {
             detail: stripeEvent,
         };
 
-        await handler(eventBridgeLike, {} as Context);
-
-        return {
-            statusCode: 200,
-            body: "OK",
-        };
+        return await handler(eventBridgeLike as unknown as EventBridgeEvent<string, StripeEventDetail>, {} as Context);
     } catch (err) {
         console.error("Webhook error:", err);
         return {
@@ -104,6 +99,10 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 let cancellationResult: Result<void, SubscriptionErrors> =  await CancelSubscriptionUseCase.Execute(subscriptionCancelled);
                 if (cancellationResult.isErr()) {
                     console.log(`Error while processing subscription cancellation: ${cancellationResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: cancellationResult.error
+                    };
                 } else {
                     console.log('Subscription cancelled successfully')
                 }
@@ -114,6 +113,10 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 const updateResult : Result<void, SubscriptionErrors> = await UpdateSubscriptionUseCase.Execute(subscriptionUpdated);
                 if (updateResult.isErr()) {
                     console.log(`Error while processing subscription update: ${updateResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: updateResult.error
+                    };
                 } else {
                     console.log('Subscription updated successfully')
                 }
@@ -124,6 +127,10 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
 
                 if (expiredResult.isErr()) {
                     console.log(`Error while processing checkout session expiration: ${expiredResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: expiredResult.error
+                    };
                 } else {
                     console.log('Checkout session expired processed successfully')
                 }

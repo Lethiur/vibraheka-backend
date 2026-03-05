@@ -54,7 +54,8 @@ export default class SubscriptionService implements ISubscriptionService {
         if (stripeSubscriptionID === subscriptionEntity.ExternalSubscriptionID) {
             subscriptionEntity.SubscriptionStatus = 'Cancelled';
             subscriptionEntity.Status = 'PaymentFailed';
-            subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at! * 1000).toISOString();
+            const endTimestamp = this.ResolveSubscriptionEndTimestamp(subscriptionData);
+            subscriptionEntity.EndDate = new Date(endTimestamp * 1000).toISOString();
             return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
         }
 
@@ -84,12 +85,15 @@ export default class SubscriptionService implements ISubscriptionService {
                 subscriptionEntity.Status = 'PaymentPending';
                 subscriptionEntity.SubscriptionStatus = 'Trialing';
             } else if (["past_due", "unpaid","incomplete", "incomplete_expired"].includes(subscriptionData.status)) {
-                console.log("Suscripcion actualizada pero no corresponde a accion del usuario, descartando");
+                console.log("Subscription update indicates payment issue, setting status to inactive/paymentFailed");
+                subscriptionEntity.SubscriptionStatus = 'Inactive';
+                subscriptionEntity.Status = 'PaymentFailed';
             } else {
                 
                 if (subscriptionData.cancel_at) {
                     console.log("Cancel at is set, setting for cancellation");
                     subscriptionEntity.SubscriptionStatus = 'ToBeCancelled';
+                    subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at * 1000).toISOString();
                 } else {
                     if (subscriptionEntity.Status === 'OrderDelayed') {
                         console.log("Subscription is in trial mode, setting to trialing");
@@ -145,14 +149,24 @@ export default class SubscriptionService implements ISubscriptionService {
                         subscriptionData.ExternalSubscriptionID = subscription.id;
                         subscriptionData.SubscriptionStatus = 'Trialing';
                         subscriptionData.Status = 'OrderDelayed'
-                        subscriptionData.StartDate = new Date(subscription.trial_end! * 1000).toISOString();
+                        const trialStartDate = subscription.trial_end
+                            ? new Date(subscription.trial_end * 1000).toISOString()
+                            : subscriptionData.StartDate;
+                        subscriptionData.StartDate = trialStartDate;
+
+                        const trialEndCandidate = invoice.lines.data[0].period?.end
+                            ? new Date(invoice.lines.data[0].period.end * 1000).toISOString()
+                            : trialStartDate;
+                        const normalizedTrialPeriod = this.NormalizeDateRange(trialStartDate, trialEndCandidate, subscriptionData);
+                        subscriptionData.StartDate = normalizedTrialPeriod.startDate;
+                        subscriptionData.EndDate = normalizedTrialPeriod.endDate;
                         console.log(`Transitioned subscription to trial SubscriptionID=${subscriptionData.SubscriptionID} Status=${subscriptionData.Status} SubscriptionStatus=${subscriptionData.SubscriptionStatus} ExternalSubscriptionID=${subscriptionData.ExternalSubscriptionID}`);
                     }
                     else {
-                        console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionItemID} renewing for one month`);
-                        let endDate: Date = new Date(subscriptionData.StartDate);
-                        endDate.setMonth(endDate.getMonth() + 1);
-                        subscriptionData.EndDate = endDate.toISOString();
+                        const period = this.ResolveInvoiceLinePeriod(invoice.lines.data[0], subscriptionData);
+                        console.log(`Invoice ${invoice.id} is paid for subscription ${subscriptionData.ExternalSubscriptionItemID} renewing for one month from ${period.startDate} to ${period.endDate}`);
+                        subscriptionData.StartDate = period.startDate;
+                        subscriptionData.EndDate = period.endDate;
                         subscriptionData.SubscriptionStatus = 'Active';
                         subscriptionData.Status = 'InvoicePayed';
                         console.log(`Transitioned subscription to active SubscriptionID=${subscriptionData.SubscriptionID} Status=${subscriptionData.Status} SubscriptionStatus=${subscriptionData.SubscriptionStatus} ExternalSubscriptionID=${subscriptionData.ExternalSubscriptionID}`);
@@ -163,6 +177,9 @@ export default class SubscriptionService implements ISubscriptionService {
                     subscriptionData.SubscriptionStatus = 'Inactive';
                     subscriptionData.ExternalSubscriptionID = subscriptionID;
                     subscriptionData.Status = 'PaymentFailed';
+                    const period = this.ResolveInvoiceLinePeriod(invoice.lines.data[0], subscriptionData);
+                    subscriptionData.StartDate = period.startDate;
+                    subscriptionData.EndDate = period.endDate;
                     console.log(`Invoice ${invoice.id} was not paid for subscription ${subscriptionData.ExternalSubscriptionID} setting status to inactive`);
                     return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
                 }
@@ -204,5 +221,49 @@ export default class SubscriptionService implements ISubscriptionService {
         }
         return ok(lineData.pricing?.price_details?.price as string);
 
+    }
+
+    private ResolveInvoiceLinePeriod(lineData: Stripe.InvoiceLineItem, fallback: SubscriptionEntity): { startDate: string; endDate: string } {
+        const periodStart = lineData.period?.start
+            ? new Date(lineData.period.start * 1000).toISOString()
+            : fallback.StartDate;
+        const periodEnd = lineData.period?.end
+            ? new Date(lineData.period.end * 1000).toISOString()
+            : fallback.EndDate;
+
+        return this.NormalizeDateRange(periodStart, periodEnd, fallback);
+    }
+
+    private NormalizeDateRange(startDate: string, endDate: string, fallback: SubscriptionEntity): { startDate: string; endDate: string } {
+        const safeStart = this.ParseDateOrFallback(startDate, fallback.StartDate);
+        const safeEnd = this.ParseDateOrFallback(endDate, fallback.EndDate);
+
+        if (Date.parse(safeEnd) < Date.parse(safeStart)) {
+            return {
+                startDate: safeStart,
+                endDate: safeStart,
+            };
+        }
+
+        return {
+            startDate: safeStart,
+            endDate: safeEnd,
+        };
+    }
+
+    private ParseDateOrFallback(value: string, fallback: string): string {
+        const parsed = Date.parse(value);
+        if (Number.isNaN(parsed)) {
+            return fallback;
+        }
+        return new Date(parsed).toISOString();
+    }
+
+    private ResolveSubscriptionEndTimestamp(subscriptionData: Stripe.Subscription): number {
+        const endTimestamp = subscriptionData.cancel_at
+            ?? subscriptionData.canceled_at
+            ?? Math.floor(Date.now() / 1000);
+
+        return endTimestamp;
     }
 }
