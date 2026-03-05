@@ -55,5 +55,6 @@ module "Subscriptions" {
 }
 
 module "BackendApi" {
+  count  = var.prod_deployment ? 1 : 0
   source = "./BackendApi"
 }

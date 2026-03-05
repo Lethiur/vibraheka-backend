@@ -39,39 +39,39 @@ output "subscriptions_table_user_index_name" {
 }
 
 output "backend_api_gateway_endpoint" {
-  value = module.BackendApi.api_gateway_endpoint
+  value = try(module.BackendApi[0].api_gateway_endpoint, null)
 }
 
 output "backend_api_gateway_base_route" {
-  value = module.BackendApi.api_gateway_base_route
+  value = try(module.BackendApi[0].api_gateway_base_route, null)
 }
 
 output "backend_api_gateway_id" {
-  value = module.BackendApi.api_gateway_id
+  value = try(module.BackendApi[0].api_gateway_id, null)
 }
 
 output "backend_ec2_instance_id" {
-  value = module.BackendApi.backend_instance_id
+  value = try(module.BackendApi[0].backend_instance_id, null)
 }
 
 output "backend_ec2_private_ip" {
-  value = module.BackendApi.backend_instance_private_ip
+  value = try(module.BackendApi[0].backend_instance_private_ip, null)
 }
 
 output "backend_ec2_key_pair_name" {
-  value = module.BackendApi.backend_instance_key_pair_name
+  value = try(module.BackendApi[0].backend_instance_key_pair_name, null)
 }
 
 output "backend_ec2_ssh_private_key_ssm_parameter_name" {
-  value = module.BackendApi.backend_ssh_private_key_ssm_parameter_name
+  value = try(module.BackendApi[0].backend_ssh_private_key_ssm_parameter_name, null)
 }
 
 output "backend_ecr_repository_url" {
-  value = module.BackendApi.ecr_repository_url
+  value = try(module.BackendApi[0].ecr_repository_url, null)
 }
 
 output "backend_ecr_repository_name" {
-  value = module.BackendApi.ecr_repository_name
+  value = try(module.BackendApi[0].ecr_repository_name, null)
 }
 
 output "settings_namespace" {

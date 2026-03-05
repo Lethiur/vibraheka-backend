@@ -31,15 +31,15 @@ locals {
   # Workspace normalized to a slug compatible with AWS name constraints.
   workspace_slug = trim(replace(lower(terraform.workspace), "_", "-"), "-")
   workspace_safe = local.workspace_slug != "" ? local.workspace_slug : "default"
+  workspace_hash = substr(md5(local.workspace_safe), 0, 6)
 
   # Suffixes capped to satisfy max length constraints in AWS resources.
-  workspace_suffix_15 = substr(local.workspace_safe, 0, 15) # 32-char LB name limit.
-  workspace_suffix_16 = substr(local.workspace_safe, 0, 16) # 32-char target group name limit.
+  workspace_suffix_8  = substr(local.workspace_safe, 0, 8) # Short readable suffix for LB/TG names.
   workspace_suffix_34 = substr(local.workspace_safe, 0, 34) # 64-char instance profile name limit.
   workspace_suffix_37 = substr(local.workspace_safe, 0, 37) # 64-char IAM role name limit.
 
-  lb_name          = "vibraheka-be-nlb-${local.workspace_suffix_15}"
-  target_group_name = "vibraheka-be-tg-${local.workspace_suffix_16}"
+  lb_name           = "vibraheka-be-nlb-${local.workspace_suffix_8}-${local.workspace_hash}"
+  target_group_name = "vibraheka-be-tg-${local.workspace_suffix_8}-${local.workspace_hash}"
   iam_role_name    = "vibraheka-backend-ec2-role-${local.workspace_suffix_37}"
   iam_profile_name = "vibraheka-backend-ec2-profile-${local.workspace_suffix_34}"
 }
