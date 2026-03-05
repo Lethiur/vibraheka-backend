@@ -52,7 +52,7 @@ jobs:
             | sed -E 's#[^a-z0-9-]#-#g' \
             | sed -E 's#-+#-#g' \
             | sed -E 's#(^-|-$)##g' \
-            | cut -c1-63)"
+            | cut -c1-24)"
           if [[ -z "$WORKSPACE" ]]; then
             WORKSPACE="default"
           fi

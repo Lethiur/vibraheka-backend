@@ -1,12 +1,12 @@
 # Internal NLB used as private entrypoint from API Gateway VPC Link to EC2.
 resource "aws_lb" "backend_internal" {
-  name               = "vibraheka-be-nlb-${terraform.workspace}"
+  name               = local.lb_name
   internal           = true
   load_balancer_type = "network"
   subnets            = [aws_subnet.private_a.id, aws_subnet.private_b.id]
 
   tags = {
-    Name        = "vibraheka-be-nlb-${terraform.workspace}"
+    Name        = local.lb_name
     environment = terraform.workspace
     created     = "terraform"
   }
@@ -14,7 +14,7 @@ resource "aws_lb" "backend_internal" {
 
 # Target group for backend EC2 instance on application port.
 resource "aws_lb_target_group" "backend" {
-  name        = "vibraheka-be-tg-${terraform.workspace}"
+  name        = local.target_group_name
   port        = var.backend_port
   protocol    = "TCP"
   target_type = "instance"
@@ -26,7 +26,7 @@ resource "aws_lb_target_group" "backend" {
   }
 
   tags = {
-    Name        = "vibraheka-be-tg-${terraform.workspace}"
+    Name        = local.target_group_name
     environment = terraform.workspace
     created     = "terraform"
   }

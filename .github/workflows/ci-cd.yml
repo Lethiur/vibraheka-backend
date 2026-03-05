@@ -40,7 +40,7 @@ jobs:
             | sed -E 's#[^a-z0-9-]#-#g' \
             | sed -E 's#-+#-#g' \
             | sed -E 's#(^-|-$)##g' \
-            | cut -c1-63)"
+            | cut -c1-24)"
           if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
 
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
@@ -127,8 +127,7 @@ jobs:
 
       - name: Select/Create workspace
         working-directory: ${{ env.TERRAFORM_DIR }}
-        run: |
-          terraform workspace select "${{ needs.prepare.outputs.workspace }}" || terraform workspace new "${{ needs.prepare.outputs.workspace }}"
+        run: terraform workspace select -or-create "${{ needs.prepare.outputs.workspace }}"
 
       - name: Terraform apply
         working-directory: ${{ env.TERRAFORM_DIR }}

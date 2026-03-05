@@ -44,7 +44,7 @@ resource "aws_security_group" "backend_instance" {
 
 # IAM role assumed by EC2 for SSM and ECR image pull operations.
 resource "aws_iam_role" "backend_ec2_role" {
-  name = "vibraheka-backend-ec2-role-${terraform.workspace}"
+  name = local.iam_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "ecr_read_only" {
 
 # Instance profile binding EC2 role to the instance.
 resource "aws_iam_instance_profile" "backend" {
-  name = "vibraheka-backend-ec2-profile-${terraform.workspace}"
+  name = local.iam_profile_name
   role = aws_iam_role.backend_ec2_role.name
 }
 
