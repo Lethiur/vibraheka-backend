@@ -37,12 +37,14 @@ fi
 
 TF_OUTPUTS_JSON="$(terraform -chdir="$TERRAFORM_DIR" output -json)"
 PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
+STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
-  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" '
+  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" '
     .AWS = (.AWS // {}) |
     .Backend = (.Backend // {}) |
+    .Stripe = (.Stripe // {}) |
 
     (if ($tf.users_table_name.value? != null) then .AWS.UsersTable = $tf.users_table_name.value else . end) |
     (if ($tf.verification_codes_table_name.value? != null) then .AWS.CodesTable = $tf.verification_codes_table_name.value else . end) |
@@ -56,6 +58,7 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     (if ($tf.backend_api_gateway_base_route.value? != null) then .AWS.ApiGatewayBaseUrl = $tf.backend_api_gateway_base_route.value else . end) |
     (if ($tf.settings_namespace.value? != null) then .AWS.SettingsNameSpace = $tf.settings_namespace.value else . end) |
     (if ($prs != "") then .AWS.PasswordResetTokenSecret = $prs else . end) |
+    (if ($ssk != "") then .Stripe.SecretKey = $ssk else . end) |
 
     (if ($tf.backend_api_gateway_base_route.value? != null) then .Backend.ApiGatewayBaseUrl = $tf.backend_api_gateway_base_route.value else . end) |
     (if ($tf.backend_api_gateway_endpoint.value? != null) then .Backend.ApiGatewayEndpoint = $tf.backend_api_gateway_endpoint.value else . end) |

@@ -3,6 +3,7 @@ param(
     [string]$Workspace = "",
     [string]$AppSettingsPath = "",
     [string]$PasswordResetTokenSecret = "",
+    [string]$StripeSecretKey = "",
     [string[]]$AppSettingsPaths = @(
         "src/Web/appsettings.json",
         "src/Web/appsettings.Development.json",
@@ -77,6 +78,10 @@ if ([string]::IsNullOrWhiteSpace($PasswordResetTokenSecret) -and -not [string]::
     $PasswordResetTokenSecret = $env:PASSWORD_RESET_TOKEN_SECRET
 }
 
+if ([string]::IsNullOrWhiteSpace($StripeSecretKey) -and -not [string]::IsNullOrWhiteSpace($env:STRIPE_SECRET_KEY)) {
+    $StripeSecretKey = $env:STRIPE_SECRET_KEY
+}
+
 if (-not [string]::IsNullOrWhiteSpace($AppSettingsPath)) {
     $AppSettingsPaths += $AppSettingsPath
 }
@@ -98,6 +103,10 @@ foreach ($path in $AppSettingsPaths) {
     if ($null -eq $settings.Backend) {
         $settings | Add-Member -MemberType NoteProperty -Name Backend -Value ([pscustomobject]@{})
     }
+    
+    if ($null -eq $settings.Stripe) {
+        $settings | Add-Member -MemberType NoteProperty -Name Stripe -Value ([pscustomobject]@{})
+    }
 
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "users_table_name" -PropertyName "UsersTable"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "verification_codes_table_name" -PropertyName "CodesTable"
@@ -116,6 +125,15 @@ foreach ($path in $AppSettingsPaths) {
         }
         else {
             $settings.AWS | Add-Member -MemberType NoteProperty -Name PasswordResetTokenSecret -Value $PasswordResetTokenSecret
+        }
+    }
+    
+    if (-not [string]::IsNullOrWhiteSpace($StripeSecretKey)) {
+        if ($settings.Stripe.PSObject.Properties["SecretKey"]) {
+            $settings.Stripe.SecretKey = $StripeSecretKey
+        }
+        else {
+            $settings.Stripe | Add-Member -MemberType NoteProperty -Name SecretKey -Value $StripeSecretKey
         }
     }
 

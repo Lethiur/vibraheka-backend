@@ -187,6 +187,7 @@ jobs:
         shell: bash
         env:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.workspace }}"
@@ -220,6 +221,7 @@ jobs:
         shell: bash
         env:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.workspace }}"
