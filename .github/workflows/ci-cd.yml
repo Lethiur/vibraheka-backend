@@ -3,14 +3,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - main
-      - staging
-      - "VH-*"
-      - "VH/**"
-      - "vh-*"
-      - "vh/**"
-      - "feature/**"
-      - "bugfix/**"
+      - "**"
   pull_request:
     branches:
       - main
