@@ -19,7 +19,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 export async function stripeHandler (event: any)  {
 
     try {
-
+        console.log(event);
         const signature =
             event.headers["stripe-signature"] ||
             event.headers["Stripe-Signature"];
