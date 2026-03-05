@@ -182,10 +182,21 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
 
       - name: Sync terraform outputs into appsettings files
         shell: bash
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
@@ -216,10 +227,21 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
 
       - name: Sync terraform outputs into appsettings files
         shell: bash
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
