@@ -160,7 +160,7 @@ export default class GenericDynamoDBRepository<T> {
         }
     }
 
-    async GetByPrimaryKey(primaryKeyName: string, primaryKeyValue: any): Promise<Result<T, DynamoDBErrors>> {
+    public async GetByPrimaryKey(primaryKeyName: string, primaryKeyValue: any): Promise<Result<T, DynamoDBErrors>> {
         const params: QueryCommand = new QueryCommand({
             TableName: this.TableName,
             KeyConditionExpression: `${primaryKeyName} = :pkValue`,

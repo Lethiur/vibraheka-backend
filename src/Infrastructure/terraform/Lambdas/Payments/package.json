@@ -10,7 +10,13 @@
     "lint": "eslint ./src/**/*.{ts,tsx} --fix",
     "zip": "cd dist && zip -r ../lambda.zip . && cd ..",
     "zip:windows": "powershell -Command \"Compress-Archive -Path dist\\* -DestinationPath lambda.zip -Force\"",
-    "run:local": "npm run build && sam build && sam local start-api"
+    "run:local": "npm run build && sam build && sam local start-api",
+    "e2e:build": "npm run build && sam build",
+    "e2e:sam": "npm run e2e:build && sam local start-api",
+    "e2e:stripe-listen": "stripe listen --events checkout.session.completed,invoice.paid,invoice.payment_failed,customer.subscription.trial_will_end,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/webhook",
+    "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand test/E2E",
+    "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand test/Integration",
+    "e2e:full": "powershell -ExecutionPolicy Bypass -File ./scripts/run-e2e.ps1"
   },
   "author": "Twingers Corporation",
   "license": "ISC",

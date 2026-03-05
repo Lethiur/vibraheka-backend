@@ -70,7 +70,8 @@ export async function stripeHandler (event: any)  {
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
     
     const eventType = event.detail.type;
-    console.log('Event type:', eventType);
+    const eventId = (event.detail as any)?.id ?? 'unknown';
+    console.log('Event type:', eventType, 'event id:', eventId);
     const eventData = event.detail.data.object;
     
     try {

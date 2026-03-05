@@ -47,6 +47,13 @@ export default class SubscriptionRepositoryImpl extends GenericDynamoDBRepositor
     public async GetSubscriptionForCustomer(customerID: string): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
         console.log(`Getting subscription for customer ${customerID} from table ${process.env.DYNAMO_TABLE_NAME}`);
         const dynamoDBResult: Result<SubscriptionEntity[], DynamoDBErrors> = await this.QueryIndexWithoutFilter('ExternalCustomer-Index', `ExternalCustomerID = :customerID`, {":customerID": {"S" : customerID}});
+        if (dynamoDBResult.isOk()) {
+            const subscriptions = dynamoDBResult.value;
+            console.log(`Found ${subscriptions.length} subscriptions for customer ${customerID}`);
+            subscriptions.forEach((item, index) => {
+                console.log(`[${index}] SubscriptionID=${item.SubscriptionID} Status=${item.Status} SubscriptionStatus=${item.SubscriptionStatus} ExternalSubscriptionID=${item.ExternalSubscriptionID}`);
+            });
+        }
         return dynamoDBResult.map(subList => subList[0]).mapErr(this.HandleDynamoError)
     }
 
