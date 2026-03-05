@@ -1,7 +1,7 @@
 
 module "Config" {
   source        = "./Config"
-  ssm_namespace = terraform.workspace == "default" ? "VibraHeka" : "VibraHekaTest"
+  ssm_namespace = terraform.workspace == "default" ? "VibraHeka" : "VibraHeka/${terraform.workspace}"
 }
 
 module "Emails" {

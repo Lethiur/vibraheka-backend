@@ -109,6 +109,7 @@ foreach ($path in $AppSettingsPaths) {
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "cognito_client_id" -PropertyName "ClientId"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "cognito_pool_id" -PropertyName "UserPoolId"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "backend_api_gateway_base_route" -PropertyName "ApiGatewayBaseUrl"
+    Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "settings_namespace" -PropertyName "SettingsNameSpace"
     if (-not [string]::IsNullOrWhiteSpace($PasswordResetTokenSecret)) {
         if ($settings.AWS.PSObject.Properties["PasswordResetTokenSecret"]) {
             $settings.AWS.PasswordResetTokenSecret = $PasswordResetTokenSecret

@@ -70,4 +70,8 @@ output "backend_ecr_repository_name" {
   value = module.BackendApi.ecr_repository_name
 }
 
+output "settings_namespace" {
+  value = module.Config.settings_namespace
+}
+
 

@@ -54,6 +54,7 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     (if ($tf.cognito_client_id.value? != null) then .AWS.ClientId = $tf.cognito_client_id.value else . end) |
     (if ($tf.cognito_pool_id.value? != null) then .AWS.UserPoolId = $tf.cognito_pool_id.value else . end) |
     (if ($tf.backend_api_gateway_base_route.value? != null) then .AWS.ApiGatewayBaseUrl = $tf.backend_api_gateway_base_route.value else . end) |
+    (if ($tf.settings_namespace.value? != null) then .AWS.SettingsNameSpace = $tf.settings_namespace.value else . end) |
     (if ($prs != "") then .AWS.PasswordResetTokenSecret = $prs else . end) |
 
     (if ($tf.backend_api_gateway_base_route.value? != null) then .Backend.ApiGatewayBaseUrl = $tf.backend_api_gateway_base_route.value else . end) |
