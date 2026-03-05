@@ -109,6 +109,7 @@ foreach ($path in $AppSettingsPaths) {
     }
 
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "users_table_name" -PropertyName "UsersTable"
+    Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "user_codes_table_name" -PropertyName "UserCodesTable"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "verification_codes_table_name" -PropertyName "CodesTable"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "email_templates_table_name" -PropertyName "EmailTemplatesTable"
     Set-PropertyIfPresent -Outputs $outputs -Target $settings.AWS -OutputName "email_templates_bucket_name" -PropertyName "EmailTemplatesBucketName"

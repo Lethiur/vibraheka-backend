@@ -47,6 +47,7 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     .Stripe = (.Stripe // {}) |
 
     (if ($tf.users_table_name.value? != null) then .AWS.UsersTable = $tf.users_table_name.value else . end) |
+    (if ($tf.user_codes_table_name.value? != null) then .AWS.UserCodesTable = $tf.user_codes_table_name.value else . end) |
     (if ($tf.verification_codes_table_name.value? != null) then .AWS.CodesTable = $tf.verification_codes_table_name.value else . end) |
     (if ($tf.email_templates_table_name.value? != null) then .AWS.EmailTemplatesTable = $tf.email_templates_table_name.value else . end) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |

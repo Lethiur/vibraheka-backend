@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       workspace: ${{ steps.meta.outputs.workspace }}
+      prod_workspace: ${{ steps.meta.outputs.prod_workspace }}
+      test_workspace: ${{ steps.meta.outputs.test_workspace }}
       build_configuration: ${{ steps.meta.outputs.build_configuration }}
       image_tag: ${{ steps.meta.outputs.image_tag }}
       environment_name: ${{ steps.meta.outputs.environment_name }}
@@ -40,8 +42,10 @@ jobs:
             | sed -E 's#[^a-z0-9-]#-#g' \
             | sed -E 's#-+#-#g' \
             | sed -E 's#(^-|-$)##g' \
-            | cut -c1-24)"
+            | cut -c1-18)"
           if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
+          PROD_WORKSPACE="${WORKSPACE}-prod"
+          TEST_WORKSPACE="${WORKSPACE}-test"
 
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             BUILD_CONFIGURATION="Release"
@@ -54,6 +58,8 @@ jobs:
           IMAGE_TAG="${WORKSPACE}-${GITHUB_SHA::7}"
 
           echo "workspace=$WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "prod_workspace=$PROD_WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "test_workspace=$TEST_WORKSPACE" >> "$GITHUB_OUTPUT"
           echo "build_configuration=$BUILD_CONFIGURATION" >> "$GITHUB_OUTPUT"
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "environment_name=$ENVIRONMENT_NAME" >> "$GITHUB_OUTPUT"
@@ -70,9 +76,12 @@ jobs:
       backend_ec2_private_ip: ${{ steps.outputs.outputs.backend_ec2_private_ip }}
       backend_ec2_ssh_private_key_ssm_parameter_name: ${{ steps.outputs.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
       users_table_name: ${{ steps.outputs.outputs.users_table_name }}
+      user_codes_table_name: ${{ steps.outputs.outputs.user_codes_table_name }}
       cognito_pool_id: ${{ steps.outputs.outputs.cognito_pool_id }}
       cognito_client_id: ${{ steps.outputs.outputs.cognito_client_id }}
       verification_codes_table_name: ${{ steps.outputs.outputs.verification_codes_table_name }}
+      test_verification_codes_table_name: ${{ steps.outputs_test.outputs.verification_codes_table_name }}
+      test_user_codes_table_name: ${{ steps.outputs_test.outputs.user_codes_table_name }}
       email_templates_table_name: ${{ steps.outputs.outputs.email_templates_table_name }}
       email_templates_bucket_name: ${{ steps.outputs.outputs.email_templates_bucket_name }}
       action_log_table_name: ${{ steps.outputs.outputs.action_log_table_name }}
@@ -125,19 +134,37 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform init
 
-      - name: Select/Create workspace
+      - name: Select/Create prod workspace
         working-directory: ${{ env.TERRAFORM_DIR }}
-        run: terraform workspace select -or-create "${{ needs.prepare.outputs.workspace }}"
+        run: terraform workspace select -or-create "${{ needs.prepare.outputs.prod_workspace }}"
 
-      - name: Terraform apply
+      - name: Terraform apply (prod-style branch environment)
         working-directory: ${{ env.TERRAFORM_DIR }}
         env:
-          TF_VAR_prod_deployment: ${{ github.ref == 'refs/heads/main' }}
+          TF_VAR_prod_deployment: "true"
           TF_VAR_create_ssh_key_pair: "true"
           TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
           TF_VAR_stripe_event_bus_arn: ${{ secrets.STRIPE_EVENT_BUS_ARN }}
           TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
         run: terraform apply -auto-approve
+
+      - name: Select/Create test workspace
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform workspace select -or-create "${{ needs.prepare.outputs.test_workspace }}"
+
+      - name: Terraform apply (test environment)
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        env:
+          TF_VAR_prod_deployment: "false"
+          TF_VAR_create_ssh_key_pair: "true"
+          TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
+          TF_VAR_stripe_event_bus_arn: ${{ secrets.STRIPE_EVENT_BUS_ARN }}
+          TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+        run: terraform apply -auto-approve
+
+      - name: Reselect prod workspace for deploy outputs
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform workspace select "${{ needs.prepare.outputs.prod_workspace }}"
 
       - name: Export Terraform outputs
         id: outputs
@@ -153,6 +180,7 @@ jobs:
             echo "backend_ec2_private_ip=$(terraform output -raw backend_ec2_private_ip)"
             echo "backend_ec2_ssh_private_key_ssm_parameter_name=$(terraform output -raw backend_ec2_ssh_private_key_ssm_parameter_name)"
             echo "users_table_name=$(terraform output -raw users_table_name)"
+            echo "user_codes_table_name=$(terraform output -raw user_codes_table_name)"
             echo "cognito_pool_id=$(terraform output -raw cognito_pool_id)"
             echo "cognito_client_id=$(terraform output -raw cognito_client_id)"
             echo "verification_codes_table_name=$(terraform output -raw verification_codes_table_name)"
@@ -161,6 +189,18 @@ jobs:
             echo "action_log_table_name=$(terraform output -raw action_log_table_name)"
             echo "subscriptions_table_name=$(terraform output -raw subscriptions_table_name)"
             echo "subscriptions_table_user_index_name=$(terraform output -raw subscriptions_table_user_index_name)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Export Terraform outputs (test workspace)
+        id: outputs_test
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform workspace select "${{ needs.prepare.outputs.test_workspace }}"
+          {
+            echo "verification_codes_table_name=$(terraform output -raw verification_codes_table_name)"
+            echo "user_codes_table_name=$(terraform output -raw user_codes_table_name)"
           } >> "$GITHUB_OUTPUT"
 
   tests:
@@ -201,7 +241,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.test_workspace }}"
 
       - name: Restore
         run: dotnet restore VibraHeka.slnx
@@ -209,6 +249,8 @@ jobs:
       - name: Run all .NET tests (verbose console logs)
         env:
           ASPNETCORE_ENVIRONMENT: Development
+          AWS_CODES_TABLE: ${{ needs.terraform.outputs.test_verification_codes_table_name }}
+          AWS_USER_CODES_TABLE: ${{ needs.terraform.outputs.test_user_codes_table_name }}
         run: dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
 
   build_and_push:
@@ -246,7 +288,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.workspace }}"
+          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "${{ needs.prepare.outputs.prod_workspace }}"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2

@@ -10,6 +10,10 @@ output "users_table_name" {
   value = module.Users.dynamodb-users-name
 }
 
+output "user_codes_table_name" {
+  value = module.Users.dynamodb-users-codes
+}
+
 output "email_templates_bucket_name" {
   value = module.Emails.s3_email_templates_bucket_name
 }

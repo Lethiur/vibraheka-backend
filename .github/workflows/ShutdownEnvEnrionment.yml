@@ -41,29 +41,31 @@ jobs:
       - name: Install zip tool
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Compute workspace name from PR branch
+      - name: Compute workspace names from PR branch
         id: workspace
         shell: bash
         run: |
           set -euo pipefail
           RAW_REF="${{ github.event.pull_request.head.ref }}"
-          WORKSPACE="$(echo "$RAW_REF" \
+          BASE_WORKSPACE="$(echo "$RAW_REF" \
             | tr '[:upper:]' '[:lower:]' \
             | sed -E 's#[^a-z0-9-]#-#g' \
             | sed -E 's#-+#-#g' \
             | sed -E 's#(^-|-$)##g' \
-            | cut -c1-24)"
-          if [[ -z "$WORKSPACE" ]]; then
-            WORKSPACE="default"
+            | cut -c1-18)"
+          if [[ -z "$BASE_WORKSPACE" ]]; then
+            BASE_WORKSPACE="default"
           fi
-          echo "name=$WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "base=$BASE_WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "prod=${BASE_WORKSPACE}-prod" >> "$GITHUB_OUTPUT"
+          echo "test=${BASE_WORKSPACE}-test" >> "$GITHUB_OUTPUT"
 
       - name: Guard protected workspaces
         id: guard
         shell: bash
         run: |
           set -euo pipefail
-          case "${{ steps.workspace.outputs.name }}" in
+          case "${{ steps.workspace.outputs.base }}" in
             default|main|staging|prod)
               echo "skip_destroy=true" >> "$GITHUB_OUTPUT"
               ;;
@@ -106,14 +108,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          WS="${{ steps.workspace.outputs.name }}"
+          for WS in "${{ steps.workspace.outputs.prod }}" "${{ steps.workspace.outputs.test }}"; do
+            if [[ "$WS" == *"-prod" ]]; then
+              export TF_VAR_prod_deployment="true"
+            else
+              export TF_VAR_prod_deployment="false"
+            fi
 
-          if ! terraform workspace select "$WS" >/dev/null 2>&1; then
-            echo "Workspace '$WS' does not exist. Nothing to destroy."
-            exit 0
-          fi
+            if ! terraform workspace select "$WS" >/dev/null 2>&1; then
+              echo "Workspace '$WS' does not exist. Nothing to destroy."
+              continue
+            fi
 
-          terraform destroy -auto-approve
+            terraform destroy -auto-approve
+          done
 
       - name: Delete terraform workspace after destroy
         if: ${{ steps.guard.outputs.skip_destroy != 'true' }}
@@ -121,6 +129,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          WS="${{ steps.workspace.outputs.name }}"
           terraform workspace select default
-          terraform workspace delete "$WS" || true
+          terraform workspace delete "${{ steps.workspace.outputs.prod }}" || true
+          terraform workspace delete "${{ steps.workspace.outputs.test }}" || true
