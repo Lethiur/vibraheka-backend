@@ -1,3 +1,4 @@
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using Amazon;
 using Amazon.CognitoIdentityProvider;
@@ -48,11 +49,7 @@ public class UserService(
             }
         }
 
-        // Fallback for CI/containers: use the AWS SDK default credential chain (env vars, role, etc.).
-        return new AmazonCognitoIdentityProviderClient(new AmazonCognitoIdentityProviderConfig
-        {
-            RegionEndpoint = region
-        });
+        throw new DataException("AWS profile is required");
     }
     /// <summary>
     /// Registers a new user in the system by creating an account with the provided credentials and user information.

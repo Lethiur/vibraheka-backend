@@ -16,6 +16,7 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_PROFILE_NAME: Twingers
   TERRAFORM_DIR: src/Infrastructure/terraform
   ADMIN_EMAIL: mtesqtsdlc2@gmail.com
   ADMIN_PASSWORD: Password123@
@@ -98,6 +99,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create local AWS profile for SDK-based tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
+          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -218,6 +229,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create local AWS profile for SDK-based tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
+          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4

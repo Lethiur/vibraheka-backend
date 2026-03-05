@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Data;
 using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging.Abstractions;
