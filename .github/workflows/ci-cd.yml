@@ -6,12 +6,14 @@ on:
       - main
       - staging
       - "VH-*"
+      - "vh-*"
       - "feature/**"
       - "bugfix/**"
   pull_request:
     branches:
       - main
       - staging
+  workflow_dispatch:
 
 
 env:
