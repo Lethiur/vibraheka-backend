@@ -25,7 +25,7 @@ variable "backend_instance_type" {
 variable "backend_port" {
   description = "Port where the backend process listens inside EC2."
   type        = number
-  default     = 5173
+  default     = 8080
 }
 
 variable "ssh_allowed_cidrs" {
@@ -55,38 +55,6 @@ variable "ssh_private_key_ssm_parameter_name_prefix" {
   description = "SSM parameter prefix where generated private SSH key is stored."
   type        = string
   default     = "/VibraHeka/backend/ec2/ssh-private-key"
-}
-
-variable "api_gateway_explicit_routes" {
-  description = "Explicit API Gateway route keys (HTTP API style) to map to backend integration."
-  type        = set(string)
-  default = [
-    "GET /api/v1/admin/therapists",
-    "PUT /api/v1/admin/addTherapist",
-    "POST /api/v1/auth/register",
-    "POST /api/v1/auth/authenticate",
-    "GET /api/v1/auth/resend-confirmation-code",
-    "POST /api/v1/auth/forgot-password",
-    "POST /api/v1/auth/forgot-password/confirm",
-    "POST /api/v1/auth/verification-code",
-    "GET /api/v1/email-templates",
-    "PUT /api/v1/email-templates/create",
-    "PUT /api/v1/email-templates/add-attachment",
-    "PUT /api/v1/email-templates/create-skeleton",
-    "GET /api/v1/email-templates/url",
-    "GET /api/v1/email-templates/contents",
-    "GET /api/v1/settings/all-templates",
-    "PUT /api/v1/subscriptions",
-    "GET /api/v1/subscriptions",
-    "GET /api/v1/subscriptions/details",
-    "GET /api/v1/users/{id}",
-  ]
-}
-
-variable "enable_proxy_fallback_route" {
-  description = "If true, keep catch-all proxy route in API Gateway in addition to explicit routes."
-  type        = bool
-  default     = true
 }
 
 variable "ecr_repository_name" {

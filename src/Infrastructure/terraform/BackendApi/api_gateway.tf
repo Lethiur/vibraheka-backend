@@ -76,15 +76,6 @@ resource "aws_apigatewayv2_integration" "backend_proxy" {
   timeout_milliseconds   = 30000
 }
 
-# Explicit route mapping for known backend endpoints.
-resource "aws_apigatewayv2_route" "explicit" {
-  for_each = var.api_gateway_explicit_routes
-
-  api_id    = aws_apigatewayv2_api.backend.id
-  route_key = each.value
-  target    = "integrations/${aws_apigatewayv2_integration.backend_proxy.id}"
-}
-
 # Root route kept for simple health checks at '/'.
 resource "aws_apigatewayv2_route" "root" {
   api_id    = aws_apigatewayv2_api.backend.id
@@ -92,10 +83,8 @@ resource "aws_apigatewayv2_route" "root" {
   target    = "integrations/${aws_apigatewayv2_integration.backend_proxy.id}"
 }
 
-# Optional catch-all proxy route to avoid breaking unknown future endpoints.
+# Catch-all proxy route: every non-root path is forwarded to the same backend integration.
 resource "aws_apigatewayv2_route" "proxy" {
-  count = var.enable_proxy_fallback_route ? 1 : 0
-
   api_id    = aws_apigatewayv2_api.backend.id
   route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.backend_proxy.id}"

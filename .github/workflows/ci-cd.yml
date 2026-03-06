@@ -620,7 +620,7 @@ jobs:
             sudo docker run -d \
               --name vibraheka-backend \
               --restart always \
-              -p 80:8080 \
+              -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               "${IMAGE_URI}"
 

@@ -1,14 +1,7 @@
-locals {
-  # If caller does not provide SSH CIDRs, default to internal VPC range.
-  effective_ssh_cidrs = length(var.ssh_allowed_cidrs) > 0 ? var.ssh_allowed_cidrs : [var.vpc_cidr]
-  # Explicit API Gateway routes rendered as a text file in EC2 for operational traceability.
-  api_gateway_routes_text = join("\n", sort(tolist(var.api_gateway_explicit_routes)))
-}
-
 # Security group for the private backend instance.
 resource "aws_security_group" "backend_instance" {
   name        = "vibraheka-backend-ec2-sg-${terraform.workspace}"
-  description = "Allow backend traffic from API Gateway/NLB path and SSH management traffic."
+  description = "Allow backend traffic from API Gateway/NLB private path and SSH for internal management."
   vpc_id      = aws_vpc.backend.id
 
   # Application traffic from private subnets where NLB nodes live.
@@ -19,12 +12,12 @@ resource "aws_security_group" "backend_instance" {
     cidr_blocks = [var.private_subnet_a_cidr, var.private_subnet_b_cidr]
   }
 
-  # SSH management traffic (for SSM tunnel / bastion / private connectivity use cases).
+  # SSH management access restricted to private VPC traffic (used with SSM/SSH tunnel from CI).
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = local.effective_ssh_cidrs
+    cidr_blocks = [var.vpc_cidr]
   }
 
   # Egress to AWS services and package/image endpoints.
@@ -127,31 +120,8 @@ resource "aws_instance" "backend_spot" {
 
   user_data = <<-EOF
               #!/bin/bash
-              cat <<'SERVICE' > /etc/systemd/system/backend-http.service
-              [Unit]
-              Description=Simple backend endpoint for API Gateway proxy
-              After=network.target
-
-              [Service]
-              Type=simple
-              User=root
-              WorkingDirectory=/opt/backend
-              ExecStart=/usr/bin/python3 -m http.server ${var.backend_port} --bind 0.0.0.0
-              Restart=always
-              RestartSec=3
-
-              [Install]
-              WantedBy=multi-user.target
-              SERVICE
-
               mkdir -p /opt/backend
-              echo "VibraHeka backend host up for ${terraform.workspace}" > /opt/backend/index.html
-              cat <<'ROUTES' > /opt/backend/api-gateway-routes.txt
-              ${local.api_gateway_routes_text}
-              ROUTES
-              systemctl daemon-reload
-              systemctl enable backend-http.service
-              systemctl start backend-http.service
+              echo "VibraHeka backend host ready for container deployment in ${terraform.workspace}" > /opt/backend/host-ready.txt
               EOF
 
   tags = {
