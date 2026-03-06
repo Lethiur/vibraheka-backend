@@ -71,24 +71,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare]
     outputs:
-      backend_api_gateway_endpoint: ${{ steps.outputs.outputs.backend_api_gateway_endpoint }}
-      backend_api_gateway_base_route: ${{ steps.outputs.outputs.backend_api_gateway_base_route }}
-      backend_ecr_repository_url: ${{ steps.outputs.outputs.backend_ecr_repository_url }}
-      backend_ec2_instance_id: ${{ steps.outputs.outputs.backend_ec2_instance_id }}
-      backend_ec2_private_ip: ${{ steps.outputs.outputs.backend_ec2_private_ip }}
-      backend_ec2_ssh_private_key_ssm_parameter_name: ${{ steps.outputs.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
-      users_table_name: ${{ steps.outputs.outputs.users_table_name }}
-      user_codes_table_name: ${{ steps.outputs.outputs.user_codes_table_name }}
-      cognito_pool_id: ${{ steps.outputs.outputs.cognito_pool_id }}
-      cognito_client_id: ${{ steps.outputs.outputs.cognito_client_id }}
-      verification_codes_table_name: ${{ steps.outputs.outputs.verification_codes_table_name }}
+      backend_api_gateway_endpoint: ${{ steps.prod_outputs.outputs.backend_api_gateway_endpoint }}
+      backend_api_gateway_base_route: ${{ steps.prod_outputs.outputs.backend_api_gateway_base_route }}
+      backend_ecr_repository_url: ${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}
+      backend_ec2_instance_id: ${{ steps.prod_outputs.outputs.backend_ec2_instance_id }}
+      backend_ec2_private_ip: ${{ steps.prod_outputs.outputs.backend_ec2_private_ip }}
+      backend_ec2_ssh_private_key_ssm_parameter_name: ${{ steps.prod_outputs.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
+      users_table_name: ${{ steps.prod_outputs.outputs.users_table_name }}
+      user_codes_table_name: ${{ steps.prod_outputs.outputs.user_codes_table_name }}
+      cognito_pool_id: ${{ steps.prod_outputs.outputs.cognito_pool_id }}
+      cognito_client_id: ${{ steps.prod_outputs.outputs.cognito_client_id }}
+      verification_codes_table_name: ${{ steps.prod_outputs.outputs.verification_codes_table_name }}
       test_verification_codes_table_name: ${{ steps.outputs_test.outputs.verification_codes_table_name }}
       test_user_codes_table_name: ${{ steps.outputs_test.outputs.user_codes_table_name }}
-      email_templates_table_name: ${{ steps.outputs.outputs.email_templates_table_name }}
-      email_templates_bucket_name: ${{ steps.outputs.outputs.email_templates_bucket_name }}
-      action_log_table_name: ${{ steps.outputs.outputs.action_log_table_name }}
-      subscriptions_table_name: ${{ steps.outputs.outputs.subscriptions_table_name }}
-      subscriptions_table_user_index_name: ${{ steps.outputs.outputs.subscriptions_table_user_index_name }}
+      email_templates_table_name: ${{ steps.prod_outputs.outputs.email_templates_table_name }}
+      email_templates_bucket_name: ${{ steps.prod_outputs.outputs.email_templates_bucket_name }}
+      action_log_table_name: ${{ steps.prod_outputs.outputs.action_log_table_name }}
+      subscriptions_table_name: ${{ steps.prod_outputs.outputs.subscriptions_table_name }}
+      subscriptions_table_user_index_name: ${{ steps.prod_outputs.outputs.subscriptions_table_user_index_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -179,7 +179,7 @@ jobs:
         run: terraform workspace select "${{ needs.prepare.outputs.prod_workspace }}"
 
       - name: Export Terraform outputs
-        id: outputs
+        id: prod_outputs
         working-directory: ${{ env.TERRAFORM_DIR }}
         shell: bash
         run: |
@@ -207,10 +207,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${{ steps.outputs.outputs.cognito_pool_id }}"
-          test -n "${{ steps.outputs.outputs.users_table_name }}"
-          test -n "${{ steps.outputs.outputs.backend_ecr_repository_url }}"
-          test "${{ steps.outputs.outputs.backend_ecr_repository_url }}" != "null"
+          test -n "${{ steps.prod_outputs.outputs.cognito_pool_id }}"
+          test -n "${{ steps.prod_outputs.outputs.users_table_name }}"
+          test -n "${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}"
+          test "${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}" != "null"
 
       - name: Export Terraform outputs (test workspace)
         id: outputs_test
@@ -280,6 +280,7 @@ jobs:
       - name: Run all .NET tests (verbose console logs)
         env:
           ASPNETCORE_ENVIRONMENT: Development
+          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
           AWS_CODES_TABLE: ${{ needs.terraform.outputs.test_verification_codes_table_name }}
           AWS_USER_CODES_TABLE: ${{ needs.terraform.outputs.test_user_codes_table_name }}
         run: dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
@@ -371,6 +372,7 @@ jobs:
           ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
         run: |
           set -euo pipefail
+          echo "Seed inputs: USER_POOL_ID='${USER_POOL_ID}', USERS_TABLE='${USERS_TABLE}'"
           if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" ]]; then
             echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
             exit 1
