@@ -604,24 +604,24 @@ jobs:
             # Build shared AWS profiles used by the backend process inside container.
             sudo mkdir -p /opt/vibraheka/.aws
             sudo chmod 700 /opt/vibraheka/.aws
-            sudo tee /opt/vibraheka/.aws/credentials >/dev/null <<EOF
-            [default]
-            aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}
-            aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}
-
-            [Twingers]
-            aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}
-            aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}
-            EOF
-            sudo tee /opt/vibraheka/.aws/config >/dev/null <<EOF
-            [default]
-            region = ${AWS_REGION}
-            output = json
-
-            [profile Twingers]
-            region = ${AWS_REGION}
-            output = json
-            EOF
+            sudo sh -c "printf '%s\n' \
+              '[default]' \
+              'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
+              'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
+              '' \
+              '[Twingers]' \
+              'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
+              'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
+              > /opt/vibraheka/.aws/credentials"
+            sudo sh -c "printf '%s\n' \
+              '[default]' \
+              'region = ${AWS_REGION}' \
+              'output = json' \
+              '' \
+              '[profile Twingers]' \
+              'region = ${AWS_REGION}' \
+              'output = json' \
+              > /opt/vibraheka/.aws/config"
             sudo chmod 600 /opt/vibraheka/.aws/credentials /opt/vibraheka/.aws/config
 
             timeout 120 aws ecr get-login-password --region "${AWS_REGION}" \
