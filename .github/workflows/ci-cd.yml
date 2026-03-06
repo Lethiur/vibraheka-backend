@@ -427,11 +427,14 @@ jobs:
           ECR_REPOSITORY_URL: ${{ steps.tf_out.outputs.backend_ecr_repository_url }}
           IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
           BUILD_CONFIGURATION: ${{ needs.prepare.outputs.build_configuration }}
+          CACHE_SCOPE: vibraheka-backend-${{ needs.prepare.outputs.workspace }}
         run: |
           set -euo pipefail
           IMAGE_URI="${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
           docker buildx build \
             --platform linux/arm64 \
+            --cache-from type=gha,scope="${CACHE_SCOPE}" \
+            --cache-to type=gha,mode=max,scope="${CACHE_SCOPE}" \
             --build-arg BUILD_CONFIGURATION="${BUILD_CONFIGURATION}" \
             -t "${IMAGE_URI}" \
             --push \
@@ -615,10 +618,13 @@ jobs:
             sudo mkdir -p /opt/vibraheka/.aws
             sudo chmod 700 /opt/vibraheka/.aws
             sudo sh -c "printf '%s\n' \
+              '[default]' \
+              'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
+              'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
+              '' \
               '[Twingers]' \
               'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
               'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
-              'region' = ${AWS_REGION} \
               > /opt/vibraheka/.aws/credentials"
             sudo sh -c "printf '%s\n' \
               '[default]' \
