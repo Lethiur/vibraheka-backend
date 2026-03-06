@@ -58,6 +58,10 @@ output "backend_ec2_private_ip" {
   value = try(module.BackendApi[0].backend_instance_private_ip, null)
 }
 
+output "backend_ec2_public_ip" {
+  value = try(module.BackendApi[0].backend_instance_public_ip, null)
+}
+
 output "backend_ec2_key_pair_name" {
   value = try(module.BackendApi[0].backend_instance_key_pair_name, null)
 }

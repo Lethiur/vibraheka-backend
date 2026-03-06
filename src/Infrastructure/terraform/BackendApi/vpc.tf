@@ -16,7 +16,7 @@ resource "aws_vpc" "backend" {
 resource "aws_subnet" "private_a" {
   vpc_id                  = aws_vpc.backend.id
   cidr_block              = var.private_subnet_a_cidr
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = var.enable_public_ssh
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = {
@@ -53,6 +53,8 @@ resource "aws_route_table" "private" {
 
 # Associates private subnet A to private route table.
 resource "aws_route_table_association" "private_a" {
+  count = var.enable_public_ssh ? 0 : 1
+
   subnet_id      = aws_subnet.private_a.id
   route_table_id = aws_route_table.private.id
 }
@@ -61,6 +63,45 @@ resource "aws_route_table_association" "private_a" {
 resource "aws_route_table_association" "private_b" {
   subnet_id      = aws_subnet.private_b.id
   route_table_id = aws_route_table.private.id
+}
+
+# Internet Gateway only needed when backend SSH is exposed publicly.
+resource "aws_internet_gateway" "backend" {
+  count = var.enable_public_ssh ? 1 : 0
+
+  vpc_id = aws_vpc.backend.id
+
+  tags = {
+    Name        = "vibraheka-backend-igw-${terraform.workspace}"
+    environment = terraform.workspace
+    created     = "terraform"
+  }
+}
+
+# Public route table used by subnet A when public SSH is enabled.
+resource "aws_route_table" "public" {
+  count = var.enable_public_ssh ? 1 : 0
+
+  vpc_id = aws_vpc.backend.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.backend[0].id
+  }
+
+  tags = {
+    Name        = "vibraheka-backend-public-rt-${terraform.workspace}"
+    environment = terraform.workspace
+    created     = "terraform"
+  }
+}
+
+# Associates subnet A to public route table when public SSH is enabled.
+resource "aws_route_table_association" "public_a" {
+  count = var.enable_public_ssh ? 1 : 0
+
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.public[0].id
 }
 
 # Security group used by interface VPC endpoints.

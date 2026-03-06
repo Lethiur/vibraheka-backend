@@ -17,7 +17,7 @@ resource "aws_security_group" "backend_instance" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = var.enable_public_ssh ? var.ssh_allowed_cidrs : [var.vpc_cidr]
   }
 
   # Egress to AWS services and package/image endpoints.
@@ -107,7 +107,7 @@ resource "aws_instance" "backend_spot" {
   instance_type               = var.backend_instance_type
   subnet_id                   = aws_subnet.private_a.id
   vpc_security_group_ids      = [aws_security_group.backend_instance.id]
-  associate_public_ip_address = false
+  associate_public_ip_address = var.enable_public_ssh
   iam_instance_profile        = aws_iam_instance_profile.backend.name
   key_name                    = aws_key_pair.backend.key_name
 

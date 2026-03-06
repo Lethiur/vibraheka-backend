@@ -31,7 +31,13 @@ variable "backend_port" {
 variable "ssh_allowed_cidrs" {
   description = "CIDR ranges allowed to connect via SSH to the EC2 instance."
   type        = list(string)
-  default     = []
+  default     = ["0.0.0.0/0"]
+}
+
+variable "enable_public_ssh" {
+  description = "If true, backend EC2 is placed in a public subnet with public IP and SSH ingress from ssh_allowed_cidrs."
+  type        = bool
+  default     = true
 }
 
 variable "create_ssh_key_pair" {

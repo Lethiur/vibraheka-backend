@@ -69,7 +69,7 @@ jobs:
   terraform:
     name: Terraform Apply
     runs-on: ubuntu-latest
-    needs: [prepare]
+    needs: [ prepare ]
     outputs:
       backend_api_gateway_endpoint: ${{ steps.prod_outputs.outputs.backend_api_gateway_endpoint }}
       backend_api_gateway_base_route: ${{ steps.prod_outputs.outputs.backend_api_gateway_base_route }}
@@ -289,72 +289,72 @@ jobs:
             echo "verification_codes_table_name=$(terraform output -raw verification_codes_table_name)"
             echo "user_codes_table_name=$(terraform output -raw user_codes_table_name)"
           } >> "$GITHUB_OUTPUT"
-
-#  tests:
-#    name: Run Tests With Console Logs
-#    runs-on: ubuntu-latest
-#    needs: [prepare, terraform]
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ env.AWS_REGION }}
-#
-#      - name: Create local AWS profile for SDK-based tools
-#        shell: bash
-#        run: |
-#          set -euo pipefail
-#          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-#          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-#          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-#          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
-#          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
-#
-#      - name: Setup .NET SDK
-#        uses: actions/setup-dotnet@v4
-#        with:
-#          global-json-file: global.json
-#      
-#      - name: Setup Terraform
-#        uses: hashicorp/setup-terraform@v3
-#
-#      - name: Terraform init
-#        working-directory: ${{ env.TERRAFORM_DIR }}
-#        run: terraform init
-#
-#      - name: Sync terraform outputs into appsettings files
-#        shell: bash
-#        env:
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_REGION: ${{ secrets.AWS_REGION }}
-#          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-#          PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
-#          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
-#        run: |
-#          chmod +x ./update-appsettings-from-terraform.sh
-#          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
-#
-#      - name: Restore
-#        run: dotnet restore VibraHeka.slnx
-#
-#      - name: Run all .NET tests (verbose console logs)
-#        env:
-#          ASPNETCORE_ENVIRONMENT: Development
-#          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
-#          AWS_CODES_TABLE: ${{ needs.terraform.outputs.test_verification_codes_table_name }}
-#          AWS_USER_CODES_TABLE: ${{ needs.terraform.outputs.test_user_codes_table_name }}
-#        run: dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
+  
+  #  tests:
+  #    name: Run Tests With Console Logs
+  #    runs-on: ubuntu-latest
+  #    needs: [prepare, terraform]
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v4
+  #
+  #      - name: Configure AWS credentials
+  #        uses: aws-actions/configure-aws-credentials@v4
+  #        with:
+  #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #          aws-region: ${{ env.AWS_REGION }}
+  #
+  #      - name: Create local AWS profile for SDK-based tools
+  #        shell: bash
+  #        run: |
+  #          set -euo pipefail
+  #          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+  #          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+  #          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+  #          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
+  #          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
+  #
+  #      - name: Setup .NET SDK
+  #        uses: actions/setup-dotnet@v4
+  #        with:
+  #          global-json-file: global.json
+  #      
+  #      - name: Setup Terraform
+  #        uses: hashicorp/setup-terraform@v3
+  #
+  #      - name: Terraform init
+  #        working-directory: ${{ env.TERRAFORM_DIR }}
+  #        run: terraform init
+  #
+  #      - name: Sync terraform outputs into appsettings files
+  #        shell: bash
+  #        env:
+  #          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #          AWS_REGION: ${{ secrets.AWS_REGION }}
+  #          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+  #          PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+  #          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
+  #        run: |
+  #          chmod +x ./update-appsettings-from-terraform.sh
+  #          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
+  #
+  #      - name: Restore
+  #        run: dotnet restore VibraHeka.slnx
+  #
+  #      - name: Run all .NET tests (verbose console logs)
+  #        env:
+  #          ASPNETCORE_ENVIRONMENT: Development
+  #          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
+  #          AWS_CODES_TABLE: ${{ needs.terraform.outputs.test_verification_codes_table_name }}
+  #          AWS_USER_CODES_TABLE: ${{ needs.terraform.outputs.test_user_codes_table_name }}
+  #        run: dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
 
   build_and_push:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
-    needs: [prepare, terraform]
+    needs: [ prepare, terraform ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -379,7 +379,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -430,7 +430,7 @@ jobs:
   seed_default_admin:
     name: Seed Default Admin User
     runs-on: ubuntu-latest
-    needs: [terraform]
+    needs: [ terraform ]
     steps:
       - name: Download Terraform prod outputs artifact
         uses: actions/download-artifact@v4
@@ -520,7 +520,7 @@ jobs:
   deploy_ec2:
     name: Deploy Backend And XRay On EC2
     runs-on: ubuntu-latest
-    needs: [prepare, terraform, build_and_push]
+    needs: [ prepare, terraform, build_and_push ]
     steps:
       - name: Download Terraform prod outputs artifact
         uses: actions/download-artifact@v4
@@ -605,13 +605,10 @@ jobs:
             sudo mkdir -p /opt/vibraheka/.aws
             sudo chmod 700 /opt/vibraheka/.aws
             sudo sh -c "printf '%s\n' \
-              '[default]' \
-              'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
-              'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
-              '' \
               '[Twingers]' \
               'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
               'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
+              'region' = ${AWS_REGION} \
               > /opt/vibraheka/.aws/credentials"
             sudo sh -c "printf '%s\n' \
               '[default]' \
@@ -638,8 +635,10 @@ jobs:
                 --name xray-daemon \
                 --restart always \
                 -p 2000:2000/udp \
+                -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
+                -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
+                -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
                 -e AWS_REGION="${AWS_REGION}" \
-                -e AWS_PROFILE="Twingers" \
                 -v /opt/vibraheka/.aws:/root/.aws:ro \
                 public.ecr.aws/xray/aws-xray-daemon:latest
             else
@@ -652,6 +651,8 @@ jobs:
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               -e AWS_PROFILE="Twingers" \
+              -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
+              -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
               -e AWS__Profile="Twingers" \
               -e AWSLogging__Profile="Twingers" \
               -v /opt/vibraheka/.aws:/root/.aws:ro \

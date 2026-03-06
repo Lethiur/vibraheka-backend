@@ -23,6 +23,11 @@ output "backend_instance_private_ip" {
   description = "Private IP of the backend EC2 spot instance."
 }
 
+output "backend_instance_public_ip" {
+  value       = aws_instance.backend_spot.public_ip
+  description = "Public IP of the backend EC2 spot instance when public SSH is enabled."
+}
+
 output "backend_instance_key_pair_name" {
   value       = aws_key_pair.backend.key_name
   description = "SSH key pair name attached to backend EC2 instance."
