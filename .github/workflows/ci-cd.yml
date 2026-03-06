@@ -635,9 +635,9 @@ jobs:
                 --name xray-daemon \
                 --restart always \
                 -p 2000:2000/udp \
-                -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
+                -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
                 -v /opt/vibraheka/.aws:/root/.aws:ro \
                 public.ecr.aws/xray/aws-xray-daemon:latest
@@ -651,8 +651,6 @@ jobs:
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               -e AWS_PROFILE="Twingers" \
-              -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
-              -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
               -e AWS__Profile="Twingers" \
               -e AWSLogging__Profile="Twingers" \
               -v /opt/vibraheka/.aws:/root/.aws:ro \
