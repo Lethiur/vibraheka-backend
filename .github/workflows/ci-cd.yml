@@ -354,8 +354,6 @@ jobs:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
     needs: [prepare, terraform]
-    outputs:
-      image_uri: ${{ steps.meta.outputs.image_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -417,7 +415,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push image
-        id: meta
         shell: bash
         env:
           ECR_REPOSITORY_URL: ${{ steps.tf_out.outputs.backend_ecr_repository_url }}
@@ -428,7 +425,6 @@ jobs:
           IMAGE_URI="${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
           docker build --build-arg BUILD_CONFIGURATION="${BUILD_CONFIGURATION}" -t "${IMAGE_URI}" .
           docker push "${IMAGE_URI}"
-          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
 
   seed_default_admin:
     name: Seed Default Admin User
@@ -525,6 +521,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare, terraform, build_and_push]
     steps:
+      - name: Download Terraform prod outputs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-prod-outputs
+          path: /tmp/terraform-outputs
+
+      - name: Compute image URI for deploy
+        id: deploy_image
+        shell: bash
+        run: |
+          set -euo pipefail
+          source /tmp/terraform-outputs/terraform-prod-outputs.env
+          IMAGE_URI="${backend_ecr_repository_url}:${{ needs.prepare.outputs.image_tag }}"
+          if [[ -z "${backend_ecr_repository_url:-}" || "${backend_ecr_repository_url}" == "null" ]]; then
+            echo "backend_ecr_repository_url is empty/null; cannot compute deploy image URI."
+            exit 1
+          fi
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -569,7 +584,7 @@ jobs:
         shell: bash
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
-          IMAGE_URI: ${{ needs.build_and_push.outputs.image_uri }}
+          IMAGE_URI: ${{ steps.deploy_image.outputs.image_uri }}
           APP_ENVIRONMENT: ${{ needs.prepare.outputs.environment_name }}
         run: |
           set -euo pipefail
