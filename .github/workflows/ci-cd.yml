@@ -203,6 +203,15 @@ jobs:
             echo "subscriptions_table_user_index_name=$(terraform output -raw subscriptions_table_user_index_name)"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Validate required prod outputs are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${{ steps.outputs.outputs.cognito_pool_id }}"
+          test -n "${{ steps.outputs.outputs.users_table_name }}"
+          test -n "${{ steps.outputs.outputs.backend_ecr_repository_url }}"
+          test "${{ steps.outputs.outputs.backend_ecr_repository_url }}" != "null"
+
       - name: Export Terraform outputs (test workspace)
         id: outputs_test
         working-directory: ${{ env.TERRAFORM_DIR }}
@@ -263,8 +272,6 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
 
       - name: Restore
@@ -314,7 +321,17 @@ jobs:
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
+
+      - name: Validate ECR repository output
+        shell: bash
+        env:
+          ECR_REPOSITORY_URL: ${{ needs.terraform.outputs.backend_ecr_repository_url }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${ECR_REPOSITORY_URL:-}" || "${ECR_REPOSITORY_URL}" == "null" ]]; then
+            echo "backend_ecr_repository_url is empty/null. Terraform output is not available."
+            exit 1
+          fi
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -354,6 +371,10 @@ jobs:
           ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
         run: |
           set -euo pipefail
+          if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" ]]; then
+            echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
+            exit 1
+          fi
 
           # Create user if it does not exist.
           if ! aws cognito-idp admin-get-user --user-pool-id "$USER_POOL_ID" --username "$ADMIN_EMAIL" >/dev/null 2>&1; then
