@@ -55,6 +55,14 @@ resource "aws_lb_listener" "backend" {
 resource "aws_apigatewayv2_api" "backend" {
   name          = "vibraheka-backend-api-${terraform.workspace}"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["https://vh-049-loading-state-when-subscribing.d2h4h7jsyocr5v.amplifyapp.com"]
+    allow_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    allow_headers = ["*"]
+    expose_headers = ["*"]
+    max_age        = 86400
+  }
 }
 
 # Private VPC Link from API Gateway to internal NLB subnets.
