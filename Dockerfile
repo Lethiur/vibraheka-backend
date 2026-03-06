@@ -18,7 +18,7 @@ RUN dotnet restore src/Web/Web.csproj
 
 # Copy full source and publish with selected configuration.
 COPY . .
-RUN dotnet publish src/Web/Web.csproj -c ${BUILD_CONFIGURATION} -o /app/publish --no-restore
+RUN dotnet publish src/Web/Web.csproj -c ${BUILD_CONFIGURATION} -o /app/publish --no-restore /p:SkipNSwag=True
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS runtime
 WORKDIR /app
