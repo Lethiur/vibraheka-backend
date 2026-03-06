@@ -573,28 +573,34 @@ jobs:
           APP_ENVIRONMENT: ${{ needs.prepare.outputs.environment_name }}
         run: |
           set -euo pipefail
-          ssh vibraheka-ec2 "AWS_REGION='${AWS_REGION}' IMAGE_URI='${IMAGE_URI}' APP_ENVIRONMENT='${APP_ENVIRONMENT}' bash -s" <<'REMOTE'
-            set -euo pipefail
-            sudo dnf -y update || true
-            sudo dnf -y install docker awscli
-            sudo systemctl enable docker
-            sudo systemctl start docker
+          AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          ssh vibraheka-ec2 "AWS_REGION='${AWS_REGION}' AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}' IMAGE_URI='${IMAGE_URI}' APP_ENVIRONMENT='${APP_ENVIRONMENT}' bash -s" <<'REMOTE'
+            set -euxo pipefail
+            echo "[deploy] starting on $(date -u +%FT%TZ)"
+            timeout 600 sudo dnf -y update || true
+            timeout 600 sudo dnf -y install docker awscli
+            timeout 60 sudo systemctl enable docker
+            timeout 60 sudo systemctl start docker
+            timeout 30 sudo systemctl is-active docker
 
-            AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-            aws ecr get-login-password --region "${AWS_REGION}" \
+            timeout 120 aws ecr get-login-password --region "${AWS_REGION}" \
               | sudo docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-            sudo docker pull "${IMAGE_URI}"
-            sudo docker pull public.ecr.aws/xray/aws-xray-daemon:latest
+            timeout 300 sudo docker pull "${IMAGE_URI}"
 
             sudo docker rm -f vibraheka-backend || true
             sudo docker rm -f xray-daemon || true
 
-            sudo docker run -d \
-              --name xray-daemon \
-              --restart always \
-              -p 2000:2000/udp \
-              public.ecr.aws/xray/aws-xray-daemon:latest
+            # NOTE: Pulling from public.ecr.aws can hang/fail in private subnets without NAT.
+            if timeout 120 sudo docker pull public.ecr.aws/xray/aws-xray-daemon:latest; then
+              sudo docker run -d \
+                --name xray-daemon \
+                --restart always \
+                -p 2000:2000/udp \
+                public.ecr.aws/xray/aws-xray-daemon:latest
+            else
+              echo "[deploy] xray image pull skipped (no internet/public registry access)."
+            fi
 
             sudo docker run -d \
               --name vibraheka-backend \
@@ -604,4 +610,5 @@ jobs:
               "${IMAGE_URI}"
 
             sudo docker ps
+            echo "[deploy] finished on $(date -u +%FT%TZ)"
           REMOTE
