@@ -586,10 +586,12 @@ jobs:
           AWS_REGION: ${{ env.AWS_REGION }}
           IMAGE_URI: ${{ steps.deploy_image.outputs.image_uri }}
           APP_ENVIRONMENT: ${{ needs.prepare.outputs.environment_name }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -euo pipefail
           AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-          ssh vibraheka-ec2 "AWS_REGION='${AWS_REGION}' AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}' IMAGE_URI='${IMAGE_URI}' APP_ENVIRONMENT='${APP_ENVIRONMENT}' bash -s" <<'REMOTE'
+          ssh vibraheka-ec2 "AWS_REGION='${AWS_REGION}' AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}' IMAGE_URI='${IMAGE_URI}' APP_ENVIRONMENT='${APP_ENVIRONMENT}' CI_AWS_ACCESS_KEY_ID='${AWS_ACCESS_KEY_ID}' CI_AWS_SECRET_ACCESS_KEY='${AWS_SECRET_ACCESS_KEY}' bash -s" <<'REMOTE'
             set -euxo pipefail
             echo "[deploy] starting on $(date -u +%FT%TZ)"
             timeout 600 sudo dnf -y update || true
@@ -597,6 +599,29 @@ jobs:
             timeout 60 sudo systemctl enable docker
             timeout 60 sudo systemctl start docker
             timeout 30 sudo systemctl is-active docker
+
+            # Build shared AWS profiles used by the backend process inside container.
+            sudo mkdir -p /opt/vibraheka/.aws
+            sudo chmod 700 /opt/vibraheka/.aws
+            sudo tee /opt/vibraheka/.aws/credentials >/dev/null <<EOF
+            [default]
+            aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}
+            aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}
+
+            [Twingers]
+            aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}
+            aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}
+            EOF
+            sudo tee /opt/vibraheka/.aws/config >/dev/null <<EOF
+            [default]
+            region = ${AWS_REGION}
+            output = json
+
+            [profile Twingers]
+            region = ${AWS_REGION}
+            output = json
+            EOF
+            sudo chmod 600 /opt/vibraheka/.aws/credentials /opt/vibraheka/.aws/config
 
             timeout 120 aws ecr get-login-password --region "${AWS_REGION}" \
               | sudo docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -612,6 +637,9 @@ jobs:
                 --name xray-daemon \
                 --restart always \
                 -p 2000:2000/udp \
+                -e AWS_REGION="${AWS_REGION}" \
+                -e AWS_PROFILE="Twingers" \
+                -v /opt/vibraheka/.aws:/root/.aws:ro \
                 public.ecr.aws/xray/aws-xray-daemon:latest
             else
               echo "[deploy] xray image pull skipped (no internet/public registry access)."
@@ -622,6 +650,10 @@ jobs:
               --restart always \
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
+              -e AWS_PROFILE="Twingers" \
+              -e AWS__Profile="Twingers" \
+              -e AWSLogging__Profile="Twingers" \
+              -v /opt/vibraheka/.aws:/root/.aws:ro \
               "${IMAGE_URI}"
 
             sudo docker ps
