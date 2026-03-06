@@ -81,6 +81,7 @@ jobs:
       user_codes_table_name: ${{ steps.prod_outputs.outputs.user_codes_table_name }}
       cognito_pool_id: ${{ steps.prod_outputs.outputs.cognito_pool_id }}
       cognito_client_id: ${{ steps.prod_outputs.outputs.cognito_client_id }}
+      
       verification_codes_table_name: ${{ steps.prod_outputs.outputs.verification_codes_table_name }}
       test_verification_codes_table_name: ${{ steps.outputs_test.outputs.verification_codes_table_name }}
       test_user_codes_table_name: ${{ steps.outputs_test.outputs.user_codes_table_name }}
