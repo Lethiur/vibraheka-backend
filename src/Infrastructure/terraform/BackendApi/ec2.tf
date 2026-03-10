@@ -85,6 +85,13 @@ resource "tls_private_key" "backend_ssh" {
 resource "aws_key_pair" "backend" {
   key_name   = "vibraheka-backend-ssh-${terraform.workspace}"
   public_key = var.create_ssh_key_pair ? tls_private_key.backend_ssh[0].public_key_openssh : var.existing_ssh_public_key
+
+  lifecycle {
+    precondition {
+      condition     = var.create_ssh_key_pair || trimspace(var.existing_ssh_public_key) != ""
+      error_message = "When create_ssh_key_pair is false, existing_ssh_public_key must be provided."
+    }
+  }
 }
 
 # Generated private key stored securely for retrieval from CI (GitHub Actions).

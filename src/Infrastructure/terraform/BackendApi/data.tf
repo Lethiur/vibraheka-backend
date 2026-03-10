@@ -31,7 +31,7 @@ locals {
   workspace_hash = substr(md5(local.workspace_safe), 0, 6)
 
   # Suffixes capped to satisfy max length constraints in AWS resources.
-  workspace_suffix_8  = substr(local.workspace_safe, 0, 8) # Short readable suffix for LB/TG names.
+  workspace_suffix_8  = substr(local.workspace_safe, 0, 8)  # Short readable suffix for LB/TG names.
   workspace_suffix_34 = substr(local.workspace_safe, 0, 34) # 64-char instance profile name limit.
   workspace_suffix_37 = substr(local.workspace_safe, 0, 37) # 64-char IAM role name limit.
 

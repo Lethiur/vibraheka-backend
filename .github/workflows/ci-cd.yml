@@ -71,10 +71,10 @@ jobs:
     needs: [prepare]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -84,7 +84,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Setup Node.js for lambda packaging
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
 
@@ -147,7 +147,7 @@ jobs:
           base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
 
       - name: Upload prod outputs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: terraform-prod-outputs
           path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
@@ -159,10 +159,10 @@ jobs:
     needs: [prepare]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -172,7 +172,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Setup Node.js for lambda packaging
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
 
@@ -232,32 +232,25 @@ jobs:
           base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
 
       - name: Upload test outputs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: terraform-test-outputs
           path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
           if-no-files-found: error
 
-  tests:
-    name: Run Tests With Console Logs
+  tests_core:
+    name: Tests (unit + functional + integration)
     runs-on: ubuntu-latest
     needs: [prepare, terraform_test]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download test terraform outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: terraform-test-outputs
           path: /tmp/terraform-outputs-test
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Create local AWS profile for SDK-based tools
         shell: bash
@@ -270,17 +263,13 @@ jobs:
           echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
       - name: Sync terraform outputs into appsettings.Test.json
         shell: bash
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
@@ -289,7 +278,7 @@ jobs:
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "src/Web/appsettings.Test.json"
 
-      - name: Run all .NET tests (verbose console logs)
+      - name: Run core .NET tests (verbose console logs)
         shell: bash
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -299,25 +288,86 @@ jobs:
           AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
           AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
           export AWS_CODES_TABLE AWS_USER_CODES_TABLE
-          dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
+
+          for proj in \
+            "tests/Domain.UnitTests/Domain.UnitTests.csproj" \
+            "tests/Application.UnitTests/Application.UnitTests.csproj" \
+            "tests/Application.FunctionalTests/Application.FunctionalTests.csproj" \
+            "tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" \
+            "tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj"
+          do
+            dotnet test "$proj" --logger "console;verbosity=detailed"
+          done
+
+  tests_acceptance:
+    name: Tests (acceptance)
+    runs-on: ubuntu-latest
+    needs: [prepare, terraform_test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download test terraform outputs
+        uses: actions/download-artifact@v7
+        with:
+          name: terraform-test-outputs
+          path: /tmp/terraform-outputs-test
+
+      - name: Create local AWS profile for SDK-based tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
+          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
+          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Sync terraform outputs into appsettings.Test.json
+        shell: bash
+        env:
+          PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
+        run: |
+          set -euo pipefail
+          base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
+          chmod +x ./update-appsettings-from-terraform.sh
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "src/Web/appsettings.Test.json"
+
+      - name: Run acceptance tests (verbose console logs)
+        shell: bash
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
+        run: |
+          set -euo pipefail
+          AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
+          AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
+          export AWS_CODES_TABLE AWS_USER_CODES_TABLE
+          dotnet test "tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj" --logger "console;verbosity=detailed"
 
   build_and_push:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
-    needs: [prepare, terraform_prod, tests]
+    needs: [prepare, terraform_prod, tests_core, tests_acceptance]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with: 
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Download prod terraform outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs-prod
@@ -373,13 +423,13 @@ jobs:
     needs: [terraform_prod]
     steps:
       - name: Download prod terraform outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -478,13 +528,13 @@ jobs:
           echo "environment_name=${ENVIRONMENT_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Download prod terraform outputs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

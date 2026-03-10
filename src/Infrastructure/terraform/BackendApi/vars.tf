@@ -31,7 +31,7 @@ variable "ssh_allowed_cidrs" {
 variable "enable_ssh_ingress" {
   description = "If true, opens inbound SSH (22) from ssh_allowed_cidrs. Prefer false and use SSM port forwarding instead."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "create_ssh_key_pair" {
@@ -44,11 +44,6 @@ variable "existing_ssh_public_key" {
   description = "Optional existing SSH public key to use when create_ssh_key_pair is false."
   type        = string
   default     = ""
-
-  validation {
-    condition     = var.create_ssh_key_pair || trimspace(var.existing_ssh_public_key) != ""
-    error_message = "When create_ssh_key_pair is false, existing_ssh_public_key must be provided."
-  }
 }
 
 variable "ssh_private_key_ssm_parameter_name_prefix" {
