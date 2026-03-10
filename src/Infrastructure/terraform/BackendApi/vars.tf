@@ -31,7 +31,7 @@ variable "ssh_allowed_cidrs" {
 variable "enable_ssh_ingress" {
   description = "If true, opens inbound SSH (22) from ssh_allowed_cidrs. Prefer false and use SSM port forwarding instead."
   type        = bool
-  default     = false
+  default     = terraform.workspace == "prod"
 }
 
 variable "create_ssh_key_pair" {

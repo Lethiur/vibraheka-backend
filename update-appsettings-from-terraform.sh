@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TERRAFORM_DIR="${1:-src/Infrastructure/terraform}"
-ARG2="${2:-}"
-ARG3="${3:-}"
+TF_OUTPUTS_JSON_PATH=""
+
+if [[ "${1:-}" == "--tf-outputs-json" ]]; then
+  TF_OUTPUTS_JSON_PATH="${2:-}"
+  shift 2
+fi
+
+TERRAFORM_DIR="src/Infrastructure/terraform"
+
+# Backwards compatible argument parsing:
+# - Historically arg1 was TERRAFORM_DIR. When using --tf-outputs-json, TERRAFORM_DIR is optional.
+if [[ -n "${1:-}" && ( -d "${1}" || "${1}" == */* || "${1}" == ./* || "${1}" == ../* ) ]]; then
+  TERRAFORM_DIR="$1"
+  shift 1
+fi
+
+ARG2="${1:-}"
+ARG3="${2:-}"
 
 DEFAULT_APPSETTINGS_PATHS=(
   "src/Web/appsettings.json"
@@ -31,11 +46,18 @@ for path in "${APPSETTINGS_PATHS[@]}"; do
   fi
 done
 
-if [[ -n "$WORKSPACE" ]]; then
-  terraform -chdir="$TERRAFORM_DIR" workspace select "$WORKSPACE" >/dev/null
+if [[ -n "$TF_OUTPUTS_JSON_PATH" ]]; then
+  if [[ ! -f "$TF_OUTPUTS_JSON_PATH" ]]; then
+    echo "Terraform outputs JSON file not found at path: $TF_OUTPUTS_JSON_PATH" >&2
+    exit 1
+  fi
+  TF_OUTPUTS_JSON="$(cat "$TF_OUTPUTS_JSON_PATH")"
+else
+  if [[ -n "$WORKSPACE" ]]; then
+    terraform -chdir="$TERRAFORM_DIR" workspace select "$WORKSPACE" >/dev/null
+  fi
+  TF_OUTPUTS_JSON="$(terraform -chdir="$TERRAFORM_DIR" output -json)"
 fi
-
-TF_OUTPUTS_JSON="$(terraform -chdir="$TERRAFORM_DIR" output -json)"
 PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
 STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
 

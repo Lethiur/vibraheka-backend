@@ -246,6 +246,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download test terraform outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-test-outputs
+          path: /tmp/terraform-outputs-test
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -268,13 +274,6 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform init
-        working-directory: ${{ env.TERRAFORM_DIR }}
-        run: terraform init
-
       - name: Sync terraform outputs into appsettings.Test.json
         shell: bash
         env:
@@ -286,8 +285,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
+          base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "src/Web/appsettings.Test.json"
 
       - name: Run all .NET tests (verbose console logs)
         shell: bash
@@ -296,8 +296,8 @@ jobs:
           Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
-          AWS_CODES_TABLE="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw verification_codes_table_name)"
-          AWS_USER_CODES_TABLE="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw user_codes_table_name)"
+          AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
+          AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
           export AWS_CODES_TABLE AWS_USER_CODES_TABLE
           dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
 
@@ -309,34 +309,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Download prod terraform outputs
+        uses: actions/download-artifact@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform init
-        working-directory: ${{ env.TERRAFORM_DIR }}
-        run: terraform init
+          name: terraform-prod-outputs
+          path: /tmp/terraform-outputs-prod
 
       - name: Sync terraform outputs into appsettings files
         shell: bash
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
+          base64 -d /tmp/terraform-outputs-prod/terraform-outputs.json.b64 > /tmp/tf-prod.json
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
-          ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -355,8 +344,7 @@ jobs:
           CACHE_SCOPE: vibraheka-backend-${{ needs.prepare.outputs.workspace }}
         run: |
           set -euo pipefail
-          terraform -chdir="${{ env.TERRAFORM_DIR }}" workspace select "${{ needs.prepare.outputs.prod_workspace }}" >/dev/null
-          ECR_REPOSITORY_URL="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw backend_ecr_repository_url)"
+          ECR_REPOSITORY_URL="$(jq -r '.backend_ecr_repository_url.value' /tmp/tf-prod.json)"
           if [[ -z "${ECR_REPOSITORY_URL:-}" || "${ECR_REPOSITORY_URL}" == "null" ]]; then
             echo "backend_ecr_repository_url is empty/null. Terraform output is not available."
             exit 1
