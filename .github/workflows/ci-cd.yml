@@ -13,7 +13,6 @@ on:
       - staging
   workflow_dispatch:
 
-
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_PROFILE_NAME: Twingers
@@ -66,29 +65,10 @@ jobs:
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "environment_name=$ENVIRONMENT_NAME" >> "$GITHUB_OUTPUT"
 
-    terraform:
-      name: Terraform Apply
-      runs-on: ubuntu-latest
-      needs: [ prepare ]
-    outputs:
-      backend_api_gateway_endpoint: ${{ steps.prod_outputs.outputs.backend_api_gateway_endpoint }}
-      backend_api_gateway_base_route: ${{ steps.prod_outputs.outputs.backend_api_gateway_base_route }}
-      backend_ecr_repository_url: ${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}
-      backend_ec2_instance_id: ${{ steps.prod_outputs.outputs.backend_ec2_instance_id }}
-      backend_ec2_ssh_private_key_ssm_parameter_name: ${{ steps.prod_outputs.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
-      users_table_name: ${{ steps.prod_outputs.outputs.users_table_name }}
-      user_codes_table_name: ${{ steps.prod_outputs.outputs.user_codes_table_name }}
-      cognito_pool_id: ${{ steps.prod_outputs.outputs.cognito_pool_id }}
-      cognito_client_id: ${{ steps.prod_outputs.outputs.cognito_client_id }}
-      
-      verification_codes_table_name: ${{ steps.prod_outputs.outputs.verification_codes_table_name }}
-      test_verification_codes_table_name: ${{ steps.outputs_test.outputs.verification_codes_table_name }}
-      test_user_codes_table_name: ${{ steps.outputs_test.outputs.user_codes_table_name }}
-      email_templates_table_name: ${{ steps.prod_outputs.outputs.email_templates_table_name }}
-      email_templates_bucket_name: ${{ steps.prod_outputs.outputs.email_templates_bucket_name }}
-      action_log_table_name: ${{ steps.prod_outputs.outputs.action_log_table_name }}
-      subscriptions_table_name: ${{ steps.prod_outputs.outputs.subscriptions_table_name }}
-      subscriptions_table_user_index_name: ${{ steps.prod_outputs.outputs.subscriptions_table_user_index_name }}
+  terraform_prod:
+    name: Terraform Apply (prod workspace)
+    runs-on: ubuntu-latest
+    needs: [prepare]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,16 +79,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Create local AWS profile for SDK-based tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
-          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -150,7 +120,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform workspace select -or-create "${{ needs.prepare.outputs.prod_workspace }}"
 
-      - name: Terraform apply (prod-style branch environment)
+      - name: Terraform apply (prod)
         working-directory: ${{ env.TERRAFORM_DIR }}
         env:
           TF_VAR_prod_deployment: "true"
@@ -160,11 +130,85 @@ jobs:
           TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
         run: terraform apply -auto-approve
 
+      - name: Export prod terraform outputs (base64 artifact)
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform output -json > terraform-outputs.json
+
+          # Validate required keys exist.
+          jq -er '.backend_ecr_repository_url.value' terraform-outputs.json >/dev/null
+          jq -er '.backend_ec2_instance_id.value' terraform-outputs.json >/dev/null
+          jq -er '.backend_ec2_ssh_private_key_ssm_parameter_name.value' terraform-outputs.json >/dev/null
+          jq -er '.cognito_pool_id.value' terraform-outputs.json >/dev/null
+          jq -er '.users_table_name.value' terraform-outputs.json >/dev/null
+
+          base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
+
+      - name: Upload prod outputs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-prod-outputs
+          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
+          if-no-files-found: error
+
+  terraform_test:
+    name: Terraform Apply (test workspace)
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup Node.js for lambda packaging
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install zip tool
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Build and package lambda artifacts required by Terraform
+        shell: bash
+        run: |
+          set -euo pipefail
+          for lambda_dir in \
+            "src/Infrastructure/terraform/Lambdas/Payments" \
+            "src/Infrastructure/terraform/Lambdas/SendEmail" \
+            "src/Infrastructure/terraform/Lambdas/VerificationCode"
+          do
+            pushd "$lambda_dir" >/dev/null
+            pnpm install --no-frozen-lockfile
+            pnpm run build
+            pnpm run zip
+            popd >/dev/null
+          done
+
+      - name: Terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
+
       - name: Select/Create test workspace
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform workspace select -or-create "${{ needs.prepare.outputs.test_workspace }}"
 
-      - name: Terraform apply (test environment)
+      - name: Terraform apply (test)
         working-directory: ${{ env.TERRAFORM_DIR }}
         env:
           TF_VAR_prod_deployment: "false"
@@ -174,122 +218,30 @@ jobs:
           TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
         run: terraform apply -auto-approve
 
-      - name: Reselect prod workspace for deploy outputs
+      - name: Export test terraform outputs (base64 artifact)
         working-directory: ${{ env.TERRAFORM_DIR }}
-        run: terraform workspace select "${{ needs.prepare.outputs.prod_workspace }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform output -json > terraform-outputs.json
 
-        - name: Export Terraform outputs
-          id: prod_outputs
-          working-directory: ${{ env.TERRAFORM_DIR }}
-          shell: bash
-          run: |
-            set -euo pipefail
-            require_output() {
-              local key="$1"
-              local value
-              value="$(terraform output -raw "$key" 2>/dev/null || true)"
-              if [[ -z "${value:-}" || "${value}" == "null" ]]; then
-                echo "Required terraform output '$key' is empty or missing."
-                exit 1
-              fi
-              printf "%s" "$value"
-            }
-  
-            maybe_output() {
-              local key="$1"
-              local value
-              value="$(terraform output -raw "$key" 2>/dev/null || true)"
-              if [[ -z "${value:-}" ]]; then
-                printf "null"
-              else
-                printf "%s" "$value"
-              fi
-            }
+          # Validate required keys exist.
+          jq -er '.verification_codes_table_name.value' terraform-outputs.json >/dev/null
+          jq -er '.user_codes_table_name.value' terraform-outputs.json >/dev/null
 
-            backend_api_gateway_endpoint="$(maybe_output backend_api_gateway_endpoint)"
-            backend_api_gateway_base_route="$(maybe_output backend_api_gateway_base_route)"
-            backend_ecr_repository_url="$(require_output backend_ecr_repository_url)"
-            backend_ec2_instance_id="$(require_output backend_ec2_instance_id)"
-            backend_ec2_ssh_private_key_ssm_parameter_name="$(require_output backend_ec2_ssh_private_key_ssm_parameter_name)"
-            users_table_name="$(require_output users_table_name)"
-            user_codes_table_name="$(require_output user_codes_table_name)"
-            cognito_pool_id="$(require_output cognito_pool_id)"
-            cognito_client_id="$(require_output cognito_client_id)"
-            verification_codes_table_name="$(require_output verification_codes_table_name)"
-            email_templates_table_name="$(require_output email_templates_table_name)"
-            email_templates_bucket_name="$(require_output email_templates_bucket_name)"
-            action_log_table_name="$(require_output action_log_table_name)"
-            subscriptions_table_name="$(require_output subscriptions_table_name)"
-            subscriptions_table_user_index_name="$(require_output subscriptions_table_user_index_name)"
-  
-            {
-              echo "backend_api_gateway_endpoint=$backend_api_gateway_endpoint"
-              echo "backend_api_gateway_base_route=$backend_api_gateway_base_route"
-              echo "backend_ecr_repository_url=$backend_ecr_repository_url"
-              echo "backend_ec2_instance_id=$backend_ec2_instance_id"
-              echo "backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name"
-              echo "users_table_name=$users_table_name"
-              echo "user_codes_table_name=$user_codes_table_name"
-              echo "cognito_pool_id=$cognito_pool_id"
-              echo "cognito_client_id=$cognito_client_id"
-              echo "verification_codes_table_name=$verification_codes_table_name"
-              echo "email_templates_table_name=$email_templates_table_name"
-              echo "email_templates_bucket_name=$email_templates_bucket_name"
-              echo "action_log_table_name=$action_log_table_name"
-              echo "subscriptions_table_name=$subscriptions_table_name"
-              echo "subscriptions_table_user_index_name=$subscriptions_table_user_index_name"
-            } >> "$GITHUB_OUTPUT"
+          base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
 
-            cat > terraform-prod-outputs.env <<EOF
-            backend_api_gateway_endpoint=$backend_api_gateway_endpoint
-            backend_api_gateway_base_route=$backend_api_gateway_base_route
-            backend_ecr_repository_url=$backend_ecr_repository_url
-            backend_ec2_instance_id=$backend_ec2_instance_id
-            backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name
-            users_table_name=$users_table_name
-            user_codes_table_name=$user_codes_table_name
-            cognito_pool_id=$cognito_pool_id
-            cognito_client_id=$cognito_client_id
-            verification_codes_table_name=$verification_codes_table_name
-            email_templates_table_name=$email_templates_table_name
-            email_templates_bucket_name=$email_templates_bucket_name
-            action_log_table_name=$action_log_table_name
-            subscriptions_table_name=$subscriptions_table_name
-            subscriptions_table_user_index_name=$subscriptions_table_user_index_name
-            EOF
-
-      - name: Upload Terraform prod outputs artifact
+      - name: Upload test outputs artifact
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-prod-outputs
-          path: ${{ env.TERRAFORM_DIR }}/terraform-prod-outputs.env
+          name: terraform-test-outputs
+          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
           if-no-files-found: error
 
-      - name: Validate required prod outputs are present
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${{ steps.prod_outputs.outputs.cognito_pool_id }}"
-          test -n "${{ steps.prod_outputs.outputs.users_table_name }}"
-          test -n "${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}"
-          test "${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}" != "null"
-
-      - name: Export Terraform outputs (test workspace)
-        id: outputs_test
-        working-directory: ${{ env.TERRAFORM_DIR }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          terraform workspace select "${{ needs.prepare.outputs.test_workspace }}"
-          {
-            echo "verification_codes_table_name=$(terraform output -raw verification_codes_table_name)"
-            echo "user_codes_table_name=$(terraform output -raw user_codes_table_name)"
-          } >> "$GITHUB_OUTPUT"
-  
   tests:
     name: Run Tests With Console Logs
     runs-on: ubuntu-latest
-    needs: [prepare, terraform]
+    needs: [prepare, terraform_test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -323,7 +275,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform init
 
-      - name: Sync terraform outputs into appsettings files
+      - name: Sync terraform outputs into appsettings.Test.json
         shell: bash
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -333,41 +285,29 @@ jobs:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
+          set -euo pipefail
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Test.json" "${{ needs.prepare.outputs.test_workspace }}"
 
-      - name: Restore
-        run: dotnet restore VibraHeka.slnx
-
       - name: Run all .NET tests (verbose console logs)
+        shell: bash
         env:
           ASPNETCORE_ENVIRONMENT: Development
           Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
-          AWS_CODES_TABLE: ${{ needs.terraform.outputs.test_verification_codes_table_name }}
-          AWS_USER_CODES_TABLE: ${{ needs.terraform.outputs.test_user_codes_table_name }}
-        run: dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
+        run: |
+          set -euo pipefail
+          AWS_CODES_TABLE="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw verification_codes_table_name)"
+          AWS_USER_CODES_TABLE="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw user_codes_table_name)"
+          export AWS_CODES_TABLE AWS_USER_CODES_TABLE
+          dotnet test VibraHeka.slnx --logger "console;verbosity=detailed"
 
   build_and_push:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
-    needs: [ prepare, terraform ]
+    needs: [prepare, terraform_prod, tests]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Download Terraform prod outputs artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-prod-outputs
-          path: /tmp/terraform-outputs
-
-      - name: Load Terraform prod outputs
-        id: tf_out
-        shell: bash
-        run: |
-          set -euo pipefail
-          source /tmp/terraform-outputs/terraform-prod-outputs.env
-          echo "backend_ecr_repository_url=${backend_ecr_repository_url}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -393,20 +333,10 @@ jobs:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
+          set -euo pipefail
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.json" "${{ needs.prepare.outputs.prod_workspace }}"
           ./update-appsettings-from-terraform.sh "${{ env.TERRAFORM_DIR }}" "src/Web/appsettings.Development.json" "${{ needs.prepare.outputs.prod_workspace }}"
-
-      - name: Validate ECR repository output
-        shell: bash
-        env:
-          ECR_REPOSITORY_URL: ${{ steps.tf_out.outputs.backend_ecr_repository_url }}
-        run: |
-          set -euo pipefail
-          if [[ -z "${ECR_REPOSITORY_URL:-}" || "${ECR_REPOSITORY_URL}" == "null" ]]; then
-            echo "backend_ecr_repository_url is empty/null. Terraform output is not available."
-            exit 1
-          fi
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -420,12 +350,18 @@ jobs:
       - name: Build and push image
         shell: bash
         env:
-          ECR_REPOSITORY_URL: ${{ steps.tf_out.outputs.backend_ecr_repository_url }}
           IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
           BUILD_CONFIGURATION: ${{ needs.prepare.outputs.build_configuration }}
           CACHE_SCOPE: vibraheka-backend-${{ needs.prepare.outputs.workspace }}
         run: |
           set -euo pipefail
+          terraform -chdir="${{ env.TERRAFORM_DIR }}" workspace select "${{ needs.prepare.outputs.prod_workspace }}" >/dev/null
+          ECR_REPOSITORY_URL="$(terraform -chdir="${{ env.TERRAFORM_DIR }}" output -raw backend_ecr_repository_url)"
+          if [[ -z "${ECR_REPOSITORY_URL:-}" || "${ECR_REPOSITORY_URL}" == "null" ]]; then
+            echo "backend_ecr_repository_url is empty/null. Terraform output is not available."
+            exit 1
+          fi
+
           IMAGE_URI="${ECR_REPOSITORY_URL}:${IMAGE_TAG}"
           docker buildx build \
             --platform linux/arm64 \
@@ -439,22 +375,13 @@ jobs:
   seed_default_admin:
     name: Seed Default Admin User
     runs-on: ubuntu-latest
-    needs: [ terraform ]
+    needs: [terraform_prod]
     steps:
-      - name: Download Terraform prod outputs artifact
+      - name: Download prod terraform outputs
         uses: actions/download-artifact@v4
         with:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs
-
-      - name: Load Terraform prod outputs
-        id: tf_out
-        shell: bash
-        run: |
-          set -euo pipefail
-          source /tmp/terraform-outputs/terraform-prod-outputs.env
-          echo "cognito_pool_id=${cognito_pool_id}" >> "$GITHUB_OUTPUT"
-          echo "users_table_name=${users_table_name}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -466,19 +393,21 @@ jobs:
       - name: Create/confirm Cognito admin and seed DynamoDB admin row
         shell: bash
         env:
-          USER_POOL_ID: ${{ steps.tf_out.outputs.cognito_pool_id }}
-          USERS_TABLE: ${{ steps.tf_out.outputs.users_table_name }}
           ADMIN_EMAIL: ${{ env.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
         run: |
           set -euo pipefail
+
+          base64 -d /tmp/terraform-outputs/terraform-outputs.json.b64 > /tmp/tf-prod.json
+          USER_POOL_ID="$(jq -r '.cognito_pool_id.value' /tmp/tf-prod.json)"
+          USERS_TABLE="$(jq -r '.users_table_name.value' /tmp/tf-prod.json)"
+
           echo "Seed inputs: USER_POOL_ID='${USER_POOL_ID}', USERS_TABLE='${USERS_TABLE}'"
-          if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" ]]; then
+          if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" || "${USER_POOL_ID}" == "null" || "${USERS_TABLE}" == "null" ]]; then
             echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
             exit 1
           fi
 
-          # Create user if it does not exist.
           if ! aws cognito-idp admin-get-user --user-pool-id "$USER_POOL_ID" --username "$ADMIN_EMAIL" >/dev/null 2>&1; then
             aws cognito-idp admin-create-user \
               --user-pool-id "$USER_POOL_ID" \
@@ -490,7 +419,6 @@ jobs:
               --message-action SUPPRESS
           fi
 
-          # Force a permanent password and confirmed state.
           aws cognito-idp admin-set-user-password \
             --user-pool-id "$USER_POOL_ID" \
             --username "$ADMIN_EMAIL" \
@@ -505,50 +433,60 @@ jobs:
 
           NOW="$(date -u +"%Y-%m-%dT%H:%M:%S.0000000+00:00")"
 
-          # Upsert admin record in users table.
           aws dynamodb put-item \
             --table-name "$USERS_TABLE" \
-            --item "{
-              \"Id\": {\"S\": \"$SUB\"},
-              \"CustomerID\": {\"S\": \"\"},
-              \"Email\": {\"S\": \"$ADMIN_EMAIL\"},
-              \"FirstName\": {\"S\": \"Default\"},
-              \"MiddleName\": {\"S\": \"\"},
-              \"LastName\": {\"S\": \"Admin\"},
-              \"PhoneNumber\": {\"S\": \"+34600000000\"},
-              \"Bio\": {\"S\": \"System default administrator\"},
-              \"TimezoneID\": {\"S\": \"Europe/Madrid\"},
-              \"ProfilePictureUrl\": {\"S\": \"\"},
-              \"Role\": {\"S\": \"Admin\"},
-              \"Created\": {\"S\": \"$NOW\"},
-              \"CreatedBy\": {\"S\": \"$SUB\"},
-              \"LastModified\": {\"S\": \"$NOW\"},
-              \"LastModifiedBy\": {\"S\": \"$SUB\"}
+            --item "{\
+              \"Id\": {\"S\": \"$SUB\"},\
+              \"CustomerID\": {\"S\": \"\"},\
+              \"Email\": {\"S\": \"$ADMIN_EMAIL\"},\
+              \"FirstName\": {\"S\": \"Default\"},\
+              \"MiddleName\": {\"S\": \"\"},\
+              \"LastName\": {\"S\": \"Admin\"},\
+              \"PhoneNumber\": {\"S\": \"+34600000000\"},\
+              \"Bio\": {\"S\": \"System default administrator\"},\
+              \"TimezoneID\": {\"S\": \"Europe/Madrid\"},\
+              \"ProfilePictureUrl\": {\"S\": \"\"},\
+              \"Role\": {\"S\": \"Admin\"},\
+              \"Created\": {\"S\": \"$NOW\"},\
+              \"CreatedBy\": {\"S\": \"$SUB\"},\
+              \"LastModified\": {\"S\": \"$NOW\"},\
+              \"LastModifiedBy\": {\"S\": \"$SUB\"}\
             }"
 
   deploy_ec2:
     name: Deploy Backend And XRay On EC2
     runs-on: ubuntu-latest
-    needs: [ prepare, terraform, build_and_push ]
+    needs: [build_and_push]
     steps:
-      - name: Download Terraform prod outputs artifact
+      - name: Compute deploy metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          RAW_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          WORKSPACE="$(echo "$RAW_REF" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's#[^a-z0-9-]#-#g' \
+            | sed -E 's#-+#-#g' \
+            | sed -E 's#(^-|-$)##g' \
+            | cut -c1-18)"
+          if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
+
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            ENVIRONMENT_NAME="Production"
+          else
+            ENVIRONMENT_NAME="Development"
+          fi
+
+          IMAGE_TAG="${WORKSPACE}-${GITHUB_SHA::7}"
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "environment_name=${ENVIRONMENT_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Download prod terraform outputs
         uses: actions/download-artifact@v4
         with:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs
-
-      - name: Compute image URI for deploy
-        id: deploy_image
-        shell: bash
-        run: |
-          set -euo pipefail
-          source /tmp/terraform-outputs/terraform-prod-outputs.env
-          IMAGE_URI="${backend_ecr_repository_url}:${{ needs.prepare.outputs.image_tag }}"
-          if [[ -z "${backend_ecr_repository_url:-}" || "${backend_ecr_repository_url}" == "null" ]]; then
-            echo "backend_ecr_repository_url is empty/null; cannot compute deploy image URI."
-            exit 1
-          fi
-          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -556,6 +494,35 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Compute deploy inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d /tmp/terraform-outputs/terraform-outputs.json.b64 > /tmp/tf-prod.json
+          ECR_REPOSITORY_URL="$(jq -r '.backend_ecr_repository_url.value' /tmp/tf-prod.json)"
+          EC2_INSTANCE_ID="$(jq -r '.backend_ec2_instance_id.value' /tmp/tf-prod.json)"
+          SSH_KEY_PARAM="$(jq -r '.backend_ec2_ssh_private_key_ssm_parameter_name.value' /tmp/tf-prod.json)"
+
+          if [[ -z "${ECR_REPOSITORY_URL:-}" || "${ECR_REPOSITORY_URL}" == "null" ]]; then
+            echo "backend_ecr_repository_url is empty/null."
+            exit 1
+          fi
+          if [[ -z "${EC2_INSTANCE_ID:-}" || "${EC2_INSTANCE_ID}" == "null" ]]; then
+            echo "backend_ec2_instance_id is empty/null."
+            exit 1
+          fi
+          if [[ -z "${SSH_KEY_PARAM:-}" || "${SSH_KEY_PARAM}" == "null" ]]; then
+            echo "backend_ec2_ssh_private_key_ssm_parameter_name is empty/null."
+            exit 1
+          fi
+
+          IMAGE_URI="${ECR_REPOSITORY_URL}:${{ steps.meta.outputs.image_tag }}"
+          {
+            printf 'IMAGE_URI=%q\n' "$IMAGE_URI"
+            printf 'EC2_INSTANCE_ID=%q\n' "$EC2_INSTANCE_ID"
+            printf 'SSH_KEY_PARAM=%q\n' "$SSH_KEY_PARAM"
+          } > /tmp/deploy.env
 
       - name: Install Session Manager plugin (for SSH over SSM)
         shell: bash
@@ -566,19 +533,17 @@ jobs:
 
       - name: Retrieve generated SSH private key from SSM
         shell: bash
-        env:
-          SSH_KEY_PARAM: ${{ needs.terraform.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
         run: |
           set -euo pipefail
+          source /tmp/deploy.env
           aws ssm get-parameter --name "$SSH_KEY_PARAM" --with-decryption --query Parameter.Value --output text > /tmp/vibraheka-ec2.key
           chmod 600 /tmp/vibraheka-ec2.key
 
       - name: Build SSH config for SSM tunnel
         shell: bash
-        env:
-          EC2_INSTANCE_ID: ${{ needs.terraform.outputs.backend_ec2_instance_id }}
         run: |
           set -euo pipefail
+          source /tmp/deploy.env
           mkdir -p ~/.ssh
           cat > ~/.ssh/config <<EOF
           Host vibraheka-ec2
@@ -594,12 +559,12 @@ jobs:
         shell: bash
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
-          IMAGE_URI: ${{ steps.deploy_image.outputs.image_uri }}
-          APP_ENVIRONMENT: ${{ needs.prepare.outputs.environment_name }}
+          APP_ENVIRONMENT: ${{ steps.meta.outputs.environment_name }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           set -euo pipefail
+          source /tmp/deploy.env
           AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
           ssh vibraheka-ec2 "AWS_REGION='${AWS_REGION}' AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}' IMAGE_URI='${IMAGE_URI}' APP_ENVIRONMENT='${APP_ENVIRONMENT}' CI_AWS_ACCESS_KEY_ID='${AWS_ACCESS_KEY_ID}' CI_AWS_SECRET_ACCESS_KEY='${AWS_SECRET_ACCESS_KEY}' bash -s" <<'REMOTE'
             set -euxo pipefail
@@ -610,7 +575,6 @@ jobs:
             timeout 60 sudo systemctl start docker
             timeout 30 sudo systemctl is-active docker
 
-            # Build shared AWS profiles used by the backend process inside container.
             sudo mkdir -p /opt/vibraheka/.aws
             sudo chmod 700 /opt/vibraheka/.aws
             sudo sh -c "printf '%s\n' \
@@ -641,7 +605,6 @@ jobs:
             sudo docker rm -f vibraheka-backend || true
             sudo docker rm -f xray-daemon || true
 
-            # NOTE: Pulling from public.ecr.aws can hang/fail in private subnets without NAT.
             if timeout 120 sudo docker pull public.ecr.aws/xray/aws-xray-daemon:latest; then
               sudo docker run -d \
                 --name xray-daemon \
