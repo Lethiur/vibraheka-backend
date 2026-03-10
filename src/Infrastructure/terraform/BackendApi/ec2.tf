@@ -4,20 +4,23 @@ resource "aws_security_group" "backend_instance" {
   description = "Allow backend traffic from API Gateway/NLB private path and SSH for internal management."
   vpc_id      = aws_vpc.backend.id
 
-  # Application traffic from private subnets where NLB nodes live.
+  # Application traffic from the public internet (cheapest setup).
   ingress {
     from_port   = var.backend_port
     to_port     = var.backend_port
     protocol    = "tcp"
-    cidr_blocks = [var.private_subnet_a_cidr, var.private_subnet_b_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # SSH management access restricted to private VPC traffic (used with SSM/SSH tunnel from CI).
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.enable_public_ssh ? var.ssh_allowed_cidrs : [var.vpc_cidr]
+  dynamic "ingress" {
+    for_each = var.enable_ssh_ingress ? [1] : []
+    content {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.ssh_allowed_cidrs
+    }
   }
 
   # Egress to AWS services and package/image endpoints.
@@ -101,33 +104,60 @@ resource "aws_ssm_parameter" "backend_ssh_private_key" {
   }
 }
 
-# Private EC2 spot instance hosting backend app.
-resource "aws_instance" "backend_spot" {
+# Single public EC2 instance with Elastic IP (minimal VPC setup).
+resource "aws_instance" "backend" {
   ami                         = data.aws_ami.amazon_linux_2023_arm64.id
   instance_type               = var.backend_instance_type
   subnet_id                   = aws_subnet.private_a.id
   vpc_security_group_ids      = [aws_security_group.backend_instance.id]
-  associate_public_ip_address = var.enable_public_ssh
+  associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.backend.name
   key_name                    = aws_key_pair.backend.key_name
 
-  instance_market_options {
-    market_type = "spot"
-    spot_options {
-      spot_instance_type = "one-time"
-    }
-  }
-
   user_data = <<-EOF
               #!/bin/bash
+              set -euxo pipefail
+
               mkdir -p /opt/backend
               echo "VibraHeka backend host ready for container deployment in ${terraform.workspace}" > /opt/backend/host-ready.txt
+
+              # Fail2ban: basic SSH brute-force protection.
+              if ! dnf -y install fail2ban; then
+                dnf -y install epel-release || true
+                dnf -y install fail2ban || true
+              fi
+              mkdir -p /etc/fail2ban/jail.d
+              cat > /etc/fail2ban/jail.d/sshd.local <<'JAIL'
+              [sshd]
+              enabled = true
+              backend = systemd
+              bantime = 1h
+              findtime = 10m
+              maxretry = 5
+              JAIL
+              systemctl enable --now fail2ban || true
               EOF
 
   tags = {
-    Name        = "vibraheka-backend-spot-${terraform.workspace}"
+    Name        = "vibraheka-backend-${terraform.workspace}"
     environment = terraform.workspace
     created     = "terraform"
     service     = "BackendApi"
   }
+}
+
+resource "aws_eip" "backend" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "vibraheka-backend-eip-${terraform.workspace}"
+    environment = terraform.workspace
+    created     = "terraform"
+    service     = "BackendApi"
+  }
+}
+
+resource "aws_eip_association" "backend" {
+  instance_id   = aws_instance.backend.id
+  allocation_id = aws_eip.backend.id
 }

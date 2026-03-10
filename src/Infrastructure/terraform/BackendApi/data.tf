@@ -3,9 +3,6 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# Current AWS region (used to build VPC endpoint service names).
-data "aws_region" "current" {}
-
 # Latest Amazon Linux 2023 ARM64 AMI for minimal-cost Graviton instances.
 data "aws_ami" "amazon_linux_2023_arm64" {
   most_recent = true
@@ -38,8 +35,6 @@ locals {
   workspace_suffix_34 = substr(local.workspace_safe, 0, 34) # 64-char instance profile name limit.
   workspace_suffix_37 = substr(local.workspace_safe, 0, 37) # 64-char IAM role name limit.
 
-  lb_name           = "vibraheka-be-nlb-${local.workspace_suffix_8}-${local.workspace_hash}"
-  target_group_name = "vibraheka-be-tg-${local.workspace_suffix_8}-${local.workspace_hash}"
   iam_role_name    = "vibraheka-backend-ec2-role-${local.workspace_suffix_37}"
   iam_profile_name = "vibraheka-backend-ec2-profile-${local.workspace_suffix_34}"
 }

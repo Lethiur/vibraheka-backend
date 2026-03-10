@@ -14,18 +14,18 @@ output "api_gateway_id" {
 }
 
 output "backend_instance_id" {
-  value       = aws_instance.backend_spot.id
-  description = "Private EC2 spot instance id serving backend traffic."
+  value       = aws_instance.backend.id
+  description = "Public EC2 instance id serving backend traffic."
 }
 
 output "backend_instance_private_ip" {
-  value       = aws_instance.backend_spot.private_ip
-  description = "Private IP of the backend EC2 spot instance."
+  value       = aws_instance.backend.private_ip
+  description = "Private IP of the backend EC2 instance."
 }
 
 output "backend_instance_public_ip" {
-  value       = aws_instance.backend_spot.public_ip
-  description = "Public IP of the backend EC2 spot instance when public SSH is enabled."
+  value       = aws_eip.backend.public_ip
+  description = "Elastic IP of the backend EC2 instance."
 }
 
 output "backend_instance_key_pair_name" {

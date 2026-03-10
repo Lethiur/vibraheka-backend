@@ -10,12 +10,6 @@ variable "private_subnet_a_cidr" {
   default     = "10.60.1.0/24"
 }
 
-variable "private_subnet_b_cidr" {
-  description = "CIDR block for private subnet B."
-  type        = string
-  default     = "10.60.2.0/24"
-}
-
 variable "backend_instance_type" {
   description = "EC2 instance type for the backend host (spot)."
   type        = string
@@ -34,10 +28,10 @@ variable "ssh_allowed_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "enable_public_ssh" {
-  description = "If true, backend EC2 is placed in a public subnet with public IP and SSH ingress from ssh_allowed_cidrs."
+variable "enable_ssh_ingress" {
+  description = "If true, opens inbound SSH (22) from ssh_allowed_cidrs. Prefer false and use SSM port forwarding instead."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "create_ssh_key_pair" {

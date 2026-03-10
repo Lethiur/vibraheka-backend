@@ -75,7 +75,6 @@ jobs:
       backend_api_gateway_base_route: ${{ steps.prod_outputs.outputs.backend_api_gateway_base_route }}
       backend_ecr_repository_url: ${{ steps.prod_outputs.outputs.backend_ecr_repository_url }}
       backend_ec2_instance_id: ${{ steps.prod_outputs.outputs.backend_ec2_instance_id }}
-      backend_ec2_private_ip: ${{ steps.prod_outputs.outputs.backend_ec2_private_ip }}
       backend_ec2_ssh_private_key_ssm_parameter_name: ${{ steps.prod_outputs.outputs.backend_ec2_ssh_private_key_ssm_parameter_name }}
       users_table_name: ${{ steps.prod_outputs.outputs.users_table_name }}
       user_codes_table_name: ${{ steps.prod_outputs.outputs.user_codes_table_name }}
@@ -211,7 +210,6 @@ jobs:
           backend_api_gateway_base_route="$(maybe_output backend_api_gateway_base_route)"
           backend_ecr_repository_url="$(require_output backend_ecr_repository_url)"
           backend_ec2_instance_id="$(maybe_output backend_ec2_instance_id)"
-          backend_ec2_private_ip="$(maybe_output backend_ec2_private_ip)"
           backend_ec2_ssh_private_key_ssm_parameter_name="$(maybe_output backend_ec2_ssh_private_key_ssm_parameter_name)"
           users_table_name="$(require_output users_table_name)"
           user_codes_table_name="$(require_output user_codes_table_name)"
@@ -229,7 +227,6 @@ jobs:
             echo "backend_api_gateway_base_route=$backend_api_gateway_base_route"
             echo "backend_ecr_repository_url=$backend_ecr_repository_url"
             echo "backend_ec2_instance_id=$backend_ec2_instance_id"
-            echo "backend_ec2_private_ip=$backend_ec2_private_ip"
             echo "backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name"
             echo "users_table_name=$users_table_name"
             echo "user_codes_table_name=$user_codes_table_name"
@@ -248,7 +245,6 @@ jobs:
           backend_api_gateway_base_route=$backend_api_gateway_base_route
           backend_ecr_repository_url=$backend_ecr_repository_url
           backend_ec2_instance_id=$backend_ec2_instance_id
-          backend_ec2_private_ip=$backend_ec2_private_ip
           backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name
           users_table_name=$users_table_name
           user_codes_table_name=$user_codes_table_name
