@@ -184,27 +184,27 @@ jobs:
           shell: bash
           run: |
             set -euo pipefail
-          require_output() {
-            local key="$1"
-            local value
-            value="$(terraform output -raw "$key" 2>/dev/null || true)"
-            if [[ -z "${value:-}" || "${value}" == "null" ]]; then
-              echo "Required terraform output '$key' is empty or missing."
-              exit 1
-            fi
-            printf "%s" "$value"
-          }
-
-          maybe_output() {
-            local key="$1"
-            local value
-            value="$(terraform output -raw "$key" 2>/dev/null || true)"
-            if [[ -z "${value:-}" ]]; then
-              printf "null"
-            else
+            require_output() {
+              local key="$1"
+              local value
+              value="$(terraform output -raw "$key" 2>/dev/null || true)"
+              if [[ -z "${value:-}" || "${value}" == "null" ]]; then
+                echo "Required terraform output '$key' is empty or missing."
+                exit 1
+              fi
               printf "%s" "$value"
-            fi
-          }
+            }
+  
+            maybe_output() {
+              local key="$1"
+              local value
+              value="$(terraform output -raw "$key" 2>/dev/null || true)"
+              if [[ -z "${value:-}" ]]; then
+                printf "null"
+              else
+                printf "%s" "$value"
+              fi
+            }
 
             backend_api_gateway_endpoint="$(maybe_output backend_api_gateway_endpoint)"
             backend_api_gateway_base_route="$(maybe_output backend_api_gateway_base_route)"
@@ -215,30 +215,30 @@ jobs:
             user_codes_table_name="$(require_output user_codes_table_name)"
             cognito_pool_id="$(require_output cognito_pool_id)"
             cognito_client_id="$(require_output cognito_client_id)"
-          verification_codes_table_name="$(require_output verification_codes_table_name)"
-          email_templates_table_name="$(require_output email_templates_table_name)"
-          email_templates_bucket_name="$(require_output email_templates_bucket_name)"
-          action_log_table_name="$(require_output action_log_table_name)"
-          subscriptions_table_name="$(require_output subscriptions_table_name)"
-          subscriptions_table_user_index_name="$(require_output subscriptions_table_user_index_name)"
-
-          {
-            echo "backend_api_gateway_endpoint=$backend_api_gateway_endpoint"
-            echo "backend_api_gateway_base_route=$backend_api_gateway_base_route"
-            echo "backend_ecr_repository_url=$backend_ecr_repository_url"
-            echo "backend_ec2_instance_id=$backend_ec2_instance_id"
-            echo "backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name"
-            echo "users_table_name=$users_table_name"
-            echo "user_codes_table_name=$user_codes_table_name"
-            echo "cognito_pool_id=$cognito_pool_id"
-            echo "cognito_client_id=$cognito_client_id"
-            echo "verification_codes_table_name=$verification_codes_table_name"
-            echo "email_templates_table_name=$email_templates_table_name"
-            echo "email_templates_bucket_name=$email_templates_bucket_name"
-            echo "action_log_table_name=$action_log_table_name"
-            echo "subscriptions_table_name=$subscriptions_table_name"
-            echo "subscriptions_table_user_index_name=$subscriptions_table_user_index_name"
-          } >> "$GITHUB_OUTPUT"
+            verification_codes_table_name="$(require_output verification_codes_table_name)"
+            email_templates_table_name="$(require_output email_templates_table_name)"
+            email_templates_bucket_name="$(require_output email_templates_bucket_name)"
+            action_log_table_name="$(require_output action_log_table_name)"
+            subscriptions_table_name="$(require_output subscriptions_table_name)"
+            subscriptions_table_user_index_name="$(require_output subscriptions_table_user_index_name)"
+  
+            {
+              echo "backend_api_gateway_endpoint=$backend_api_gateway_endpoint"
+              echo "backend_api_gateway_base_route=$backend_api_gateway_base_route"
+              echo "backend_ecr_repository_url=$backend_ecr_repository_url"
+              echo "backend_ec2_instance_id=$backend_ec2_instance_id"
+              echo "backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name"
+              echo "users_table_name=$users_table_name"
+              echo "user_codes_table_name=$user_codes_table_name"
+              echo "cognito_pool_id=$cognito_pool_id"
+              echo "cognito_client_id=$cognito_client_id"
+              echo "verification_codes_table_name=$verification_codes_table_name"
+              echo "email_templates_table_name=$email_templates_table_name"
+              echo "email_templates_bucket_name=$email_templates_bucket_name"
+              echo "action_log_table_name=$action_log_table_name"
+              echo "subscriptions_table_name=$subscriptions_table_name"
+              echo "subscriptions_table_user_index_name=$subscriptions_table_user_index_name"
+            } >> "$GITHUB_OUTPUT"
 
             cat > terraform-prod-outputs.env <<EOF
             backend_api_gateway_endpoint=$backend_api_gateway_endpoint
@@ -247,16 +247,16 @@ jobs:
             backend_ec2_instance_id=$backend_ec2_instance_id
             backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name
             users_table_name=$users_table_name
-          user_codes_table_name=$user_codes_table_name
-          cognito_pool_id=$cognito_pool_id
-          cognito_client_id=$cognito_client_id
-          verification_codes_table_name=$verification_codes_table_name
-          email_templates_table_name=$email_templates_table_name
-          email_templates_bucket_name=$email_templates_bucket_name
-          action_log_table_name=$action_log_table_name
-          subscriptions_table_name=$subscriptions_table_name
-          subscriptions_table_user_index_name=$subscriptions_table_user_index_name
-          EOF
+            user_codes_table_name=$user_codes_table_name
+            cognito_pool_id=$cognito_pool_id
+            cognito_client_id=$cognito_client_id
+            verification_codes_table_name=$verification_codes_table_name
+            email_templates_table_name=$email_templates_table_name
+            email_templates_bucket_name=$email_templates_bucket_name
+            action_log_table_name=$action_log_table_name
+            subscriptions_table_name=$subscriptions_table_name
+            subscriptions_table_user_index_name=$subscriptions_table_user_index_name
+            EOF
 
       - name: Upload Terraform prod outputs artifact
         uses: actions/upload-artifact@v4
