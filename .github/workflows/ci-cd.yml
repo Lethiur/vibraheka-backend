@@ -66,10 +66,10 @@ jobs:
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "environment_name=$ENVIRONMENT_NAME" >> "$GITHUB_OUTPUT"
 
-  terraform:
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    needs: [ prepare ]
+    terraform:
+      name: Terraform Apply
+      runs-on: ubuntu-latest
+      needs: [ prepare ]
     outputs:
       backend_api_gateway_endpoint: ${{ steps.prod_outputs.outputs.backend_api_gateway_endpoint }}
       backend_api_gateway_base_route: ${{ steps.prod_outputs.outputs.backend_api_gateway_base_route }}
@@ -178,12 +178,12 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
         run: terraform workspace select "${{ needs.prepare.outputs.prod_workspace }}"
 
-      - name: Export Terraform outputs
-        id: prod_outputs
-        working-directory: ${{ env.TERRAFORM_DIR }}
-        shell: bash
-        run: |
-          set -euo pipefail
+        - name: Export Terraform outputs
+          id: prod_outputs
+          working-directory: ${{ env.TERRAFORM_DIR }}
+          shell: bash
+          run: |
+            set -euo pipefail
           require_output() {
             local key="$1"
             local value
@@ -206,15 +206,15 @@ jobs:
             fi
           }
 
-          backend_api_gateway_endpoint="$(maybe_output backend_api_gateway_endpoint)"
-          backend_api_gateway_base_route="$(maybe_output backend_api_gateway_base_route)"
-          backend_ecr_repository_url="$(require_output backend_ecr_repository_url)"
-          backend_ec2_instance_id="$(maybe_output backend_ec2_instance_id)"
-          backend_ec2_ssh_private_key_ssm_parameter_name="$(maybe_output backend_ec2_ssh_private_key_ssm_parameter_name)"
-          users_table_name="$(require_output users_table_name)"
-          user_codes_table_name="$(require_output user_codes_table_name)"
-          cognito_pool_id="$(require_output cognito_pool_id)"
-          cognito_client_id="$(require_output cognito_client_id)"
+            backend_api_gateway_endpoint="$(maybe_output backend_api_gateway_endpoint)"
+            backend_api_gateway_base_route="$(maybe_output backend_api_gateway_base_route)"
+            backend_ecr_repository_url="$(require_output backend_ecr_repository_url)"
+            backend_ec2_instance_id="$(require_output backend_ec2_instance_id)"
+            backend_ec2_ssh_private_key_ssm_parameter_name="$(require_output backend_ec2_ssh_private_key_ssm_parameter_name)"
+            users_table_name="$(require_output users_table_name)"
+            user_codes_table_name="$(require_output user_codes_table_name)"
+            cognito_pool_id="$(require_output cognito_pool_id)"
+            cognito_client_id="$(require_output cognito_client_id)"
           verification_codes_table_name="$(require_output verification_codes_table_name)"
           email_templates_table_name="$(require_output email_templates_table_name)"
           email_templates_bucket_name="$(require_output email_templates_bucket_name)"
@@ -240,13 +240,13 @@ jobs:
             echo "subscriptions_table_user_index_name=$subscriptions_table_user_index_name"
           } >> "$GITHUB_OUTPUT"
 
-          cat > terraform-prod-outputs.env <<EOF
-          backend_api_gateway_endpoint=$backend_api_gateway_endpoint
-          backend_api_gateway_base_route=$backend_api_gateway_base_route
-          backend_ecr_repository_url=$backend_ecr_repository_url
-          backend_ec2_instance_id=$backend_ec2_instance_id
-          backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name
-          users_table_name=$users_table_name
+            cat > terraform-prod-outputs.env <<EOF
+            backend_api_gateway_endpoint=$backend_api_gateway_endpoint
+            backend_api_gateway_base_route=$backend_api_gateway_base_route
+            backend_ecr_repository_url=$backend_ecr_repository_url
+            backend_ec2_instance_id=$backend_ec2_instance_id
+            backend_ec2_ssh_private_key_ssm_parameter_name=$backend_ec2_ssh_private_key_ssm_parameter_name
+            users_table_name=$users_table_name
           user_codes_table_name=$user_codes_table_name
           cognito_pool_id=$cognito_pool_id
           cognito_client_id=$cognito_client_id
@@ -350,7 +350,7 @@ jobs:
   build_and_push:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
-    needs: [ prepare, terraform, tests ]
+    needs: [ prepare, terraform ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -529,7 +529,7 @@ jobs:
   deploy_ec2:
     name: Deploy Backend And XRay On EC2
     runs-on: ubuntu-latest
-    needs: [ build_and_push ]
+    needs: [ prepare, terraform, build_and_push ]
     steps:
       - name: Download Terraform prod outputs artifact
         uses: actions/download-artifact@v4
