@@ -288,6 +288,7 @@ jobs:
   
     tests:
       name: Run Tests With Console Logs
+      id: tests
       runs-on: ubuntu-latest
       needs: [prepare, terraform]
       steps:
