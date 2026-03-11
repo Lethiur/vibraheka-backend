@@ -32,15 +32,13 @@ WORKDIR /app
 ARG APP_UID=10001
 ARG APP_GID=10001
 RUN set -eux; \
-    groupadd -g "${APP_GID}" app; \
-    useradd -u "${APP_UID}" -g "${APP_GID}" -m -s /usr/sbin/nologin app; \
-    chown -R app:app /app
+    chown -R "${APP_UID}:${APP_GID}" /app
 
 # Runtime URLs can be overridden in deployment environment if needed.
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-COPY --from=build --chown=app:app /app/publish ./
+COPY --from=build --chown=${APP_UID}:${APP_GID} /app/publish ./
 
-USER app
+USER ${APP_UID}:${APP_GID}
 ENTRYPOINT ["dotnet", "VibraHeka.Web.dll"]
