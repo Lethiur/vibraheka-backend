@@ -13,6 +13,10 @@ on:
       - staging
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: write
+
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_PROFILE_NAME: Twingers
@@ -125,12 +129,13 @@ jobs:
         env:
           TF_VAR_prod_deployment: "true"
           TF_VAR_create_ssh_key_pair: "true"
+          TF_VAR_enable_ssh_ingress: "true"
           TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
           TF_VAR_stripe_event_bus_arn: ${{ secrets.STRIPE_EVENT_BUS_ARN }}
           TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
         run: terraform apply -auto-approve
 
-      - name: Export prod terraform outputs (base64 artifact)
+      - name: Export prod terraform outputs (encrypted artifact)
         working-directory: ${{ env.TERRAFORM_DIR }}
         shell: bash
         run: |
@@ -144,14 +149,20 @@ jobs:
           jq -er '.cognito_pool_id.value' terraform-outputs.json >/dev/null
           jq -er '.users_table_name.value' terraform-outputs.json >/dev/null
 
-          base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
+      - name: Encrypt prod terraform outputs
+        uses: ./.github/actions/openssl-encrypt
+        with:
+          in: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json
+          out: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.enc
+          passphrase: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
 
       - name: Upload prod outputs artifact
         uses: actions/upload-artifact@v6
         with:
           name: terraform-prod-outputs
-          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
+          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.enc
           if-no-files-found: error
+          retention-days: 1
 
   terraform_test:
     name: Terraform Apply (test workspace)
@@ -218,7 +229,7 @@ jobs:
           TF_VAR_password_reset_token_secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
         run: terraform apply -auto-approve
 
-      - name: Export test terraform outputs (base64 artifact)
+      - name: Export test terraform outputs (encrypted artifact)
         working-directory: ${{ env.TERRAFORM_DIR }}
         shell: bash
         run: |
@@ -229,14 +240,20 @@ jobs:
           jq -er '.verification_codes_table_name.value' terraform-outputs.json >/dev/null
           jq -er '.user_codes_table_name.value' terraform-outputs.json >/dev/null
 
-          base64 -w0 terraform-outputs.json > terraform-outputs.json.b64
+      - name: Encrypt test terraform outputs
+        uses: ./.github/actions/openssl-encrypt
+        with:
+          in: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json
+          out: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.enc
+          passphrase: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
 
       - name: Upload test outputs artifact
         uses: actions/upload-artifact@v6
         with:
           name: terraform-test-outputs
-          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.b64
+          path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.enc
           if-no-files-found: error
+          retention-days: 1
 
   tests_core:
     name: Tests (unit + functional + integration)
@@ -307,6 +324,13 @@ jobs:
           name: terraform-prod-outputs
           path: /tmp/terraform-outputs-prod
 
+      - name: Decrypt prod terraform outputs
+        uses: ./.github/actions/openssl-decrypt
+        with:
+          in: /tmp/terraform-outputs-prod/terraform-outputs.json.enc
+          out: /tmp/tf-prod.json
+          passphrase: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+
       - name: Sync terraform outputs into appsettings files
         shell: bash
         env:
@@ -314,7 +338,6 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
-          base64 -d /tmp/terraform-outputs-prod/terraform-outputs.json.b64 > /tmp/tf-prod.json
           chmod +x ./update-appsettings-from-terraform.sh
           ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
           ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
@@ -370,6 +393,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Decrypt prod terraform outputs
+        uses: ./.github/actions/openssl-decrypt
+        with:
+          in: /tmp/terraform-outputs/terraform-outputs.json.enc
+          out: /tmp/tf-prod.json
+          passphrase: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+
       - name: Create/confirm Cognito admin and seed DynamoDB admin row
         shell: bash
         env:
@@ -378,7 +408,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          base64 -d /tmp/terraform-outputs/terraform-outputs.json.b64 > /tmp/tf-prod.json
           USER_POOL_ID="$(jq -r '.cognito_pool_id.value' /tmp/tf-prod.json)"
           USERS_TABLE="$(jq -r '.users_table_name.value' /tmp/tf-prod.json)"
 
@@ -475,11 +504,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Decrypt prod terraform outputs
+        uses: ./.github/actions/openssl-decrypt
+        with:
+          in: /tmp/terraform-outputs/terraform-outputs.json.enc
+          out: /tmp/tf-prod.json
+          passphrase: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+
       - name: Compute deploy inputs
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d /tmp/terraform-outputs/terraform-outputs.json.b64 > /tmp/tf-prod.json
           ECR_REPOSITORY_URL="$(jq -r '.backend_ecr_repository_url.value' /tmp/tf-prod.json)"
           EC2_INSTANCE_ID="$(jq -r '.backend_ec2_instance_id.value' /tmp/tf-prod.json)"
           SSH_KEY_PARAM="$(jq -r '.backend_ec2_ssh_private_key_ssm_parameter_name.value' /tmp/tf-prod.json)"
@@ -575,7 +610,8 @@ jobs:
               'region = ${AWS_REGION}' \
               'output = json' \
               > /opt/vibraheka/.aws/config"
-            sudo chmod 600 /opt/vibraheka/.aws/credentials /opt/vibraheka/.aws/config
+            # Container runs as non-root (UID/GID 10001), so credentials must be world-readable inside the container.
+            sudo chmod 644 /opt/vibraheka/.aws/credentials /opt/vibraheka/.aws/config
 
             timeout 120 aws ecr get-login-password --region "${AWS_REGION}" \
               | sudo docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -594,7 +630,9 @@ jobs:
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
                 -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
-                -v /opt/vibraheka/.aws:/root/.aws:ro \
+                -e AWS_SHARED_CREDENTIALS_FILE="/aws/credentials" \
+                -e AWS_CONFIG_FILE="/aws/config" \
+                -v /opt/vibraheka/.aws:/aws:ro \
                 public.ecr.aws/xray/aws-xray-daemon:latest
             else
               echo "[deploy] xray image pull skipped (no internet/public registry access)."
@@ -608,9 +646,39 @@ jobs:
               -e AWS_PROFILE="Twingers" \
               -e AWS__Profile="Twingers" \
               -e AWSLogging__Profile="Twingers" \
-              -v /opt/vibraheka/.aws:/root/.aws:ro \
+              -e AWS_SHARED_CREDENTIALS_FILE="/aws/credentials" \
+              -e AWS_CONFIG_FILE="/aws/config" \
+              -v /opt/vibraheka/.aws:/aws:ro \
               "${IMAGE_URI}"
 
             sudo docker ps
             echo "[deploy] finished on $(date -u +%FT%TZ)"
           REMOTE
+
+  cleanup_artifacts:
+    name: Cleanup Terraform Output Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [terraform_prod, terraform_test, tests_core, tests_acceptance, build_and_push, seed_default_admin, deploy_ec2]
+    steps:
+      - name: Delete terraform output artifacts for this run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = context.runId;
+            const namesToDelete = new Set(["terraform-prod-outputs", "terraform-test-outputs"]);
+
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              { owner, repo, run_id: runId, per_page: 100 }
+            );
+
+            const matches = artifacts.filter(a => namesToDelete.has(a.name));
+            core.info(`Found ${matches.length} artifacts to delete.`);
+
+            for (const a of matches) {
+              core.info(`Deleting artifact: ${a.name} (id=${a.id})`);
+              await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: a.id });
+            }

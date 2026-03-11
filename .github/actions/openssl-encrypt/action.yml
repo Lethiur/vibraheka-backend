@@ -1,0 +1,40 @@
+name: OpenSSL Encrypt File
+description: Encrypt a file using OpenSSL (AES-256-GCM + PBKDF2).
+
+inputs:
+  in:
+    description: Path to input file.
+    required: true
+  out:
+    description: Path to encrypted output file.
+    required: true
+  passphrase:
+    description: Passphrase used to derive encryption key (keep secret).
+    required: true
+  delete-in:
+    description: If true, deletes the input file after successful encryption.
+    required: false
+    default: "true"
+  iter:
+    description: PBKDF2 iterations.
+    required: false
+    default: "200000"
+
+runs:
+  using: composite
+  steps:
+    - name: Encrypt
+      shell: bash
+      env:
+        OPENSSL_PASSPHRASE: ${{ inputs.passphrase }}
+        OPENSSL_ITER: ${{ inputs.iter }}
+      run: |
+        set -euo pipefail
+        openssl enc -aes-256-gcm -salt -pbkdf2 -iter "${OPENSSL_ITER}" \
+          -pass env:OPENSSL_PASSPHRASE \
+          -in "${{ inputs.in }}" \
+          -out "${{ inputs.out }}"
+
+        if [[ "${{ inputs.delete-in }}" == "true" ]]; then
+          rm -f "${{ inputs.in }}"
+        fi

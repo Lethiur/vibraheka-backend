@@ -15,7 +15,7 @@ inputs:
     description: AWS profile name used by the application/tests.
     required: true
   terraform-outputs-artifact-name:
-    description: Artifact name that contains terraform-outputs.json.b64.
+    description: Artifact name that contains terraform-outputs.json.enc.
     required: false
     default: terraform-test-outputs
   appsettings-path:
@@ -62,6 +62,13 @@ runs:
       with:
         global-json-file: global.json
 
+    - name: Decrypt terraform outputs
+      uses: ./.github/actions/openssl-decrypt
+      with:
+        in: /tmp/terraform-outputs-test/terraform-outputs.json.enc
+        out: /tmp/tf-test.json
+        passphrase: ${{ inputs.password-reset-token-secret }}
+
     - name: Sync terraform outputs into appsettings
       shell: bash
       env:
@@ -73,7 +80,6 @@ runs:
         STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
       run: |
         set -euo pipefail
-        base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
         chmod +x ./update-appsettings-from-terraform.sh
         ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "${{ inputs.appsettings-path }}"
 
