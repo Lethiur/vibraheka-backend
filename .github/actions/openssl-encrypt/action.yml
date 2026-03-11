@@ -1,5 +1,5 @@
 name: OpenSSL Encrypt File
-description: Encrypt a file using OpenSSL (AES-256-GCM + PBKDF2).
+description: Encrypt a file using OpenSSL (AES-256-CBC + PBKDF2).
 
 inputs:
   in:
@@ -30,7 +30,9 @@ runs:
         OPENSSL_ITER: ${{ inputs.iter }}
       run: |
         set -euo pipefail
-        openssl enc -aes-256-gcm -salt -pbkdf2 -iter "${OPENSSL_ITER}" \
+        # Note: `openssl enc` on GitHub-hosted runners does not support AEAD ciphers (like GCM).
+        # Use AES-256-CBC with PBKDF2 instead.
+        openssl enc -aes-256-cbc -salt -pbkdf2 -iter "${OPENSSL_ITER}" -md sha256 \
           -pass env:OPENSSL_PASSPHRASE \
           -in "${{ inputs.in }}" \
           -out "${{ inputs.out }}"

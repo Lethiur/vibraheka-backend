@@ -1,5 +1,5 @@
 name: OpenSSL Decrypt File
-description: Decrypt a file encrypted by OpenSSL (AES-256-GCM + PBKDF2).
+description: Decrypt a file encrypted by OpenSSL (AES-256-CBC + PBKDF2).
 
 inputs:
   in:
@@ -26,7 +26,7 @@ runs:
         OPENSSL_ITER: ${{ inputs.iter }}
       run: |
         set -euo pipefail
-        openssl enc -d -aes-256-gcm -pbkdf2 -iter "${OPENSSL_ITER}" \
+        openssl enc -d -aes-256-cbc -pbkdf2 -iter "${OPENSSL_ITER}" -md sha256 \
           -pass env:OPENSSL_PASSPHRASE \
           -in "${{ inputs.in }}" \
           -out "${{ inputs.out }}"
