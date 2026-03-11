@@ -246,58 +246,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Download test terraform outputs
-        uses: actions/download-artifact@v7
+      - name: Run core tests
+        uses: ./.github/actions/dotnet-tests-with-tf-outputs
         with:
-          name: terraform-test-outputs
-          path: /tmp/terraform-outputs-test
-
-      - name: Create local AWS profile for SDK-based tools
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
-          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-
-      - name: Sync terraform outputs into appsettings.Test.json
-        shell: bash
-        env:
-          PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
-        run: |
-          set -euo pipefail
-          base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
-          chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "src/Web/appsettings.Test.json"
-
-      - name: Run core .NET tests (verbose console logs)
-        shell: bash
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
-        run: |
-          set -euo pipefail
-          AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
-          AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
-          export AWS_CODES_TABLE AWS_USER_CODES_TABLE
-
-          for proj in \
-            "tests/Domain.UnitTests/Domain.UnitTests.csproj" \
-            "tests/Application.UnitTests/Application.UnitTests.csproj" \
-            "tests/Application.FunctionalTests/Application.FunctionalTests.csproj" \
-            "tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" \
-            "tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj"
-          do
-            dotnet test "$proj" --logger "console;verbosity=detailed"
-          done
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
+          terraform-outputs-artifact-name: terraform-test-outputs
+          appsettings-path: src/Web/appsettings.Test.json
+          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+          projects: |
+            tests/Domain.UnitTests/Domain.UnitTests.csproj
+            tests/Application.UnitTests/Application.UnitTests.csproj
+            tests/Application.FunctionalTests/Application.FunctionalTests.csproj
+            tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj
+            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
 
   tests_acceptance:
     name: Tests (acceptance)
@@ -307,49 +272,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Download test terraform outputs
-        uses: actions/download-artifact@v7
+      - name: Run acceptance tests
+        uses: ./.github/actions/dotnet-tests-with-tf-outputs
         with:
-          name: terraform-test-outputs
-          path: /tmp/terraform-outputs-test
-
-      - name: Create local AWS profile for SDK-based tools
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          aws configure set region "${{ env.AWS_REGION }}" --profile "${{ env.AWS_PROFILE_NAME }}"
-          echo "AWS_PROFILE=${{ env.AWS_PROFILE_NAME }}" >> "$GITHUB_ENV"
-          echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-
-      - name: Sync terraform outputs into appsettings.Test.json
-        shell: bash
-        env:
-          PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
-        run: |
-          set -euo pipefail
-          base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
-          chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "src/Web/appsettings.Test.json"
-
-      - name: Run acceptance tests (verbose console logs)
-        shell: bash
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-          Stripe__SecretKey: ${{ secrets.STRIPE_API_KEY }}
-        run: |
-          set -euo pipefail
-          AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
-          AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
-          export AWS_CODES_TABLE AWS_USER_CODES_TABLE
-          dotnet test "tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj" --logger "console;verbosity=detailed"
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
+          terraform-outputs-artifact-name: terraform-test-outputs
+          appsettings-path: src/Web/appsettings.Test.json
+          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+          projects: |
+            tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj
 
   build_and_push:
     name: Build Docker Image And Push To ECR

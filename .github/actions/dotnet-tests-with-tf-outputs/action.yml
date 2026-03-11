@@ -1,0 +1,94 @@
+name: Dotnet Tests With Terraform Outputs
+description: Downloads Terraform outputs artifact, syncs appsettings, and runs dotnet tests using an AWS profile.
+
+inputs:
+  aws-access-key-id:
+    description: AWS access key id.
+    required: true
+  aws-secret-access-key:
+    description: AWS secret access key.
+    required: true
+  aws-region:
+    description: AWS region.
+    required: true
+  aws-profile-name:
+    description: AWS profile name used by the application/tests.
+    required: true
+  terraform-outputs-artifact-name:
+    description: Artifact name that contains terraform-outputs.json.b64.
+    required: false
+    default: terraform-test-outputs
+  appsettings-path:
+    description: Destination appsettings file to write.
+    required: false
+    default: src/Web/appsettings.Test.json
+  password-reset-token-secret:
+    description: Password reset token secret (written into appsettings).
+    required: true
+  stripe-secret-key:
+    description: Stripe secret key (written into appsettings).
+    required: true
+  aspnetcore-environment:
+    description: ASPNETCORE_ENVIRONMENT for dotnet test.
+    required: false
+    default: Development
+  projects:
+    description: Newline-separated list of .csproj paths to test.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Download terraform outputs
+      uses: actions/download-artifact@v7
+      with:
+        name: ${{ inputs.terraform-outputs-artifact-name }}
+        path: /tmp/terraform-outputs-test
+
+    - name: Create local AWS profile for SDK-based tools
+      shell: bash
+      run: |
+        set -euo pipefail
+        aws configure set aws_access_key_id "${{ inputs.aws-access-key-id }}" --profile "${{ inputs.aws-profile-name }}"
+        aws configure set aws_secret_access_key "${{ inputs.aws-secret-access-key }}" --profile "${{ inputs.aws-profile-name }}"
+        aws configure set region "${{ inputs.aws-region }}" --profile "${{ inputs.aws-profile-name }}"
+
+        # Make sure the SDK uses shared config/profile for tools that require it.
+        echo "AWS_PROFILE=${{ inputs.aws-profile-name }}" >> "$GITHUB_ENV"
+        echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - name: Sync terraform outputs into appsettings
+      shell: bash
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
+        PASSWORD_RESET_TOKEN_SECRET: ${{ inputs.password-reset-token-secret }}
+        STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
+      run: |
+        set -euo pipefail
+        base64 -d /tmp/terraform-outputs-test/terraform-outputs.json.b64 > /tmp/tf-test.json
+        chmod +x ./update-appsettings-from-terraform.sh
+        ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "${{ inputs.appsettings-path }}"
+
+    - name: Run .NET tests (verbose console logs)
+      shell: bash
+      env:
+        ASPNETCORE_ENVIRONMENT: ${{ inputs.aspnetcore-environment }}
+        Stripe__SecretKey: ${{ inputs.stripe-secret-key }}
+      run: |
+        set -euo pipefail
+        AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
+        AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
+        export AWS_CODES_TABLE AWS_USER_CODES_TABLE
+
+        while IFS= read -r proj; do
+          [[ -z "${proj// }" ]] && continue
+          dotnet test "$proj" --logger "console;verbosity=detailed"
+        done <<< "${{ inputs.projects }}"
