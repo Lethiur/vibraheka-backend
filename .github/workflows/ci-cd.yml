@@ -380,6 +380,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [terraform_prod]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Download prod terraform outputs
         uses: actions/download-artifact@v7
         with:
@@ -467,6 +470,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build_and_push]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Compute deploy metadata
         id: meta
         shell: bash
