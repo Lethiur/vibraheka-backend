@@ -81,7 +81,6 @@ jobs:
       - name: Terraform destroy workspace resources
         working-directory: ${{ env.TERRAFORM_DIR }}
         env:
-          TF_VAR_prod_deployment: "false"
           TF_VAR_create_ssh_key_pair: "true"
           TF_VAR_stripe_api_key: ${{ secrets.STRIPE_API_KEY }}
           TF_VAR_stripe_event_bus_arn: ${{ secrets.STRIPE_EVENT_BUS_ARN }}

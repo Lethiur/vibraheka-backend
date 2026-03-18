@@ -3,15 +3,15 @@ name: CI/CD
 on:
   push:
     branches:
-      - "VH-*"
-      - "VH/**"
-      - "vh-*"
-      - "vh/**"
+      - main
+      - VH-*
+      - staging
   pull_request:
+    types:
+      - opened
     branches:
       - main
       - staging
-  workflow_dispatch:
 
 permissions:
   contents: read
