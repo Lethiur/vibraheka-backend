@@ -8,6 +8,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
@@ -21,11 +22,23 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldRegisterANewUser()
     {
         // Given: A command
-        RegisterUserCommand command = new(TheFaker.Internet.Email(), "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        string email = TheFaker.Internet.Email();
+        RegisterUserCommand command = new(email, "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
         // When: The client is invoked
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("/api/v1/auth/register", command);
 
+        // Then: HTTP and payload should represent a successful registration.
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK), "The status code should be OK");
+        ResponseEntity responseEntity = await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
+        UserRegistrationResult? result = responseEntity.GetContentAs<UserRegistrationResult>();
+        Assert.That(responseEntity.Success, Is.True);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.UserId, Is.Not.Null.And.Not.Empty);
+
+        // And: the user should be retrievable from persistence by returned id.
+        UserEntity persistedUser = await CheckForUser(result.UserId);
+        Assert.That(persistedUser, Is.Not.Null);
+        Assert.That(persistedUser.Email, Is.EqualTo(email));
     }
     
    // === EMAIL TESTS ===
@@ -99,6 +112,11 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: First registration should succeed
         Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK), "First registration should succeed");
+        ResponseEntity firstResponseEntity = await firstResponse.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
+        Assert.That(firstResponseEntity.Success, Is.True);
+        UserRegistrationResult? firstUser = firstResponseEntity.GetContentAs<UserRegistrationResult>();
+        Assert.That(firstUser, Is.Not.Null);
+        Assert.That(firstUser!.UserId, Is.Not.Null.And.Not.Empty);
 
         // When: We try to register the same email again
         HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", duplicateCommand);

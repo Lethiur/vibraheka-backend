@@ -14,7 +14,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceIntegrationTes
         // Given: a valid template request to verify URL generation.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"Hello","subject":"World"}""");
-        await using MemoryStream templateStream = new MemoryStream(expectedBytes);
+        await using MemoryStream templateStream = new(expectedBytes);
 
         // When: saving the template via the service.
         Result<string> result = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
@@ -33,7 +33,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceIntegrationTes
         // Given: a template payload to verify it is uploaded.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"Integration","subject":"S3"}""");
-        await using MemoryStream templateStream = new MemoryStream(expectedBytes);
+        await using MemoryStream templateStream = new(expectedBytes);
 
         // When: saving the template via the service.
         Result<string> result = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
@@ -44,7 +44,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceIntegrationTes
         using (GetObjectResponse response = await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 
@@ -62,7 +62,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceIntegrationTes
         // Given: a template payload to verify temp cleanup.
         string templateId = Guid.NewGuid().ToString("N");
         byte[] expectedBytes = Encoding.UTF8.GetBytes("""{"template":"TempCleanup"}""");
-        await using MemoryStream templateStream = new MemoryStream(expectedBytes);
+        await using MemoryStream templateStream = new(expectedBytes);
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 

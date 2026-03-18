@@ -34,7 +34,7 @@ public class UpdateUserProfileCommandHandlerTest
         // Given
         UserDTO dto = new()
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = "updater-id",
             Email = "user@test.com",
             FirstName = "John",
             MiddleName = "Middle",
@@ -71,6 +71,27 @@ public class UpdateUserProfileCommandHandlerTest
     {
         // Given
         UpdateUserProfileCommand command = new(null!);
+
+        // When
+        Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
+
+        // Then
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
+        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldReturnNotAuthorizedWhenTryingToUpdateAnotherUser()
+    {
+        // Given
+        UserDTO dto = new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Email = "other@test.com",
+            FirstName = "Other"
+        };
+        UpdateUserProfileCommand command = new(dto);
 
         // When
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);

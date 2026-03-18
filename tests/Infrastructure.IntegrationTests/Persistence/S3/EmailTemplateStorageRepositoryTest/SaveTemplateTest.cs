@@ -16,7 +16,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegration
         string expectedJson = """{"template":"Hello","subject":"World"}""";
         byte[] expectedBytes = Encoding.UTF8.GetBytes(expectedJson);
 
-        await using MemoryStream templateStream = new MemoryStream(expectedBytes);
+        await using MemoryStream templateStream = new(expectedBytes);
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
@@ -30,7 +30,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegration
                await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 
@@ -52,13 +52,13 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegration
         byte[] bytesV2 = Encoding.UTF8.GetBytes("""{"template":"V2"}""");
 
         // When: saving the template twice with the same id.
-        await using (MemoryStream s1 = new MemoryStream(bytesV1))
+        await using (MemoryStream s1 = new(bytesV1))
         {
             Result<string> r1 = await Repository.SaveTemplate(templateId, s1, TestCancellationToken);
             Assert.That(r1.IsSuccess, Is.True);
         }
 
-        await using (MemoryStream s2 = new MemoryStream(bytesV2))
+        await using (MemoryStream s2 = new(bytesV2))
         {
             Result<string> r2 = await Repository.SaveTemplate(templateId, s2, TestCancellationToken);
             Assert.That(r2.IsSuccess, Is.True);
@@ -69,7 +69,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegration
                await S3.GetObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken))
         await using (Stream responseStream = response.ResponseStream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await responseStream.CopyToAsync(ms, TestCancellationToken);
             byte[] actualBytes = ms.ToArray();
 

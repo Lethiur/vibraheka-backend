@@ -41,7 +41,7 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnSuccessWhenTherapistIsCreated()
     {
         // Given: A valid command and an admin user with successful service responses
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
         string adminId = "admin-id";
         string cognitoId = "new-cognito-id";
 
@@ -75,7 +75,7 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenCognitoRegistrationFails()
     {
         // Given: An admin user but Cognito registration fails
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
 
         string adminId = "admin-id";
         string errorMessage = "Cognito registration error";
@@ -102,7 +102,7 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenRepositoryFails()
     {
         // Given: Successful Cognito registration but database failure
-        CreateTherapistCommand command = new CreateTherapistCommand(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
 
         string adminId = "admin-id";
         string dbError = "Error saving user to DB";

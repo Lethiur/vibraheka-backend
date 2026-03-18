@@ -19,7 +19,7 @@ public class GetByEmailAsyncTest : GenericUserRepositoryTest
         List<UserDBModel>
             models = [new() { Email = email }]; // ExistsByEmailAsync usa List<User> según tu código
 
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(CancellationToken.None)).ReturnsAsync(models);
 
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()))
@@ -41,7 +41,7 @@ public class GetByEmailAsyncTest : GenericUserRepositoryTest
     {
         // Given: An email not in DB
         const string email = "none@test.com";
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(CancellationToken.None)).ReturnsAsync(new List<UserDBModel>());
 
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()))

@@ -7,18 +7,6 @@ public class NotImplementedMethodsTest : GenericEmailTemplateStorageRepositoryTe
     public void ShouldThrowNotImplementedForUnimplementedMethods()
     {
         Assert.That(
-            async () => await Repository.GetEmailTemplatePath("t1", TestCancellationToken),
-            Throws.TypeOf<NotImplementedException>());
-
-        Assert.That(
-            async () => await Repository.GetAuthorizationStringForTemplateRead("t1", TestCancellationToken),
-            Throws.TypeOf<NotImplementedException>());
-
-        Assert.That(
-            async () => await Repository.GetAuthorizationStringForTemplateWrite("t1", TestCancellationToken),
-            Throws.TypeOf<NotImplementedException>());
-
-        Assert.That(
             async () => await Repository.DeleteTemplate("t1", TestCancellationToken),
             Throws.TypeOf<NotImplementedException>());
     }

@@ -15,7 +15,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceTest
         string templateId = Guid.NewGuid().ToString("N");
         byte[] bytes = Encoding.UTF8.GetBytes("""{"template":"Hello"}""");
 
-        using MemoryStream templateStream = new MemoryStream(bytes);
+        using MemoryStream templateStream = new(bytes);
         RepositoryMock
             .Setup(r => r.SaveTemplate(templateId, templateStream, TestCancellationToken))
             .ReturnsAsync(Result.Success(""));
@@ -38,7 +38,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageServiceTest
         string templateId = Guid.NewGuid().ToString("N");
         byte[] bytes = Encoding.UTF8.GetBytes("""{"template":"Boom"}""");
 
-        using (MemoryStream templateStream = new MemoryStream(bytes))
+        using (MemoryStream templateStream = new(bytes))
         {
             RepositoryMock
                 .Setup(r => r.SaveTemplate(templateId, templateStream, TestCancellationToken))

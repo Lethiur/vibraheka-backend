@@ -35,7 +35,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with complex email format
         string email = $"test.user+complex@{_faker.Internet.DomainName()}";
-        UserEntity userEntity = new UserEntity(Guid.NewGuid().ToString(), email, _faker.Person.FullName);
+        UserEntity userEntity = new(Guid.NewGuid().ToString(), email, _faker.Person.FullName);
 
         // When: Adding the user
         Result<string> result = await _userRepository.AddAsync(userEntity);
@@ -51,7 +51,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldAddUserSuccessfullyWhenSpecialCharactersInName()
     {
         // Given: A user with special characters in name
-        UserEntity userEntity = new UserEntity(
+        UserEntity userEntity = new(
             Guid.NewGuid().ToString(), 
             _faker.Internet.Email(), 
             "José María O'Connor-Smith"
@@ -72,7 +72,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with a very long name
         string longName = new string('A', 100) + " " + new string('B', 100);
-        UserEntity userEntity = new UserEntity(Guid.NewGuid().ToString(), _faker.Internet.Email(), longName);
+        UserEntity userEntity = new(Guid.NewGuid().ToString(), _faker.Internet.Email(), longName);
 
         // When: Adding the user
         Result<string> result = await _userRepository.AddAsync(userEntity);
@@ -148,13 +148,13 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with original data
         string userId = Guid.NewGuid().ToString();
-        UserEntity originalUserEntity = new UserEntity(userId, "original@example.com", "Original Name");
+        UserEntity originalUserEntity = new(userId, "original@example.com", "Original Name");
         
         Result<string> firstResult = await _userRepository.AddAsync(originalUserEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
 
         // And: The same user ID but with different data
-        UserEntity modifiedUserEntity = new UserEntity(userId, "modified@example.com", "Modified Name");
+        UserEntity modifiedUserEntity = new(userId, "modified@example.com", "Modified Name");
 
         // When: Adding the user with same ID again
         Result<string> secondResult = await _userRepository.AddAsync(modifiedUserEntity);
@@ -164,7 +164,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(secondResult.Value, Is.EqualTo(userId));
 
         // And: The user data should be updated to the new values
-        LoadConfig loadConfig = new LoadConfig
+        LoadConfig loadConfig = new()
         {
             OverrideTableName = _configuration.UsersTable
         };
@@ -183,8 +183,8 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: Two different users with the same email
         string email = "duplicate@example.com";
-        UserEntity firstUserEntity = new UserEntity(Guid.NewGuid().ToString(), email, "First User");
-        UserEntity secondUserEntity = new UserEntity(Guid.NewGuid().ToString(), email, "Second User");
+        UserEntity firstUserEntity = new(Guid.NewGuid().ToString(), email, "First User");
+        UserEntity secondUserEntity = new(Guid.NewGuid().ToString(), email, "Second User");
 
         // When: Adding both users
         Result<string> firstResult = await _userRepository.AddAsync(firstUserEntity);
@@ -196,7 +196,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(firstResult.Value, Is.Not.EqualTo(secondResult.Value)); // Different IDs
 
         // And: Both users should exist in the database
-        LoadConfig loadConfig = new LoadConfig
+        LoadConfig loadConfig = new()
         {
             OverrideTableName = _configuration.UsersTable
         };
@@ -220,9 +220,9 @@ public class AddAsyncTest : GenericUserRepositoryTest
         string userId = Guid.NewGuid().ToString();
         string userEmail = "concurrent@example.com";
         
-        UserEntity user1 = new UserEntity(userId, userEmail, "Concurrent User 1");
-        UserEntity user2 = new UserEntity(userId, userEmail, "Concurrent User 2");
-        UserEntity user3 = new UserEntity(userId, userEmail, "Concurrent User 3");
+        UserEntity user1 = new(userId, userEmail, "Concurrent User 1");
+        UserEntity user2 = new(userId, userEmail, "Concurrent User 2");
+        UserEntity user3 = new(userId, userEmail, "Concurrent User 3");
 
         // When: Adding the same user ID concurrently (race condition scenario)
         Task<Result<string>>[] tasks =
@@ -242,7 +242,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         }
 
         // And: One of the users should be persisted (last write wins)
-        LoadConfig loadConfig = new LoadConfig
+        LoadConfig loadConfig = new()
         {
             OverrideTableName = _configuration.UsersTable
         };
@@ -263,7 +263,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user added at time T1
         string userId = Guid.NewGuid().ToString();
-        UserEntity firstUserEntity = new UserEntity(userId, "first@example.com", "First Version");
+        UserEntity firstUserEntity = new(userId, "first@example.com", "First Version");
         
         Result<string> firstResult = await _userRepository.AddAsync(firstUserEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
@@ -272,7 +272,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         await Task.Delay(100);
 
         // And: The same user ID with updated data at time T2
-        UserEntity secondUserEntity = new UserEntity(userId, "second@example.com", "Second Version");
+        UserEntity secondUserEntity = new(userId, "second@example.com", "Second Version");
 
         // When: Adding the updated user
         Result<string> secondResult = await _userRepository.AddAsync(secondUserEntity);
@@ -281,7 +281,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(secondResult.IsSuccess, Is.True);
 
         // And: Only the latest data should persist
-        LoadConfig loadConfig = new LoadConfig
+        LoadConfig loadConfig = new()
         {
             OverrideTableName = _configuration.UsersTable
         };
@@ -305,12 +305,12 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleConcurrentAdditionsWhenMultipleUsersAddedSimultaneously()
     {
         // Given: Multiple different users
-        List<UserEntity> users = new List<UserEntity>();
-        List<Task<Result<string>>> tasks = new List<Task<Result<string>>>();
+        List<UserEntity> users = new();
+        List<Task<Result<string>>> tasks = new();
 
         for (int i = 0; i < 5; i++)
         {
-            UserEntity userEntity = new UserEntity(
+            UserEntity userEntity = new(
                 Guid.NewGuid().ToString(),
                 $"concurrent{i}@{_faker.Internet.DomainName()}",
                 $"Concurrent User {i}"
@@ -339,7 +339,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleUserWithMinimumDataWhenOnlyRequiredFieldsProvided()
     {
         // Given: A user with minimum required data
-        UserEntity userEntity = new UserEntity(
+        UserEntity userEntity = new(
             Guid.NewGuid().ToString(),
             "minimal@example.com",
             "M" // Single character name
@@ -358,7 +358,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleUserWhenEmptyGuidProvided()
     {
         // Given: A user with empty GUID as ID
-        UserEntity userEntity = new UserEntity(
+        UserEntity userEntity = new(
             Guid.Empty.ToString(),
             _faker.Internet.Email(),
             _faker.Person.FullName

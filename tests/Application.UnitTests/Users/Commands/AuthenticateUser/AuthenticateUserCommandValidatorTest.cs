@@ -24,7 +24,7 @@ public class AuthenticateUserCommandValidatorTest
     public void ShouldBeValidWhenCommandIsCorrect()
     {
         // Given
-        AuthenticateUserCommand command = new AuthenticateUserCommand ("test@example.com", "Password123!" );
+        AuthenticateUserCommand command = new("test@example.com", "Password123!" );
 
         // When
         TestValidationResult<AuthenticateUserCommand>? result = _validator.TestValidate(command);
@@ -39,7 +39,7 @@ public class AuthenticateUserCommandValidatorTest
     public void ShouldHaveErrorWhenEmailIsMissing(string? email)
     {
         // Given
-        AuthenticateUserCommand command = new AuthenticateUserCommand (email!, "Password123!" );
+        AuthenticateUserCommand command = new(email!, "Password123!" );
 
         // When
         TestValidationResult<AuthenticateUserCommand>? result = _validator.TestValidate(command);
@@ -56,7 +56,7 @@ public class AuthenticateUserCommandValidatorTest
     public void ShouldHaveErrorWhenEmailFormatIsInvalid(string invalidEmail)
     {
         // Given
-        AuthenticateUserCommand command = new AuthenticateUserCommand (invalidEmail, "Password123!" );
+        AuthenticateUserCommand command = new(invalidEmail, "Password123!" );
 
         // When
         TestValidationResult<AuthenticateUserCommand>? result = _validator.TestValidate(command);
@@ -76,7 +76,7 @@ public class AuthenticateUserCommandValidatorTest
     public void ShouldHaveErrorWhenPasswordIsMissing(string? password)
     {
         // Given
-        AuthenticateUserCommand command = new AuthenticateUserCommand ("test@example.com", password! );
+        AuthenticateUserCommand command = new("test@example.com", password! );
 
         // When
         TestValidationResult<AuthenticateUserCommand>? result = _validator.TestValidate(command);
@@ -91,7 +91,7 @@ public class AuthenticateUserCommandValidatorTest
     public void ShouldHaveErrorWhenPasswordIsTooShort()
     {
         // Given
-        AuthenticateUserCommand command = new AuthenticateUserCommand ("test@example.com", "Pas");
+        AuthenticateUserCommand command = new("test@example.com", "Pas");
 
         // When
         TestValidationResult<AuthenticateUserCommand>? result = _validator.TestValidate(command);

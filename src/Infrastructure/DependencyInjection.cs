@@ -59,11 +59,9 @@ public static class DependencyInjection
         AWSSDKHandler.RegisterXRayForAllServices();
         AWSConfig? awsConfig = builder.Configuration.GetSection("AWS").Get<AWSConfig>();
 
-        
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
 
-        
         builder.Services.AddSingleton<ITracer, XRayTracer>();
         builder.Services.AddSingleton(sp =>
             sp.GetRequiredService<

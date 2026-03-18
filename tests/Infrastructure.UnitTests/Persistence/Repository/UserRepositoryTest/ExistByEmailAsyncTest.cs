@@ -16,9 +16,9 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
     {
         // Given: An email and a search that returns at least one result
         const string email = "exists@test.com";
-        List<UserDBModel> models = new List<UserDBModel> { new() { Email = email } };
+        List<UserDBModel> models = new() { new() { Email = email } };
 
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(models);
         
@@ -40,7 +40,7 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
     {
         // Given: An email and a search that returns no results
         const string email = "none@test.com";
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<UserDBModel>());
         
@@ -61,7 +61,7 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
     {
         // Given: A search that returns a null list
         const string email = "null@test.com";
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((List<UserDBModel>)null!);
         

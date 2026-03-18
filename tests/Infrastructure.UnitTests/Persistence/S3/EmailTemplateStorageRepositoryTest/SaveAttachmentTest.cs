@@ -15,7 +15,7 @@ public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryTest
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = $"{Guid.NewGuid():N}.bin";
         byte[] expectedBytes = Encoding.UTF8.GetBytes("attachment-data");
-        using MemoryStream attachmentStream = new MemoryStream(expectedBytes);
+        using MemoryStream attachmentStream = new(expectedBytes);
         attachmentStream.Position = 2;
 
         CancellationToken cancellationToken = CancellationToken.None;
@@ -61,7 +61,7 @@ public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryTest
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = $"{Guid.NewGuid():N}.bin";
         byte[] bytes = Encoding.UTF8.GetBytes("boom");
-        using MemoryStream attachmentStream = new MemoryStream(bytes);
+        using MemoryStream attachmentStream = new(bytes);
 
         CancellationToken cancellationToken = CancellationToken.None;
 
@@ -86,7 +86,7 @@ public class SaveAttachmentTest : GenericEmailTemplateStorageRepositoryTest
         // Given: a stream that throws to verify temp cleanup on copy failures.
         string templateId = Guid.NewGuid().ToString("N");
         string attachmentName = $"{Guid.NewGuid():N}.bin";
-        using ThrowingStream attachmentStream = new ThrowingStream();
+        using ThrowingStream attachmentStream = new();
 
         string expectedTempPath = Path.Combine(Path.GetTempPath(), attachmentName);
 

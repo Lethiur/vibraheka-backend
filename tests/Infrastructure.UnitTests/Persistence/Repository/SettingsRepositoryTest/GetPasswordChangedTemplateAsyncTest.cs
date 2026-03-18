@@ -19,7 +19,7 @@ public class GetRecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositor
         };
 
         SsmClientMock.Setup(x => x.GetParameterAsync(
-                It.Is<GetParameterRequest>(r => r.Name == PasswordChangedParameterName),
+                It.Is<GetParameterRequest>(r => r.Name == RecoverPasswordParameterName),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 

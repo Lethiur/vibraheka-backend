@@ -36,7 +36,7 @@ public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRe
     {
         if (_validators.Any())
         {
-            ValidationContext<TRequest> context = new ValidationContext<TRequest>(request);
+            ValidationContext<TRequest> context = new(request);
 
             List<ValidationFailure> errors = _validators
                 .Select(v => v.Validate(context))

@@ -57,8 +57,8 @@ public class CreateEmailTemplateCommandValidatorTests
     {
         // Given
         string validJson = """{"template":"Test"}""";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes(validJson));
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes(validJson));
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         // When
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -78,8 +78,8 @@ public class CreateEmailTemplateCommandValidatorTests
     {
         // Given
         string validJson = """{"template":"Test"}""";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes(validJson));
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes(validJson));
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         // When
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -94,7 +94,7 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsNull()
     {
         // Given
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(null!, "Valid Template Name");
+        CreateEmailTemplateCommand command = new(null!, "Valid Template Name");
 
         // When
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -112,7 +112,7 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsEmpty()
     {
         // Given
-        MemoryStream fileStream = new MemoryStream([]);
+        MemoryStream fileStream = new([]);
         CreateEmailTemplateCommand command = new(fileStream, "Valid Template Name");
 
         // When
@@ -131,8 +131,8 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldPassValidationWhenJsonIsValid(string jsonContent)
     {
         // Given
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent));
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, "Valid Template Name");
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes(jsonContent));
+        CreateEmailTemplateCommand command = new(fileStream, "Valid Template Name");
 
         // When
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -147,7 +147,7 @@ public class CreateEmailTemplateCommandValidatorTests
     public async Task ShouldFailValidationWhenBothFieldsAreInvalid()
     {
         // Given
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(null!, null!);
+        CreateEmailTemplateCommand command = new(null!, null!);
 
         // When
         ValidationResult result = await Validator.ValidateAsync(command);

@@ -71,8 +71,17 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
         // And: API response marks operation as success
-        ResponseEntity entity = await postAsJsonAsync.GetAsResponseEntity();
+        ResponseEntity entity = await postAsJsonAsync.GetAsResponseEntityAndContentAs<string>();
+        string? createdTherapistId = entity.GetContentAs<string>();
         Assert.That(entity.Success, Is.True);
+        Assert.That(createdTherapistId, Is.Not.Null.And.Not.Empty);
+
+        // And: The created therapist appears in admin listing with same id.
+        HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/admin/therapists");
+        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<UserEntity>>();
+        IEnumerable<UserEntity>? therapists = listEntity.GetContentAs<IEnumerable<UserEntity>>();
+        Assert.That(therapists, Is.Not.Null);
+        Assert.That(therapists!.Any(t => t.Id == createdTherapistId), Is.True);
     }
 
     [TestCase(null, UserErrors.InvalidEmail)]

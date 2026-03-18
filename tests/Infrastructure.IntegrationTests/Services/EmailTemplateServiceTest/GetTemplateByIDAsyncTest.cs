@@ -18,7 +18,7 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
     {
         // Given: A template persisted in the DynamoDB table
         string templateId = $"test-template-{Guid.NewGuid()}";
-        EmailTemplateDBModel expectedTemplate = new EmailTemplateDBModel()
+        EmailTemplateDBModel expectedTemplate = new()
         {
             TemplateID = templateId, Path = "Integration Test Subject"
         };
@@ -62,6 +62,20 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
         Result<EmailEntity> result = await _service.GetTemplateByID(invalidId, CancellationToken.None);
 
         // Then: The service validation should catch it before repository
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
+    }
+
+    [Test]
+    [DisplayName("Should return InvalidTemplateID when ID is null")]
+    public async Task ShouldReturnInvalidTemplateIdErrorWhenIdIsNull()
+    {
+        // Given: un template id nulo.
+
+        // When: se consulta una plantilla con id nulo.
+        Result<EmailEntity> result = await _service.GetTemplateByID(null!, CancellationToken.None);
+
+        // Then: debe fallar por id invalido.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }

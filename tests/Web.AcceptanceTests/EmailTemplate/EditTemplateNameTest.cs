@@ -14,6 +14,19 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenEditingNameWithoutAuthentication()
+    {
+        // Given: no authenticated admin context.
+        var editRequest = new { TemplateID = Guid.NewGuid().ToString(), NewTemplateName = "NoAuthName" };
+
+        // When: calling change-name endpoint.
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+
+        // Then: endpoint returns unauthorized.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldEditTemplateNameWhenUserIsAdmin()
     {
         // Given: An admin user and an existing template skeleton
@@ -34,6 +47,8 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity updateEntity = await response.GetAsResponseEntity();
+        Assert.That(updateEntity.Success, Is.True);
 
         // Happy Path check: Verify name updated in the list
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");

@@ -19,7 +19,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     {
         // Given: A valid template ID and a template in DynamoDB
         const string templateId = "welcome-template";
-        EmailTemplateDBModel template = new EmailTemplateDBModel { TemplateID = templateId, Path = "Welcome" };
+        EmailTemplateDBModel template = new() { TemplateID = templateId, Path = "Welcome" };
 
         _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, It.IsAny<LoadConfig>(), None))
             .ReturnsAsync(template);

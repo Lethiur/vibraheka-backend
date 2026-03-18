@@ -33,7 +33,7 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Admin role in the repository
         const string userId = "admin-id";
-        UserEntity userEntity = new UserEntity { Id = userId, Role = UserRole.Admin };
+        UserEntity userEntity = new() { Id = userId, Role = UserRole.Admin };
 
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
             .ReturnsAsync(Result.Success(userEntity));
@@ -53,7 +53,7 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Therapist role
         const string userId = "therapist-id";
-        UserEntity userEntity = new UserEntity { Id = userId, Role = UserRole.Therapist };
+        UserEntity userEntity = new() { Id = userId, Role = UserRole.Therapist };
 
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
             .ReturnsAsync(Result.Success(userEntity));

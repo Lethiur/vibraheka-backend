@@ -25,7 +25,7 @@ public class CreateEmailTemplateCommandHandler(
 {
     public Task<Result<Unit>> Handle(CreateEmailTemplateCommand request, CancellationToken cancellationToken)
     {
-        EmailEntity entity = new EmailEntity()
+        EmailEntity entity = new()
         {
             ID = Guid.NewGuid().ToString(),
             Name = request.TemplateName,

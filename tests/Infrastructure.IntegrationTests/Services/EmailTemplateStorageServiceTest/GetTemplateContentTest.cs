@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Text;
 using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateStorageServiceTest;
 
@@ -12,7 +13,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceIntegrat
     [DisplayName("Should return template content when template exists")]
     public async Task ShouldReturnTemplateContentWhenTemplateExists()
     {
-        // Given
+        // Given: una plantilla previamente almacenada en S3.
         string templateId = Guid.NewGuid().ToString("N");
         const string expectedContent = """{"template":"Hello","subject":"World"}""";
         byte[] bytes = Encoding.UTF8.GetBytes(expectedContent);
@@ -21,27 +22,28 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceIntegrat
         Result<string> saveResult = await Service.SaveTemplate(templateId, templateStream, TestCancellationToken);
         Assert.That(saveResult.IsSuccess, Is.True);
 
-        // When
+        // When: se obtiene el contenido de la plantilla por id.
         Result<string> contentResult = await Service.GetTemplateContent(templateId, TestCancellationToken);
 
-        // Then
+        // Then: debe devolverse el contenido exacto guardado.
         Assert.That(contentResult.IsSuccess, Is.True);
         Assert.That(contentResult.Value, Is.EqualTo(expectedContent));
 
-        // Remote cleanup.
         await S3.DeleteObjectAsync(BucketName, $"{templateId}/template.json", TestCancellationToken);
     }
 
     [Test]
-    [DisplayName("Should throw when template does not exist")]
-    public void ShouldNotThrowWhenTemplateDoesNotExist()
+    [DisplayName("Should return failure when template does not exist")]
+    public async Task ShouldReturnFailureWhenTemplateDoesNotExist()
     {
-        // Given
+        // Given: un template id inexistente.
         string templateId = $"missing-{Guid.NewGuid():N}";
 
-        // When / Then
-        Assert.That(
-            async () => await Service.GetTemplateContent(templateId, TestCancellationToken),
-            Throws.Nothing);
+        // When: se intenta obtener contenido de una plantilla inexistente.
+        Result<string> result = await Service.GetTemplateContent(templateId, TestCancellationToken);
+
+        // Then: debe fallar con TemplateNotFound.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
 }

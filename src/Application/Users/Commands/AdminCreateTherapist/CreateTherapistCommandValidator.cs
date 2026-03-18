@@ -21,8 +21,7 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .Cascade(CascadeMode.Stop)
             .MaximumLength(320)
             .WithMessage(UserErrors.EmailTooLong)
-            .ValidEmail()
-            .WithMessage(UserErrors.InvalidEmail);
+            .ValidEmail();
 
         RuleFor(x => x.TherapistData.FirstName)
             .Cascade(CascadeMode.Stop)
@@ -65,7 +64,7 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .Cascade(CascadeMode.Stop)
             .MaximumLength(2048)
             .WithMessage(UserErrors.InvalidForm)
-            .Must(BeAbsoluteHttpUrl)
+            .ValidURL()
             .WithMessage(UserErrors.InvalidForm)
             .When(x => !string.IsNullOrWhiteSpace(x.TherapistData.ProfilePictureUrl) && !string.IsNullOrEmpty(x.TherapistData.ProfilePictureUrl));
 
@@ -85,11 +84,5 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .WithMessage(UserErrors.InvalidForm)
             .MaximumLength(100)
             .WithMessage(UserErrors.InvalidForm);
-    }
-
-    private static bool BeAbsoluteHttpUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)
-               && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 }

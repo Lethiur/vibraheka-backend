@@ -59,4 +59,19 @@ public class ChangeEmailForVerificationAsyncTest : GenericSettingsServiceTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SettingsErrors.GenericError));
     }
+    
+    [Test]
+    public async Task ShouldHandleExceptionsFromRepository()
+    {
+        // Given: Some mocking
+        RepositoryMock.Setup(x => x.UpdateVerificationEmailTemplateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Unexpected error"));
+        
+        // When: Service is invoked
+        Result<Unit> result = await Service.ChangeEmailForVerificationAsync("template", CancellationToken.None);
+        
+        // Then: Should return failure
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(SettingsErrors.GenericError));
+    }
 }

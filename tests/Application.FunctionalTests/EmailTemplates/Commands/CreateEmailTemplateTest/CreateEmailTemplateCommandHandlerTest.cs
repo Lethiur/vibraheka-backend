@@ -43,9 +43,9 @@ public class CreateEmailTemplateCommandHandlerTests
     {
         // Given
         string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("{a: 3}"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("{a: 3}"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
             
         
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
@@ -71,9 +71,9 @@ public class CreateEmailTemplateCommandHandlerTests
         // Given
       
         const string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Template content"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
       
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
@@ -97,9 +97,9 @@ public class CreateEmailTemplateCommandHandlerTests
     {
         // Given
         const string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Template content"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
@@ -121,9 +121,9 @@ public class CreateEmailTemplateCommandHandlerTests
     {
         // Given
         const string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Template content"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
@@ -150,9 +150,9 @@ public class CreateEmailTemplateCommandHandlerTests
     {
         // Given
         const string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Template content"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
@@ -175,9 +175,9 @@ public class CreateEmailTemplateCommandHandlerTests
     {
         // Given
         const string templateName = "Welcome Email";
-        MemoryStream fileStream = new MemoryStream(Encoding.UTF8.GetBytes("Template content"));
+        MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
-        CreateEmailTemplateCommand command = new CreateEmailTemplateCommand(fileStream, templateName);
+        CreateEmailTemplateCommand command = new(fileStream, templateName);
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));

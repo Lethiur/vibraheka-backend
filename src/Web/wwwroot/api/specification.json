@@ -1046,13 +1046,19 @@
           "UserRegistered",
           "UserVerification",
           "RequestVerificationCode",
-          "PasswordReset"
+          "PasswordReset",
+          "SubscriptionThankYou",
+          "TrialEndingSoon",
+          "PasswordChanged"
         ],
         "enum": [
           0,
           1,
           2,
-          3
+          3,
+          4,
+          5,
+          6
         ]
       },
       "UserEntity": {

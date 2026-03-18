@@ -37,15 +37,6 @@ public interface IEmailTemplateStorageRepository
     Task<Result<bool>> TemplateExistsAsync(string templateID, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Retrieves the file path of an email template from the storage repository using the specified template ID.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template whose file path is to be retrieved.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A <c>Task</c> representing the asynchronous operation,
-    /// containing a <c>Result</c> object with the file path of the email template on success, or an error on failure.</returns>
-    Task<Result<string>> GetEmailTemplatePath(string templateID, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Saves an attachment to the storage repository associated with the specified email template ID.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to associate the attachment with.</param>
@@ -56,26 +47,6 @@ public interface IEmailTemplateStorageRepository
     /// containing a <c>Result</c> object with the identifier of the saved attachment on success, or an error on failure.</returns>
     Task<Result<string>> SaveAttachment(string templateID, Stream attachmentStream, string attachmentName,
         CancellationToken cancellationToken);
-    
-    
-
-    /// <summary>
-    /// Retrieves an authorization string that can be used to access the specified email template for reading.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template for which the authorization string is requested.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A <c>Task</c> representing the asynchronous operation,
-    /// containing a <c>Result</c> object with the authorization string on success, or an error on failure.</returns>
-    Task<Result<string>> GetAuthorizationStringForTemplateRead(string templateID, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Generates an authorization string for write access to a specific email template in the storage repository.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template for which the authorization string is requested.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A <c>Task</c> representing the asynchronous operation,
-    /// containing a <c>Result</c> object with the authorization string on success, or an error on failure.</returns>
-    Task<Result<string>> GetAuthorizationStringForTemplateWrite(string templateID, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes an email template from the storage repository using the specified template ID.

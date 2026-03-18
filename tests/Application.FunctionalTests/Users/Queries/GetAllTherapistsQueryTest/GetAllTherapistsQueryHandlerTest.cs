@@ -25,7 +25,7 @@ public class GetAllTherapistsQueryHandlerTest
     public async Task ShouldReturnTherapistsWhenRepositorySucceeds()
     {
         // Given
-        IEnumerable<UserEntity> therapists = [new UserEntity { Role = UserRole.Therapist, Email = "t1@test.com" }];
+        IEnumerable<UserEntity> therapists = [new() { Role = UserRole.Therapist, Email = "t1@test.com" }];
         _repoMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist)).ReturnsAsync(Result.Success(therapists));
 
         // When

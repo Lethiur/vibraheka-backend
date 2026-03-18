@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/src/Infrastructure/terraform/Lambdas/Payments/actualizaciones.json" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/Infrastructure/terraform/Lambdas/Payments/cancelaciones.json" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/Infrastructure/terraform/Lambdas/Payments/pagos.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tests/Infrastructure.IntegrationTests/Services/PrivilegeServiceTest/CanExecuteActionTest.cs" charset="UTF-8" />
   </component>
 </project>

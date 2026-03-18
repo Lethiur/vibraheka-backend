@@ -39,7 +39,34 @@ resource "aws_ssm_parameter" "VH_password_reset_email_template" {
 }
 
 resource "aws_ssm_parameter" "VH_password_changed_email_template" {
-  name = "/${var.ssm_namespace}/PasswordChangedTemplate"
+  name = "/${var.ssm_namespace}/PasswordChangedEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_user_welcome_email_template" {
+  name = "/${var.ssm_namespace}/UserWelcomeEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_subscription_thank_you_email_template" {
+  name = "/${var.ssm_namespace}/SubscriptionThankYouEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_trial_ending_soon_email_template" {
+  name = "/${var.ssm_namespace}/TrialEndingSoonEmailTemplate"
   type = "String"
   value = "test"
   lifecycle {
@@ -57,4 +84,8 @@ output "ssm_email_password_reset_template_id_parameter_name"{
 
 output "ssm_read_vh_parameters_policy_arn"{
   value = aws_iam_policy.VH_ssm_policy.arn
+}
+
+output "settings_namespace" {
+  value = var.ssm_namespace
 }

@@ -23,7 +23,7 @@ public abstract class GenericSettingsServiceTest : TestBase
         string profileName = _configuration.Profile;
         RegionEndpoint? region = RegionEndpoint.GetBySystemName(_configuration.Location);
 
-        CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
+        CredentialProfileStoreChain chain = new();
         if (!chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
         {
             throw new InvalidOperationException($"AWS Profile '{profileName}' not found in local credentials file.");

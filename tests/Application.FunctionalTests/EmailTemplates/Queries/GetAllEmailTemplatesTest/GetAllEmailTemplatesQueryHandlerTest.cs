@@ -28,11 +28,11 @@ public class GetAllEmailTemplatesQueryHandlerTest
     public async Task ShouldReturnTemplatesIfEverythingIsOk()
     {
         // Given
-        IEnumerable<EmailEntity> templates = new List<EmailEntity> { new EmailEntity { ID = "1", Name = "Welcome" } };
+        IEnumerable<EmailEntity> templates = new List<EmailEntity> { new() { ID = "1", Name = "Welcome" } };
 
         EmailTemplatesServiceMock.Setup(x => x.GetAllTemplates(CancellationToken.None))
             .ReturnsAsync(Result.Success(templates));
-        GetAllEmailTemplatesQuery query = new GetAllEmailTemplatesQuery();
+        GetAllEmailTemplatesQuery query = new();
 
         // When
         Result<IEnumerable<EmailEntity>> result = await Handler.Handle(query, CancellationToken.None);
@@ -52,7 +52,7 @@ public class GetAllEmailTemplatesQueryHandlerTest
 
         EmailTemplatesServiceMock.Setup(x => x.GetAllTemplates(CancellationToken.None))
             .ReturnsAsync(Result.Failure<IEnumerable<EmailEntity>>(errorMessage));
-        GetAllEmailTemplatesQuery query = new GetAllEmailTemplatesQuery();
+        GetAllEmailTemplatesQuery query = new();
 
         // When
         Result<IEnumerable<EmailEntity>> result = await Handler.Handle(query, CancellationToken.None);

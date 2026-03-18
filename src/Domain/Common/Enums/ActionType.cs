@@ -6,4 +6,7 @@ public enum ActionType
     UserVerification,
     RequestVerificationCode,
     PasswordReset,
+    SubscriptionThankYou,
+    TrialEndingSoon,
+    PasswordChanged,
 }

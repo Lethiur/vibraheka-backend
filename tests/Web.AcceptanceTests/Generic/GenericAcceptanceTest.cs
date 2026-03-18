@@ -119,7 +119,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
+        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
             await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
@@ -139,7 +139,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new VerifyUserCommand(email, codeResult.Code);
+        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
             await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
@@ -216,14 +216,14 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
         string fileContent)
     {
-        MultipartFormDataContent form = new MultipartFormDataContent();
+        MultipartFormDataContent form = new();
 
         form.Add(new StringContent(templateName, Encoding.UTF8), "TemplateName");
 
         byte[] bytes = Encoding.UTF8.GetBytes(fileContent);
-        MemoryStream fileStream = new MemoryStream(bytes);
+        MemoryStream fileStream = new(bytes);
 
-        StreamContent filePart = new StreamContent(fileStream);
+        StreamContent filePart = new(fileStream);
         filePart.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         form.Add(filePart, "File", fileName);

@@ -36,7 +36,7 @@ public class GetAllTemplatesForActionTest
     {
         // Given
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(string.Empty);
-        GetTemplatesForActionQuery query = new GetTemplatesForActionQuery();
+        GetTemplatesForActionQuery query = new();
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = await Handler.Handle(query, CancellationToken.None);
@@ -52,7 +52,7 @@ public class GetAllTemplatesForActionTest
     {
         // Given
         const string userId = "admin-123";
-        List<TemplateForActionEntity> expectedTemplates = new List<TemplateForActionEntity>
+        List<TemplateForActionEntity> expectedTemplates = new()
         {
             new() { TemplateID = "1", ActionType = ActionType.PasswordReset }
         };
@@ -61,7 +61,7 @@ public class GetAllTemplatesForActionTest
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Success<IEnumerable<TemplateForActionEntity>>(expectedTemplates));
         
-        GetTemplatesForActionQuery query = new GetTemplatesForActionQuery();
+        GetTemplatesForActionQuery query = new();
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = await Handler.Handle(query, CancellationToken.None);
@@ -83,7 +83,7 @@ public class GetAllTemplatesForActionTest
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Failure<IEnumerable<TemplateForActionEntity>>(errorMessage));
         
-        GetTemplatesForActionQuery query = new GetTemplatesForActionQuery();
+        GetTemplatesForActionQuery query = new();
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = await Handler.Handle(query, CancellationToken.None);

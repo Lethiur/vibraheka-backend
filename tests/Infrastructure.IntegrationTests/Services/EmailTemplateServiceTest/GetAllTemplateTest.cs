@@ -13,11 +13,11 @@ public class GetAllTemplateTest : GenericEmailTemplateServiceTest
     public async Task ShouldGetAllTemplatesFromDynamoDB()
     {
         // Given
-        EmailTemplateDBModel template1 = new EmailTemplateDBModel
+        EmailTemplateDBModel template1 = new()
         {
             TemplateID = _faker.Random.Guid().ToString(), Name = _faker.Commerce.ProductName(),
         };
-        EmailTemplateDBModel template2 = new EmailTemplateDBModel()
+        EmailTemplateDBModel template2 = new()
         {
             TemplateID = _faker.Random.Guid().ToString(), Name = _faker.Commerce.ProductName(),
         };

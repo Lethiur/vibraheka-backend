@@ -36,6 +36,26 @@ public interface ISettingsRepository
     Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken token);
 
     /// <summary>
+    /// Updates the welcome email template for newly registered users.
+    /// </summary>
+    Task<Result<Unit>> UpdateUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
+    /// Updates the subscription thank-you email template.
+    /// </summary>
+    Task<Result<Unit>> UpdateSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
+    /// Updates the trial-ending-soon email template.
+    /// </summary>
+    Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
+    /// Updates the password-changed confirmation email template.
+    /// </summary>
+    Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
     /// Retrieves the verification email template from the settings repository.
     /// </summary>
     /// <returns>
@@ -52,5 +72,25 @@ public interface ISettingsRepository
     /// holding the current password changed email template, or an error indicating the failure of the operation.
     /// </returns>
     Task<Result<string>> GetRecoverPasswordEmailTemplateAsync();
+
+    /// <summary>
+    /// Retrieves the welcome email template for newly registered users.
+    /// </summary>
+    Task<Result<string>> GetUserWelcomeEmailTemplateAsync();
+
+    /// <summary>
+    /// Retrieves the subscription thank-you email template.
+    /// </summary>
+    Task<Result<string>> GetSubscriptionThankYouEmailTemplateAsync();
+
+    /// <summary>
+    /// Retrieves the trial-ending-soon email template.
+    /// </summary>
+    Task<Result<string>> GetTrialEndingSoonEmailTemplateAsync();
+
+    /// <summary>
+    /// Retrieves the password-changed confirmation email template.
+    /// </summary>
+    Task<Result<string>> GetPasswordChangedEmailTemplateAsync();
     
 }

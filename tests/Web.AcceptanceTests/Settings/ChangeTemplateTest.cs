@@ -16,6 +16,19 @@ namespace VibraHeka.Web.AcceptanceTests.Settings;
 public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenNoAuthenticationIsProvided()
+    {
+        // Given: no authentication headers and a valid command payload.
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
+
+        // When: calling change-template endpoint without auth.
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
+
+        // Then: authorization middleware rejects the request.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldUpdateVerificationEmailTemplateSuccessfullyWhenUserIsAdmin()
     {
         // Given: A registered and confirmed admin user
@@ -32,7 +45,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         await SeedEmailTemplate(templateID, "test/verification-email.html");
 
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(templateID, ActionType.UserVerification);
 
         // When: The admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -42,12 +55,8 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
-        await Task.Delay(2100);
-        // Happy Path check: Verify association in the all-templates list
-        HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        IEnumerable<TemplateForActionEntity>? associations = listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(associations!.Any(a => a.ActionType == ActionType.UserVerification && a.TemplateID == templateID), Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(ActionType.UserVerification, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
     }
 
     [Test]
@@ -67,7 +76,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         await SeedEmailTemplate(templateID, "test/password-reset-email.html");
 
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(templateID, ActionType.PasswordReset);
+        ChangeTemplateForActionCommand command = new(templateID, ActionType.PasswordReset);
 
         // When: The admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -77,13 +86,37 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
 
-        await Task.Delay(2500);
-        
-        // Happy Path check: Verify association in the all-templates list
-        HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        IEnumerable<TemplateForActionEntity>? associations = listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(associations!.Any(a => a.ActionType == ActionType.PasswordReset && a.TemplateID == templateID), Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(ActionType.PasswordReset, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
+    }
+
+    [TestCase(ActionType.UserRegistered, "test/welcome-email.html")]
+    [TestCase(ActionType.SubscriptionThankYou, "test/subscription-thank-you-email.html")]
+    [TestCase(ActionType.TrialEndingSoon, "test/trial-ending-soon-email.html")]
+    [TestCase(ActionType.PasswordChanged, "test/password-changed-email.html")]
+    public async Task ShouldUpdateNewAdminManagedTemplatesSuccessfullyWhenUserIsAdmin(ActionType actionType, string templatePath)
+    {
+        // Given: a registered and authenticated admin user.
+        string email = TheFaker.Internet.Email();
+        string username = TheFaker.Person.FullName;
+        string templateID = Guid.NewGuid().ToString();
+        await RegisterAndConfirmAdmin(username, email, ThePassword);
+        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+        // And: a template entity exists in storage repository.
+        await SeedEmailTemplate(templateID, templatePath);
+
+        // When: changing association for the requested action type.
+        ChangeTemplateForActionCommand command = new(templateID, actionType);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
+
+        // Then: endpoint should accept and persist the association.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        Assert.That(responseEntity.Success, Is.True);
+        bool foundAssociation = await WaitForTemplateAssociation(actionType, templateID, TimeSpan.FromSeconds(10));
+        Assert.That(foundAssociation, Is.True);
     }
 
     [Test]
@@ -98,7 +131,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
         
         // And: A command to change the template
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(Guid.NewGuid().ToString(), ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
 
         // When: The non-admin attempts to change the template
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
@@ -117,7 +150,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing template with invalid ID
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand("invalid-guid", ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new("invalid-guid", ActionType.UserVerification);
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
 
         // Then
@@ -136,7 +169,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing template to a non-existent one
-        ChangeTemplateForActionCommand command = new ChangeTemplateForActionCommand(Guid.NewGuid().ToString(), ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
 
         // Then
@@ -159,5 +192,27 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         };
 
         await repository.SaveTemplate(template, CancellationToken.None);
+    }
+
+    private async Task<bool> WaitForTemplateAssociation(ActionType actionType, string templateId, TimeSpan timeout)
+    {
+        DateTime deadline = DateTime.UtcNow.Add(timeout);
+        while (DateTime.UtcNow < deadline)
+        {
+            HttpResponseMessage listResponse = await Client.GetAsync("api/v1/settings/all-templates");
+            ResponseEntity listResponseEntity =
+                await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
+            IEnumerable<TemplateForActionEntity>? associations =
+                listResponseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
+
+            if (associations != null && associations.Any(a => a.ActionType == actionType && a.TemplateID == templateId))
+            {
+                return true;
+            }
+
+            await Task.Delay(300);
+        }
+
+        return false;
     }
 }

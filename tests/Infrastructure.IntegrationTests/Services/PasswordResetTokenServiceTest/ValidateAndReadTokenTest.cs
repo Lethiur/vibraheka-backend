@@ -1,9 +1,11 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PasswordResetTokenServiceTest;
 
@@ -13,7 +15,7 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
     [Test]
     public void ShouldDecodeTokenWhenPayloadIsValid()
     {
-        // Given: an encrypted token with a valid payload and future expiration
+        // Given: un token cifrado valido con expiracion futura.
         DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddMinutes(20);
         string token = BuildEncryptedToken(
             "integration@test.com",
@@ -22,10 +24,10 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
             expiresAt,
             _configuration.PasswordResetTokenSecret);
 
-        // When: the token is validated and decoded
+        // When: se valida y decodifica el token.
         Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(token);
 
-        // Then: the decoded payload is returned successfully
+        // Then: debe devolverse el payload correctamente.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.Email, Is.EqualTo("integration@test.com"));
         Assert.That(result.Value.CognitoCode, Is.EqualTo("654321"));
@@ -35,7 +37,7 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
     [Test]
     public void ShouldReturnExpiredErrorWhenTokenHasPastExpiration()
     {
-        // Given: an encrypted token whose expiration is already in the past
+        // Given: un token con expiracion ya vencida.
         string token = BuildEncryptedToken(
             "integration@test.com",
             "654321",
@@ -43,10 +45,10 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
             DateTimeOffset.UtcNow.AddMinutes(-5),
             _configuration.PasswordResetTokenSecret);
 
-        // When: the token is validated
+        // When: se valida el token vencido.
         Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(token);
 
-        // Then: the service returns the expired-token error
+        // Then: debe devolverse PasswordResetTokenExpired.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.PasswordResetTokenExpired));
     }
@@ -54,13 +56,109 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
     [Test]
     public void ShouldReturnInvalidTokenWhenFormatIsMalformed()
     {
-        // Given: a malformed token string that does not follow expected format
+        // Given: un token mal formado.
         const string malformedToken = "invalid-token";
 
-        // When: the token is validated
+        // When: se valida el token mal formado.
         Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(malformedToken);
 
-        // Then: the service returns invalid-token error
+        // Then: debe devolverse InvalidPasswordResetToken.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+    }
+
+    [Test]
+    public void ShouldReturnInvalidTokenWhenTokenIsEmpty()
+    {
+        // Given: un token vacio.
+        const string token = "";
+
+        // When: se valida el token vacio.
+        Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(token);
+
+        // Then: debe devolverse InvalidPasswordResetToken.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+    }
+
+    [Test]
+    public void ShouldReturnUnexpectedErrorWhenSecretIsMissing()
+    {
+        // Given: un servicio creado con secret vacio.
+        AWSConfig invalidConfig = new()
+        {
+            EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
+            UserCodesTable = _configuration.UserCodesTable,
+            EmailTemplatesTable = _configuration.EmailTemplatesTable,
+            UsersTable = _configuration.UsersTable,
+#if DEBUG
+            CodesTable = _configuration.CodesTable,
+#endif
+            ClientId = _configuration.ClientId,
+            UserPoolId = _configuration.UserPoolId,
+            Location = _configuration.Location,
+            Profile = _configuration.Profile,
+            PasswordResetTokenSecret = string.Empty,
+            ActionLogTable = _configuration.ActionLogTable,
+            SubscriptionTable = _configuration.SubscriptionTable,
+            SubscriptionUserIdIndex = _configuration.SubscriptionUserIdIndex,
+            SettingsNameSpace = _configuration.SettingsNameSpace
+        };
+        PasswordResetTokenService service = new(invalidConfig, CreateTestLogger<PasswordResetTokenService>());
+        string token = BuildEncryptedToken(
+            "integration@test.com",
+            "654321",
+            Guid.NewGuid().ToString("N"),
+            DateTimeOffset.UtcNow.AddMinutes(20),
+            _configuration.PasswordResetTokenSecret);
+
+        // When: se valida el token con servicio mal configurado.
+        Result<PasswordResetTokenData> result = service.ValidateAndReadToken(token);
+
+        // Then: debe devolverse UnexpectedError.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));
+    }
+
+    [Test]
+    public void ShouldReturnInvalidTokenWhenPayloadIsTampered()
+    {
+        // Given: un token valido cuyo payload es alterado.
+        string goodToken = BuildEncryptedToken(
+            "integration@test.com",
+            "654321",
+            Guid.NewGuid().ToString("N"),
+            DateTimeOffset.UtcNow.AddMinutes(20),
+            _configuration.PasswordResetTokenSecret);
+
+        string[] parts = goodToken.Split('.', 2);
+        byte[] bytes = FromBase64Url(parts[1]);
+        bytes[^1] ^= 0x01;
+        string tamperedToken = $"v1.{ToBase64Url(bytes)}";
+
+        // When: se valida el token alterado.
+        Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(tamperedToken);
+
+        // Then: debe devolverse InvalidPasswordResetToken.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+    }
+
+    [Test]
+    public void ShouldReturnInvalidTokenWhenPayloadHasEmptyRequiredFields()
+    {
+        // Given: un token con payload invalido (email vacio).
+        string token = BuildEncryptedToken(
+            "",
+            "654321",
+            Guid.NewGuid().ToString("N"),
+            DateTimeOffset.UtcNow.AddMinutes(20),
+            _configuration.PasswordResetTokenSecret);
+
+        // When: se valida el token con payload incompleto.
+        Result<PasswordResetTokenData> result = _service.ValidateAndReadToken(token);
+
+        // Then: debe devolverse InvalidPasswordResetToken.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
@@ -98,6 +196,18 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
             .TrimEnd('=')
             .Replace('+', '-')
             .Replace('/', '_');
+    }
+
+    private static byte[] FromBase64Url(string value)
+    {
+        string padded = value.Replace('-', '+').Replace('_', '/');
+        int mod = padded.Length % 4;
+        if (mod > 0)
+        {
+            padded = padded.PadRight(padded.Length + (4 - mod), '=');
+        }
+
+        return Convert.FromBase64String(padded);
     }
 
     private sealed class PasswordResetPayloadTestModel

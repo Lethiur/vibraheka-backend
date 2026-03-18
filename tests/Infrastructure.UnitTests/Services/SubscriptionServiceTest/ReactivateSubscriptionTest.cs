@@ -51,6 +51,79 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.SubscriptionIsActive));
-        _paymentRepositoryMock.Verify(x => x.ReactivateSubscriptionForUser(It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()), Times.Never);
+        _paymentRepositoryMock.Verify(
+            x => x.ReactivateSubscriptionForUser(It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldNotReactiveSubscriptionWhenTheStatusIsCancelled()
+    {
+        SubscriptionEntity entity = new()
+        {
+            UserID = "user-1", SubscriptionStatus = SubscriptionStatus.ToBeCancelled, Status = OrderStatus.Cancelled
+        };
+
+        _subscriptionRepositoryMock.Setup(x => x.GetSubscriptionDetailsForUser("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(entity));
+
+        // When
+        Result<Unit> result = await _service.ReactivateSubscription("user-1", CancellationToken.None);
+
+        // Then
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.SubscriptionIsCancelled));
+        _paymentRepositoryMock.Verify(
+            x => x.ReactivateSubscriptionForUser(It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldNotReactiveSubscriptionWhenTheStatusIsPaymentFailed()
+    {
+        SubscriptionEntity entity = new()
+        {
+            UserID = "user-1",
+            SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
+            Status = OrderStatus.PaymentFailed
+        };
+
+        _subscriptionRepositoryMock.Setup(x => x.GetSubscriptionDetailsForUser("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(entity));
+
+        // When
+        Result<Unit> result = await _service.ReactivateSubscription("user-1", CancellationToken.None);
+
+        // Then
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.SubscriptionIsCancelled));
+        _paymentRepositoryMock.Verify(
+            x => x.ReactivateSubscriptionForUser(It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldReactivateTrialingWhenOrderStatusIsDelayed()
+    {
+        SubscriptionEntity entity = new()
+        {
+            UserID = "user-1",
+            SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
+            Status = OrderStatus.OrderDelayed,
+            StartDate = DateTimeOffset.UtcNow.AddDays(15)
+        };
+
+        _subscriptionRepositoryMock.Setup(x => x.GetSubscriptionDetailsForUser("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(entity));
+
+        // When
+        Result<Unit> result = await _service.ReactivateSubscription("user-1", CancellationToken.None);
+
+        // Then
+        Assert.That(result.IsFailure, Is.False);
+        Assert.That(entity.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Trialing));
+        _paymentRepositoryMock.Verify(
+            x => x.ReactivateSubscriptionForUser(It.IsAny<SubscriptionEntity>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

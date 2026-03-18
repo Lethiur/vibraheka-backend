@@ -45,20 +45,6 @@ public class PrivilegeService(
     }
 
     /// <summary>
-    /// Determines whether a user has permission to edit a specific resource.
-    /// </summary>
-    /// <param name="userId">The unique identifier of the user whose privileges are being validated.</param>
-    /// <param name="resourceId">The unique identifier of the resource to check edit permissions for.</param>
-    /// <returns>
-    /// A <c>Result</c> containing a boolean value, where <c>true</c> indicates the user has permission to edit the resource,
-    /// and <c>false</c> otherwise. If an error occurs during the check, the result will contain the associated error.
-    /// </returns>
-    public Task<Result<bool>> CanEditResource(string userId, string resourceId)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
     /// Determines whether a user is permitted to execute a specific action based on recent activity and other contextual rules.
     /// </summary>
     /// <param name="userId">The unique identifier of the user attempting the action.</param>

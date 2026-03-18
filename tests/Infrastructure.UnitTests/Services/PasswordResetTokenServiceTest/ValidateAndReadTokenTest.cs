@@ -29,7 +29,7 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceTest
     {
         // Given: a valid formatted token but missing service secret
         Config.PasswordResetTokenSecret = string.Empty;
-        Service = new Infrastructure.Services.PasswordResetTokenService(Config, LoggerMock.Object);
+        Service = new(Config, LoggerMock.Object);
         string token = BuildEncryptedToken(
             "user@test.com",
             "123456",
@@ -101,46 +101,103 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceTest
         Assert.That(result.Value.ExpiresAt.ToUnixTimeSeconds(), Is.EqualTo(expiresAt.ToUnixTimeSeconds()));
     }
 
-    private static string BuildEncryptedToken(
-        string email,
-        string cognitoCode,
-        string tokenId,
-        DateTimeOffset expiresAt,
-        string secret)
+
+    [Test]
+    [TestCase(null, null, null)]
+    [TestCase("", "ok", "ok")] // Email vacío
+    [TestCase("   ", "ok", "ok")] // Email whitespace
+    [TestCase("a@b.com", "", "ok")] // CognitoCode vacío
+    [TestCase("a@b.com", "   ", "ok")] // CognitoCode whitespace
+    [TestCase("a@b.com", "ok", "")] // TokenId vacío
+    [TestCase("a@b.com", "ok", "   ")] // TokenId whitespace
+    public void ShouldFailWhenFieldsAreEmpty(string? email, string? cognitoCode, string? tokenId)
     {
-        byte[] plainText = JsonSerializer.SerializeToUtf8Bytes(new PasswordResetPayloadTestModel
-        {
-            Email = email,
-            CognitoCode = cognitoCode,
-            TokenId = tokenId,
-            ExpiresAtUnix = expiresAt.ToUnixTimeSeconds()
-        });
+        // Given: a valid encrypted token
+        DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddMinutes(20);
+        string token = BuildEncryptedToken(
+            email!,
+            cognitoCode!,
+            tokenId!,
+            expiresAt,
+            Config.PasswordResetTokenSecret);
 
-        byte[] key = SHA256.HashData(Encoding.UTF8.GetBytes(secret));
-        byte[] nonce = RandomNumberGenerator.GetBytes(12);
-        byte[] cipherText = new byte[plainText.Length];
-        byte[] tag = new byte[16];
+        // When: validating and decoding the token
+        Result<PasswordResetTokenData> result = Service.ValidateAndReadToken(token);
 
-        using AesGcm aes = new(key, 16);
-        aes.Encrypt(nonce, plainText, cipherText, tag);
-
-        byte[] payload = nonce.Concat(tag).Concat(cipherText).ToArray();
-        return $"v1.{ToBase64Url(payload)}";
+        // Then: validation fails with invalid token error
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
-    private static string ToBase64Url(byte[] bytes)
+    [Test]
+    [TestCase("v1.not@base64url")]
+    [TestCase("v1.***")]
+    [TestCase("v1.a")] // a veces falla por longitud
+    [TestCase("v1.ab$cd")]
+    public void ShouldHandleInvalidEncryptedTokenWithNonBase64(string malformationToken)
     {
-        return Convert.ToBase64String(bytes)
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
-    }
+        DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddMinutes(20);
+        string token = BuildEncryptedToken(
+            "asdfasd@a.com",
+            "12456",
+            "asdfasdfasd",
+            expiresAt,
+            Config.PasswordResetTokenSecret, malformationToken);
 
-    private sealed class PasswordResetPayloadTestModel
+        // When: validating and decoding the token
+        Result<PasswordResetTokenData> result = Service.ValidateAndReadToken(token);
+
+        // Then: validation fails with invalid token error
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+    }
+    
+    [Test]
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(28)] // justo el límite: también debe fallar (<=)
+    public void ShouldHandleShortTokens(int len)
     {
-        public string Email { get; set; } = string.Empty;
-        public string CognitoCode { get; set; } = string.Empty;
-        public string TokenId { get; set; } = string.Empty;
-        public long ExpiresAtUnix { get; set; }
+        // Given: Wrong payload
+        byte[] shortPayload = new byte[len];
+        string token = $"v1.{ToBase64Url(shortPayload)}";
+
+        // When: Service is invoked
+        Result<PasswordResetTokenData> result = Service.ValidateAndReadToken(token);
+
+        // Assert
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+    }
+    
+    [Test]
+    public void ShouldFailIfTamperedToken()
+    {
+        // Arrange
+        const string secret = "my-secret";
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(10);
+
+        string goodToken = BuildEncryptedToken(
+            email: "a@b.com",
+            cognitoCode: "123",
+            tokenId: "tok-1",
+            expiresAt: expiresAt,
+            secret: secret);
+
+        // Split "v1.{payload}"
+        string[] parts = goodToken.Split('.', 2);
+        byte[] bytes = FromBase64Url(parts[1]);
+
+        // Corrompe 1 byte del ciphertext/tag/nonce (da igual cuál; con tocar uno basta)
+        bytes[^1] ^= 0x01; // flip last bit
+
+        string tamperedToken = $"v1.{ToBase64Url(bytes)}";
+
+        // Act
+        Result<PasswordResetTokenData> result = Service.ValidateAndReadToken(tamperedToken);
+
+        // Assert
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 }

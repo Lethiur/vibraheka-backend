@@ -22,7 +22,7 @@ public class GetAllTemplatesTest
     public async Task ShouldReturnAllTemplatesFromRepository()
     {
         // Given
-        List<EmailEntity> expectedTemplates = new List<EmailEntity>
+        List<EmailEntity> expectedTemplates = new()
         {
             new EmailEntity { ID = "1", Name = "Template 1" },
             new EmailEntity { ID = "2", Name = "Template 2" }

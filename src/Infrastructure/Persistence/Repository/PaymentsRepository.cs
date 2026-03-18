@@ -45,11 +45,22 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                 [
                     new SessionLineItemOptions { Price = Config.SubscriptionID, Quantity = 1 }
                 ],
+                SubscriptionData = new SessionSubscriptionDataOptions()
+                {
+                    TrialSettings = new SessionSubscriptionDataTrialSettingsOptions()
+                    {
+                       EndBehavior  = new SessionSubscriptionDataTrialSettingsEndBehaviorOptions()
+                       {
+                           MissingPaymentMethod = "cancel"
+                       }
+                    },
+                    TrialPeriodDays = Config.TrialPeriodInDays,
+                },
                 SuccessUrl = Config.PaymentSuccessUrl,
                 CancelUrl = Config.PaymentCancelUrl,
                 ClientReferenceId = Guid.NewGuid().ToString(),
                 PaymentMethodCollection = "always",
-                ExpiresAt = expirationDate
+                ExpiresAt = expirationDate,
             };
 
             SessionService sessionService = new();

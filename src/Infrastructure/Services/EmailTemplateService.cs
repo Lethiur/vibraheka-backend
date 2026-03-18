@@ -20,11 +20,11 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// wrapping the email template if found, or an error if the operation fails.</returns>
     public Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken cancellationToken)
     {
-        return  Maybe.From(templateID)
+        return Maybe.From(templateID)
             .Where(tid => !string.IsNullOrWhiteSpace(tid))
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
-            .Bind(async (id) => await EmailTemplateRepository.GetTemplateByID(id, cancellationToken))
-            .Ensure(tpl => tpl != null,EmailTemplateErrors.TemplateNotFound)
+            .BindTry(async id => await EmailTemplateRepository.GetTemplateByID(id, cancellationToken))
+            .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound)
             .MapError(error =>
             {
                 return error switch
@@ -72,20 +72,16 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return
             Maybe.From(templateID)
                 .ToResult(EmailTemplateErrors.InvalidTempalteID)
-                .Map(GetTemplateByID, token)
-            .Tap(entity =>
-            {
-                entity.Name = newTemplateName;
-                entity.LastModified = DateTime.UtcNow;
-                EmailTemplateRepository.SaveTemplate(entity, token);
-            }).Map(_ => Unit.Value)
-                .MapError(error =>
+                .Ensure(id => !string.IsNullOrWhiteSpace(id), EmailTemplateErrors.InvalidTempalteID)
+                .Ensure(id => !string.IsNullOrEmpty(id), EmailTemplateErrors.InvalidTempalteID)
+                .BindTry(template => EmailTemplateRepository.GetTemplateByID(template, token))
+                .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound)
+                .TapTry(entity =>
                 {
-                    return error switch
-                    {
-                        GenericPersistenceErrors.NoRecordsFound => EmailTemplateErrors.TemplateNotFound,
-                        _ => error
-                    };
-                });
+                    entity.Name = newTemplateName;
+                    entity.LastModified = DateTime.UtcNow;
+                })
+                .BindTry(entity => EmailTemplateRepository.SaveTemplate(entity, token))
+                .Map(_ => Unit.Value);
     }
 }

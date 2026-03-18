@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 
@@ -10,7 +11,7 @@ public class IsPasswordResetTokenUsedAsyncTest : GenericUserCodeServiceIntegrati
     [Test]
     public async Task ShouldReturnTrueWhenReplayMarkerExistsInStorage()
     {
-        // Given: a replay marker already persisted for the requested token id
+        // Given: un replay marker persistido para el token solicitado.
         string tokenId = Guid.NewGuid().ToString("N");
         string email = $"{tokenId}@test.com";
         await _userCodeRepository.SaveCode(new UserCodeEntity
@@ -23,13 +24,13 @@ public class IsPasswordResetTokenUsedAsyncTest : GenericUserCodeServiceIntegrati
             LastModifiedBy = "integration-test"
         }, CancellationToken.None);
 
-        // When: the service checks if this token was already used
+        // When: el servicio valida si ese token ya fue consumido.
         Result<bool> result = await _userCodeService.IsPasswordResetTokenUsedAsync(
             email,
             tokenId,
             CancellationToken.None);
 
-        // Then: the service returns true because a marker exists
+        // Then: debe retornar true porque existe marker en persistencia.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.True);
 
@@ -39,17 +40,35 @@ public class IsPasswordResetTokenUsedAsyncTest : GenericUserCodeServiceIntegrati
     [Test]
     public async Task ShouldReturnFalseWhenReplayMarkerDoesNotExistInStorage()
     {
-        // Given: a token id without a persisted replay marker
+        // Given: un token sin replay marker persistido.
         string tokenId = Guid.NewGuid().ToString("N");
 
-        // When: the service checks if the token was already used
+        // When: el servicio valida si el token ya fue consumido.
         Result<bool> result = await _userCodeService.IsPasswordResetTokenUsedAsync(
             "missing@test.com",
             tokenId,
             CancellationToken.None);
 
-        // Then: the service returns false because the marker is missing
+        // Then: debe retornar false porque no hay registro.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.False);
+    }
+
+    [Test]
+    public async Task ShouldReturnFailureWhenRepositoryFlowReturnsUnexpectedError()
+    {
+        // Given: un cancellation token cancelado para provocar error inesperado de repositorio.
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+
+        // When: se consulta el uso del token con la operacion cancelada.
+        Result<bool> result = await _userCodeService.IsPasswordResetTokenUsedAsync(
+            "cancelled@test.com",
+            Guid.NewGuid().ToString("N"),
+            cts.Token);
+
+        // Then: debe propagarse el error no compensado.
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo(AppErrors.GenericError));
     }
 }

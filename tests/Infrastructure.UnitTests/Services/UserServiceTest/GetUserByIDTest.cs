@@ -16,7 +16,7 @@ public class GetUserByIDTests : GenericUserServiceTest
     {
         // Given
         string userId = Guid.NewGuid().ToString();
-        UserEntity user = new UserEntity(userId, "user@test.com", "John Doe");
+        UserEntity user = new(userId, "user@test.com", "John Doe");
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, CancellationToken.None))

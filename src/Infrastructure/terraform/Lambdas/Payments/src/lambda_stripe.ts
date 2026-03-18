@@ -13,12 +13,62 @@ export interface StripeEventDetail {
     data: { object: any };
 }
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+
+export async function stripeHandler (event: any)  {
+
+    try {
+        console.log(event);
+        const signature =
+            event.headers["stripe-signature"] ||
+            event.headers["Stripe-Signature"];
+
+        const rawBody =
+            typeof event.body === "string"
+                ? event.body
+                : JSON.stringify(event.body);
+        const stripeEvent = stripe.webhooks.constructEvent(
+            rawBody,
+            signature,
+            process.env.STRIPE_WEBHOOK_SECRET!
+        );
+
+      
+        // 🔥 Aquí transformamos a EventBridge-like shape si quieres
+        const eventBridgeLike: EventBridgeEvent<string, Stripe.Event>  = {
+            version: "0",
+            id: stripeEvent.id,
+            "detail-type": stripeEvent.type,
+            source: "stripe",
+            account: "local",
+            time: new Date().toISOString(),
+            region: "eu-west-1",
+            resources: [],
+            detail: stripeEvent,
+        };
+
+        return await handler(eventBridgeLike as unknown as EventBridgeEvent<string, StripeEventDetail>, {} as Context);
+    } catch (err) {
+        console.error("Webhook error:", err);
+        return {
+            statusCode: 400,
+            body: "Invalid signature",
+        };
+    }
+    
+    
+    
+}
+
 // Lambda handler
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
-
+    
     const eventType = event.detail.type;
+    const eventId = (event.detail as any)?.id ?? 'unknown';
+    console.log('Event type:', eventType, 'event id:', eventId);
     const eventData = event.detail.data.object;
-
+    
     try {
         switch (eventType) {
             case 'checkout.session.completed':
@@ -40,20 +90,33 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                     console.log('Payment processed successfully')
                 }
                 break;
+            case 'customer.subscription.trial_will_end':
+                console.log('Trial will end');
+                // console.log(eventData);
+                break;
             case 'customer.subscription.deleted':
                 const subscriptionCancelled : Stripe.Subscription = eventData as Stripe.Subscription;
                 let cancellationResult: Result<void, SubscriptionErrors> =  await CancelSubscriptionUseCase.Execute(subscriptionCancelled);
                 if (cancellationResult.isErr()) {
                     console.log(`Error while processing subscription cancellation: ${cancellationResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: cancellationResult.error
+                    };
                 } else {
                     console.log('Subscription cancelled successfully')
                 }
                 break;
             case 'customer.subscription.updated':
                 const subscriptionUpdated : Stripe.Subscription = eventData as Stripe.Subscription;
+                console.log(JSON.stringify(subscriptionUpdated, null, 2));
                 const updateResult : Result<void, SubscriptionErrors> = await UpdateSubscriptionUseCase.Execute(subscriptionUpdated);
                 if (updateResult.isErr()) {
                     console.log(`Error while processing subscription update: ${updateResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: updateResult.error
+                    };
                 } else {
                     console.log('Subscription updated successfully')
                 }
@@ -64,6 +127,10 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
 
                 if (expiredResult.isErr()) {
                     console.log(`Error while processing checkout session expiration: ${expiredResult.error}`)
+                    return {
+                        statusCode: 500,
+                        body: expiredResult.error
+                    };
                 } else {
                     console.log('Checkout session expired processed successfully')
                 }

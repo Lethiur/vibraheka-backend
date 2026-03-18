@@ -16,7 +16,7 @@ public class UpdateRecoverPasswordEmailTemplateAsyncTest : GenericSettingsReposi
         const string emailTemplate = "<html><body>Password changed</body></html>";
 
         SsmClientMock.Setup(x => x.PutParameterAsync(
-                It.Is<PutParameterRequest>(r => r.Name == PasswordChangedParameterName && r.Value == emailTemplate),
+                It.Is<PutParameterRequest>(r => r.Name == RecoverPasswordParameterName && r.Value == emailTemplate),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PutParameterResponse());
 

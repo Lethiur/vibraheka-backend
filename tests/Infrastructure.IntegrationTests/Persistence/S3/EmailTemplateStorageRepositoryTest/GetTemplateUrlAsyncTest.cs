@@ -25,7 +25,7 @@ public class GetTemplateUrlAsyncTest : GenericEmailTemplateStorageRepositoryInte
 
         // Then
         Assert.That(urlResult.IsSuccess, Is.True);
-        Uri uri = new Uri(urlResult.Value, UriKind.Absolute);
+        Uri uri = new(urlResult.Value, UriKind.Absolute);
         Assert.That(uri.Scheme, Is.EqualTo(Uri.UriSchemeHttps));
         Assert.That(uri.AbsolutePath, Is.EqualTo($"/{templateId}/template.json"));
         Assert.That(uri.Query, Does.Contain("X-Amz-"));

@@ -12,6 +12,21 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenChangingContentsWithoutAuthentication()
+    {
+        // Given: a valid request payload but no authentication token.
+        using MultipartFormDataContent form = new();
+        form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
+        form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("content"))), "TemplateFile", "template.html");
+
+        // When: calling the change-contents endpoint.
+        HttpResponseMessage response = await Client.PatchAsync("/api/v1/email-templates/change-contents", form);
+
+        // Then: endpoint should reject unauthenticated access.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldChangeTemplateContentsWhenUserIsAdmin()
     {
         // Given: An admin user and an existing template skeleton
@@ -27,7 +42,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
 
         // And: A new content file
         string newContent = "<html><body>Updated Content</body></html>";
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(templateId), "TemplateID");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(newContent))), "TemplateFile", "template.html");
 
@@ -36,6 +51,8 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        ResponseEntity updateEntity = await response.GetAsResponseEntity();
+        Assert.That(updateEntity.Success, Is.True);
 
         // Happy Path check: Verify content actually updated
         HttpResponseMessage contentResponse = await Client.GetAsync($"/api/v1/email-templates/contents?templateID={templateId}");
@@ -53,7 +70,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing template contents
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("[]"))), "TemplateFile", "template.json");
         
@@ -73,7 +90,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing contents with invalid ID
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent("not-a-guid"), "TemplateID");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("test"))), "TemplateFile", "t.txt");
         
@@ -95,7 +112,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing contents without file
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
         
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/email-templates/change-contents", form);
@@ -114,7 +131,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing contents of a non-existent template
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("content"))), "TemplateFile", "t.json");
 

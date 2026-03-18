@@ -105,10 +105,40 @@ public class ChangeTemplateCommandHandlerTest
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));
 
-        ChangeTemplateForActionCommand command = new(templateId, ActionType.UserRegistered);
+        ChangeTemplateForActionCommand command = new(templateId, (ActionType)999);
         Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidAction));
+    }
+
+    [Test]
+    [TestCase(ActionType.UserRegistered)]
+    [TestCase(ActionType.SubscriptionThankYou)]
+    [TestCase(ActionType.TrialEndingSoon)]
+    [TestCase(ActionType.PasswordChanged)]
+    public async Task ShouldHandleNewAdminTemplateActions(ActionType actionType)
+    {
+        // Given
+        const string templateId = "1";
+        currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(new EmailEntity()));
+
+        settingsServiceMock.Setup(x => x.ChangeUserWelcomeEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(Unit.Value));
+        settingsServiceMock.Setup(x => x.ChangeSubscriptionThankYouEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(Unit.Value));
+        settingsServiceMock.Setup(x => x.ChangeTrialEndingSoonEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(Unit.Value));
+        settingsServiceMock.Setup(x => x.ChangePasswordChangedEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(Unit.Value));
+
+        // When
+        ChangeTemplateForActionCommand command = new(templateId, actionType);
+        Result<Unit> result = await handler.Handle(command, CancellationToken.None);
+
+        // Then
+        Assert.That(result.IsSuccess, Is.True);
     }
 }

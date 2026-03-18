@@ -27,7 +27,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenEmailIsEmptyOrNull(string? email)
     {
         // Given: Command with invalid email
-        VerifyUserCommand command = new VerifyUserCommand(email!, "123456");
+        VerifyUserCommand command = new(email!, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -49,7 +49,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenEmailFormatIsInvalid(string email)
     {
         // Given: Command with invalid email format
-        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new(email, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -69,7 +69,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldPassValidationWhenEmailFormatIsValid(string email)
     {
         // Given: Command with valid email format
-        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new(email, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -92,7 +92,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenCodeIsEmptyOrNull(string? code)
     {
         // Given: Command with invalid code
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", code!);
+        VerifyUserCommand command = new("test@example.com", code!);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -111,7 +111,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenCodeIsTooShort(string code)
     {
         // Given: Command with short code
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", code);
+        VerifyUserCommand command = new("test@example.com", code);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -126,7 +126,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldPassValidationWhenCodeLengthIsValid(string code)
     {
         // Given: Command with valid code length
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", code);
+        VerifyUserCommand command = new("test@example.com", code);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -144,7 +144,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenBothEmailAndCodeAreInvalid()
     {
         // Given: Command with both invalid fields
-        VerifyUserCommand command = new VerifyUserCommand("invalid-email", "123");
+        VerifyUserCommand command = new("invalid-email", "123");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -161,7 +161,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldPassValidationWhenBothEmailAndCodeAreValid()
     {
         // Given: Command with all valid fields
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", "123456");
+        VerifyUserCommand command = new("test@example.com", "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -175,7 +175,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenOnlyEmailIsInvalid()
     {
         // Given: Command with only invalid email
-        VerifyUserCommand command = new VerifyUserCommand("invalid-email", "123456");
+        VerifyUserCommand command = new("invalid-email", "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -190,7 +190,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenOnlyCodeIsInvalid()
     {
         // Given: Command with only invalid code
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", "123");
+        VerifyUserCommand command = new("test@example.com", "123");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -206,7 +206,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldFailValidationWhenBothFieldsAreEmptyOrNull(string? email, string? code)
     {
         // Given: Command with both invalid fields
-        VerifyUserCommand command = new VerifyUserCommand(email!, code!);
+        VerifyUserCommand command = new(email!, code!);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -228,7 +228,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty email (should fail NotEmpty and not continue to EmailAddress)
-        VerifyUserCommand command = new VerifyUserCommand("", "123456");
+        VerifyUserCommand command = new("", "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -245,7 +245,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldStopValidationOnFirstCodeErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty code
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", "");
+        VerifyUserCommand command = new("test@example.com", "");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -262,7 +262,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldValidateAllFieldsIndependentlyWhenCascadeModeIsStop()
     {
         // Given: Command with invalid email format (should pass NotEmpty but fail EmailAddress)
-        VerifyUserCommand command = new VerifyUserCommand("invalid-email-format", "123456");
+        VerifyUserCommand command = new("invalid-email-format", "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -285,9 +285,9 @@ public class VerifyUserCommandValidatorTests
     public void ShouldHandleVeryLongEmailWhenValidating()
     {
         // Given: Command with very long email
-        string longLocalPart = new string('a', 60); // Just under the 64 character limit
+        string longLocalPart = new('a', 60); // Just under the 64 character limit
         string longEmail = $"{longLocalPart}@example.com";
-        VerifyUserCommand command = new VerifyUserCommand(longEmail, "123456");
+        VerifyUserCommand command = new(longEmail, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -304,8 +304,8 @@ public class VerifyUserCommandValidatorTests
     public void ShouldHandleVeryLongCodeWhenValidating()
     {
         // Given: Command with very long verification code
-        string longCode = new string('1', 1000);
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", longCode);
+        string longCode = new('1', 1000);
+        VerifyUserCommand command = new("test@example.com", longCode);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -327,7 +327,7 @@ public class VerifyUserCommandValidatorTests
             : "b.co";
     
         string email = $"{new string('a', 64)}@{domainName}";
-        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new(email, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -350,7 +350,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldHandleInternationalDomainNamesWhenValidating(string email)
     {
         // Given: Command with international email
-        VerifyUserCommand command = new VerifyUserCommand(email, "123456");
+        VerifyUserCommand command = new(email, "123456");
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);
@@ -369,7 +369,7 @@ public class VerifyUserCommandValidatorTests
     public void ShouldHandleBoundaryValuesForCodeLengthWhenValidating(string code, bool shouldPass)
     {
         // Given: Command with boundary value code
-        VerifyUserCommand command = new VerifyUserCommand("test@example.com", code);
+        VerifyUserCommand command = new("test@example.com", code);
 
         // When: Validating the command
         TestValidationResult<VerifyUserCommand>? result = _validator.TestValidate(command);

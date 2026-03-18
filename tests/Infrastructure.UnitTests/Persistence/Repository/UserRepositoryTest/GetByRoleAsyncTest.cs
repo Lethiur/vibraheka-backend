@@ -23,7 +23,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
             new() { Id = "2", Role = role }
         ];
 
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(default)).ReturnsAsync(models);
 
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(role, It.IsAny<QueryConfig>()))
@@ -44,7 +44,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     public async Task ShouldReturnEmptyListWhenNoUsersHaveRole()
     {
         // Given: A role with no users
-        Mock<IAsyncSearch<UserDBModel>> searchMock = new Mock<IAsyncSearch<UserDBModel>>();
+        Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(default)).ReturnsAsync(new List<UserDBModel>());
 
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()))

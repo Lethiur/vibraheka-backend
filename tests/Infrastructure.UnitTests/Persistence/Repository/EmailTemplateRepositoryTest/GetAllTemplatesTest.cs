@@ -17,8 +17,8 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
         // Given
         List<EmailTemplateDBModel> models =
         [
-            new EmailTemplateDBModel { TemplateID = "t1", Name = "n1", Path = "p1" },
-            new EmailTemplateDBModel { TemplateID = "t2", Name = "n2", Path = "p2" }
+            new() { TemplateID = "t1", Name = "n1", Path = "p1" },
+            new() { TemplateID = "t2", Name = "n2", Path = "p2" }
         ];
 
         Mock<IAsyncSearch<EmailTemplateDBModel>> searchMock = new();

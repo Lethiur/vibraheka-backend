@@ -29,11 +29,17 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailEntity>>();
-        IEnumerable<EmailEntity>? templates = responseEntity.GetContentAs<IEnumerable<EmailEntity>>();
+        ResponseEntity responseEntity =
+            await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
+        IEnumerable<EmailTemplateResponseDTO>? templates =
+            responseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
 
         Assert.That(responseEntity.Success, Is.True);
         Assert.That(templates, Is.Not.Null);
+        foreach (EmailTemplateResponseDTO template in templates!)
+        {
+            Assert.That(template.TemplateID, Is.Not.Null.And.Not.Empty);
+        }
     }
 
     [Test]
@@ -47,7 +53,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         
         // And: A newly created template
         string templateName = $"NewListTemplate-{TheFaker.Random.AlphaNumeric(8)}";
-        using MultipartFormDataContent form = new MultipartFormDataContent();
+        using MultipartFormDataContent form = new();
         form.Add(new StringContent(templateName), "TemplateName");
         form.Add(new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("{}"))), "File", "t.json");
         await Client.PutAsync("/api/v1/email-templates/create", form);

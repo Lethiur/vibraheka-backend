@@ -33,7 +33,7 @@ public class TemplateExistsAsyncTest : GenericEmailTemplateStorageRepositoryTest
     {
         // Given
         const string templateId = "missing-template";
-        Amazon.S3.AmazonS3Exception notFound = new Amazon.S3.AmazonS3Exception("Not Found")
+        Amazon.S3.AmazonS3Exception notFound = new("Not Found")
         {
             StatusCode = System.Net.HttpStatusCode.NotFound
         };

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Data;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
@@ -99,6 +100,34 @@ public class EditTemplateNameTests
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
 
         _repositoryMock.Verify(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ShouldHandleExceptionFromRepository()
+    {
+        const string templateId = "template-err";
+        // Given: Some mocking
+        EmailEntity template = new()
+        {
+            ID = templateId,
+            Name = "Old Name",
+            Path = "path",
+        };
+        
+        _repositoryMock
+            .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
+            .ReturnsAsync(Result.Success(template));
+        
+        _repositoryMock.Setup(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Database error"));
+        
+        // When: Service is invoked
+        Result<Unit> result = await _service.EditTemplateName(templateId,"New Name", CancellationToken.None);
+
+        // Then: The result should contain the explosion
+        Assert.That(result.IsFailure, Is.True);
+        Assert.That(result.Error, Is.EqualTo("Database error"));
+        
     }
 
     [Test]

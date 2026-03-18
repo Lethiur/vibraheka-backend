@@ -2136,6 +2136,9 @@ export enum ActionType {
     UserVerification = 1,
     RequestVerificationCode = 2,
     PasswordReset = 3,
+    SubscriptionThankYou = 4,
+    TrialEndingSoon = 5,
+    PasswordChanged = 6,
 }
 
 export abstract class BaseAuditableEntity implements IBaseAuditableEntity {

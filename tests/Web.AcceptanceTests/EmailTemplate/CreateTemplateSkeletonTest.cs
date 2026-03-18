@@ -12,6 +12,20 @@ namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
+    public async Task ShouldReturnUnauthorizedWhenCreatingSkeletonWithoutAuthentication()
+    {
+        // Given: no bearer token in request headers.
+        string templateName = $"Skeleton-{TheFaker.Random.AlphaNumeric(8)}";
+
+        // When: creating template skeleton.
+        HttpResponseMessage response =
+            await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={templateName}", null);
+
+        // Then: endpoint should reject unauthenticated access.
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task ShouldCreateTemplateSkeletonWhenUserIsAdmin()
     {
         // Given: An admin user
@@ -29,6 +43,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
         string? templateId = responseEntity.GetContentAs<string>();
+        Assert.That(responseEntity.Success, Is.True);
         Assert.That(templateId, Is.Not.Null);
 
         // Verify the skeleton exists in the summary list (Happy Path check)

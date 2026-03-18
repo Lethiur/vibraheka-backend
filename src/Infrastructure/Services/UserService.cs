@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using Amazon;
 using Amazon.CognitoIdentityProvider;
@@ -39,7 +39,7 @@ public class UserService(
 
         if (!string.IsNullOrEmpty(profileName))
         {
-            CredentialProfileStoreChain chain = new CredentialProfileStoreChain();
+            CredentialProfileStoreChain chain = new();
             if (chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
             {
                 return new AmazonCognitoIdentityProviderClient(credentials, new AmazonCognitoIdentityProviderConfig 
@@ -62,7 +62,7 @@ public class UserService(
     {
         try
         {
-            SignUpRequest request = new SignUpRequest
+            SignUpRequest request = new()
             {
                 ClientId = _clientId,
                 Username = email,
@@ -109,7 +109,7 @@ public class UserService(
 
             AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request);
             
-            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler handler = new();
             JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
             string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
 
@@ -256,7 +256,7 @@ public class UserService(
     {
         try
         {
-            AdminGetUserRequest request = new AdminGetUserRequest()
+            AdminGetUserRequest request = new()
             {
                 UserPoolId = _userPoolId,
                 Username = email
@@ -344,7 +344,7 @@ public class UserService(
     /// <typeparam name="T">The type of the result that the operation will return in case of success.</typeparam>
     /// <param name="ex">The exception thrown during the execution of an operation in the Cognito service.</param>
     /// <returns>A <see cref="Result{T}"/> containing the appropriate error mapped from the exception, or a fallback error for unexpected exceptions.</returns>
-    private Result<T> MapCognitoException<T>(Exception ex)
+    protected virtual Result<T> MapCognitoException<T>(Exception ex)
     {
         // Map common Cognito exceptions to your domain/application error strings.
         // Add/remove cases as you discover them.

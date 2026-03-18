@@ -12,7 +12,7 @@ public class UpdateUserCommandHandler(ICurrentUserService currentUserService, IU
     public Task<Result<Unit>> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
         return Maybe.From(request.NewUserData)
-            .Where(bool (userDTO) => userDTO.Id == request.NewUserData.Id)
+            .Where(userDTO => userDTO.Id == currentUserService.UserId)
             .ToResult(UserErrors.NotAuthorized)
             .MapTry(UserEntity (userDTO) => new UserEntity(userDTO.Id, userDTO.Email, userDTO.FirstName)
             {
