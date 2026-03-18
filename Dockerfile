@@ -36,6 +36,9 @@ RUN set -eux; \
 
 # Runtime URLs can be overridden in deployment environment if needed.
 ENV ASPNETCORE_URLS=http://+:8080
+ENV HOME=/app
+# Ensure the AWS SDK reads ~/.aws/config in addition to credentials.
+ENV AWS_SDK_LOAD_CONFIG=1
 EXPOSE 8080
 
 COPY --from=build --chown=${APP_UID}:${APP_GID} /app/publish ./

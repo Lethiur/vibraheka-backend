@@ -596,8 +596,13 @@ jobs:
             timeout 60 sudo systemctl start docker
             timeout 30 sudo systemctl is-active docker
 
+            # Keep the parent directory traversable so the container user can reach the mounted files.
+            sudo mkdir -p /opt/vibraheka
+            sudo chmod 755 /opt/vibraheka
+
             sudo mkdir -p /opt/vibraheka/.aws
-            sudo chmod 700 /opt/vibraheka/.aws
+            sudo chmod 711 /opt/vibraheka/.aws
+
             sudo sh -c "printf '%s\n' \
               '[default]' \
               'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
@@ -616,7 +621,6 @@ jobs:
               'region = ${AWS_REGION}' \
               'output = json' \
               > /opt/vibraheka/.aws/config"
-            # Container runs as non-root (UID/GID 10001), so credentials must be world-readable inside the container.
             sudo chmod 644 /opt/vibraheka/.aws/credentials /opt/vibraheka/.aws/config
 
             timeout 120 aws ecr get-login-password --region "${AWS_REGION}" \
@@ -636,6 +640,9 @@ jobs:
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
                 -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
+                -e AWS_PROFILE="Twingers" \
+                -e AWS_SDK_LOAD_CONFIG=1 \
+                -e HOME="/app" \
                 -e AWS_SHARED_CREDENTIALS_FILE="/aws/credentials" \
                 -e AWS_CONFIG_FILE="/aws/config" \
                 -v /opt/vibraheka/.aws:/aws:ro \
@@ -650,11 +657,13 @@ jobs:
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               -e AWS_PROFILE="Twingers" \
+              -e AWS_SDK_LOAD_CONFIG=1 \
+              -e HOME="/app" \
               -e AWS__Profile="Twingers" \
               -e AWSLogging__Profile="Twingers" \
-              -e AWS_SHARED_CREDENTIALS_FILE="/aws/credentials" \
-              -e AWS_CONFIG_FILE="/aws/config" \
-              -v /opt/vibraheka/.aws:/aws:ro \
+              -e AWS_SHARED_CREDENTIALS_FILE="/app/.aws/credentials" \
+              -e AWS_CONFIG_FILE="/app/.aws/config" \
+              -v /opt/vibraheka/.aws:/app/.aws:ro \
               "${IMAGE_URI}"
 
             sudo docker ps
