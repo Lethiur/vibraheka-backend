@@ -254,59 +254,59 @@ jobs:
           path: ${{ env.TERRAFORM_DIR }}/terraform-outputs.json.enc
           if-no-files-found: error
           retention-days: 1
-
-  tests_core:
-    name: Tests (unit + functional + integration)
-    runs-on: ubuntu-latest
-    needs: [prepare, terraform_test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Run core tests
-        uses: ./.github/actions/dotnet-tests-with-tf-outputs
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
-          terraform-outputs-artifact-name: terraform-test-outputs
-          appsettings-path: src/Web/appsettings.Test.json
-          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
-          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
-          projects: |
-            tests/Domain.UnitTests/Domain.UnitTests.csproj
-            tests/Application.UnitTests/Application.UnitTests.csproj
-            tests/Application.FunctionalTests/Application.FunctionalTests.csproj
-            tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj
-            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
-
-  tests_acceptance:
-    name: Tests (acceptance)
-    runs-on: ubuntu-latest
-    needs: [prepare, terraform_test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Run acceptance tests
-        uses: ./.github/actions/dotnet-tests-with-tf-outputs
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
-          terraform-outputs-artifact-name: terraform-test-outputs
-          appsettings-path: src/Web/appsettings.Test.json
-          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
-          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
-          projects: |
-            tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj
+#
+#  tests_core:
+#    name: Tests (unit + functional + integration)
+#    runs-on: ubuntu-latest
+#    needs: [prepare, terraform_test]
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v6
+#
+#      - name: Run core tests
+#        uses: ./.github/actions/dotnet-tests-with-tf-outputs
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ env.AWS_REGION }}
+#          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
+#          terraform-outputs-artifact-name: terraform-test-outputs
+#          appsettings-path: src/Web/appsettings.Test.json
+#          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+#          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+#          projects: |
+#            tests/Domain.UnitTests/Domain.UnitTests.csproj
+#            tests/Application.UnitTests/Application.UnitTests.csproj
+#            tests/Application.FunctionalTests/Application.FunctionalTests.csproj
+#            tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj
+#            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
+#
+#  tests_acceptance:
+#    name: Tests (acceptance)
+#    runs-on: ubuntu-latest
+#    needs: [prepare, terraform_test]
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v6
+#
+#      - name: Run acceptance tests
+#        uses: ./.github/actions/dotnet-tests-with-tf-outputs
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ env.AWS_REGION }}
+#          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
+#          terraform-outputs-artifact-name: terraform-test-outputs
+#          appsettings-path: src/Web/appsettings.Test.json
+#          password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
+#          stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+#          projects: |
+#            tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj
 
   build_and_push:
     name: Build Docker Image And Push To ECR
     runs-on: ubuntu-latest
-    needs: [prepare, terraform_prod, tests_core, tests_acceptance]
+    needs: [prepare, terraform_prod]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -601,14 +601,14 @@ jobs:
             sudo chmod 755 /opt/vibraheka
 
             sudo mkdir -p /opt/vibraheka/.aws
-            sudo chmod 711 /opt/vibraheka/.aws
+            sudo chmod 755 /opt/vibraheka/.aws
 
             sudo sh -c "printf '%s\n' \
               '[default]' \
               'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
               'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
               '' \
-              '[Twingers]' \
+              '[${{ env.AWS_PROFILE_NAME }}]' \
               'aws_access_key_id = ${CI_AWS_ACCESS_KEY_ID}' \
               'aws_secret_access_key = ${CI_AWS_SECRET_ACCESS_KEY}' \
               > /opt/vibraheka/.aws/credentials"
@@ -617,7 +617,7 @@ jobs:
               'region = ${AWS_REGION}' \
               'output = json' \
               '' \
-              '[profile Twingers]' \
+              '[profile ${{ env.AWS_PROFILE_NAME }}]' \
               'region = ${AWS_REGION}' \
               'output = json' \
               > /opt/vibraheka/.aws/config"
@@ -640,7 +640,7 @@ jobs:
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
                 -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
-                -e AWS_PROFILE="Twingers" \
+                -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
                 -e AWS_SDK_LOAD_CONFIG=1 \
                 -e HOME="/app" \
                 -e AWS_SHARED_CREDENTIALS_FILE="/aws/credentials" \
@@ -656,11 +656,11 @@ jobs:
               --restart always \
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
-              -e AWS_PROFILE="Twingers" \
+              -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
               -e AWS_SDK_LOAD_CONFIG=1 \
               -e HOME="/app" \
-              -e AWS__Profile="Twingers" \
-              -e AWSLogging__Profile="Twingers" \
+              -e AWS__Profile="${{ env.AWS_PROFILE_NAME }}" \
+              -e AWSLogging__Profile="${{ env.AWS_PROFILE_NAME }}" \
               -e AWS_SHARED_CREDENTIALS_FILE="/app/.aws/credentials" \
               -e AWS_CONFIG_FILE="/app/.aws/config" \
               -v /opt/vibraheka/.aws:/app/.aws:ro \

@@ -128,6 +128,15 @@ resource "aws_instance" "backend" {
               mkdir -p /opt/backend
               echo "VibraHeka backend host ready for container deployment in ${terraform.workspace}" > /opt/backend/host-ready.txt
 
+              # Only keep SSH tooling active when inbound SSH is explicitly enabled.
+              if ${var.enable_ssh_ingress}; then
+                dnf -y install ec2-instance-connect || true
+                systemctl enable --now sshd
+                systemctl restart sshd
+              else
+                systemctl disable --now sshd || true
+              fi
+
               # Fail2ban: basic SSH brute-force protection.
               if ! dnf -y install fail2ban; then
                 dnf -y install epel-release || true
