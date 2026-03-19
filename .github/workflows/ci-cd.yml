@@ -49,7 +49,7 @@ jobs:
             | sed -E 's#(^-|-$)##g' \
             | cut -c1-18)"
           if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
-          PROD_WORKSPACE="${WORKSPACE}-prod"
+          PROD_WORKSPACE="${WORKSPACE}"
           TEST_WORKSPACE="${WORKSPACE}-test"
 
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then

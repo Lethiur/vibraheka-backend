@@ -55,7 +55,7 @@ jobs:
             BASE_WORKSPACE="default"
           fi
           echo "base=$BASE_WORKSPACE" >> "$GITHUB_OUTPUT"
-          echo "prod=${BASE_WORKSPACE}-prod" >> "$GITHUB_OUTPUT"
+          echo "prod=${BASE_WORKSPACE}" >> "$GITHUB_OUTPUT"
           echo "test=${BASE_WORKSPACE}-test" >> "$GITHUB_OUTPUT"
 
       - name: Build and package lambda artifacts
