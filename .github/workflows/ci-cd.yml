@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 | tr '[:upper:]' '[:lower:]' || true)"
           if [[ -z "$WORKSPACE" ]]; then
             WORKSPACE="$(echo "$RAW_REF" \
               | tr '[:upper:]' '[:lower:]' \
@@ -482,7 +482,7 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 | tr '[:upper:]' '[:lower:]' || true)"
           if [[ -z "$WORKSPACE" ]]; then
             WORKSPACE="$(echo "$RAW_REF" \
               | tr '[:upper:]' '[:lower:]' \

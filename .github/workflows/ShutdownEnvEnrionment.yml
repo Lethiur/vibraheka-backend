@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${{ github.event.pull_request.head.ref }}"
-          BASE_WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          BASE_WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 | tr '[:upper:]' '[:lower:]' || true)"
           if [[ -z "$BASE_WORKSPACE" ]]; then
             BASE_WORKSPACE="$(echo "$RAW_REF" \
               | tr '[:upper:]' '[:lower:]' \
