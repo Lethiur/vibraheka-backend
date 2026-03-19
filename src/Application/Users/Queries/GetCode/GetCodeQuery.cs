@@ -1,4 +1,6 @@
-﻿using CSharpFunctionalExtensions;
+﻿#if DEBUG
+
+using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Users.Queries.GetCode;
@@ -7,3 +9,4 @@ public class GetCodeQuery(string userName) : IRequest<Result<VerificationCodeEnt
 {
     public string UserName { get; set; } = userName;
 }
+#endif

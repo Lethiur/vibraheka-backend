@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿#if DEBUG
+using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Entities;
 
@@ -11,3 +12,4 @@ public class GetCodeQueryHandler(ICodeRepository repo) : IRequestHandler<GetCode
         return repo.GetCodeFor(request.UserName);
     }
 }
+#endif

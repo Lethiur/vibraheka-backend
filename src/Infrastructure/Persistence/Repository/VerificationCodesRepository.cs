@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿#if DEBUG
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Entities;
@@ -31,3 +32,4 @@ public class VerificationCodesRepository(IDynamoDBContext context,  AWSConfig co
         return mapper.ToDomain(results);
     }
 }
+#endif

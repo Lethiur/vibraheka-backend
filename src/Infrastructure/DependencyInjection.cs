@@ -11,13 +11,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Serilog;
-using Serilog.Events;
-using Serilog.Formatting.Compact;
-using Serilog.Sinks.AwsCloudWatch;
 using Stripe;
 using VibraHeka.Domain.Common.Interfaces;
+#if DEBUG
 using VibraHeka.Domain.Common.Interfaces.Codes;
+#endif
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
@@ -31,7 +29,6 @@ using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Persistence.S3;
 using VibraHeka.Infrastructure.Services;
 using VibraHeka.Infrastructure.Tracer;
-using VibraHeka.Web.Logging;
 using SubscriptionService = VibraHeka.Infrastructure.Services.SubscriptionService;
 
 
@@ -97,8 +94,9 @@ public static class DependencyInjection
         builder.Services.AddSingleton<SubscriptionEntityMapper>();
         builder.Services.AddSingleton<VerificationCodeEntityMapper>();
         builder.Services.AddSingleton<UsersCodeMapper>();
-        
+        #if DEBUG
         builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
+        #endif
         builder.Services.AddScoped<IUserCodeRepository, UserCodeRepository>();
         builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         builder.Services.AddScoped<ApplicationDynamoContext>();

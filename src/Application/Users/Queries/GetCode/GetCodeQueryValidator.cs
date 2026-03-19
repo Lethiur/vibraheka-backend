@@ -1,4 +1,6 @@
-﻿using VibraHeka.Application.Common.Extensions.Validation;
+﻿#if DEBUG
+
+using VibraHeka.Application.Common.Extensions.Validation;
 
 namespace VibraHeka.Application.Users.Queries.GetCode;
 
@@ -11,3 +13,4 @@ public class GetCodeQueryValidator : AbstractValidator<GetCodeQuery>
             .ValidEmail();
     }
 }
+#endif

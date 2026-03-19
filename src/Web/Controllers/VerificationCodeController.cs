@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#if DEBUG
+using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Users.Queries.GetCode;
@@ -24,3 +25,4 @@ public class VerificationCodeController(IMediator mediator)
         return new BadRequestObjectResult(ResponseEntity.FromError(id.Error));
     }
 }
+#endif
