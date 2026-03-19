@@ -37,7 +37,7 @@ variable "enable_ssh_ingress" {
 variable "create_ssh_key_pair" {
   description = "If true, Terraform creates an SSH keypair and stores private key in SSM SecureString."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "existing_ssh_public_key" {
