@@ -45,12 +45,15 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${{ github.event.pull_request.head.ref }}"
-          BASE_WORKSPACE="$(echo "$RAW_REF" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's#[^a-z0-9-]#-#g' \
-            | sed -E 's#-+#-#g' \
-            | sed -E 's#(^-|-$)##g' \
-            | cut -c1-18)"
+          BASE_WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          if [[ -z "$BASE_WORKSPACE" ]]; then
+            BASE_WORKSPACE="$(echo "$RAW_REF" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's#[^a-z0-9-]#-#g' \
+              | sed -E 's#-+#-#g' \
+              | sed -E 's#(^-|-$)##g' \
+              | cut -c1-18)"
+          fi
           if [[ -z "$BASE_WORKSPACE" ]]; then
             BASE_WORKSPACE="default"
           fi

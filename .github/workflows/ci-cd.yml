@@ -42,12 +42,15 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-          WORKSPACE="$(echo "$RAW_REF" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's#[^a-z0-9-]#-#g' \
-            | sed -E 's#-+#-#g' \
-            | sed -E 's#(^-|-$)##g' \
-            | cut -c1-18)"
+          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          if [[ -z "$WORKSPACE" ]]; then
+            WORKSPACE="$(echo "$RAW_REF" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's#[^a-z0-9-]#-#g' \
+              | sed -E 's#-+#-#g' \
+              | sed -E 's#(^-|-$)##g' \
+              | cut -c1-18)"
+          fi
           if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
           PROD_WORKSPACE="${WORKSPACE}"
           TEST_WORKSPACE="${WORKSPACE}-test"
@@ -479,12 +482,15 @@ jobs:
         run: |
           set -euo pipefail
           RAW_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-          WORKSPACE="$(echo "$RAW_REF" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's#[^a-z0-9-]#-#g' \
-            | sed -E 's#-+#-#g' \
-            | sed -E 's#(^-|-$)##g' \
-            | cut -c1-18)"
+          WORKSPACE="$(echo "$RAW_REF" | grep -oE '[A-Za-z]+-[0-9]+' | head -n1 || true)"
+          if [[ -z "$WORKSPACE" ]]; then
+            WORKSPACE="$(echo "$RAW_REF" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's#[^a-z0-9-]#-#g' \
+              | sed -E 's#-+#-#g' \
+              | sed -E 's#(^-|-$)##g' \
+              | cut -c1-18)"
+          fi
           if [[ -z "$WORKSPACE" ]]; then WORKSPACE="default"; fi
 
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
