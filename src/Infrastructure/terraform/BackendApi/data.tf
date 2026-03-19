@@ -28,7 +28,8 @@ locals {
   # Workspace normalized to a slug compatible with AWS name constraints.
   workspace_slug = trim(replace(lower(terraform.workspace), "_", "-"), "-")
   workspace_safe = local.workspace_slug != "" ? local.workspace_slug : "default"
-  workspace_hash = substr(md5(local.workspace_safe), 0, 6)
+
+  repository_name_safe = trim(replace(lower(var.ecr_repository_name), "_", "-"), "-")
 
   # Suffixes capped to satisfy max length constraints in AWS resources.
   workspace_suffix_34 = substr(local.workspace_safe, 0, 34) # 64-char instance profile name limit.
