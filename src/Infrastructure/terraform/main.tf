@@ -58,7 +58,7 @@ module "BackendApi" {
   count  = var.prod_deployment ? 1 : 0
   source = "./BackendApi"
   ssm_namespace = terraform.workspace == "default" ? var.project_name : "${var.project_name}/${terraform.workspace}"
-  ecr_repository_name = "${var.project_name}-${terraform.workspace}}"
+  ecr_repository_name = "${var.project_name}-${terraform.workspace}"
   enable_ssh_ingress = var.ec2_enable_ssh_ingress
   backend_instance_type = var.ec2_instance_type
   backend_port = var.ec2_backend_port
