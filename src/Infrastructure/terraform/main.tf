@@ -1,7 +1,7 @@
 
 module "Config" {
   source        = "./Config"
-  ssm_namespace = terraform.workspace == "default" ? "VibraHeka" : "VibraHeka/${terraform.workspace}"
+  ssm_namespace = terraform.workspace == "default" ? var.project_name : "${var.project_name}/${terraform.workspace}"
 }
 
 module "Emails" {
@@ -57,4 +57,13 @@ module "Subscriptions" {
 module "BackendApi" {
   count  = var.prod_deployment ? 1 : 0
   source = "./BackendApi"
+  ssm_namespace = terraform.workspace == "default" ? var.project_name : "${var.project_name}/${terraform.workspace}"
+  ecr_repository_name = "${var.project_name}-${terraform.workspace}}"
+  enable_ssh_ingress = var.ec2_enable_ssh_ingress
+  backend_instance_type = var.ec2_instance_type
+  backend_port = var.ec2_backend_port
+  existing_ssh_public_key = var.ec2_existing_ssh_public_key
+  private_subnet_a_cidr = var.private_subnet_a_cidr
+  ssh_allowed_cidrs = var.ec2_allowed_ciders
+  vpc_cidr = var.vpc_cidr
 }
