@@ -1,6 +1,6 @@
 # ECR repository for backend container images.
 resource "aws_ecr_repository" "backend" {
-  name                 = "${var.ecr_repository_name}-${terraform.workspace}"
+  name                 = local.repository_name_safe
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name        = "${var.ecr_repository_name}-${terraform.workspace}"
+    Name        = local.repository_name_safe
     environment = terraform.workspace
     created     = "terraform"
     service     = "BackendApi"

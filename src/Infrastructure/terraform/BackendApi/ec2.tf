@@ -76,29 +76,23 @@ resource "aws_iam_instance_profile" "backend" {
 
 # Optional generated private key for CI/CD SSH usage.
 resource "tls_private_key" "backend_ssh" {
-  count     = var.create_ssh_key_pair ? 1 : 0
+  count     = trimspace(var.existing_ssh_public_key) == "" && var.enable_ssh_ingress ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 # Key pair registered in EC2 for SSH.
 resource "aws_key_pair" "backend" {
+  count = var.enable_ssh_ingress ? 1 : 0
   key_name   = "vibraheka-backend-ssh-${terraform.workspace}"
-  public_key = var.create_ssh_key_pair ? tls_private_key.backend_ssh[0].public_key_openssh : var.existing_ssh_public_key
-
-  lifecycle {
-    precondition {
-      condition     = var.create_ssh_key_pair || trimspace(var.existing_ssh_public_key) != ""
-      error_message = "When create_ssh_key_pair is false, existing_ssh_public_key must be provided."
-    }
-  }
+  public_key = trimspace(var.existing_ssh_public_key) == ""  ? tls_private_key.backend_ssh[0].public_key_openssh : var.existing_ssh_public_key
+  
 }
 
 # Generated private key stored securely for retrieval from CI (GitHub Actions).
 resource "aws_ssm_parameter" "backend_ssh_private_key" {
-  count = var.create_ssh_key_pair ? 1 : 0
-
-  name        = "${var.ssh_private_key_ssm_parameter_name_prefix}/${terraform.workspace}"
+  count = var.enable_ssh_ingress ? 1 : 0
+  name        = "/${var.ssm_namespace}/backend/ec2/ssh-private-key"
   description = "Private SSH key for backend EC2 instance in ${terraform.workspace}."
   type        = "SecureString"
   value       = tls_private_key.backend_ssh[0].private_key_pem
@@ -119,7 +113,7 @@ resource "aws_instance" "backend" {
   vpc_security_group_ids      = [aws_security_group.backend_instance.id]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.backend.name
-  key_name                    = aws_key_pair.backend.key_name
+  key_name                    = try(aws_key_pair.backend[0].key_name, null)
 
   user_data = <<-EOF
               #!/bin/bash

@@ -29,12 +29,12 @@ output "backend_instance_public_ip" {
 }
 
 output "backend_instance_key_pair_name" {
-  value       = aws_key_pair.backend.key_name
+  value       = aws_key_pair.backend[0].key_name
   description = "SSH key pair name attached to backend EC2 instance."
 }
 
 output "backend_ssh_private_key_ssm_parameter_name" {
-  value       = var.create_ssh_key_pair ? aws_ssm_parameter.backend_ssh_private_key[0].name : null
+  value       = trimspace(var.existing_ssh_public_key) == "" ? aws_ssm_parameter.backend_ssh_private_key[0].name : null
   description = "SSM SecureString parameter holding generated private SSH key for CI retrieval."
 }
 

@@ -4,7 +4,7 @@ resource "aws_apigatewayv2_api" "backend" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins  = ["https://vh-049-loading-state-when-subscribing.d2h4h7jsyocr5v.amplifyapp.com"]
+    allow_origins  = ["*"]
     allow_methods  = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     allow_headers  = ["*"]
     expose_headers = ["*"]
