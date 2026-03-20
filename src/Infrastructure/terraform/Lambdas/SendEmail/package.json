@@ -8,7 +8,7 @@
     "build": "npm run build:cognito && npm run build:notifications",
     "build:cognito" : "esbuild ./src/lambda_send_email_cognito.ts --bundle --platform=node --target=node24 --outdir=dist",
     "build:notifications" : "esbuild ./src/lambda_send_email_notifications.ts --bundle --platform=node --target=node24 --outdir=dist",
-    "zip": "cd dist && zip lambda-cognito.zip lambda_send_email_cognito.js && zip lambda-notifications.zip lambda_send_email_notifications.js && cd ..",
+    "zip": "cd dist && zip ../lambda-cognito.zip lambda_send_email_cognito.js && zip ../lambda-notifications.zip lambda_send_email_notifications.js && cd ..",
     "zip:windows": "powershell -Command \"Compress-Archive -Path dist\\lambda_send_email_cognito.js -DestinationPath lambda-cognito.zip -Force\" && powershell -Command \"Compress-Archive -Path dist\\lambda_send_email_notifications.js -DestinationPath lambda-notifications.zip -Force\""
   },
   "author": "Twingers Corporation",
