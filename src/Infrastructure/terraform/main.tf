@@ -5,7 +5,8 @@ module "Config" {
 }
 
 module "Emails" {
-  source = "./Emails"
+  source          = "./Emails"
+  prod_deployment = var.prod_deployment
 }
 
 module "Users" {
@@ -26,9 +27,11 @@ module "Lambda" {
   ses_domain_arn                                      = module.Emails.ses_email_domain_arn
   ses_config_arn                                      = module.Emails.ses_config_arn
   ses_config_name                                     = module.Emails.ses_config_name
-  ses_mail_from_domain                                = module.Emails.ses_email_from_domain
+  ses_from_email                                      = module.Emails.ses_from_email
   ssm_email_verification_template_id_parameter_name   = module.Config.ssm_email_verification_template_id_parameter_name
   ssm_email_password_reset_template_id_parameter_name = module.Config.ssm_email_password_reset_template_id_parameter_name
+  ssm_subscription_thank_you_template_id_parameter_name = module.Config.ssm_subscription_thank_you_template_id_parameter_name
+  ssm_trial_ending_soon_template_id_parameter_name = module.Config.ssm_trial_ending_soon_template_id_parameter_name
   kms_users_arn                                       = module.Users.kms_users_arn
   kms_users_key_alias_arn                             = module.Users.kms_users_key_alias_arn
   kms_users_key_alias_name                            = module.Users.kms_users_key_alias_name

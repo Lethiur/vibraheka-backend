@@ -7,6 +7,7 @@ import {Result} from "neverthrow";
 import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
 import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
 import {CheckoutSessionExpiredUseCase} from "@Domain/Composition/ProcessCheckoutSessionExpiredComposition";
+import NotificationPublisher from "@Data/Services/NotificationPublisher";
 
 export interface StripeEventDetail {
     type: string;
@@ -14,6 +15,7 @@ export interface StripeEventDetail {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const notificationPublisher = new NotificationPublisher();
 
 
 export async function stripeHandler (event: any)  {
@@ -88,6 +90,7 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 }
                 else {
                     console.log('Payment processed successfully')
+                    await PublishSubscriptionThankYouEmail(invoicePaid);
                 }
                 break;
             case 'customer.subscription.trial_will_end':
@@ -151,3 +154,26 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
         };
     }
 };
+
+async function PublishSubscriptionThankYouEmail(invoice: Stripe.Invoice): Promise<void> {
+    const recipient = invoice.customer_email?.trim();
+    if (!recipient) {
+        console.log("Skipping subscription thank-you notification because invoice.customer_email is empty", {
+            invoiceId: invoice.id
+        });
+        return;
+    }
+
+    const displayName = invoice.customer_name?.trim() || recipient;
+    await notificationPublisher.publish({
+        recipient,
+        subject: "Gracias por tu suscripcion a VibraHeka",
+        templateType: "subscription_thank_you",
+        templateData: {
+            username: displayName,
+            email: recipient,
+            amount: invoice.amount_paid / 100,
+            currency: invoice.currency.toUpperCase()
+        }
+    });
+}

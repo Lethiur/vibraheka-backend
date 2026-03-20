@@ -82,6 +82,14 @@ output "ssm_email_password_reset_template_id_parameter_name"{
   value = aws_ssm_parameter.VH_password_reset_email_template.name
 }
 
+output "ssm_subscription_thank_you_template_id_parameter_name" {
+  value = aws_ssm_parameter.VH_subscription_thank_you_email_template.name
+}
+
+output "ssm_trial_ending_soon_template_id_parameter_name" {
+  value = aws_ssm_parameter.VH_trial_ending_soon_email_template.name
+}
+
 output "ssm_read_vh_parameters_policy_arn"{
   value = aws_iam_policy.VH_ssm_policy.arn
 }

@@ -12,7 +12,7 @@ variable "ses_config_arn" {}
 
 variable "ses_domain_arn" {}
 
-variable "ses_mail_from_domain" {}
+variable "ses_from_email" {}
 
 variable "s3_templates_arn" {}
 
@@ -21,6 +21,10 @@ variable "s3_templates_name" {}
 variable "ssm_email_verification_template_id_parameter_name" {}
 
 variable "ssm_email_password_reset_template_id_parameter_name" {}
+
+variable "ssm_subscription_thank_you_template_id_parameter_name" {}
+
+variable "ssm_trial_ending_soon_template_id_parameter_name" {}
 
 variable "password_reset_token_secret" {
   default = "test-only-change-this-secret-to-a-long-random-value"
