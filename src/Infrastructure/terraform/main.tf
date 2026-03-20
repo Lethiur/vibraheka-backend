@@ -6,7 +6,6 @@ module "Config" {
 
 module "Emails" {
   source          = "./Emails"
-  prod_deployment = var.prod_deployment
 }
 
 module "Users" {
