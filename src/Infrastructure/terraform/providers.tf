@@ -3,6 +3,15 @@ provider "aws" {
 }
 
 terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+    time = {
+      source = "hashicorp/time"
+    }
+  }
+
   backend "s3" {
     bucket       = "vibraheka-tf"
     key          = "registration-svc"

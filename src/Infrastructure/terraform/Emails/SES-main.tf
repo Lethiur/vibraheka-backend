@@ -4,8 +4,16 @@ resource "aws_ses_domain_identity" "VibraHeka_ses_domain" {
   domain = "vibraheka.com"
 }
 
+resource "time_sleep" "wait_for_ses_domain_identity" {
+  depends_on = [aws_ses_domain_identity.VibraHeka_ses_domain]
+
+  create_duration = "30s"
+}
+
 # 2. Configurar DKIM
 resource "aws_ses_domain_dkim" "VibraHeka_ses_dkim" {
+  depends_on = [time_sleep.wait_for_ses_domain_identity]
+
   domain = aws_ses_domain_identity.VibraHeka_ses_domain.domain
 }
 
@@ -14,6 +22,8 @@ resource "aws_ses_configuration_set" "VibraHeka_ses_config" {
 }
 
 resource "aws_ses_domain_mail_from" "VibraHeka_ses_tracking" {
+  depends_on = [time_sleep.wait_for_ses_domain_identity]
+
   domain = aws_ses_domain_identity.VibraHeka_ses_domain.domain
   mail_from_domain = "mail.vibraheka.com"
 }
