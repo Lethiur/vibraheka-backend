@@ -20,19 +20,23 @@ export default class EmailDeliveryService implements IEmailDeliveryService {
      * @param recipient Destination address.
      * @param subject Email subject.
      * @param htmlBody Rendered HTML body.
+     * @param attachments An optional list of attachment paths.
      * @returns Async result with success or domain error.
      */
-    public Send(recipient: string, subject: string, htmlBody: string): ResultAsync<void, EmailSenderErrors> {
+    public Send(recipient: string, subject: string, htmlBody: string, attachments: string[] = []): ResultAsync<void, EmailSenderErrors> {
         console.log("Sending email through SES", {
             recipient,
-            subject
+            subject,
+            attachments
         });
+        
         return ResultAsync.fromPromise(this.sesClient.sendEmail(
             recipient,
             subject,
             htmlBody,
             this.fromEmail,
-            this.configurationSetName
+            this.configurationSetName,
+            attachments
         ), (error) => {
             console.error("Failed sending email through SES", {
                 recipient,

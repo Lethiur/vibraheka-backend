@@ -1,4 +1,5 @@
 import {SESClient, SendEmailCommand} from "@aws-sdk/client-ses";
+import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
 
 const DEFAULT_FROM_EMAIL = "no-reply@vibraheka.com";
 
@@ -31,6 +32,7 @@ export default class SESClientWrapper {
      * @param htmlBody Rendered HTML body.
      * @param fromEmail Configured sender email.
      * @param configSetName SES configuration set.
+     * @param attachments The list of attachment to send with the email
      * @returns Promise resolved when SES accepts the email request.
      */
     public async sendEmail(
@@ -38,7 +40,8 @@ export default class SESClientWrapper {
         subject: string,
         htmlBody: string,
         fromEmail: string,
-        configSetName: string
+        configSetName: string,
+        attachments: NotificationEmailAttachment[] = []
     ): Promise<void> {
         const normalizedRecipient = recipient.trim();
         if (!isValidEmailAddress(normalizedRecipient)) {
@@ -64,6 +67,7 @@ export default class SESClientWrapper {
                     ToAddresses: [normalizedRecipient]
                 },
                 Message: {
+                    
                     Subject: {
                         Data: subject,
                         Charset: "UTF-8"
@@ -73,9 +77,9 @@ export default class SESClientWrapper {
                             Data: htmlBody,
                             Charset: "UTF-8"
                         }
-                    }
+                    },
                 },
-                ConfigurationSetName: configSetName
+                ConfigurationSetName: configSetName,
             })
         );
     }

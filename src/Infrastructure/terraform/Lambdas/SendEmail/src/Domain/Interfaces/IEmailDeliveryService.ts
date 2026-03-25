@@ -13,5 +13,5 @@ export default interface IEmailDeliveryService {
      * @param htmlBody Rendered HTML body.
      * @returns Async result containing success or a domain error.
      */
-    Send(recipient: string, subject: string, htmlBody: string): ResultAsync<void, EmailSenderErrors>;
+    Send(recipient: string, subject: string, htmlBody: string, attachments: string[]): ResultAsync<void, EmailSenderErrors>;
 }

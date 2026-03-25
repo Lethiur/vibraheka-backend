@@ -20,6 +20,6 @@ export default class ProcessNotificationEmailUseCaseImpl implements IProcessNoti
 
     return this.templateService
       .RenderTemplate(templateParameterName, event.templateData)
-      .andThen((htmlBody) => this.emailDeliveryService.Send(event.recipient, event.subject, htmlBody));
+      .andThen((htmlBody) => this.emailDeliveryService.Send(event.recipient, event.subject, htmlBody, event.attachments || []));
   }
 }

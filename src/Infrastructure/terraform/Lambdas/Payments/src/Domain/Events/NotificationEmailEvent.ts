@@ -1,10 +1,6 @@
-export type NotificationTemplateType =
-  | "subscription_thank_you"
-  | "trial_ending_soon";
-
-export default interface NotificationEmailEventDetail {
+﻿export default interface NotificationEmailEventDetail {
     recipient: string;
-    templateType: NotificationTemplateType;
+    templateType: "subscription_thank_you" | "trial_ending_soon";
     templateData: Record<string, string | number>;
     attachments?: NotificationEmailAttachment[];
 }
