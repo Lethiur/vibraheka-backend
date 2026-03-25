@@ -93,7 +93,7 @@ jobs:
       - name: Setup Node.js for lambda packaging
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -188,7 +188,7 @@ jobs:
       - name: Setup Node.js for lambda packaging
         uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

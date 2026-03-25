@@ -12,6 +12,10 @@ export interface EnvironmentVariables {
     SSM_VERIFICATION_TEMPLATE_NAME_PARAM: string;
     /** SSM parameter containing password-reset template folder/id. */
     SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM: string;
+    /** SSM parameter containing subscription thank-you template folder/id. */
+    SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM: string;
+    /** SSM parameter containing trial-ending-soon template folder/id. */
+    SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM: string;
     /** Shared secret used to derive reset token encryption key. */
     PASSWORD_RESET_TOKEN_SECRET: string;
     /** Frontend route used by reset emails. */
