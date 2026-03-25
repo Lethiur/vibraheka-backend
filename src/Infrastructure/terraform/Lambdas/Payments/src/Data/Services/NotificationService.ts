@@ -13,24 +13,31 @@ export default class NotificationService implements INotificationService {
     }
 
     public async Publish(detail: NotificationEmailEventDetail): Promise<Result<void, EmailNotificationErrors>> {
-        const result: PutEventsCommandOutput = await this.eventBridgeClient.send(
-            new PutEventsCommand({
-                Entries: [
-                    {
-                        EventBusName: this.eventBusName,
-                        Source: "vibraheka.payments",
-                        DetailType: "email.notification.requested",
-                        Detail: JSON.stringify(detail),
-                    },
-                ],
-            })
-        );
+        try {
+            const result: PutEventsCommandOutput = await this.eventBridgeClient.send(
+                new PutEventsCommand({
+                    Entries: [
+                        {
+                            EventBusName: this.eventBusName,
+                            Source: "vibraheka.payments",
+                            DetailType: "email.notification.requested",
+                            Detail: JSON.stringify(detail),
+                        },
+                    ],
+                })
+            );
 
-        if (result.$metadata.httpStatusCode === 200) {
-            return ok(undefined);
+            if (result.$metadata.httpStatusCode !== 200) {
+                console.error("Problem while sending the email notification event to event bridge, code returned not 200", result);
+                return err(EmailNotificationErrors.EmailNotSent);
+            }
+            console.log("Email notification event sent to event bridge");
+            return ok(undefined);    
+        } catch (error) {
+            console.error("Problem while sending the email notification event to event bridge", error);
+            return err(EmailNotificationErrors.EmailNotSent);   
         }
-
-        return err(EmailNotificationErrors.EmailNotSent);
+        
 
     }
 }

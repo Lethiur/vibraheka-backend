@@ -1,11 +1,11 @@
 import {EventBridgeEvent} from "aws-lambda";
-import {NotificationEmailEventDetail} from "@Domain/Entities/NotificationEmailEvent";
 import {BuildProcessNotificationEmailUseCase} from "@Domain/Composition/ProcessNotificationEmailComposition";
 import {
     BuildErrorResponse,
     BuildSuccessResponse,
     GetEnvironment
 } from "@/Handlers/SendEmailHandlerShared";
+import NotificationEmailEventDetail from "@Domain/Entities/NotificationEmailEvent";
 
 type NotificationEvent = EventBridgeEvent<"email.notification.requested", NotificationEmailEventDetail>;
 

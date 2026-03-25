@@ -4,6 +4,7 @@ export type NotificationTemplateType =
 
 export default interface NotificationEmailEventDetail {
     recipient: string;
+    subject: string;
     templateType: NotificationTemplateType;
     templateData: Record<string, string | number>;
     attachments?: NotificationEmailAttachment[];
@@ -12,4 +13,5 @@ export default interface NotificationEmailEventDetail {
 export interface NotificationEmailAttachment {
     attachmentUrl: string;
     attachmentName: string;
+    attachmentType: string;
 }

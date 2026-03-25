@@ -20,11 +20,12 @@ export default class ProcessSuccessfulPaymentUseCaseImpl implements IProcessSucc
 
         if (result.isOk()) {
             const entity : SubscriptionEntity= result.value;
-
+            console.log("Invoice URL: ",  subscriptionData.invoice_pdf!);
             const notificationEvent : NotificationEmailEventDetail = {
-                attachments: [{attachmentName: "factura.pdf", attachmentUrl: subscriptionData.invoice_pdf!}],
+                attachments: [{attachmentName: "factura.pdf", attachmentUrl: subscriptionData.invoice_pdf!, attachmentType: "application/pdf"}],
                 recipient: subscriptionData.customer_email!,
                 templateType: "subscription_thank_you",
+                subject: "Gracias por tu subscripcion",
                 templateData: {
                     username: subscriptionData.customer_name!,
                     trialEnd: entity.EndDate,

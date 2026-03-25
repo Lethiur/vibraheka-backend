@@ -1,7 +1,8 @@
 import IEmailDeliveryService from "@Domain/Interfaces/IEmailDeliveryService";
 import SESClientWrapper from "@/Clients/SESClient";
-import {ResultAsync} from "neverthrow";
+import {Result, ResultAsync} from "neverthrow";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
+import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
 
 /**
  * Service responsible for delivering emails through SES.
@@ -23,27 +24,20 @@ export default class EmailDeliveryService implements IEmailDeliveryService {
      * @param attachments An optional list of attachment paths.
      * @returns Async result with success or domain error.
      */
-    public Send(recipient: string, subject: string, htmlBody: string, attachments: string[] = []): ResultAsync<void, EmailSenderErrors> {
+    public async Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[] = []): Promise<Result<void, EmailSenderErrors>> {
         console.log("Sending email through SES", {
             recipient,
             subject,
             attachments
         });
         
-        return ResultAsync.fromPromise(this.sesClient.sendEmail(
+        return await this.sesClient.sendEmail(
             recipient,
             subject,
             htmlBody,
             this.fromEmail,
             this.configurationSetName,
             attachments
-        ), (error) => {
-            console.error("Failed sending email through SES", {
-                recipient,
-                subject,
-                error
-            });
-            return EmailSenderErrors.EMAIL_DELIVERY_FAILED;
-        });
+        );
     }
 }

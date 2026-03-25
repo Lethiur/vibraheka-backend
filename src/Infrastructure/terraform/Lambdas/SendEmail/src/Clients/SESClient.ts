@@ -1,28 +1,14 @@
-import {SESClient, SendEmailCommand} from "@aws-sdk/client-ses";
+import {Attachment, SESv2Client, SendEmailCommand, SendEmailCommandOutput} from "@aws-sdk/client-sesv2";
 import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
-
-const DEFAULT_FROM_EMAIL = "no-reply@vibraheka.com";
-
-/**
- * Performs a basic email format validation.
- *
- * @param value Raw email value.
- * @returns True when value matches a minimal email pattern.
- */
-function isValidEmailAddress(value: string): boolean {
-    const normalized = value.trim();
-    if (normalized.length === 0) {
-        return false;
-    }
-
-    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalized);
-}
+import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
+import {err, ok, Result} from "neverthrow";
 
 /**
  * Wrapper over AWS SES client used to send HTML emails.
  */
 export default class SESClientWrapper {
-    constructor(private readonly sesClient: SESClient = new SESClient()) {}
+    constructor(private readonly sesClient: SESv2Client = new SESv2Client()) {
+    }
 
     /**
      * Sends one email using SES.
@@ -35,52 +21,75 @@ export default class SESClientWrapper {
      * @param attachments The list of attachment to send with the email
      * @returns Promise resolved when SES accepts the email request.
      */
-    public async sendEmail(
-        recipient: string,
-        subject: string,
-        htmlBody: string,
-        fromEmail: string,
-        configSetName: string,
-        attachments: NotificationEmailAttachment[] = []
-    ): Promise<void> {
+    public async sendEmail(recipient: string, subject: string, htmlBody: string, fromEmail: string, configSetName: string,
+                           attachments: NotificationEmailAttachment[] = []
+    ): Promise<Result<void, EmailSenderErrors>> {
         const normalizedRecipient = recipient.trim();
-        if (!isValidEmailAddress(normalizedRecipient)) {
-            throw new Error(`Invalid recipient email address: '${recipient}'`);
-        }
-
         const normalizedFromEmail = fromEmail.trim();
-        const sourceAddress = isValidEmailAddress(normalizedFromEmail)
-            ? normalizedFromEmail
-            : DEFAULT_FROM_EMAIL;
 
-        if (sourceAddress !== normalizedFromEmail) {
-            console.warn("SES_FROM_EMAIL is invalid. Falling back to default sender address.", {
-                providedFromEmail: fromEmail,
-                fallbackFromEmail: sourceAddress
-            });
+        const emailAttachments: Attachment[] = await Promise.all(attachments.map(this.NotificationEmailAttachmentToSesAttachment));
+
+        try {
+            const result: SendEmailCommandOutput = await this.sesClient.send(
+                new SendEmailCommand({
+                    FromEmailAddress: normalizedFromEmail,
+                    Destination: {
+                        ToAddresses: [normalizedRecipient]
+                    },
+                    ConfigurationSetName: configSetName,
+                    Content: {
+
+                        Simple: {
+                            Subject: {
+                                Data: subject,
+                                Charset: "UTF-8"
+                            },
+                            Body: {
+                                Html: {
+                                    Data: htmlBody,
+                                }
+                            },
+                            Attachments: emailAttachments,
+                        },
+
+                    }
+                })
+            );    
+            if (result.$metadata.httpStatusCode == 200) {
+                return ok(undefined);
+            }
+            
+            console.log("SES returned a code different than 200", result);
+            return err(EmailSenderErrors.EMAIL_DELIVERY_FAILED);
+        } catch (e) {
+            console.error(`Failed to send email: ${(e as Error).message}`);
+            return err(EmailSenderErrors.EMAIL_DELIVERY_FAILED);
+        }
+        
+    }
+
+    private async NotificationEmailAttachmentToSesAttachment(attachment: NotificationEmailAttachment): Promise<Attachment> {
+        const response = await fetch(attachment.attachmentUrl);
+
+        if (!response.ok) {
+            throw new Error(`Download failed: ${response.status} ${response.statusText}`);
         }
 
-        await this.sesClient.send(
-            new SendEmailCommand({
-                Source: sourceAddress,
-                Destination: {
-                    ToAddresses: [normalizedRecipient]
-                },
-                Message: {
-                    
-                    Subject: {
-                        Data: subject,
-                        Charset: "UTF-8"
-                    },
-                    Body: {
-                        Html: {
-                            Data: htmlBody,
-                            Charset: "UTF-8"
-                        }
-                    },
-                },
-                ConfigurationSetName: configSetName,
-            })
-        );
+        const arrayBuffer: ArrayBuffer = await response.arrayBuffer();
+        const buffer: Buffer = Buffer.from(arrayBuffer);
+        console.log("Attachment downloaded", {
+            fileName: attachment.attachmentName,
+            attachmentType: attachment.attachmentType,
+            size: buffer.length,
+            firstBytesHex: buffer.subarray(0, 8).toString("hex"),
+        });
+
+        return {
+            RawContent: buffer,
+            FileName: attachment.attachmentName,
+            ContentType: attachment.attachmentType,
+            ContentDisposition: 'ATTACHMENT',
+            ContentTransferEncoding: "BASE64"
+        };
     }
 }

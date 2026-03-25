@@ -7,7 +7,9 @@ import {err, ok, Result} from "neverthrow";
 import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
 import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
 import {CheckoutSessionExpiredUseCase} from "@Domain/Composition/ProcessCheckoutSessionExpiredComposition";
+import {ProcessTrialWillEndUseCase} from "@Domain/Composition/ProcessTrialWillEndComposition";
 import NotificationService from "@Data/Services/NotificationService";
+
 
 export interface StripeEventDetail {
     type: string;
@@ -15,13 +17,10 @@ export interface StripeEventDetail {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const notificationPublisher = new NotificationService();
-
 
 export async function stripeHandler(event: any) {
 
     try {
-        console.log(event);
         const signature =
             event.headers["stripe-signature"] ||
             event.headers["Stripe-Signature"];
@@ -63,10 +62,8 @@ export async function stripeHandler(event: any) {
 // Lambda handler
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
 
-    const eventType = event.detail.type;
-    const eventId = (event.detail as any)?.id ?? 'unknown';
-    console.log('Event type:', eventType, 'event id:', eventId);
-    const eventData = event.detail.data.object;
+    const eventType: string = event.detail.type;
+    const eventData: any = event.detail.data.object;
 
     try {
         let result: Result<void, SubscriptionErrors>;
@@ -79,7 +76,7 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 result = await SuccessfulPaymentUseCase.Execute(eventData as Stripe.Invoice);
                 break;
             case 'customer.subscription.trial_will_end':
-                result = ok(undefined);
+                result = await ProcessTrialWillEndUseCase.Execute(eventData.customer);
                 break;
             case 'customer.subscription.deleted':
                 result = await CancelSubscriptionUseCase.Execute(eventData as Stripe.Subscription);
@@ -91,16 +88,16 @@ export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>
                 result = await CheckoutSessionExpiredUseCase.Execute(eventData as Stripe.Checkout.Session);
                 break;
             default:
-                result = err(SubscriptionErrors.UNEXPECTED_ERROR);
-                console.log('Evento no manejado:', eventType);
+                result = ok(undefined);
+                console.log('Unhandled event, returning ok to avoid retries', eventType);
         }
 
-        return result.map(_ => {
+        return result.match(_ => {
             return {
                 statusCode: 200,
                 body: 'OK'
             };
-        }).mapErr(error => {
+        }, error => {
             return {
                 statusCode: 500,
                 body: error
