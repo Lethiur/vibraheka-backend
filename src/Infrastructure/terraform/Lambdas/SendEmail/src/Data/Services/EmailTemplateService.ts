@@ -51,6 +51,11 @@ export default class EmailTemplateService implements IEmailTemplateService {
         }));
     }
 
+    public RenderTemplate(templateParameterName: string, data: Record<string, string | number>): ResultAsync<string, EmailSenderErrors> {
+        console.log("Rendering generic email template", {templateParameterName, keys: Object.keys(data)});
+        return this.GetTemplateHtml(templateParameterName).andThen(templateHtml => this.ProcessTemplate(templateHtml, data));
+    }
+
     /**
      * Retrieves template content from SSM + S3.
      *

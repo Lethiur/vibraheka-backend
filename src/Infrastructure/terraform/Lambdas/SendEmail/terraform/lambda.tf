@@ -18,52 +18,22 @@ resource "aws_iam_role_policy" "VH_ssm_read_parameters" {
   })
 }
 
-# Lambda Function
-resource "aws_lambda_function" "send_email" {
-  function_name = "vibraheka-send-email-${terraform.workspace}"
-  role          = aws_iam_role.VH_email_lambda_role.arn
-  handler       = "lambda_send_email.handler"
-  runtime       = "nodejs20.x"
-  timeout       = 30
-  memory_size   = 256
-
-  filename         = "${path.module}/../lambda.zip"
-  source_code_hash = filebase64sha256("${path.module}/../lambda.zip")
-
-  environment {
-    variables = {
-      TEMPLATE_BUCKET                     = var.template_bucket_name
-      SES_FROM_EMAIL                      = var.ses_email_from
-      SES_CONFIG_SET                      = var.ses_config_set_name
-      SSM_TEMPLATE_NAME_PARAM             = var.ssm_verification_template_param
-      SSM_VERIFICATION_TEMPLATE_NAME_PARAM = var.ssm_verification_template_param
-      SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM = var.ssm_password_reset_template_param
-      PASSWORD_RESET_TOKEN_SECRET         = var.password_reset_token_secret
-      PASSWORD_RESET_FRONTEND_URL         = var.password_reset_frontend_url
-      PASSWORD_RESET_TOKEN_TTL_MINUTES    = tostring(var.password_reset_token_ttl_minutes)
-      KEY_ARN                             = var.kms_arn
-      KEY_ALIAS                           = var.kms_alias_name
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED = "1"
-    }
-  }
-
-  tags = {
-    Environment = terraform.workspace
-    Application = "VibraHeka"
+locals {
+  send_email_environment_variables = {
+    TEMPLATE_BUCKET                           = var.template_bucket_name
+    SES_FROM_EMAIL                            = var.ses_email_from
+    SES_CONFIG_SET                            = var.ses_config_set_name
+    SSM_TEMPLATE_NAME_PARAM                   = var.ssm_verification_template_param
+    SSM_VERIFICATION_TEMPLATE_NAME_PARAM      = var.ssm_verification_template_param
+    SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM    = var.ssm_password_reset_template_param
+    SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM = var.ssm_subscription_thank_you_template_param
+    SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM = var.ssm_trial_ending_soon_template_param
+    PASSWORD_RESET_TOKEN_SECRET               = var.password_reset_token_secret
+    PASSWORD_RESET_FRONTEND_URL               = var.password_reset_frontend_url
+    PASSWORD_RESET_TOKEN_TTL_MINUTES          = tostring(var.password_reset_token_ttl_minutes)
+    KEY_ARN                                   = var.kms_arn
+    KEY_ALIAS                                 = var.kms_alias_name
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED       = "1"
   }
 }
 
-# CloudWatch Log Group
-resource "aws_cloudwatch_log_group" "VH_send_email_lambda_logs" {
-  name              = "/aws/lambda/${aws_lambda_function.send_email.function_name}"
-  retention_in_days = 7
-
-  tags = {
-    Environment = terraform.workspace
-    Application = "VibraHeka"
-  }
-}
-
-output "lambda_send_email_arn" {
-  value = aws_lambda_function.send_email.arn
-}

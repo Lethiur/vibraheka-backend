@@ -3,10 +3,13 @@ import Stripe from 'stripe';
 import {UseCase as SuccessfulPaymentUseCase} from "@Domain/Composition/ProcessSuccessfullPaymentComposition";
 
 import {SubscriptionErrors} from "@Domain/Errors/SubscriptionErrors";
-import {Result} from "neverthrow";
+import {err, ok, Result} from "neverthrow";
 import {CancelSubscriptionUseCase} from "@Domain/Composition/ProcessCancelSubscriptionComposition";
 import {UpdateSubscriptionUseCase} from "@Domain/Composition/ProcessSubscriptionUpdateComposition";
 import {CheckoutSessionExpiredUseCase} from "@Domain/Composition/ProcessCheckoutSessionExpiredComposition";
+import {ProcessTrialWillEndUseCase} from "@Domain/Composition/ProcessTrialWillEndComposition";
+import NotificationService from "@Data/Services/NotificationService";
+
 
 export interface StripeEventDetail {
     type: string;
@@ -15,11 +18,9 @@ export interface StripeEventDetail {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-
-export async function stripeHandler (event: any)  {
+export async function stripeHandler(event: any) {
 
     try {
-        console.log(event);
         const signature =
             event.headers["stripe-signature"] ||
             event.headers["Stripe-Signature"];
@@ -34,9 +35,7 @@ export async function stripeHandler (event: any)  {
             process.env.STRIPE_WEBHOOK_SECRET!
         );
 
-      
-        // 🔥 Aquí transformamos a EventBridge-like shape si quieres
-        const eventBridgeLike: EventBridgeEvent<string, Stripe.Event>  = {
+        const eventBridgeLike: EventBridgeEvent<string, Stripe.Event> = {
             version: "0",
             id: stripeEvent.id,
             "detail-type": stripeEvent.type,
@@ -56,98 +55,59 @@ export async function stripeHandler (event: any)  {
             body: "Invalid signature",
         };
     }
-    
-    
-    
+
+
 }
 
 // Lambda handler
 export const handler = async (event: EventBridgeEvent<string, StripeEventDetail>, context: Context) => {
-    
-    const eventType = event.detail.type;
-    const eventId = (event.detail as any)?.id ?? 'unknown';
-    console.log('Event type:', eventType, 'event id:', eventId);
-    const eventData = event.detail.data.object;
-    
+
+    const eventType: string = event.detail.type;
+    const eventData: any = event.detail.data.object;
+
     try {
+        let result: Result<void, SubscriptionErrors>;
         switch (eventType) {
             case 'checkout.session.completed':
-                const session = eventData as Stripe.Checkout.Session;
-
+                result = ok(undefined);
                 break;
             case 'invoice.payment_failed':
             case 'invoice.paid':
-                const invoicePaid: Stripe.Invoice = eventData as Stripe.Invoice;
-                const invoiceResult: Result<void, SubscriptionErrors> = await SuccessfulPaymentUseCase.Execute(invoicePaid);
-                if (invoiceResult.isErr()) {
-                    console.log(`Error while processing payment: ${invoiceResult.error}`)
-                    return {
-                        statusCode: 500,
-                        body: invoiceResult.error
-                    };
-                }
-                else {
-                    console.log('Payment processed successfully')
-                }
+                result = await SuccessfulPaymentUseCase.Execute(eventData as Stripe.Invoice);
                 break;
             case 'customer.subscription.trial_will_end':
-                console.log('Trial will end');
-                // console.log(eventData);
+                result = await ProcessTrialWillEndUseCase.Execute(eventData.customer);
                 break;
             case 'customer.subscription.deleted':
-                const subscriptionCancelled : Stripe.Subscription = eventData as Stripe.Subscription;
-                let cancellationResult: Result<void, SubscriptionErrors> =  await CancelSubscriptionUseCase.Execute(subscriptionCancelled);
-                if (cancellationResult.isErr()) {
-                    console.log(`Error while processing subscription cancellation: ${cancellationResult.error}`)
-                    return {
-                        statusCode: 500,
-                        body: cancellationResult.error
-                    };
-                } else {
-                    console.log('Subscription cancelled successfully')
-                }
+                result = await CancelSubscriptionUseCase.Execute(eventData as Stripe.Subscription);
                 break;
             case 'customer.subscription.updated':
-                const subscriptionUpdated : Stripe.Subscription = eventData as Stripe.Subscription;
-                console.log(JSON.stringify(subscriptionUpdated, null, 2));
-                const updateResult : Result<void, SubscriptionErrors> = await UpdateSubscriptionUseCase.Execute(subscriptionUpdated);
-                if (updateResult.isErr()) {
-                    console.log(`Error while processing subscription update: ${updateResult.error}`)
-                    return {
-                        statusCode: 500,
-                        body: updateResult.error
-                    };
-                } else {
-                    console.log('Subscription updated successfully')
-                }
+                result = await UpdateSubscriptionUseCase.Execute(eventData as Stripe.Subscription);
                 break;
             case 'checkout.session.expired':
-                const expiredSession = eventData as Stripe.Checkout.Session;
-                const expiredResult: Result<void, SubscriptionErrors> = await CheckoutSessionExpiredUseCase.Execute(expiredSession);
-
-                if (expiredResult.isErr()) {
-                    console.log(`Error while processing checkout session expiration: ${expiredResult.error}`)
-                    return {
-                        statusCode: 500,
-                        body: expiredResult.error
-                    };
-                } else {
-                    console.log('Checkout session expired processed successfully')
-                }
+                result = await CheckoutSessionExpiredUseCase.Execute(eventData as Stripe.Checkout.Session);
                 break;
             default:
-                console.log('Evento no manejado:', eventType);
+                result = ok(undefined);
+                console.log('Unhandled event, returning ok to avoid retries', eventType);
         }
 
-        return {
-            statusCode: 200,
-            body: 'Event processed'
-        };
+        return result.match(_ => {
+            return {
+                statusCode: 200,
+                body: 'OK'
+            };
+        }, error => {
+            return {
+                statusCode: 500,
+                body: error
+            };
+        })
     } catch (error) {
         console.error('Error processing event:', error);
         return {
             statusCode: 500,
-            body: 'Error'
+            body: (error as Error).message || JSON.stringify(error, null, 2)
         };
     }
 };

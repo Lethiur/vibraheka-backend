@@ -36,8 +36,9 @@ resource "aws_lambda_function" "stripe_lambda" {
 
   environment {
     variables = {
-      STRIPE_SECRET_KEY = var.stripe_secret_key
-      DYNAMO_TABLE_NAME = var.subscription_db_table_name
+      STRIPE_SECRET_KEY          = var.stripe_secret_key
+      DYNAMO_TABLE_NAME          = var.subscription_db_table_name
+      NOTIFICATION_EVENT_BUS_NAME = var.notification_event_bus_name
     }
   }
 
@@ -49,7 +50,8 @@ resource "aws_lambda_function" "stripe_lambda" {
   # Ensure IAM policy attachments are fully applied before Lambda creation.
   depends_on = [
     aws_iam_role_policy_attachment.lambda_basic,
-    aws_iam_role_policy_attachment.lambda_dynamodb_attachment
+    aws_iam_role_policy_attachment.lambda_dynamodb_attachment,
+    aws_iam_role_policy_attachment.lambda_notifications_put_events_attachment
   ]
 }
 

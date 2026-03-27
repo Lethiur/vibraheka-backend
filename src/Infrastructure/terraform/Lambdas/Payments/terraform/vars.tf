@@ -12,3 +12,7 @@ variable "subscription_db_table_name" {
 }
 
 variable "dynamodb_table_arn" {}
+
+variable "notification_event_bus_name" {}
+
+variable "notification_event_bus_arn" {}

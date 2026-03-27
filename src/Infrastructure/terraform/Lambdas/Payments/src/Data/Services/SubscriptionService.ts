@@ -118,7 +118,7 @@ export default class SubscriptionService implements ISubscriptionService {
      * @return {Promise<Result<void, SubscriptionErrors>>} A promise that resolves to a result object.
      * On success, the result contains void. On failure, it contains subscription-related errors.
      */
-    public async ProcessPayment(invoice: Stripe.Invoice): Promise<Result<void, SubscriptionErrors>> {
+    public async ProcessPayment(invoice: Stripe.Invoice): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
         console.log(`ProcessPayment invoice=${invoice.id} status=${invoice.status} billing_reason=${invoice.billing_reason} amount_paid=${invoice.amount_paid} customer=${invoice.customer}`);
 
         const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.GetCustomerIDFromInvoice(invoice)
@@ -160,6 +160,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         const normalizedTrialPeriod = this.NormalizeDateRange(trialStartDate, trialEndCandidate, subscriptionData);
                         subscriptionData.StartDate = normalizedTrialPeriod.startDate;
                         subscriptionData.EndDate = normalizedTrialPeriod.endDate;
+                        subscriptionData.InvoiceUrl = invoice.invoice_pdf!;
                         console.log(`Transitioned subscription to trial SubscriptionID=${subscriptionData.SubscriptionID} Status=${subscriptionData.Status} SubscriptionStatus=${subscriptionData.SubscriptionStatus} ExternalSubscriptionID=${subscriptionData.ExternalSubscriptionID}`);
                     }
                     else {
@@ -172,7 +173,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         console.log(`Transitioned subscription to active SubscriptionID=${subscriptionData.SubscriptionID} Status=${subscriptionData.Status} SubscriptionStatus=${subscriptionData.SubscriptionStatus} ExternalSubscriptionID=${subscriptionData.ExternalSubscriptionID}`);
                     }
                     
-                    return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
+                    return this.Repository.SaveSubscription(subscriptionData);
                 } else {
                     subscriptionData.SubscriptionStatus = 'Inactive';
                     subscriptionData.ExternalSubscriptionID = subscriptionID;
@@ -181,7 +182,7 @@ export default class SubscriptionService implements ISubscriptionService {
                     subscriptionData.StartDate = period.startDate;
                     subscriptionData.EndDate = period.endDate;
                     console.log(`Invoice ${invoice.id} was not paid for subscription ${subscriptionData.ExternalSubscriptionID} setting status to inactive`);
-                    return (await this.Repository.SaveSubscription(subscriptionData)).map(_ => void (0));
+                    return this.Repository.SaveSubscription(subscriptionData);
                 }
             } else {
                 console.log(`Invoice ${invoice.id} received price ID ${price} and the subscription was for ${subscriptionData.ExternalSubscriptionID}`);

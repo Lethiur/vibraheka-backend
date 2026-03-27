@@ -13,4 +13,5 @@ export default interface SubscriptionEntity {
     CreatedBy: string;
     LastModified: string;
     LastModifiedBy: string;
+    InvoiceUrl?: string;
 }
