@@ -10,7 +10,7 @@ export async function CreateTestCustomer(stripeClient: Stripe, withPaymentMethod
     
     const customer = await stripeClient.customers.create({
         name: 'Test Customer',
-        email: `${Math.random().toString(36).substring(2, 15)}@example.com`,
+        email:  'mtesqtsdlc2@gmail.com', //`${Math.random().toString(36).substring(2, 15)}@example.com`,
         phone: '+1234567890',
         test_clock: testClock.id,
         metadata: {

@@ -26,6 +26,12 @@ variable "ssm_subscription_thank_you_template_id_parameter_name" {}
 
 variable "ssm_trial_ending_soon_template_id_parameter_name" {}
 
+variable ssm_subscription_cancelled_template_param {}
+
+variable ssm_subscription_reactivated_template_param {}
+
+variable ssm_user_welcome_template_param {}
+
 variable "password_reset_token_secret" {
   default = "test-only-change-this-secret-to-a-long-random-value"
 }

@@ -101,6 +101,26 @@ public class SettingsService(
             "Error while updating the subscription thank-you email template");
     }
 
+    public Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateSubscriptionCancelledEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the trial ending soon email template");
+    }
+
+    public Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateSubscriptionReActivatedEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the trial ending soon email template");
+    }
+
     public Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
@@ -170,6 +190,22 @@ public class SettingsService(
         return GetTemplateAsync(
             cancellationToken,
             repository.GetSubscriptionThankYouEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetSubscriptionCancelledEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetSubscriptionCancelledEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetSubscriptionReActivatedEmailTemplateAsync,
             SettingsErrors.GenericError);
     }
 

@@ -27,6 +27,7 @@ export function BuildProcessNotificationEmailUseCase(env: EnvironmentVariables):
     {
       subscription_thank_you: env.SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM,
       trial_ending_soon: env.SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM,
+        subscription_cancelled: env.SSM_SUBSCRIPTION_CANCELLED_TEMPLATE_NAME_PARAM
     }
   );
 }

@@ -65,6 +65,25 @@ resource "aws_ssm_parameter" "VH_subscription_thank_you_email_template" {
   }
 }
 
+
+resource "aws_ssm_parameter" "VH_subscription_cancelled_email_template" {
+  name = "/${var.ssm_namespace}/SubscriptionCancelledEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "VH_subscription_reactivated_email_template" {
+  name = "/${var.ssm_namespace}/SubscriptionReactivatedEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
 resource "aws_ssm_parameter" "VH_trial_ending_soon_email_template" {
   name = "/${var.ssm_namespace}/TrialEndingSoonEmailTemplate"
   type = "String"
@@ -88,6 +107,18 @@ output "ssm_subscription_thank_you_template_id_parameter_name" {
 
 output "ssm_trial_ending_soon_template_id_parameter_name" {
   value = aws_ssm_parameter.VH_trial_ending_soon_email_template.name
+}
+
+output "ssm_user_welcome_tempalte_id_parameter_name" {
+  value = aws_ssm_parameter.VH_user_welcome_email_template.name
+}
+
+output "ssm_subscription_cancelled_template_id_parameter_name" {
+  value = aws_ssm_parameter.VH_subscription_cancelled_email_template
+}
+
+output "ssm_subscription_reactivated_template_id_parameter_name" {
+  value = aws_ssm_parameter.VH_subscription_reactivated_email_template.name
 }
 
 output "ssm_read_vh_parameters_policy_arn"{

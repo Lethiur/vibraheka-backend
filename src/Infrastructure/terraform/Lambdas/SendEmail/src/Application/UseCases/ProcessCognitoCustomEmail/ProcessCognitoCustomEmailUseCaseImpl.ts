@@ -1,5 +1,5 @@
 import {CustomEmailSenderTriggerEvent} from "aws-lambda";
-import {errAsync, ResultAsync} from "neverthrow";
+import {errAsync, Result, ResultAsync} from "neverthrow";
 import ICognitoCodeCipherService from "@Domain/Interfaces/ICognitoCodeCipherService";
 import IEmailDeliveryService from "@Domain/Interfaces/IEmailDeliveryService";
 import IEmailTemplateService from "@Domain/Interfaces/IEmailTemplateService";
@@ -36,7 +36,6 @@ export default class ProcessCognitoCustomEmailUseCaseImpl implements IProcessCog
                 switch (context.triggerSource) {
                     case "CustomEmailSender_SignUp":
                     case "CustomEmailSender_ResendCode":
-                    case "CustomEmailSender_VerifyUserAttribute":
                         console.log("Routing to verification email flow", {
                             recipient: context.recipient,
                             triggerSource: context.triggerSource
@@ -48,6 +47,12 @@ export default class ProcessCognitoCustomEmailUseCaseImpl implements IProcessCog
                             triggerSource: context.triggerSource
                         });
                         return this.SendPasswordResetEmail(context);
+                    case "PostConfirmation_ConfirmSignUp":
+                        console.log("Routing to post-confirmation email flow", {
+                            recipient: context.recipient,
+                            triggerSource: context.triggerSource
+                        });
+                        return this.SendWelcomeEmail(context.recipient, context.username);
                     default:
                         console.error("Unsupported Cognito trigger source", {
                             triggerSource: context.triggerSource
@@ -92,6 +97,16 @@ export default class ProcessCognitoCustomEmailUseCaseImpl implements IProcessCog
                 triggerSource: event.triggerSource
             }));
     }
+    
+    private async SendWelcomeEmail(recipient: string, username: string): Promise<Result<void, EmailSenderErrors>> {
+        const promise = await this.templateService.RenderWelcomeEmailTemplate(username);
+        
+        if (promise.isOk()) {
+            return await this.emailDeliveryService.Send(recipient, "Bienvenido a VibraHeka", promise.value, []);
+        }
+        
+        return promise.map(_ => undefined);
+    }
 
     /**
      * Sends verification code email for signup/resend/verify attribute triggers.
@@ -108,7 +123,8 @@ export default class ProcessCognitoCustomEmailUseCaseImpl implements IProcessCog
             return this.emailDeliveryService.Send(
                 context.recipient,
                 "Tu codigo de verificacion",
-                htmlBody
+                htmlBody,
+                []
             );
         });
     }

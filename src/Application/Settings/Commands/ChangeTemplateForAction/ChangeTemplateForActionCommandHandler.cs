@@ -40,6 +40,7 @@ public class ChangeTemplateForActionCommandHandler(
                         request.TemplateID, cancellationToken),
                     ActionType.PasswordChanged => await SettingsService.ChangePasswordChangedEmailTemplateAsync(
                         request.TemplateID, cancellationToken),
+                    
                     _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
                 };
             });

@@ -7,22 +7,16 @@ import {EnvironmentVariables} from "../Interfaces/IEnvironmentVariables";
  * @throws Error when any required variable is missing or invalid.
  */
 export default function validateEnvironment(): EnvironmentVariables {
-    const verificationTemplateParam =
-        process.env.SSM_VERIFICATION_TEMPLATE_NAME_PARAM ?? process.env.SSM_TEMPLATE_NAME_PARAM;
-
-    const passwordResetTemplateParam =
-        process.env.SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM ?? verificationTemplateParam;
-    const subscriptionThankYouTemplateParam = process.env.SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM;
-    const trialEndingSoonTemplateParam = process.env.SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM;
 
     const requiredVars: Array<{ name: string; value: string | undefined }> = [
         {name: "TEMPLATE_BUCKET", value: process.env.TEMPLATE_BUCKET},
         {name: "SES_FROM_EMAIL", value: process.env.SES_FROM_EMAIL},
-        {name: "SES_CONFIG_SET", value: process.env.SES_CONFIG_SET},
-        {name: "SSM_VERIFICATION_TEMPLATE_NAME_PARAM", value: verificationTemplateParam},
-        {name: "SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM", value: passwordResetTemplateParam},
-        {name: "SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM", value: subscriptionThankYouTemplateParam},
-        {name: "SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM", value: trialEndingSoonTemplateParam},
+        {name: "SES_CONFIG_SET", value: process.env.SES_CONFIG_SET},\
+        {name: "SSM_USER_WELCOME_TEMPLATE_"}
+        {name: "SSM_VERIFICATION_TEMPLATE_NAME_PARAM", value: process.env.SSM_VERIFICATION_TEMPLATE_NAME_PARAM},
+        {name: "SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM", value: process.env.SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM},
+        {name: "SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM", value: process.env.SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM},
+        {name: "SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM", value: process.env.SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM},
         {name: "PASSWORD_RESET_TOKEN_SECRET", value: process.env.PASSWORD_RESET_TOKEN_SECRET},
         {name: "KEY_ALIAS", value: process.env.KEY_ALIAS},
         {name: "KEY_ARN", value: process.env.KEY_ARN}
