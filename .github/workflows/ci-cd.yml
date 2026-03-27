@@ -322,6 +322,10 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
     
       - name: Terraform destroy workspace resources
         working-directory: ${{ env.TERRAFORM_DIR }}
