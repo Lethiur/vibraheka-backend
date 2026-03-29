@@ -1,7 +1,7 @@
 import {Attachment, SESv2Client, SendEmailCommand, SendEmailCommandOutput} from "@aws-sdk/client-sesv2";
 import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
-import {err, ok, Result} from "neverthrow";
+import {err, ok, okAsync, Result, ResultAsync} from "neverthrow";
 
 /**
  * Wrapper over AWS SES client used to send HTML emails.
@@ -21,17 +21,18 @@ export default class SESClientWrapper {
      * @param attachments The list of attachment to send with the email
      * @returns Promise resolved when SES accepts the email request.
      */
-    public async sendEmail(recipient: string, subject: string, htmlBody: string, fromEmail: string, configSetName: string,
+    public sendEmail(recipient: string, subject: string, htmlBody: string, fromEmail: string, configSetName: string,
                            attachments: NotificationEmailAttachment[] = []
-    ): Promise<Result<void, EmailSenderErrors>> {
+    ): ResultAsync<void, EmailSenderErrors> {
         const normalizedRecipient = recipient.trim();
         const normalizedFromEmail = fromEmail.trim();
 
-        const emailAttachments: Attachment[] = await Promise.all(attachments.map(this.NotificationEmailAttachmentToSesAttachment));
-
-        try {
-            const result: SendEmailCommandOutput = await this.sesClient.send(
-                new SendEmailCommand({
+        return ResultAsync.fromPromise(Promise.all(attachments.map(this.NotificationEmailAttachmentToSesAttachment)), error => {
+            console.log("Failed to convert attachments to SES format", error);
+            throw new Error(EmailSenderErrors.ERROR_FETCHING_ATTACHMENT);
+        }).map(results => results.filter(result => result.isOk()))
+            .map(result => {
+                return new SendEmailCommand({
                     FromEmailAddress: normalizedFromEmail,
                     Destination: {
                         ToAddresses: [normalizedRecipient]
@@ -49,47 +50,44 @@ export default class SESClientWrapper {
                                     Data: htmlBody,
                                 }
                             },
-                            Attachments: emailAttachments,
+                            Attachments: result.filter(result => result.isOk())
+                                ?.map(res => res.value),
                         },
 
                     }
                 })
-            );    
-            if (result.$metadata.httpStatusCode == 200) {
-                return ok(undefined);
-            }
-            
-            console.log("SES returned a code different than 200", result);
-            return err(EmailSenderErrors.EMAIL_DELIVERY_FAILED);
-        } catch (e) {
-            console.error(`Failed to send email: ${(e as Error).message}`);
-            return err(EmailSenderErrors.EMAIL_DELIVERY_FAILED);
-        }
-        
+            }).map(command => this.sesClient.send(command))
+            .map(output => {
+                if (output.$metadata.httpStatusCode == 200) {
+                    return undefined;
+                }
+                console.log("SES returned a code different than 200", output);
+                throw new Error(EmailSenderErrors.EMAIL_DELIVERY_FAILED);
+
+            });
+
     }
 
-    private async NotificationEmailAttachmentToSesAttachment(attachment: NotificationEmailAttachment): Promise<Attachment> {
-        const response = await fetch(attachment.attachmentUrl);
+    private NotificationEmailAttachmentToSesAttachment(attachment: NotificationEmailAttachment): ResultAsync<Attachment, EmailSenderErrors> {
 
-        if (!response.ok) {
-            throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-        }
-
-        const arrayBuffer: ArrayBuffer = await response.arrayBuffer();
-        const buffer: Buffer = Buffer.from(arrayBuffer);
-        console.log("Attachment downloaded", {
-            fileName: attachment.attachmentName,
-            attachmentType: attachment.attachmentType,
-            size: buffer.length,
-            firstBytesHex: buffer.subarray(0, 8).toString("hex"),
-        });
-
-        return {
-            RawContent: buffer,
-            FileName: attachment.attachmentName,
-            ContentType: attachment.attachmentType,
-            ContentDisposition: 'ATTACHMENT',
-            ContentTransferEncoding: "BASE64"
-        };
+        return ResultAsync.fromPromise(fetch(attachment.attachmentUrl), error => {
+            console.log("Problem while retrieving the attachment with name", attachment.attachmentName, error);
+            throw new Error(EmailSenderErrors.ERROR_FETCHING_ATTACHMENT);
+        }).map(response => {
+            if (!response.ok) {
+                console.log("Failed to download attachment", {attachmentName: attachment.attachmentName});
+                throw new Error(EmailSenderErrors.ERROR_FETCHING_ATTACHMENT);
+            }
+            return response.arrayBuffer();
+        }).map(arrayBuffer => Buffer.from(arrayBuffer))
+            .map(buffer => {
+                return {
+                    RawContent: buffer,
+                    FileName: attachment.attachmentName,
+                    ContentType: attachment.attachmentType,
+                    ContentDisposition: 'ATTACHMENT',
+                    ContentTransferEncoding: "BASE64"
+                }
+            });
     }
 }

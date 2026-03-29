@@ -1,4 +1,6 @@
 import {GetObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {okAsync, ResultAsync} from "neverthrow";
+import {EmailTemplateStorageErrors} from "@Domain/Errors/EmailTemplateStorageErrors";
 
 /**
  * Thin wrapper around AWS S3 client used to fetch template content.
@@ -14,23 +16,21 @@ export default class S3ClientWrapper {
      * @returns File content as string.
      * @throws Error when object does not exist or content is empty.
      */
-    public async getFileContents(key: string, bucketName: string): Promise<string> {
-        const response = await this.s3Client.send(
+    public getFileContents(key: string, bucketName: string): ResultAsync<string, EmailTemplateStorageErrors> {
+        
+        return ResultAsync.fromPromise(this.s3Client.send(
             new GetObjectCommand({
                 Bucket: bucketName,
                 Key: key
             })
-        );
-
-        if (!response.Body) {
-            throw new Error(`File not found in S3: ${bucketName}/${key}`);
-        }
-
-        const templateHtml = await response.Body.transformToString("utf-8");
-        if (!templateHtml) {
-            throw new Error("File content is empty");
-        }
-
-        return templateHtml;
+        ), error => {
+            console.log("Failed to retrieve the S3 file from store", error)
+            throw new Error(EmailTemplateStorageErrors.ERROR_FETCHING_TEMPLATE);
+        }).map(response => {
+            if (!response.Body) {
+                throw new Error(EmailTemplateStorageErrors.TEMPLATE_NOT_FOUND);
+            }
+            return response.Body.transformToString("utf-8");
+        })
     }
 }

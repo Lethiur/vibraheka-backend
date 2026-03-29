@@ -16,8 +16,6 @@ export function BuildProcessNotificationEmailUseCase(env: EnvironmentVariables):
     ssmClient,
     s3Client,
     env.TEMPLATE_BUCKET,
-    env.SSM_VERIFICATION_TEMPLATE_NAME_PARAM,
-    env.SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM
   );
   const emailDeliveryService = new EmailDeliveryService(sesClient, env.SES_FROM_EMAIL, env.SES_CONFIG_SET);
 
@@ -27,7 +25,7 @@ export function BuildProcessNotificationEmailUseCase(env: EnvironmentVariables):
     {
       subscription_thank_you: env.SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM,
       trial_ending_soon: env.SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM,
-        subscription_cancelled: env.SSM_SUBSCRIPTION_CANCELLED_TEMPLATE_NAME_PARAM
+      subscription_cancelled: env.SSM_SUBSCRIPTION_CANCELLED_TEMPLATE_NAME_PARAM
     }
   );
 }

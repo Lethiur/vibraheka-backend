@@ -1,4 +1,4 @@
-import {Result, ResultAsync} from "neverthrow";
+import { ResultAsync} from "neverthrow";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
 import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
 
@@ -15,5 +15,5 @@ export default interface IEmailDeliveryService {
      * @param attachments The list of attachment to send with the email
      * @returns Async result containing success or a domain error.
      */
-    Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[]): Promise<Result<void, EmailSenderErrors>>
+    Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[]): ResultAsync<void, EmailSenderErrors>;
 }

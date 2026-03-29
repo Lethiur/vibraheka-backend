@@ -24,14 +24,14 @@ export default class EmailDeliveryService implements IEmailDeliveryService {
      * @param attachments An optional list of attachment paths.
      * @returns Async result with success or domain error.
      */
-    public async Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[] = []): Promise<Result<void, EmailSenderErrors>> {
+    public Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[] = []): ResultAsync<void, EmailSenderErrors> {
         console.log("Sending email through SES", {
             recipient,
             subject,
             attachments
         });
         
-        return await this.sesClient.sendEmail(
+        return this.sesClient.sendEmail(
             recipient,
             subject,
             htmlBody,

@@ -1,0 +1,5 @@
+﻿export enum EmailTemplateStorageErrors {
+    ERROR_FETCHING_TEMPLATE = "ERROR_FETCHING_TEMPLATE",
+    TEMPLATE_NOT_FOUND = "TEMPLATE_NOT_FOUND"
+    
+}

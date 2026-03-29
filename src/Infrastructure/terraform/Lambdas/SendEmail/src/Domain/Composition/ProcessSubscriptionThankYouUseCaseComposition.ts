@@ -1,0 +1,19 @@
+﻿import IProcessSubscriptionThankYouUseCase
+    from "@Application/UseCases/ProcessSubscriptionThankYouUseCase/IProcessSubscriptionThankYouUseCase";
+import ProcessSubscriptionThankYouUseCaseImpl
+    from "@Application/UseCases/ProcessSubscriptionThankYouUseCase/ProcessSubscriptionThankYouUseCaseImpl";
+import EmailTemplateService from "@Data/Services/EmailTemplateService";
+import SSMClientWrapper from "@/Clients/SSMClient";
+import S3ClientWrapper from "@/Clients/S3Client";
+import {requireEnv} from "@/Validators/EnvironmentValidator";
+import EmailDeliveryService from "@Data/Services/EmailDeliveryService";
+import SESClientWrapper from "@/Clients/SESClient";
+import {EmailTemplatesInstance} from "@Domain/ValueObjects/EmailTemplates";
+
+
+export const ProcessSubscriptionThankYouUseCase : IProcessSubscriptionThankYouUseCase = 
+    new ProcessSubscriptionThankYouUseCaseImpl(new EmailTemplateService(
+        new SSMClientWrapper(),
+        new S3ClientWrapper(),
+        requireEnv("TEMPLATE_BUCKET")
+    ), new EmailDeliveryService(new SESClientWrapper(), requireEnv("SES_FROM_EMAIL"), requireEnv("SES_CONFIG_SET")), EmailTemplatesInstance);
