@@ -114,7 +114,7 @@ output "ssm_user_welcome_tempalte_id_parameter_name" {
 }
 
 output "ssm_subscription_cancelled_template_id_parameter_name" {
-  value = aws_ssm_parameter.VH_subscription_cancelled_email_template
+  value = aws_ssm_parameter.VH_subscription_cancelled_email_template.name
 }
 
 output "ssm_subscription_reactivated_template_id_parameter_name" {
