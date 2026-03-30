@@ -36,6 +36,6 @@ export const handler = async (event: NotificationEvent) => {
             break;
     }
     
-    return result.match(_ => BuildSuccessResponse(eventDetail.templateType), 
+    return await result.match(_ => BuildSuccessResponse(eventDetail.templateType), 
             err => BuildErrorResponse(err, eventDetail.templateType));
 };

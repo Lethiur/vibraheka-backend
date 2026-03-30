@@ -17,5 +17,5 @@ import PasswordResetTokenService from "@Data/Services/PasswordResetTokenService"
 export const ProcessForgotPasswordUseCase : IProcessForgotPasswordUseCase = new ProcessForgotPasswordUseCaseImpl(
     new EmailTemplateService(new SSMClientWrapper(),new S3ClientWrapper(),requireEnv("TEMPLATE_BUCKET")),
     new EmailDeliveryService(new SESClientWrapper(), requireEnv("SES_FROM_EMAIL"), requireEnv("SES_CONFIG_SET")), 
-    new PasswordResetTokenService(requireEnv('PASSWORD_RESET_TOKEN_SECRET'), requireEnv('PASSWORD_RESET_FRONTEND_URL'), parseInt(requireEnv('PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES'))),
+    new PasswordResetTokenService(requireEnv('PASSWORD_RESET_TOKEN_SECRET'), requireEnv('PASSWORD_RESET_FRONTEND_URL'), parseInt(requireEnv('PASSWORD_RESET_TOKEN_TTL_MINUTES'))),
     EmailTemplatesInstance);

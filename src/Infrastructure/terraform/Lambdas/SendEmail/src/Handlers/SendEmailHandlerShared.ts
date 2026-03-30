@@ -1,7 +1,7 @@
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
 import ResponseEntity from "@Domain/Entities/ResposeEntity";
 import {CognitoEmailContext} from "@Domain/ValueObjects/CognitoEmailContext";
-import {errAsync, ResultAsync} from "neverthrow";
+import {errAsync, okAsync, ResultAsync} from "neverthrow";
 import {CustomEmailSenderTriggerEvent} from "aws-lambda";
 import ICognitoCodeCipherService from "@Domain/Interfaces/ICognitoCodeCipherService";
 
@@ -36,12 +36,19 @@ export function BuildContext(event: CustomEmailSenderTriggerEvent, cipherService
     }
 
     const encryptedCode = event.request.code;
+    const username = userAttributes?.["name"] ?? recipient;
+    
     if (!encryptedCode || encryptedCode.trim().length === 0) {
-        console.error("Missing encrypted code in Cognito event", {recipient});
-        return errAsync(EmailSenderErrors.MISSING_CODE);
+        console.error("Missing encrypted code in Cognito event", {event});
+        return okAsync({
+            recipient,
+            username,
+            decryptedCode: "",
+            triggerSource: event.triggerSource
+        } as CognitoEmailContext);
     }
 
-    const username = userAttributes?.["name"] ?? recipient;
+    
     return cipherService.DecryptCode(encryptedCode)
         .map(decryptedCode => ({
             recipient,

@@ -20,7 +20,7 @@ export const handler = async (event: CustomEmailSenderTriggerEvent) => {
         requireEnv('KEY_ALIAS'), requireEnv('KEY_ARN')
     ));
     
-    return context.andThen(context => {
+    return await context.andThen(context => {
         switch (context.triggerSource) {
             case "CustomEmailSender_SignUp":
             case "CustomEmailSender_ResendCode":
