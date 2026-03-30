@@ -5,14 +5,15 @@ import {requireEnv} from "@/Validators/EnvironmentValidator";
 import EmailDeliveryService from "@Data/Services/EmailDeliveryService";
 import SESClientWrapper from "@/Clients/SESClient";
 import {EmailTemplatesInstance} from "@Domain/ValueObjects/EmailTemplates";
-import IProcessSubscriptionReactivatedUseCase
-    from "@Application/UseCases/ProcessSubscriptionReactivatedUseCase/IProcessSubscriptionReactivatedUseCase";
-import ProcessSubscriptionReactivatedUseCaseImpl
-    from "@Application/UseCases/ProcessSubscriptionReactivatedUseCase/ProcessSubscriptionReactivatedUseCaseImpl";
+import ProcessTrialWillEndSoonUseCaseImpl
+    from "@Application/UseCases/ProcessTrialWillEndSoonUseCase/ProcessTrialWillEndSoonUseCaseImpl";
+import {
+    IProcessTrialWillEndSoonUseCase
+} from "@Application/UseCases/ProcessTrialWillEndSoonUseCase/IProcessTrialWillEndSoonUseCase";
 
 
-export const processSubscriptionReactivatedUseCase : IProcessSubscriptionReactivatedUseCase =
-    new ProcessSubscriptionReactivatedUseCaseImpl(new EmailTemplateService(
+export const ProcessTrialWillEndSoonUseCase : IProcessTrialWillEndSoonUseCase =
+    new ProcessTrialWillEndSoonUseCaseImpl(new EmailTemplateService(
         new SSMClientWrapper(),
         new S3ClientWrapper(),
         requireEnv("TEMPLATE_BUCKET")
