@@ -62,7 +62,7 @@ export default class SubscriptionService implements ISubscriptionService {
         return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);
     }
 
-    public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>> {
+    public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
         console.log("Actualizando subscripcion!");
         const customerID = subscriptionData.customer as string;
         const stripeSubscriptionID = subscriptionData.id as string;
@@ -105,7 +105,7 @@ export default class SubscriptionService implements ISubscriptionService {
                 }
             }
             
-            return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
+            return await this.Repository.SaveSubscription(subscriptionEntity);
         }
 
         return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);

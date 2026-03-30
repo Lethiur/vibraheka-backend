@@ -17,6 +17,8 @@ export default class ProcessSubscriptionThankYouUseCaseImpl implements IProcessS
                 private readonly EmailTemplateNames : EmailTemplates) {}
 
     public Execute(event: NotificationEmailEventDetail): ResultAsync<void, EmailSenderErrors> {
-        return this.EmailTemplateService.RenderTemplate(this.EmailTemplateNames.SubscriptionThankYouTemplate, {}).andThen(template => this.EmailDeliveryService.Send(event.recipient, event.subject, template, event.attachments))
+        return this.EmailTemplateService.RenderTemplate(this.EmailTemplateNames.SubscriptionThankYouTemplate, {
+            username: event.username
+        }).andThen(template => this.EmailDeliveryService.Send(event.recipient, this.EMAIL_SUBJECT, template, event.attachments || []))
     }
 }

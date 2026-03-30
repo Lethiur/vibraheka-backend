@@ -18,7 +18,7 @@ export default class ProcessSubscriptionReactivatedUseCaseImpl implements IProce
 
     public Execute(event: NotificationEmailEventDetail): ResultAsync<void, EmailSenderErrors> {
         return this.EmailTemplateService.RenderTemplate(this.EmailTemplateNames.SubscriptionReactivatedTemplate, {
-            username: context.username
-        }).andThen(template => this.EmailDeliveryService.Send(context.recipient, this.EMAIL_SUBJECT, template, []))
+            username: event.username
+        }).andThen(template => this.EmailDeliveryService.Send(event.recipient, this.EMAIL_SUBJECT, template, event.attachments || []))
     }
 }

@@ -29,6 +29,7 @@ export default class TrialWillEndUseCaseImpl implements ITrialWillEndUseCase {
         }
         
         const notificationEvent : NotificationEmailEventDetail = {
+            username: customer.name!,
             attachments: [],
             recipient: email,
             templateType: "trial_ending_soon",
