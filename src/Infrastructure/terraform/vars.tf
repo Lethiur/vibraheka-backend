@@ -30,7 +30,6 @@ variable "password_reset_token_secret" {
 
 variable "password_reset_frontend_url" {
   description = "Frontend URL where users land to set a new password. Lambda appends token query param."
-  default     = "http://localhost:5173/recover-password"
 }
 
 variable "password_reset_token_ttl_minutes" {

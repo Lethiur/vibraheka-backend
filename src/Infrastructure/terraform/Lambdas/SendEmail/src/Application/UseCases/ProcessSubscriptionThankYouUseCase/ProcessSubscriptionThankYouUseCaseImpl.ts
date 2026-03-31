@@ -10,7 +10,7 @@ import NotificationEmailEventDetail from "@Domain/Entities/NotificationEmailEven
 
 export default class ProcessSubscriptionThankYouUseCaseImpl implements IProcessSubscriptionThankYouUseCase {
 
-    private readonly EMAIL_SUBJECT = "Muhcas gracias por tu subscripcion"
+    private readonly EMAIL_SUBJECT = "Muchas gracias por tu subscripcion"
     
     constructor(private readonly EmailTemplateService: IEmailTemplateService,
                 private readonly EmailDeliveryService: IEmailDeliveryService,
