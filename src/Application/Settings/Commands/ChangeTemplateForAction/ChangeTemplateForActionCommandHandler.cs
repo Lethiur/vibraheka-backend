@@ -34,13 +34,18 @@ public class ChangeTemplateForActionCommandHandler(
                         request.TemplateID, cancellationToken),
                     ActionType.PasswordReset => await SettingsService.ChangeRecoverPasswordEmailTemplateAsync(
                         request.TemplateID, cancellationToken),
-                    ActionType.SubscriptionThankYou => await SettingsService.ChangeSubscriptionThankYouEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
+                    ActionType.SubscriptionThankYou => await SettingsService
+                        .ChangeSubscriptionThankYouEmailTemplateAsync(
+                            request.TemplateID, cancellationToken),
                     ActionType.TrialEndingSoon => await SettingsService.ChangeTrialEndingSoonEmailTemplateAsync(
                         request.TemplateID, cancellationToken),
                     ActionType.PasswordChanged => await SettingsService.ChangePasswordChangedEmailTemplateAsync(
                         request.TemplateID, cancellationToken),
-                    
+                    ActionType.SubscriptionCancelled => await SettingsService
+                        .ChangeSubscriptionCancelledEmailTemplateAsync(request.TemplateID, cancellationToken),
+                    ActionType.SubscriptionReactivated => await SettingsService
+                        .ChangeSubscriptionReActivatedEmailTemplateAsync(request.TemplateID, cancellationToken),
+
                     _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
                 };
             });

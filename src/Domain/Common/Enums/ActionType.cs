@@ -10,5 +10,6 @@ public enum ActionType
     TrialEndingSoon,
     PasswordChanged,
     SubscriptionCancelled,
+    SubscriptionReactivated
     
 }
