@@ -21,6 +21,7 @@ module "SendEmailLambda" {
   ssm_subscription_thank_you_template_param   = var.ssm_subscription_thank_you_template_id_parameter_name
   ssm_subscription_cancelled_template_param   = var.ssm_subscription_cancelled_template_param
   ssm_subscription_reactivated_template_param = var.ssm_subscription_reactivated_template_param
+  ssm_forgot_password_completed_template_param = var.ssm_forgot_password_completed_template_param
   ssm_trial_ending_soon_template_param        = var.ssm_trial_ending_soon_template_id_parameter_name
   password_reset_token_secret                 = var.password_reset_token_secret
   password_reset_frontend_url                 = var.password_reset_frontend_url
