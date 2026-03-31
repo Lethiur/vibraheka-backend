@@ -14,7 +14,7 @@ export default class EmailTemplateService implements IEmailTemplateService {
         private readonly templateBucket: string,
     ) {
     }
-    
+
     public RenderTemplate(templateParameterName: string, data: Record<string, string | number>): ResultAsync<string, EmailSenderErrors> {
         console.log("Rendering generic email template", {templateParameterName, keys: Object.keys(data)});
         return this.GetTemplateHtml(templateParameterName).andThen(templateHtml => this.ProcessTemplate(templateHtml, data));
@@ -28,20 +28,16 @@ export default class EmailTemplateService implements IEmailTemplateService {
      */
     private GetTemplateHtml(templateParameterName: string): ResultAsync<string, EmailSenderErrors> {
         console.log("Resolving template name from SSM", {templateParameterName});
-        return ResultAsync.fromPromise(this.ssmClient.getParameter(templateParameterName), (error) => {
-            console.error("Failed resolving template from SSM", {templateParameterName, error});
-            return EmailSenderErrors.TEMPLATE_RESOLUTION_FAILED;
-        }).andThen(templateName => ResultAsync.fromPromise(
-            this.s3Client.getFileContents(`${templateName}/template.json`, this.templateBucket),
-            (error) => {
+        return this.ssmClient.getParameter(templateParameterName)
+            .andThen(templateName => this.s3Client.getFileContents(`${templateName}/template.json`, this.templateBucket))
+            .mapErr((error) => {
                 console.error("Failed loading template from S3", {
-                    templateName,
+                    templateParameterName,
                     templateBucket: this.templateBucket,
                     error
                 });
                 return EmailSenderErrors.TEMPLATE_RESOLUTION_FAILED;
-            }
-        ));
+            });
     }
 
     /**
