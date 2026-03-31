@@ -1,5 +1,5 @@
 import {GetParameterCommand, SSMClient} from "@aws-sdk/client-ssm";
-import {err, errAsync, okAsync, ResultAsync} from "neverthrow";
+import {errAsync, okAsync, ResultAsync} from "neverthrow";
 
 /**
  * Thin wrapper around AWS SSM client used to resolve parameter values.
@@ -16,14 +16,12 @@ export default class SSMClientWrapper {
      */
     public getParameter(parameterName: string): ResultAsync<string, string> {
         const command = new GetParameterCommand({Name: parameterName});
-        return ResultAsync.fromPromise(this.ssmClient.send(command), error => {
-            console.log("Failed to retrieve the SSM parameter from store")
-            throw new Error("SSM_PARAMETER_NOT_FOUND")
-        }).map(response => {
-            if (!response.Parameter?.Value) {
-                throw new Error("SSM_PARAMETER_NOT_FOUND");
-            }
-            return response.Parameter.Value
+        return ResultAsync.fromPromise(
+            this.ssmClient.send(command),
+            _error => "SSM_PARAMETER_NOT_FOUND"
+        ).andThen(response => {
+            const value = response.Parameter?.Value;
+            return value ? okAsync(value) : errAsync("SSM_PARAMETER_NOT_FOUND");
         });
     }
 }

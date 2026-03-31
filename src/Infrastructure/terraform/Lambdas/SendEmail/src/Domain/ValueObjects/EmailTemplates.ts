@@ -18,7 +18,6 @@ export default class EmailTemplates {
     constructor() {
         this.VerificationTemplate = requireEnv("SSM_VERIFICATION_TEMPLATE_NAME_PARAM");
         this.PasswordResetTemplate = requireEnv("SSM_PASSWORD_RESET_TEMPLATE_NAME_PARAM");
-        this.VerificationTemplate = requireEnv("SSM_VERIFICATION_TEMPLATE_NAME_PARAM");
         this.UserWelcomeTemplate = requireEnv("SSM_USER_WELCOME_TEMPLATE_NAME_PARAM");
         this.SubscriptionThankYouTemplate = requireEnv("SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM");
         this.TrialEndingSoonTemplate = requireEnv("SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM");
