@@ -101,6 +101,26 @@ public class SettingsService(
             "Error while updating the subscription thank-you email template");
     }
 
+    public Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateSubscriptionCancelledEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the trial ending soon email template");
+    }
+
+    public Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateSubscriptionReActivatedEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the trial ending soon email template");
+    }
+
     public Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
@@ -117,6 +137,16 @@ public class SettingsService(
             emailTemplate,
             SettingsErrors.GenericError,
             token => repository.UpdatePasswordChangedEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the password changed email template");
+    }
+    
+    public Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateForgotPasswordCompletedEmailTemplateAsync(emailTemplate, token),
             cancellationToken,
             "Error while updating the password changed email template");
     }
@@ -138,6 +168,8 @@ public class SettingsService(
 
         return repositoryResult;
     }
+    
+    
 
     /// <summary>
     /// Retrieves the password changed email template.
@@ -173,6 +205,22 @@ public class SettingsService(
             SettingsErrors.GenericError);
     }
 
+    public Task<Result<string>> GetSubscriptionCancelledEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetSubscriptionCancelledEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
+    public Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync(CancellationToken cancellationToken)
+    {
+        return GetTemplateAsync(
+            cancellationToken,
+            repository.GetSubscriptionReActivatedEmailTemplateAsync,
+            SettingsErrors.GenericError);
+    }
+
     public Task<Result<string>> GetTrialEndingSoonEmailTemplateAsync(CancellationToken cancellationToken)
     {
         return GetTemplateAsync(
@@ -188,6 +236,8 @@ public class SettingsService(
             repository.GetPasswordChangedEmailTemplateAsync,
             SettingsErrors.GenericError);
     }
+    
+    
 
     /// <summary>
     /// Retrieves all templates used for actions.
@@ -222,11 +272,26 @@ public class SettingsService(
             new()
             {
                 TemplateID = appSettings.PasswordChangedEmailTemplate, ActionType = ActionType.PasswordChanged
+            },
+            new()
+            {
+                TemplateID = appSettings.ForgotPasswordCompletedEmailTemplate, ActionType = ActionType.ForgotPasswordCompleted
+            },
+            new()
+            {
+                TemplateID = appSettings.SubscriptionCancelledEmailTemplate, ActionType = ActionType.SubscriptionCancelled
+            },
+            new()
+            {
+                TemplateID = appSettings.SubscriptionReActivatedEmailTemplate, ActionType = ActionType.SubscriptionReactivated
             }
+            
         ];
 
         return templates;
     }
+
+    
 
     /// <summary>
     /// Maps infrastructure repository errors to domain errors for update operations.

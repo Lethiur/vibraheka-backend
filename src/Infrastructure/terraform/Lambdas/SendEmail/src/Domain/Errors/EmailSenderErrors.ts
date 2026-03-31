@@ -21,7 +21,10 @@ enum EmailSenderErrors {
     /** Building token or reset link failed. */
     TOKEN_BUILD_FAILED = "TOKEN_BUILD_FAILED",
     /** SES email send operation failed. */
-    EMAIL_DELIVERY_FAILED = "EMAIL_DELIVERY_FAILED"
+    EMAIL_DELIVERY_FAILED = "EMAIL_DELIVERY_FAILED",
+    
+    /** Error while fetching email attachments */
+    ERROR_FETCHING_ATTACHMENT = "ERROR_FETCHING_ATTACHMENT"
 }
 
 export default EmailSenderErrors;

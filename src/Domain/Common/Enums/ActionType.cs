@@ -9,4 +9,8 @@ public enum ActionType
     SubscriptionThankYou,
     TrialEndingSoon,
     PasswordChanged,
+    SubscriptionCancelled,
+    SubscriptionReactivated,
+    ForgotPasswordCompleted
+    
 }

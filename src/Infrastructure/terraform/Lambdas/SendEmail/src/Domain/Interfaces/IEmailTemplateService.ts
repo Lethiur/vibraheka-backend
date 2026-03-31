@@ -1,26 +1,18 @@
-import {ResultAsync} from "neverthrow";
+import {Result, ResultAsync} from "neverthrow";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
 
 /**
  * Contract for resolving and rendering email templates.
  */
 export default interface IEmailTemplateService {
-    /**
-     * Renders the verification template.
-     *
-     * @param username Receiver display name.
-     * @param code Plain verification code.
-     * @returns Async result containing rendered HTML or a domain error.
-     */
-    RenderVerificationTemplate(username: string, code: string): ResultAsync<string, EmailSenderErrors>;
 
     /**
-     * Renders the password reset template.
+     * Renders a template by replacing placeholders with corresponding values from the provided data.
      *
-     * @param username Receiver display name.
-     * @param token Proprietary reset token.
-     * @param resetLink Complete link used by the frontend reset screen.
-     * @returns Async result containing rendered HTML or a domain error.
+     * @param {string} templateParameterName - The name or identifier of the template to render.
+     * @param {Record<string, string | number>} data - A key-value mapping of placeholders in the template to their replacement values.
+     * @return {ResultAsync<string, EmailSenderErrors>} A ResultAsync object containing either the rendered template as a string or an EmailSenderErrors enumeration indicating an error.
      */
-    RenderPasswordResetTemplate(username: string, token: string, resetLink: string): ResultAsync<string, EmailSenderErrors>;
+    RenderTemplate(templateParameterName: string, data: Record<string, string | number>): ResultAsync<string, EmailSenderErrors>;
+    
 }

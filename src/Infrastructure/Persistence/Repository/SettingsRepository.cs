@@ -51,6 +51,16 @@ public class SettingsRepository(
         return UpdateTemplateAsync("SubscriptionThankYouEmailTemplate", emailTemplate, token);
     }
 
+    public Task<Result<Unit>> UpdateSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    {
+        return UpdateTemplateAsync("SubscriptionCancelledEmailTemplate", emailTemplate, token);
+    }
+
+    public Task<Result<Unit>> UpdateSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    {
+        return UpdateTemplateAsync("SubscriptionReactivatedEmailTemplate", emailTemplate, token);
+    }
+
     public Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken token)
     {
         return UpdateTemplateAsync("TrialEndingSoonEmailTemplate", emailTemplate, token);
@@ -59,6 +69,11 @@ public class SettingsRepository(
     public Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken token)
     {
         return UpdateTemplateAsync("PasswordChangedEmailTemplate", emailTemplate, token);
+    }
+
+    public Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    {
+        return UpdateTemplateAsync("ForgotPasswordCompletedEmailTemplate", emailTemplate, token);
     }
 
     /// <summary>
@@ -97,6 +112,16 @@ public class SettingsRepository(
     public Task<Result<string>> GetPasswordChangedEmailTemplateAsync()
     {
         return GetTemplateAsync("PasswordChangedEmailTemplate");
+    }
+
+    public Task<Result<string>> GetSubscriptionCancelledEmailTemplateAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync()
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<Result<Unit>> UpdateTemplateAsync(string parameterName, string templateId, CancellationToken cancellationToken)

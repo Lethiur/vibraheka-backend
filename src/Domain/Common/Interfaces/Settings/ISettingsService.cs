@@ -40,6 +40,26 @@ public interface ISettingsService
     Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Updates the email template used for notifying users about subscription cancellations.
+    /// Ensures the provided email template is valid and updates the existing template in the repository.
+    /// </summary>
+    /// <param name="emailTemplate">The new email template to be used for subscription cancellation notifications.</param>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{Unit}</c> representing the outcome of the operation, including any error details if applicable.</returns>
+    Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(string emailTemplate,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Updates the email template used for notifying users when their subscription is reactivated.
+    /// Ensures the provided email template is valid and updates it in the repository.
+    /// </summary>
+    /// <param name="emailTemplate">The new email template to be used for subscription reactivation notifications.</param>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation, including potential error details.</returns>
+    Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(string emailTemplate,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Updates the trial-ending-soon email template.
     /// </summary>
     Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
@@ -74,6 +94,23 @@ public interface ISettingsService
     Task<Result<string>> GetSubscriptionThankYouEmailTemplateAsync(CancellationToken cancellationToken);
 
     /// <summary>
+    /// Retrieves the email template used for subscription cancellation notifications.
+    /// Ensures the template is fetched from the repository, if available.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{string}</c> containing the subscription cancellation email template
+    /// or error details if the operation fails.</returns>
+    Task<Result<string>> GetSubscriptionCancelledEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Retrieves the email template used for notifying users about subscription reactivation.
+    /// Ensures the template is fetched from the repository if it exists.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{string}</c> containing the email template or error details in case of failure.</returns>
+    Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync(CancellationToken cancellationToken);
+
+    /// <summary>
     /// Retrieves the trial-ending-soon email template.
     /// </summary>
     Task<Result<string>> GetTrialEndingSoonEmailTemplateAsync(CancellationToken cancellationToken);
@@ -91,4 +128,14 @@ public interface ISettingsService
     ///         <TemplateForActionEntity>></c> containing a collection of templates for actions
     /// if retrieval is successful, or an error result if the operation fails.</returns>
     Result<IEnumerable<TemplateForActionEntity>> GetAllTemplatesForActions();
+
+    /// <summary>
+    /// Updates the email template used for indicating the completion of a password reset process.
+    /// Validates that the provided email template ID is valid, and updates the template accordingly.
+    /// </summary>
+    /// <param name="emailTemplate">The identifier of the new email template to be used for the completion of a password reset process.</param>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation, including potential error details.</returns>
+    Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate,
+        CancellationToken cancellationToken);
 }

@@ -34,6 +34,10 @@ output "subscriptions_table_name" {
   value = module.Subscriptions.dynamodb_subscription_table_name
 }
 
+output "ssm_frontend_url" {
+  value = "/${var.ssm_namespace}/frontend/url"
+}
+
 output "subscriptions_table_user_index_name" {
   value = module.Subscriptions.subscriptions_user_id_index_name
 }

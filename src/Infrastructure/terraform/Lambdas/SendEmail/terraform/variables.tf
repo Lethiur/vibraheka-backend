@@ -12,9 +12,17 @@ variable ssm_password_reset_template_param {}
 
 variable ssm_subscription_thank_you_template_param {}
 
+variable ssm_subscription_cancelled_template_param {}
+
+variable ssm_subscription_reactivated_template_param {}
+
+variable ssm_user_welcome_template_param {}
+
 variable ssm_trial_ending_soon_template_param {}
 
 variable password_reset_token_secret {}
+
+variable ssm_forgot_password_completed_template_param {}
 
 variable password_reset_frontend_url {
   default = ""

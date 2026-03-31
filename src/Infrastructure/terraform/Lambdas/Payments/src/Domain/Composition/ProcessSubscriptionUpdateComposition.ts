@@ -5,10 +5,11 @@ import ISubscriptionService from "@Domain/Interfaces/ISubscriptionService";
 import SubscriptionService from "@Data/Services/SubscriptionService";
 import ProcessUpdateSubscriptionUseCaseImpl
     from "@Application/UseCases/ProcessUpdateSubscription/ProcessUpdateSubscriptionUseCaseImpl";
+import NotificationService from "@Data/Services/NotificationService";
 
 
 const Repository : ISubscriptionRepository = new SubscriptionRepositoryImpl(new DynamoDBClient());
 const Service : ISubscriptionService = new SubscriptionService(Repository);
-const UpdateSubscriptionUseCase = new ProcessUpdateSubscriptionUseCaseImpl(Service);
+const UpdateSubscriptionUseCase = new ProcessUpdateSubscriptionUseCaseImpl(Service, new NotificationService());
 
 export {UpdateSubscriptionUseCase};

@@ -18,7 +18,8 @@ export default interface IPasswordResetTokenService {
      * Builds the final link sent to the user.
      *
      * @param token Proprietary reset token.
+     * @param frontendResetUrl
      * @returns Result containing the link or a domain error.
      */
-    BuildPasswordResetLink(token: string): Result<string, EmailSenderErrors>;
+    BuildPasswordResetLink(token: string, frontendResetUrl : string): Result<string, EmailSenderErrors>;
 }

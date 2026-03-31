@@ -11,6 +11,7 @@ resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
   
   lambda_config {
     kms_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.arn
+    post_confirmation = var.prod_deployment ? var.lambda_send_email_arn : null
     custom_email_sender {
       lambda_arn     = var.prod_deployment ? var.lambda_send_email_arn : var.lambda_save_verification_code_arn
       lambda_version = "V1_0"

@@ -17,6 +17,9 @@ public class GetTemplatesForActionsTest : GenericSettingsServiceTest
         const string subscriptionThankYouTemplate = "subscription-thank-you-memory-value";
         const string trialEndingSoonTemplate = "trial-ending-soon-memory-value";
         const string passwordChangedTemplate = "password-changed-memory-value";
+        const string subscriptionCancelledTemplate = "password-changed-memory-value";
+        const string subscriptionReactivatedTemplate = "password-changed-memory-value";
+        const string forgotPasswordCompleted = "password-changed-memory-value";
 
         _appSettings.VerificationEmailTemplate = verificationTemplate;
         _appSettings.RecoverPasswordEmailTemplate = recoverPasswordEmailTemplate;
@@ -24,6 +27,9 @@ public class GetTemplatesForActionsTest : GenericSettingsServiceTest
         _appSettings.SubscriptionThankYouEmailTemplate = subscriptionThankYouTemplate;
         _appSettings.TrialEndingSoonEmailTemplate = trialEndingSoonTemplate;
         _appSettings.PasswordChangedEmailTemplate = passwordChangedTemplate;
+        _appSettings.SubscriptionCancelledEmailTemplate = subscriptionCancelledTemplate;
+        _appSettings.SubscriptionReActivatedEmailTemplate = subscriptionReactivatedTemplate;
+        _appSettings.ForgotPasswordCompletedEmailTemplate = forgotPasswordCompleted;
 
         // When
         Result<IEnumerable<TemplateForActionEntity>> result = _service.GetAllTemplatesForActions();
@@ -31,12 +37,15 @@ public class GetTemplatesForActionsTest : GenericSettingsServiceTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         List<TemplateForActionEntity> templates = result.Value.ToList();
-        Assert.That(templates, Has.Count.EqualTo(6));
+        Assert.That(templates, Has.Count.EqualTo(9));
         Assert.That(templates.Any(t => t.ActionType == ActionType.UserVerification && t.TemplateID == verificationTemplate), Is.True);
         Assert.That(templates.Any(t => t.ActionType == ActionType.PasswordReset && t.TemplateID == recoverPasswordEmailTemplate), Is.True);
         Assert.That(templates.Any(t => t.ActionType == ActionType.UserRegistered && t.TemplateID == welcomeTemplate), Is.True);
         Assert.That(templates.Any(t => t.ActionType == ActionType.SubscriptionThankYou && t.TemplateID == subscriptionThankYouTemplate), Is.True);
         Assert.That(templates.Any(t => t.ActionType == ActionType.TrialEndingSoon && t.TemplateID == trialEndingSoonTemplate), Is.True);
         Assert.That(templates.Any(t => t.ActionType == ActionType.PasswordChanged && t.TemplateID == passwordChangedTemplate), Is.True);
+        Assert.That(templates.Any(t => t.ActionType == ActionType.SubscriptionCancelled && t.TemplateID == subscriptionCancelledTemplate), Is.True);
+        Assert.That(templates.Any(t => t.ActionType == ActionType.SubscriptionReactivated && t.TemplateID == subscriptionReactivatedTemplate), Is.True);
+        Assert.That(templates.Any(t => t.ActionType == ActionType.ForgotPasswordCompleted && t.TemplateID == forgotPasswordCompleted), Is.True);
     }
 }

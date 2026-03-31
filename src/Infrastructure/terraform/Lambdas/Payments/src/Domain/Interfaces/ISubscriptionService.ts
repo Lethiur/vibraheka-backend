@@ -7,7 +7,7 @@ export default interface ISubscriptionService {
 
     ProcessPayment(invoice: Stripe.Invoice) : Promise<Result<SubscriptionEntity, SubscriptionErrors>>;
     CancelSubscription(subscriptionData: Stripe.Subscription) : Promise<Result<void, SubscriptionErrors>>;
-    UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>>;
+    UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<SubscriptionEntity, SubscriptionErrors>>;
     DeleteSubscription(sessionData: Stripe.Checkout.Session): Promise<Result<void, SubscriptionErrors>>;
 
 }

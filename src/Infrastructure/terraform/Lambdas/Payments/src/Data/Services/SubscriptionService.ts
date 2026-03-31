@@ -1,6 +1,6 @@
 import {SubscriptionErrors} from "@/Domain/Errors/SubscriptionErrors";
 import ISubscriptionService from "@Domain/Interfaces/ISubscriptionService";
-import {err, ok, Result} from "neverthrow";
+import {err, ok, Result, ResultAsync} from "neverthrow";
 import Stripe from "stripe";
 import ISubscriptionRepository from "@Domain/Interfaces/ISubscriptionRepository";
 import SubscriptionEntity from "@Domain/Entities/SubscriptionEntity";
@@ -62,7 +62,7 @@ export default class SubscriptionService implements ISubscriptionService {
         return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);
     }
 
-    public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<void, SubscriptionErrors>> {
+    public async UpdateSubscription(subscriptionData: Stripe.Subscription): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
         console.log("Actualizando subscripcion!");
         const customerID = subscriptionData.customer as string;
         const stripeSubscriptionID = subscriptionData.id as string;
@@ -105,7 +105,7 @@ export default class SubscriptionService implements ISubscriptionService {
                 }
             }
             
-            return (await this.Repository.SaveSubscription(subscriptionEntity)).map(_ => void (0));
+            return await this.Repository.SaveSubscription(subscriptionEntity);
         }
 
         return err(SubscriptionErrors.WRONG_PAYMENT_FOR_SUBSCRIPTION);
@@ -121,9 +121,14 @@ export default class SubscriptionService implements ISubscriptionService {
     public async ProcessPayment(invoice: Stripe.Invoice): Promise<Result<SubscriptionEntity, SubscriptionErrors>> {
         console.log(`ProcessPayment invoice=${invoice.id} status=${invoice.status} billing_reason=${invoice.billing_reason} amount_paid=${invoice.amount_paid} customer=${invoice.customer}`);
 
-        const repositoryResult: Result<SubscriptionEntity, SubscriptionErrors> = await this.GetCustomerIDFromInvoice(invoice)
-            .asyncMap(customerID => this.Repository.GetSubscriptionForCustomer(customerID))
-            .andThen(result => result);
+        const customerResult: Result<string, SubscriptionErrors> = this.GetCustomerIDFromInvoice(invoice);
+        
+        if (customerResult.isErr()) {
+            return err(SubscriptionErrors.CUSTOMER_NOT_FOUND);
+        }
+        
+        const repositoryResult : Result<SubscriptionEntity, SubscriptionErrors> = await this.Repository.GetSubscriptionForCustomer(customerResult.value);
+            
 
         if (repositoryResult.isErr()) {
             return err(repositoryResult.error)

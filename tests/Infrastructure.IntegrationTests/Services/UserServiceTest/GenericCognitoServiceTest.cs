@@ -26,7 +26,7 @@ public abstract class GenericCognitoServiceTest : TestBase
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _logger = NullLogger<UserService>.Instance;
+        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<UserService>();
         _faker = new Faker();
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
             new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();

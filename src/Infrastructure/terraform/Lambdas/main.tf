@@ -9,35 +9,39 @@
 }
 
 module "SendEmailLambda" {
-  source                          = "./SendEmail/terraform"
-  template_bucket_arn             = var.s3_templates_arn
-  template_bucket_name            = var.s3_templates_name
-  ses_config_set_arn              = var.ses_config_arn
-  ses_config_set_name             = var.ses_config_name
-  ses_email_from                  = var.ses_from_email
-  ssm_verification_template_param = var.ssm_email_verification_template_id_parameter_name
-  ssm_password_reset_template_param = var.ssm_email_password_reset_template_id_parameter_name
-  ssm_subscription_thank_you_template_param = var.ssm_subscription_thank_you_template_id_parameter_name
-  ssm_trial_ending_soon_template_param = var.ssm_trial_ending_soon_template_id_parameter_name
-  password_reset_token_secret     = var.password_reset_token_secret
-  password_reset_frontend_url     = var.password_reset_frontend_url
-  password_reset_token_ttl_minutes = var.password_reset_token_ttl_minutes
-  kms_alias_arn                   = var.kms_users_key_alias_arn
-  kms_alias_name                  = var.kms_users_key_alias_name
-  kms_arn                         = var.kms_users_arn
-  user_pool_arn                   = var.cognito_user_pool_arn
-  ses-domain-arn                  = var.ses_domain_arn
-  ssm_read_parameter_policy_arn =  var.ssm_read_parameters_policy_arn
+  source                                      = "./SendEmail/terraform"
+  template_bucket_arn                         = var.s3_templates_arn
+  template_bucket_name                        = var.s3_templates_name
+  ses_config_set_arn                          = var.ses_config_arn
+  ses_config_set_name                         = var.ses_config_name
+  ses_email_from                              = var.ses_from_email
+  ssm_verification_template_param             = var.ssm_email_verification_template_id_parameter_name
+  ssm_user_welcome_template_param             = var.ssm_user_welcome_template_param
+  ssm_password_reset_template_param           = var.ssm_email_password_reset_template_id_parameter_name
+  ssm_subscription_thank_you_template_param   = var.ssm_subscription_thank_you_template_id_parameter_name
+  ssm_subscription_cancelled_template_param   = var.ssm_subscription_cancelled_template_param
+  ssm_subscription_reactivated_template_param = var.ssm_subscription_reactivated_template_param
+  ssm_forgot_password_completed_template_param = var.ssm_forgot_password_completed_template_param
+  ssm_trial_ending_soon_template_param        = var.ssm_trial_ending_soon_template_id_parameter_name
+  password_reset_token_secret                 = var.password_reset_token_secret
+  password_reset_frontend_url                 = var.password_reset_frontend_url
+  password_reset_token_ttl_minutes            = var.password_reset_token_ttl_minutes
+  kms_alias_arn                               = var.kms_users_key_alias_arn
+  kms_alias_name                              = var.kms_users_key_alias_name
+  kms_arn                                     = var.kms_users_arn
+  user_pool_arn                               = var.cognito_user_pool_arn
+  ses-domain-arn                              = var.ses_domain_arn
+  ssm_read_parameter_policy_arn               = var.ssm_read_parameters_policy_arn
 }
 
 module "Payments" {
-  source = "./Payments/terraform"
-  stripe_secret_key = var.stripe_secret_key
-  stripe_event_bus_arn = var.stripe_event_bus_arn
-  subscription_db_table_name =  var.dynamodb_subscription_table
-  dynamodb_table_arn = var.dynamodb_subscription_table_arn
+  source                      = "./Payments/terraform"
+  stripe_secret_key           = var.stripe_secret_key
+  stripe_event_bus_arn        = var.stripe_event_bus_arn
+  subscription_db_table_name  = var.dynamodb_subscription_table
+  dynamodb_table_arn          = var.dynamodb_subscription_table_arn
   notification_event_bus_name = module.SendEmailLambda.notification_event_bus_name
-  notification_event_bus_arn = module.SendEmailLambda.notification_event_bus_arn
+  notification_event_bus_arn  = module.SendEmailLambda.notification_event_bus_arn
 }
 
 output "lambda_save_verification_code_arn" {
