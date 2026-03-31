@@ -14,7 +14,7 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
     public async Task ShouldConfirmPasswordRecovery()
     {
         // Given: Some mocking
-        _cognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
+        CognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
             .ReturnsAsync(new ConfirmForgotPasswordResponse());
         
         // When: Service is invoked
@@ -25,10 +25,10 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
         Assert.That(forgotPasswordConfirmResult.IsSuccess, Is.True);
         
         // And: Mock should have been invoked once
-        _cognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
+        CognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
                 request.ConfirmationCode == "b" &&
                 request.Password == "c" &&
-                request.ClientId == _configMock.ClientId
+                request.ClientId == ConfigMock.ClientId
         )), Times.Once);
     }
 
@@ -36,7 +36,7 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
     public async Task ShouldMapCognitoException()
     {
         // Given: Some mocking
-        _cognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
+        CognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
             .ThrowsAsync(new UserNotFoundException("User not found"));
         
           
@@ -51,10 +51,10 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
         Assert.That(forgotPasswordConfirmResult.Error, Is.EqualTo(UserErrors.UserNotFound));
         
         // And: Mock should have been invoked once
-        _cognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
+        CognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
             request.ConfirmationCode == "b" &&
             request.Password == "c" &&
-            request.ClientId == _configMock.ClientId
+            request.ClientId == ConfigMock.ClientId
         )), Times.Once);
     }
 
@@ -62,7 +62,7 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
     public async Task ShouldMapUnknownError()
     {
         // Given: Some mocking
-        _cognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
+        CognitoMock.Setup(provider => provider.ConfirmForgotPasswordAsync(It.IsAny<ConfirmForgotPasswordRequest>()))
             .ThrowsAsync(new DataException("User not found"));
         
           
@@ -77,10 +77,10 @@ public class ConfirmPasswordRecoveryAsyncTest : GenericUserServiceTest
         Assert.That(forgotPasswordConfirmResult.Error, Is.EqualTo(UserErrors.UnexpectedError));
         
         // And: Mock should have been invoked once
-        _cognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
+        CognitoMock.Verify(provider => provider.ConfirmForgotPasswordAsync(It.Is<ConfirmForgotPasswordRequest>(request =>  request.Username == "a" && 
             request.ConfirmationCode == "b" &&
             request.Password == "c" &&
-            request.ClientId == _configMock.ClientId
+            request.ClientId == ConfigMock.ClientId
         )), Times.Once);
     }
 }

@@ -19,7 +19,7 @@ public class RegisterUserAsyncTest : GenericUserServiceTest
         const string subId = "uuid-12345";
         SignUpResponse response = new() { UserSub = subId };
 
-        _cognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
+        CognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
             .ReturnsAsync(response);
 
         // When: Registering the user
@@ -35,7 +35,7 @@ public class RegisterUserAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnUserAlreadyExistWhenCognitoThrowsUsernameExists()
     {
         // Given: Cognito throws UsernameExistsException
-        _cognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
+        CognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
             .ThrowsAsync(new UsernameExistsException("User exists"));
 
         // When: Registering the user
@@ -51,7 +51,7 @@ public class RegisterUserAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnInvalidPasswordWhenCognitoThrowsInvalidPassword()
     {
         // Given: Cognito throws InvalidPasswordException
-        _cognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
+        CognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
             .ThrowsAsync(new InvalidPasswordException("Weak password"));
 
         // When: Registering
@@ -67,7 +67,7 @@ public class RegisterUserAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnUnexpectedErrorWhenGeneralExceptionOccurs()
     {
         // Given: A non-Cognito specific exception
-        _cognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
+        CognitoMock.Setup(x => x.SignUpAsync(It.IsAny<SignUpRequest>(), default))
             .ThrowsAsync(new Exception("Network fail"));
 
         // When: Registering

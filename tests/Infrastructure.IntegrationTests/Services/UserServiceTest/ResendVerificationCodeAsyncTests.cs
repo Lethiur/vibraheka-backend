@@ -17,7 +17,7 @@ public class ResendVerificationCodeAsyncTests : GenericCognitoServiceTest
         await RegisterUser(email);
 
         // When: Resending verification code
-        Result<Unit> result = await _userService.ResendVerificationCodeAsync(email);
+        Result<Unit> result = await UserService.ResendVerificationCodeAsync(email);
 
         // Then: Should succeed
         Assert.That(result.IsSuccess, Is.True);
@@ -31,7 +31,7 @@ public class ResendVerificationCodeAsyncTests : GenericCognitoServiceTest
         string email = $"ghost-{Guid.NewGuid()}@example.com";
 
         // When: Resending verification code
-        Result<Unit> result = await _userService.ResendVerificationCodeAsync(email);
+        Result<Unit> result = await UserService.ResendVerificationCodeAsync(email);
 
         // Then: Should map to our domain error
         Assert.That(result.IsFailure, Is.True);
@@ -44,7 +44,7 @@ public class ResendVerificationCodeAsyncTests : GenericCognitoServiceTest
     [DisplayName("Should fail with InvalidForm when email is empty")]
     public async Task ShouldFailWithInvalidFormWhenEmailIsEmpty(string? email)
     {
-        Result<Unit> result = await _userService.ResendVerificationCodeAsync(email!);
+        Result<Unit> result = await UserService.ResendVerificationCodeAsync(email!);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));

@@ -26,7 +26,7 @@ public class GetUserIDTests : GenericUserServiceTest
             ]
         };
 
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), CancellationToken.None))
             .ReturnsAsync(response);
 
@@ -37,8 +37,8 @@ public class GetUserIDTests : GenericUserServiceTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(expectedSub));
 
-        _cognitoMock.Verify(x => x.AdminGetUserAsync(
-            It.Is<AdminGetUserRequest>(r => r.Username == email && r.UserPoolId == _configMock.UserPoolId),
+        CognitoMock.Verify(x => x.AdminGetUserAsync(
+            It.Is<AdminGetUserRequest>(r => r.Username == email && r.UserPoolId == ConfigMock.UserPoolId),
             default), Times.Once);
     }
 
@@ -46,7 +46,7 @@ public class GetUserIDTests : GenericUserServiceTest
     [DisplayName("Should return UserNotFound when Cognito throws UserNotFoundException")]
     public async Task ShouldReturnUserNotFoundWhenCognitoThrowsUserNotFoundException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
@@ -60,7 +60,7 @@ public class GetUserIDTests : GenericUserServiceTest
     [DisplayName("Should return InvalidForm when Cognito throws InvalidParameterException")]
     public async Task ShouldReturnInvalidFormWhenCognitoThrowsInvalidParameterException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new InvalidParameterException("Invalid username"));
 
@@ -82,7 +82,7 @@ public class GetUserIDTests : GenericUserServiceTest
             ]
         };
 
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ReturnsAsync(response);
 
@@ -96,7 +96,7 @@ public class GetUserIDTests : GenericUserServiceTest
     [DisplayName("Should return UnexpectedError when a general exception occurs")]
     public async Task ShouldReturnUnexpectedErrorWhenGeneralExceptionOccurs()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.AdminGetUserAsync(It.IsAny<AdminGetUserRequest>(), default))
             .ThrowsAsync(new Exception("AWS is down"));
 

@@ -42,7 +42,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
             }
         };
 
-        _cognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
+        CognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
             .ReturnsAsync(authResponse);
 
         // When: Authenticating the user
@@ -60,7 +60,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
     public async Task ShouldReturnInvalidPasswordWhenNotAuthorized()
     {
         // Given: Cognito throws NotAuthorizedException
-        _cognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
+        CognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
             .ThrowsAsync(new NotAuthorizedException("Invalid credentials"));
 
         // When: Authenticating
@@ -76,7 +76,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
     public async Task ShouldReturnUserNotFoundWhenCognitoThrowsUserNotFound()
     {
         // Given: Cognito throws UserNotFoundException
-        _cognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
+        CognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
         // When: Authenticating
@@ -92,7 +92,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
     public async Task ShouldReturnUserNotConfirmedWhenAccountIsPending()
     {
         // Given: Cognito throws UserNotConfirmedException
-        _cognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
+        CognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
             .ThrowsAsync(new UserNotConfirmedException("User is not confirmed"));
 
         // When: Authenticating
@@ -108,7 +108,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
     public async Task ShouldReturnUnexpectedErrorWhenGeneralExceptionOccurs()
     {
         // Given: A random exception
-        _cognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
+        CognitoMock.Setup(x => x.AdminInitiateAuthAsync(It.IsAny<AdminInitiateAuthRequest>(), default))
             .ThrowsAsync(new Exception("Cognito is down"));
 
         // When: Authenticating

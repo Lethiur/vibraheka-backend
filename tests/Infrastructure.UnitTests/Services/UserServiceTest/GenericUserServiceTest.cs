@@ -9,24 +9,24 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest;
 
 public abstract class GenericUserServiceTest
 {
-    protected AWSConfig _configMock;
-    protected Mock<ILogger<UserService>> _loggerMock;
-    protected Mock<IAmazonCognitoIdentityProvider> _cognitoMock;
+    protected AWSConfig ConfigMock;
+    protected Mock<ILogger<UserService>> LoggerMock;
+    protected Mock<IAmazonCognitoIdentityProvider> CognitoMock;
     protected Mock<IUserRepository> _userRepositoryMock;
     protected TestableUserService _service;
     
     [SetUp]
     public void SetUp()
     {
-        _configMock = new AWSConfig();
-        _loggerMock = new Mock<ILogger<UserService>>();
-        _cognitoMock = new Mock<IAmazonCognitoIdentityProvider>();
+        ConfigMock = new AWSConfig();
+        LoggerMock = new Mock<ILogger<UserService>>();
+        CognitoMock = new Mock<IAmazonCognitoIdentityProvider>();
         _userRepositoryMock = new Mock<IUserRepository>();
 
-        _configMock.Location = "eu-west-1";
-        _configMock.Profile = "Twingers";
+        ConfigMock.Location = "eu-west-1";
+        ConfigMock.Profile = "Twingers";
         
         // Asumiendo que UserService permite inyectar o acceder al cliente para tests
-        _service = new TestableUserService(_configMock, _loggerMock.Object, _cognitoMock.Object, _userRepositoryMock.Object);
+        _service = new TestableUserService(ConfigMock, LoggerMock.Object, CognitoMock.Object, _userRepositoryMock.Object);
     }
 }

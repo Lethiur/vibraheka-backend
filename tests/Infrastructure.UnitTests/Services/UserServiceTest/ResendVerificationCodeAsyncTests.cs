@@ -17,7 +17,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
         // Given
         const string email = "user@test.com";
 
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ReturnsAsync(new ResendConfirmationCodeResponse());
 
@@ -28,8 +28,8 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
 
-        _cognitoMock.Verify(x => x.ResendConfirmationCodeAsync(
-            It.Is<ResendConfirmationCodeRequest>(r => r.Username == email && r.ClientId == _configMock.ClientId),
+        CognitoMock.Verify(x => x.ResendConfirmationCodeAsync(
+            It.Is<ResendConfirmationCodeRequest>(r => r.Username == email && r.ClientId == ConfigMock.ClientId),
             default), Times.Once);
     }
 
@@ -37,7 +37,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
     [DisplayName("Should return UserNotFound when Cognito throws UserNotFoundException")]
     public async Task ShouldReturnUserNotFoundWhenCognitoThrowsUserNotFoundException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
@@ -51,7 +51,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
     [DisplayName("Should return InvalidForm when Cognito throws InvalidParameterException")]
     public async Task ShouldReturnInvalidFormWhenCognitoThrowsInvalidParameterException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ThrowsAsync(new InvalidParameterException("Invalid username"));
 
@@ -65,7 +65,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
     [DisplayName("Should return UserNotConfirmed when Cognito throws UserNotConfirmedException")]
     public async Task ShouldReturnUserNotConfirmedWhenCognitoThrowsUserNotConfirmedException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ThrowsAsync(new UserNotConfirmedException("User not confirmed"));
 
@@ -79,7 +79,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
     [DisplayName("Should return LimitExceeded when Cognito throws LimitExceededException")]
     public async Task ShouldReturnLimitExceededWhenCognitoThrowsLimitExceededException()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ThrowsAsync(new LimitExceededException("Limit exceeded"));
 
@@ -93,7 +93,7 @@ public class ResendVerificationCodeAsyncTests : GenericUserServiceTest
     [DisplayName("Should return UnexpectedError when a general exception occurs")]
     public async Task ShouldReturnUnexpectedErrorWhenGeneralExceptionOccurs()
     {
-        _cognitoMock
+        CognitoMock
             .Setup(x => x.ResendConfirmationCodeAsync(It.IsAny<ResendConfirmationCodeRequest>(), default))
             .ThrowsAsync(new Exception("AWS is down"));
 

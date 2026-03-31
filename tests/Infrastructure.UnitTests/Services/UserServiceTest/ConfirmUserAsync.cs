@@ -18,7 +18,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
         const string email = "user@test.com";
         const string code = "123456";
 
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ReturnsAsync(new ConfirmSignUpResponse());
 
         // When: Confirming the user
@@ -34,7 +34,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
     public async Task ShouldReturnWrongVerificationCodeWhenCognitoThrowsCodeMismatch()
     {
         // Given: Cognito throws CodeMismatchException
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ThrowsAsync(new CodeMismatchException("Invalid code"));
 
         // When: Confirming
@@ -50,7 +50,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
     public async Task ShouldReturnExpiredCodeWhenCognitoThrowsExpiredCode()
     {
         // Given: Cognito throws ExpiredCodeException
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ThrowsAsync(new ExpiredCodeException("Code expired"));
 
         // When: Confirming
@@ -66,7 +66,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
     public async Task ShouldReturnTooManyAttemptsWhenCognitoThrowsTooManyFailedAttempts()
     {
         // Given: Cognito throws TooManyFailedAttemptsException
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ThrowsAsync(new TooManyFailedAttemptsException("Too many tries"));
 
         // When: Confirming
@@ -82,7 +82,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
     public async Task ShouldReturnUserNotFoundWhenCognitoThrowsUserNotFound()
     {
         // Given: Cognito throws UserNotFoundException
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ThrowsAsync(new UserNotFoundException("User not found"));
 
         // When: Confirming
@@ -98,7 +98,7 @@ public class ConfirmUserAsync : GenericUserServiceTest
     public async Task ShouldReturnUnknownErrorWhenGeneralExceptionOccurs()
     {
         // Given: A random network or server exception
-        _cognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
+        CognitoMock.Setup(x => x.ConfirmSignUpAsync(It.IsAny<ConfirmSignUpRequest>(), default))
             .ThrowsAsync(new Exception("AWS is having issues"));
 
         // When: Confirming

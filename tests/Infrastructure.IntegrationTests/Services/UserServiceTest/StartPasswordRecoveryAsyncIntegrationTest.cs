@@ -17,11 +17,11 @@ public class StartPasswordRecoveryAsyncIntegrationTest : GenericCognitoServiceTe
         string email = GenerateUniqueEmail("test-start-recovery@");
         await RegisterUser(email);
         Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Result<Unit> confirmResult = await _userService.ConfirmUserAsync(email, codeResult.Value.Code);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         // When: se inicia el flujo forgot-password.
-        Result<Unit> result = await _userService.StartPasswordRecoveryAsync(email);
+        Result<Unit> result = await UserService.StartPasswordRecoveryAsync(email);
 
         // Then: la operacion debe ser exitosa.
         Assert.That(result.IsSuccess, Is.True);
@@ -35,7 +35,7 @@ public class StartPasswordRecoveryAsyncIntegrationTest : GenericCognitoServiceTe
         string email = $"ghost-{Guid.NewGuid():N}@example.com";
 
         // When: se inicia recovery para usuario inexistente.
-        Result<Unit> result = await _userService.StartPasswordRecoveryAsync(email);
+        Result<Unit> result = await UserService.StartPasswordRecoveryAsync(email);
 
         // Then: debe mapear a UserNotFound.
         Assert.That(result.IsFailure, Is.True);
@@ -51,7 +51,7 @@ public class StartPasswordRecoveryAsyncIntegrationTest : GenericCognitoServiceTe
         // Given: email invalido.
 
         // When: se inicia recovery con email invalido.
-        Result<Unit> result = await _userService.StartPasswordRecoveryAsync(invalidEmail!);
+        Result<Unit> result = await UserService.StartPasswordRecoveryAsync(invalidEmail!);
 
         // Then: debe mapear a InvalidForm.
         Assert.That(result.IsFailure, Is.True);
