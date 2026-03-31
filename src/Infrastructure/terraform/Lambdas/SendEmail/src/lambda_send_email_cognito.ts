@@ -1,8 +1,6 @@
 import {CustomEmailSenderTriggerEvent} from "aws-lambda";
 import {
     BuildContext,
-    BuildErrorResponse,
-    BuildSuccessResponse
 } from "@/Handlers/SendEmailHandlerShared";
 import {CognitoEmailContext} from "@Domain/ValueObjects/CognitoEmailContext";
 import CognitoCodeCipherService from "@Data/Services/CognitoCodeCipherService";
@@ -47,13 +45,17 @@ export const handler = async (event: CustomEmailSenderTriggerEvent) => {
                 });
                 throw new Error("Unsupported Cognito trigger source");
         }
-    }).match(_ => {
-            console.log("Sending ok", BuildSuccessResponse(triggerSource))
-            return BuildSuccessResponse(triggerSource)
+    }).match(
+        _ => {
+            // Cognito triggers expect the event back (not an API Gateway-style response).
+            console.log("Cognito trigger handled successfully", {triggerSource});
+            return event;
         },
         error => {
-            console.error("Sending error", BuildErrorResponse(error, triggerSource))
-            return BuildErrorResponse(error, triggerSource)
-        })
+            // If you prefer to fail the Cognito flow, change this to: `throw new Error(String(error))`.
+            console.error("Cognito trigger failed; returning event anyway", {triggerSource, error});
+            return event;
+        }
+    );
 
 };
