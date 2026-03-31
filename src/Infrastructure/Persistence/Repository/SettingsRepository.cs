@@ -71,6 +71,11 @@ public class SettingsRepository(
         return UpdateTemplateAsync("PasswordChangedEmailTemplate", emailTemplate, token);
     }
 
+    public Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    {
+        return UpdateTemplateAsync("ForgotPasswordCompletedEmailTemplate", emailTemplate, token);
+    }
+
     /// <summary>
     /// Retrieves the verification email template stored in the AWS Systems Manager Parameter Store.
     /// </summary>

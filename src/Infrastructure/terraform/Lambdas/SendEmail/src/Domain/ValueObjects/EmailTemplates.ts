@@ -13,6 +13,7 @@ export default class EmailTemplates {
     public readonly TrialEndingSoonTemplate: string;
     public readonly SubscriptionCancelledTemplate: string;
     public readonly SubscriptionReactivatedTemplate: string;
+    public readonly ForgotPasswordCompletedTemplate: string;
     
     
     constructor() {
@@ -23,6 +24,8 @@ export default class EmailTemplates {
         this.TrialEndingSoonTemplate = requireEnv("SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM");
         this.SubscriptionCancelledTemplate = requireEnv("SSM_SUBSCRIPTION_CANCELLED_TEMPLATE_NAME_PARAM");
         this.SubscriptionReactivatedTemplate = requireEnv("SSM_SUBSCRIPTION_REACTIVATED_TEMPLATE_NAME_PARAM");
+        this.ForgotPasswordCompletedTemplate = requireEnv("SSM_FORGOT_PASSWORD_COMPLETED_TEMPLATE_NAME_PARAM");
+        
     }
 }
 

@@ -128,4 +128,14 @@ public interface ISettingsService
     ///         <TemplateForActionEntity>></c> containing a collection of templates for actions
     /// if retrieval is successful, or an error result if the operation fails.</returns>
     Result<IEnumerable<TemplateForActionEntity>> GetAllTemplatesForActions();
+
+    /// <summary>
+    /// Updates the email template used for indicating the completion of a password reset process.
+    /// Validates that the provided email template ID is valid, and updates the template accordingly.
+    /// </summary>
+    /// <param name="emailTemplate">The identifier of the new email template to be used for the completion of a password reset process.</param>
+    /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
+    /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation, including potential error details.</returns>
+    Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate,
+        CancellationToken cancellationToken);
 }

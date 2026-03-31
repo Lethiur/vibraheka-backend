@@ -30,6 +30,7 @@ locals {
     SSM_SUBSCRIPTION_THANK_YOU_TEMPLATE_NAME_PARAM   = var.ssm_subscription_thank_you_template_param
     SSM_SUBSCRIPTION_CANCELLED_TEMPLATE_NAME_PARAM   = var.ssm_subscription_cancelled_template_param
     SSM_SUBSCRIPTION_REACTIVATED_TEMPLATE_NAME_PARAM = var.ssm_subscription_reactivated_template_param
+    SSM_FORGOT_PASSWORD_COMPLETED_TEMPLATE_NAME_PARAM = var.ssm_forgot_password_completed_template_param
     SSM_TRIAL_ENDING_SOON_TEMPLATE_NAME_PARAM        = var.ssm_trial_ending_soon_template_param
     SSM_PASSWORD_RESET_FRONTEND_URL                  = var.password_reset_frontend_url
     PASSWORD_RESET_TOKEN_SECRET                      = var.password_reset_token_secret

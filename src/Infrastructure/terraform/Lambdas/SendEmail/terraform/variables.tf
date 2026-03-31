@@ -22,6 +22,8 @@ variable ssm_trial_ending_soon_template_param {}
 
 variable password_reset_token_secret {}
 
+variable ssm_forgot_password_completed_template_param {}
+
 variable password_reset_frontend_url {
   default = ""
 }

@@ -140,6 +140,16 @@ public class SettingsService(
             cancellationToken,
             "Error while updating the password changed email template");
     }
+    
+    public Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    {
+        return UpdateTemplateAsync(
+            emailTemplate,
+            SettingsErrors.GenericError,
+            token => repository.UpdateForgotPasswordCompletedEmailTemplateAsync(emailTemplate, token),
+            cancellationToken,
+            "Error while updating the password changed email template");
+    }
 
     /// <summary>
     /// Retrieves the verification email template.
@@ -158,6 +168,8 @@ public class SettingsService(
 
         return repositoryResult;
     }
+    
+    
 
     /// <summary>
     /// Retrieves the password changed email template.
@@ -224,6 +236,8 @@ public class SettingsService(
             repository.GetPasswordChangedEmailTemplateAsync,
             SettingsErrors.GenericError);
     }
+    
+    
 
     /// <summary>
     /// Retrieves all templates used for actions.
@@ -258,11 +272,26 @@ public class SettingsService(
             new()
             {
                 TemplateID = appSettings.PasswordChangedEmailTemplate, ActionType = ActionType.PasswordChanged
+            },
+            new()
+            {
+                TemplateID = appSettings.ForgotPasswordCompletedEmailTemplate, ActionType = ActionType.ForgotPasswordCompleted
+            },
+            new()
+            {
+                TemplateID = appSettings.SubscriptionCancelledEmailTemplate, ActionType = ActionType.SubscriptionCancelled
+            },
+            new()
+            {
+                TemplateID = appSettings.SubscriptionReActivatedEmailTemplate, ActionType = ActionType.SubscriptionReactivated
             }
+            
         ];
 
         return templates;
     }
+
+    
 
     /// <summary>
     /// Maps infrastructure repository errors to domain errors for update operations.

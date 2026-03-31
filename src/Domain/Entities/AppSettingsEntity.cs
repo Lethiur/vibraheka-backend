@@ -7,6 +7,9 @@ public class AppSettingsEntity
     private string _recoverPasswordEmailTemplate = string.Empty;
     private string _userWelcomeEmailTemplate = string.Empty;
     private string _subscriptionThankYouEmailTemplate = string.Empty;
+    private string _subscriptionCancelledEmailTemplate = string.Empty;
+    private string _subscriptionReActivatedEmailTemplate = string.Empty;
+    private string _forgotPasswordCompletedEmailTemplate = string.Empty;
     private string _trialEndingSoonEmailTemplate = string.Empty;
     private string _passwordChangedEmailTemplate = string.Empty;
 
@@ -30,6 +33,24 @@ public class AppSettingsEntity
         set { lock (_lock) _userWelcomeEmailTemplate = value; }
     }
 
+    public string SubscriptionCancelledEmailTemplate
+    {
+        get { lock (_lock) return _subscriptionCancelledEmailTemplate; }
+        set { lock (_lock) _subscriptionCancelledEmailTemplate = value; }
+    }
+
+    public string SubscriptionReActivatedEmailTemplate
+    {
+        get { lock (_lock) return _subscriptionReActivatedEmailTemplate; }
+        set { lock (_lock) _subscriptionReActivatedEmailTemplate = value; }
+    }
+    
+    public string ForgotPasswordCompletedEmailTemplate
+    {
+        get { lock (_lock) return _forgotPasswordCompletedEmailTemplate; }
+        set { lock (_lock) _forgotPasswordCompletedEmailTemplate = value; }
+    }
+    
     public string SubscriptionThankYouEmailTemplate
     {
         get { lock (_lock) return _subscriptionThankYouEmailTemplate; }

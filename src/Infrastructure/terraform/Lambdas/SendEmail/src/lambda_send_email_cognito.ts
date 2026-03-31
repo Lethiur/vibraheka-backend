@@ -10,6 +10,9 @@ import {ResultAsync} from "neverthrow";
 import {ProcessVerificationUseCase} from "@Domain/Composition/ProcessVerificationuseCaseComposition";
 import {ProcessForgotPasswordUseCase} from "@Domain/Composition/ProcessForgotPasswordUseCaseComposition";
 import {ProcessRegistrationUseCase} from "@Domain/Composition/ProcessUserWelcomeUseCaseComposition";
+import {
+    ProcessForgotPasswordCompletedUseCase
+} from "@Domain/Composition/ProcessForgotPasswordCompletedUseCaseComposition";
 
 export const handler = async (event: CustomEmailSenderTriggerEvent) => {
     const triggerSource = event.triggerSource;
@@ -39,6 +42,12 @@ export const handler = async (event: CustomEmailSenderTriggerEvent) => {
                     triggerSource: context.triggerSource
                 });
                 return ProcessRegistrationUseCase.Execute(context);
+            case "PostConfirmation_ConfirmForgotPassword":
+                console.log("Routing to post-confirmation email flow", {
+                    recipient: context.recipient,
+                    triggerSource: context.triggerSource
+                });
+                return ProcessForgotPasswordCompletedUseCase.Execute(context);
             default:
                 console.error("Unsupported Cognito trigger source", {
                     triggerSource: context.triggerSource

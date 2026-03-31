@@ -82,6 +82,21 @@ public interface ISettingsRepository
     Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken token);
 
     /// <summary>
+    /// Updates the "forgot password completed" email template in the settings repository.
+    /// </summary>
+    /// <param name="emailTemplate">
+    /// The "forgot password completed" email template to be updated.
+    /// </param>
+    /// <param name="token">
+    /// The cancellation token to listen for cancellations.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
+    /// the success or failure of the operation.
+    /// </returns>
+    Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken token);
+
+    /// <summary>
     /// Retrieves the verification email template from the settings repository.
     /// </summary>
     /// <returns>
@@ -138,5 +153,6 @@ public interface ISettingsRepository
     /// that includes the email template details if the operation is successful.
     /// </returns>
     Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync();
+
     
 }

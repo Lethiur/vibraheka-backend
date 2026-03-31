@@ -92,6 +92,14 @@ resource "aws_ssm_parameter" "VH_trial_ending_soon_email_template" {
     ignore_changes = [value]
   }
 }
+resource "aws_ssm_parameter" "VH_forgot_password_completed_email_template" {
+  name = "/${var.ssm_namespace}/ForgotPasswordCompletedEmailTemplate"
+  type = "String"
+  value = "test"
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
 
 output "ssm_email_verification_template_id_parameter_name"{
   value = aws_ssm_parameter.VH_verification_email_template.name
@@ -113,6 +121,10 @@ output "ssm_user_welcome_tempalte_id_parameter_name" {
   value = aws_ssm_parameter.VH_user_welcome_email_template.name
 }
 
+
+output "ssm_forgot_password_completed_template_parameter_name" {
+  value = aws_ssm_parameter.VH_forgot_password_completed_email_template.name
+} 
 output "ssm_subscription_cancelled_template_id_parameter_name" {
   value = aws_ssm_parameter.VH_subscription_cancelled_email_template.name
 }

@@ -34,6 +34,7 @@ module "Lambda" {
   ssm_subscription_cancelled_template_param             = module.Config.ssm_subscription_cancelled_template_id_parameter_name
   ssm_subscription_reactivated_template_param           = module.Config.ssm_subscription_reactivated_template_id_parameter_name
   ssm_trial_ending_soon_template_id_parameter_name      = module.Config.ssm_trial_ending_soon_template_id_parameter_name
+  ssm_forgot_password_completed_template_param          = module.Config.ssm_forgot_password_completed_template_parameter_name
   kms_users_arn                                         = module.Users.kms_users_arn
   kms_users_key_alias_arn                               = module.Users.kms_users_key_alias_arn
   kms_users_key_alias_name                              = module.Users.kms_users_key_alias_name

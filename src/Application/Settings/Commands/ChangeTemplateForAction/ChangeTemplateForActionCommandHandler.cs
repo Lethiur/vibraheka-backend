@@ -1,4 +1,4 @@
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
@@ -45,7 +45,8 @@ public class ChangeTemplateForActionCommandHandler(
                         .ChangeSubscriptionCancelledEmailTemplateAsync(request.TemplateID, cancellationToken),
                     ActionType.SubscriptionReactivated => await SettingsService
                         .ChangeSubscriptionReActivatedEmailTemplateAsync(request.TemplateID, cancellationToken),
-
+                    ActionType.ForgotPasswordCompleted => await SettingsService.ChangeForgotPasswordCompletedEmailTemplateAsync(
+                        request.TemplateID, cancellationToken),
                     _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
                 };
             });

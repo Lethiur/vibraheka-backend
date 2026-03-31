@@ -32,6 +32,8 @@ variable ssm_subscription_reactivated_template_param {}
 
 variable ssm_user_welcome_template_param {}
 
+variable ssm_forgot_password_completed_template_param {}
+
 variable "password_reset_token_secret" {
   default = "test-only-change-this-secret-to-a-long-random-value"
 }
