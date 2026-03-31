@@ -94,6 +94,9 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     [TestCase(ActionType.SubscriptionThankYou, "test/subscription-thank-you-email.html")]
     [TestCase(ActionType.TrialEndingSoon, "test/trial-ending-soon-email.html")]
     [TestCase(ActionType.PasswordChanged, "test/password-changed-email.html")]
+    [TestCase(ActionType.SubscriptionCancelled, "test/password-changed-email.html")]
+    [TestCase(ActionType.SubscriptionReactivated, "test/password-changed-email.html")]
+    [TestCase(ActionType.ForgotPasswordCompleted, "test/password-changed-email.html")]
     public async Task ShouldUpdateNewAdminManagedTemplatesSuccessfullyWhenUserIsAdmin(ActionType actionType, string templatePath)
     {
         // Given: a registered and authenticated admin user.

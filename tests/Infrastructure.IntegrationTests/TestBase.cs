@@ -34,9 +34,7 @@ public abstract class TestBase
         AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
         _loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.ClearProviders();
-            builder.SetMinimumLevel(LogLevel.Debug);
-            builder.AddProvider(new NUnitLoggerProvider());
+            builder.AddConsole();
         });
     }
 
