@@ -6,7 +6,7 @@ import {
 } from "@/Handlers/SendEmailHandlerShared";
 import {CognitoEmailContext} from "@Domain/ValueObjects/CognitoEmailContext";
 import CognitoCodeCipherService from "@Data/Services/CognitoCodeCipherService";
-import { requireEnv } from "./Validators/EnvironmentValidator";
+import {requireEnv} from "./Validators/EnvironmentValidator";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
 import {ResultAsync} from "neverthrow";
 import {ProcessVerificationUseCase} from "@Domain/Composition/ProcessVerificationuseCaseComposition";
@@ -16,10 +16,10 @@ import {ProcessRegistrationUseCase} from "@Domain/Composition/ProcessUserWelcome
 export const handler = async (event: CustomEmailSenderTriggerEvent) => {
     const triggerSource = event.triggerSource;
 
-    const context : ResultAsync<CognitoEmailContext, EmailSenderErrors> = BuildContext(event, new CognitoCodeCipherService(
+    const context: ResultAsync<CognitoEmailContext, EmailSenderErrors> = BuildContext(event, new CognitoCodeCipherService(
         requireEnv('KEY_ALIAS'), requireEnv('KEY_ARN')
     ));
-    
+
     return await context.andThen(context => {
         switch (context.triggerSource) {
             case "CustomEmailSender_SignUp":
@@ -47,7 +47,13 @@ export const handler = async (event: CustomEmailSenderTriggerEvent) => {
                 });
                 throw new Error("Unsupported Cognito trigger source");
         }
-    }).match(_ => BuildSuccessResponse(triggerSource), 
-            error => BuildErrorResponse(error, triggerSource))
-    
+    }).match(_ => {
+            console.log("Sending ok", BuildSuccessResponse(triggerSource))
+            return BuildSuccessResponse(triggerSource)
+        },
+        error => {
+            console.error("Sending error", BuildErrorResponse(error, triggerSource))
+            return BuildErrorResponse(error, triggerSource)
+        })
+
 };
