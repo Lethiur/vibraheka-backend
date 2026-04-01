@@ -150,7 +150,6 @@ jobs:
           jq -er '.backend_ec2_instance_id.value' terraform-outputs.json >/dev/null
           jq -er '.backend_ec2_ssh_private_key_ssm_parameter_name.value' terraform-outputs.json >/dev/null
           jq -er '.cognito_pool_id.value' terraform-outputs.json >/dev/null
-          jq -er '.ssm_frontend_url.value' terraform-outputs.json >/dev/null
           jq -er '.users_table_name.value' terraform-outputs.json >/dev/null
 
       - name: Encrypt prod terraform outputs
@@ -408,25 +407,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
-          FRONTEND_URL_SSM_PARAMETER_NAME="$(jq -r '.ssm_frontend_url.value' /tmp/tf-prod.json)"
-          if [[ -z "${FRONTEND_URL_SSM_PARAMETER_NAME:-}" || "${FRONTEND_URL_SSM_PARAMETER_NAME}" == "null" ]]; then
-            echo "ssm_frontend_url is empty/null. Cannot resolve frontend URL from SSM."
-            exit 1
-          fi
-
-          FRONTEND_BASE_URL="$(aws ssm get-parameter \
-            --name "${FRONTEND_URL_SSM_PARAMETER_NAME}" \
-            --query 'Parameter.Value' \
-            --output text)"
-
-          if [[ -z "${FRONTEND_BASE_URL:-}" || "${FRONTEND_BASE_URL}" == "null" ]]; then
-            echo "Frontend URL SSM parameter ${FRONTEND_URL_SSM_PARAMETER_NAME} is empty/null."
-            exit 1
-          fi
-
           chmod +x ./update-appsettings-from-terraform.sh
-          FRONTEND_BASE_URL="${FRONTEND_BASE_URL}" ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
-          FRONTEND_BASE_URL="${FRONTEND_BASE_URL}" ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
+          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2

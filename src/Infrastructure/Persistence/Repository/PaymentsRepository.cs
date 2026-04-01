@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+using Amazon.SimpleSystemsManagement;
+using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Stripe;
@@ -14,7 +15,11 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Provides the implementation for managing payment-related operations, such as initiating subscription payments,
 /// retrieving subscription panel URLs, and querying order statuses for a user.
 /// </summary>
-public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository> logger) : IPaymentRepository
+public class PaymentsRepository(
+    StripeConfig Config,
+    AWSConfig awsConfig,
+    IAmazonSimpleSystemsManagement systemsManagement,
+    ILogger<PaymentsRepository> logger) : IPaymentRepository
 {
     /// <summary>
     /// Initiates a payment process for a user's subscription.
@@ -35,6 +40,8 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
     {
         try
         {
+            string successUrl = await ResolveFrontendProfileUrlAsync(Config.PaymentSuccessUrl, cancellationToken);
+            string cancelUrl = await ResolveFrontendProfileUrlAsync(Config.PaymentCancelUrl, cancellationToken);
             DateTime expirationDate = DateTime.UtcNow.AddHours(23);
             SessionCreateOptions options = new()
             {
@@ -49,22 +56,22 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
                 {
                     TrialSettings = new SessionSubscriptionDataTrialSettingsOptions()
                     {
-                       EndBehavior  = new SessionSubscriptionDataTrialSettingsEndBehaviorOptions()
-                       {
-                           MissingPaymentMethod = "cancel"
-                       }
+                        EndBehavior = new SessionSubscriptionDataTrialSettingsEndBehaviorOptions()
+                        {
+                            MissingPaymentMethod = "cancel"
+                        }
                     },
                     TrialPeriodDays = Config.TrialPeriodInDays,
                 },
-                SuccessUrl = Config.PaymentSuccessUrl,
-                CancelUrl = Config.PaymentCancelUrl,
+                SuccessUrl = successUrl,
+                CancelUrl = cancelUrl,
                 ClientReferenceId = Guid.NewGuid().ToString(),
                 PaymentMethodCollection = "always",
                 ExpiresAt = expirationDate,
             };
 
             SessionService sessionService = new();
-            Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
+            Stripe.Checkout.Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
 
             if (session != null)
             {
@@ -266,6 +273,51 @@ public class PaymentsRepository(StripeConfig Config, ILogger<PaymentsRepository>
         {
             logger.LogError(ex, "Unexpected error while expiring the checkout session in stripe");
             return Result.Failure<Unit>(GenericPersistenceErrors.GeneralError);
+        }
+    }
+
+    private async Task<string> ResolveFrontendProfileUrlAsync(string fallbackUrl, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(awsConfig.SettingsNameSpace))
+        {
+            logger.LogWarning("AWS SettingsNameSpace is empty. Falling back to configured Stripe redirect URL.");
+            return fallbackUrl;
+        }
+
+        string parameterName = $"/{awsConfig.SettingsNameSpace}/frontend/url";
+
+        try
+        {
+            Amazon.SimpleSystemsManagement.Model.GetParameterResponse response = await systemsManagement.GetParameterAsync(
+                new Amazon.SimpleSystemsManagement.Model.GetParameterRequest { Name = parameterName },
+                cancellationToken);
+
+            string? frontendBaseUrl = response.Parameter?.Value?.Trim();
+            if (string.IsNullOrWhiteSpace(frontendBaseUrl))
+            {
+                logger.LogWarning(
+                    "SSM parameter {ParameterName} is empty. Falling back to configured Stripe redirect URL.",
+                    parameterName);
+                return fallbackUrl;
+            }
+
+            return $"{frontendBaseUrl.TrimEnd('/')}/profile/me";
+        }
+        catch (Amazon.SimpleSystemsManagement.Model.ParameterNotFoundException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "SSM parameter {ParameterName} was not found. Falling back to configured Stripe redirect URL.",
+                parameterName);
+            return fallbackUrl;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Could not resolve frontend URL from SSM parameter {ParameterName}. Falling back to configured Stripe redirect URL.",
+                parameterName);
+            return fallbackUrl;
         }
     }
 }

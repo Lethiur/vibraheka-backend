@@ -1,4 +1,3 @@
-﻿using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
@@ -12,7 +11,10 @@ public abstract class GenericPaymentsRepositoryIntegrationTest : TestBase
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _repository = new PaymentsRepository(_stripeConfig, CreateTestLogger<PaymentsRepository>());
+        _repository = new PaymentsRepository(
+            _stripeConfig,
+            _configuration,
+            CreateSystemsManagementClient(),
+            CreateTestLogger<PaymentsRepository>());
     }
 }
-

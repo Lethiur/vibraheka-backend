@@ -21,7 +21,11 @@ public class PrepareSubscriptionAsyncTest : TestBase
     {
         base.OneTimeSetUp();
         _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
-        _paymentRepository = new PaymentsRepository(_stripeConfig, CreateTestLogger<PaymentsRepository>());
+        _paymentRepository = new PaymentsRepository(
+            _stripeConfig,
+            _configuration,
+            CreateSystemsManagementClient(),
+            CreateTestLogger<PaymentsRepository>());
         _paymentService = new PaymentService(_paymentRepository, _userRepository);
     }
 
