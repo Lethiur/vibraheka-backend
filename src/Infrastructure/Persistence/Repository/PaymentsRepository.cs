@@ -301,7 +301,16 @@ public class PaymentsRepository(
                 return fallbackUrl;
             }
 
-            return $"{frontendBaseUrl.TrimEnd('/')}/profile/me";
+            if (!Uri.TryCreate(frontendBaseUrl, UriKind.Absolute, out Uri? frontendUri))
+            {
+                logger.LogWarning(
+                    "SSM parameter {ParameterName} does not contain a valid absolute URL. Falling back to configured Stripe redirect URL.",
+                    parameterName);
+                return fallbackUrl;
+            }
+
+            string frontendDomain = frontendUri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+            return $"{frontendDomain}/profile/me";
         }
         catch (Amazon.SimpleSystemsManagement.Model.ParameterNotFoundException ex)
         {
