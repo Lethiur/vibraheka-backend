@@ -12,7 +12,7 @@ using VibraHeka.Web.AcceptanceTests.Generic;
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
 [TestFixture]
-public class ChangeAuthenticatedPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
+public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     [Test]
     public async Task ShouldReturnUnauthorizedWhenChangingPasswordWithoutAuthentication()

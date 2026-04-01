@@ -23,10 +23,10 @@ public class GetUserByIDTest : GenericCognitoServiceTest
             LastModified = DateTime.UtcNow
         };
 
-        await _userRepository.AddAsync(originalUser);
+        await UserRepository.AddAsync(originalUser);
 
         // When: Requesting user by id through the service
-        Result<UserEntity> result = await _userService.GetUserByID(originalUser.Id, CancellationToken.None);
+        Result<UserEntity> result = await UserService.GetUserByID(originalUser.Id, CancellationToken.None);
 
         // Then: It should succeed and return the same user
         Assert.That(result.IsSuccess, Is.True);
@@ -44,7 +44,7 @@ public class GetUserByIDTest : GenericCognitoServiceTest
     public async Task ShouldFailWithInvalidUserIdWhenUserIdIsInvalid(string? userId)
     {
         // When
-        Result<UserEntity> result = await _userService.GetUserByID(userId!, CancellationToken.None);
+        Result<UserEntity> result = await UserService.GetUserByID(userId!, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);
@@ -59,7 +59,7 @@ public class GetUserByIDTest : GenericCognitoServiceTest
         string nonExistentId = Guid.NewGuid().ToString();
 
         // When
-        Result<UserEntity> result = await _userService.GetUserByID(nonExistentId, CancellationToken.None);
+        Result<UserEntity> result = await UserService.GetUserByID(nonExistentId, CancellationToken.None);
 
         // Then: depending on repository behavior, the error may come from service or repo
         Assert.That(result.IsFailure, Is.True);

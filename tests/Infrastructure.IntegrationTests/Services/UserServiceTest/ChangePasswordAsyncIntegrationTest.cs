@@ -19,29 +19,29 @@ public class ChangePasswordAsyncIntegrationTest : GenericCognitoServiceTest
         const string newPassword = "UpdatedPassword123!";
         const string fullName = "Password Change User";
 
-        Result<string> registerResult = await _userService.RegisterUserAsync(email, initialPassword, fullName);
+        Result<string> registerResult = await UserService.RegisterUserAsync(email, initialPassword, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
 
         Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         Assert.That(codeResult.IsSuccess, Is.True);
-        Result<Unit> confirmResult = await _userService.ConfirmUserAsync(email, codeResult.Value.Code);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
-        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, initialPassword);
+        Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, initialPassword);
         Assert.That(authResult.IsSuccess, Is.True);
         string accessToken = authResult.Value.AccessToken;
 
         // When: changing password using the authenticated access token.
         Result<Unit> changePasswordResult =
-            await _userService.ChangePasswordAsync(accessToken, initialPassword, newPassword, CancellationToken.None);
+            await UserService.ChangePasswordAsync(accessToken, initialPassword, newPassword, CancellationToken.None);
 
         // Then: password change succeeds and authentication with new password works.
         Assert.That(changePasswordResult.IsSuccess, Is.True);
 
-        Result<AuthenticationResult> oldPasswordAuthResult = await _userService.AuthenticateUserAsync(email, initialPassword);
+        Result<AuthenticationResult> oldPasswordAuthResult = await UserService.AuthenticateUserAsync(email, initialPassword);
         Assert.That(oldPasswordAuthResult.IsFailure, Is.True);
 
-        Result<AuthenticationResult> newPasswordAuthResult = await _userService.AuthenticateUserAsync(email, newPassword);
+        Result<AuthenticationResult> newPasswordAuthResult = await UserService.AuthenticateUserAsync(email, newPassword);
         Assert.That(newPasswordAuthResult.IsSuccess, Is.True);
         Assert.That(newPasswordAuthResult.Value.AccessToken, Is.Not.Null.Or.Empty);
     }
@@ -57,26 +57,26 @@ public class ChangePasswordAsyncIntegrationTest : GenericCognitoServiceTest
         const string wrongCurrentPassword = "WrongCurrent123!";
         const string fullName = "Wrong Current User";
 
-        Result<string> registerResult = await _userService.RegisterUserAsync(email, initialPassword, fullName);
+        Result<string> registerResult = await UserService.RegisterUserAsync(email, initialPassword, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
 
         Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         Assert.That(codeResult.IsSuccess, Is.True);
-        Result<Unit> confirmResult = await _userService.ConfirmUserAsync(email, codeResult.Value.Code);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
-        Result<AuthenticationResult> authResult = await _userService.AuthenticateUserAsync(email, initialPassword);
+        Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, initialPassword);
         Assert.That(authResult.IsSuccess, Is.True);
         string accessToken = authResult.Value.AccessToken;
 
         // When: changing password with wrong current password.
         Result<Unit> changePasswordResult =
-            await _userService.ChangePasswordAsync(accessToken, wrongCurrentPassword, newPassword, CancellationToken.None);
+            await UserService.ChangePasswordAsync(accessToken, wrongCurrentPassword, newPassword, CancellationToken.None);
 
         // Then: operation should fail and old password should still work.
         Assert.That(changePasswordResult.IsFailure, Is.True);
 
-        Result<AuthenticationResult> initialPasswordAuthResult = await _userService.AuthenticateUserAsync(email, initialPassword);
+        Result<AuthenticationResult> initialPasswordAuthResult = await UserService.AuthenticateUserAsync(email, initialPassword);
         Assert.That(initialPasswordAuthResult.IsSuccess, Is.True);
     }
 }

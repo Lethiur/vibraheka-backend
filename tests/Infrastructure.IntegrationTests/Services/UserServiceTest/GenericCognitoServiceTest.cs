@@ -16,9 +16,9 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 [TestFixture]
 public abstract class GenericCognitoServiceTest : TestBase
 {
-    protected IUserService _userService;
-    private ILogger<UserService> _logger;
-    protected IUserRepository _userRepository;
+    protected IUserService UserService;
+    private ILogger<UserService> Logger;
+    protected IUserRepository UserRepository;
     
     private VerificationCodesRepository _verificationCodeRepository;
 
@@ -26,14 +26,14 @@ public abstract class GenericCognitoServiceTest : TestBase
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<UserService>();
+        Logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<UserService>();
         _faker = new Faker();
         DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
             new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
         _verificationCodeRepository =
             new VerificationCodesRepository(dynamoDbContext, _configuration, new VerificationCodeEntityMapper());
-        _userRepository = new UserRepository(dynamoDbContext, _configuration);
-        _userService = new UserService(_configuration, _logger, _userRepository);
+        UserRepository = new UserRepository(dynamoDbContext, _configuration);
+        UserService = new UserService(_configuration, Logger, UserRepository);
     }
 
 
@@ -65,7 +65,7 @@ public abstract class GenericCognitoServiceTest : TestBase
         const string password = "ValidPassword123!";
         const string fullName = "John Doe";
 
-        Result<string> registerResult = await _userService.RegisterUserAsync(email, password, fullName);
+        Result<string> registerResult = await UserService.RegisterUserAsync(email, password, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
         return registerResult.Value;
     }

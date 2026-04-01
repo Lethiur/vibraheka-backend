@@ -15,7 +15,7 @@ public class StartPasswordRecoveryAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnSuccessWhenEverythingGoesGood()
     {
         // Given: Some mocking
-        _cognitoMock.Setup(provider => provider.ForgotPasswordAsync(It.IsAny<ForgotPasswordRequest>()))
+        CognitoMock.Setup(provider => provider.ForgotPasswordAsync(It.IsAny<ForgotPasswordRequest>()))
             .ReturnsAsync(new ForgotPasswordResponse());
         
         // When: Service is invoked
@@ -29,7 +29,7 @@ public class StartPasswordRecoveryAsyncTest : GenericUserServiceTest
     public async Task ShouldMapTheCognitoError()
     {
         // Given: Cognito throws an error
-        _cognitoMock.Setup(provider => provider.ForgotPasswordAsync(It.IsAny<ForgotPasswordRequest>()))
+        CognitoMock.Setup(provider => provider.ForgotPasswordAsync(It.IsAny<ForgotPasswordRequest>()))
             .ThrowsAsync(new UserNotFoundException("User not found"));
         
         // When: Service is invoked

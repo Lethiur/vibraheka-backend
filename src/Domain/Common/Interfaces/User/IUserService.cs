@@ -113,4 +113,16 @@ public interface IUserService
     /// The task result contains a <see cref="Result"/> indicating whether the update operation was successful.
     /// </returns>
     Task<Result<Unit>> UpdateUserAsync(UserEntity newUserData, string updater, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously refreshes an authentication token for the user using the provided refresh token and email.
+    /// </summary>
+    /// <param name="refreshToken">The refresh token used to generate a new authentication token.</param>
+    /// <param name="email">The email address of the user associated with the refresh token.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> indicating the success or failure of the token refresh operation.
+    /// </returns>
+    Task<Result<string>> RefreshToken(string refreshToken, string email, CancellationToken cancellationToken);
 }

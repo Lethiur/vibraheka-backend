@@ -19,7 +19,7 @@ public class ChangePasswordAsyncTest : GenericUserServiceTest
         const string currentPassword = "Current123!";
         const string newPassword = "NewPassword123!";
 
-        _cognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+        CognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ChangePasswordResponse());
 
         // When: requesting password change through the service.
@@ -28,7 +28,7 @@ public class ChangePasswordAsyncTest : GenericUserServiceTest
         // Then: operation should succeed.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
-        _cognitoMock.Verify(x => x.ChangePasswordAsync(
+        CognitoMock.Verify(x => x.ChangePasswordAsync(
                 It.Is<ChangePasswordRequest>(request =>
                     request.AccessToken == accessToken &&
                     request.PreviousPassword == currentPassword &&
@@ -42,7 +42,7 @@ public class ChangePasswordAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnNotAuthorizedWhenPreviousPasswordIsInvalid()
     {
         // Given: Cognito rejects password change because credentials are invalid.
-        _cognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+        CognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new NotAuthorizedException("Incorrect username or password."));
 
         // When: requesting password change.
@@ -58,7 +58,7 @@ public class ChangePasswordAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnInvalidPasswordWhenProposedPasswordIsInvalid()
     {
         // Given: Cognito rejects password policy validation.
-        _cognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+        CognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidPasswordException("Password does not conform to policy."));
 
         // When: requesting password change.
@@ -74,7 +74,7 @@ public class ChangePasswordAsyncTest : GenericUserServiceTest
     public async Task ShouldReturnUnexpectedErrorWhenCognitoThrowsUnknownException()
     {
         // Given: Cognito throws an unexpected exception.
-        _cognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+        CognitoMock.Setup(x => x.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Unexpected failure"));
 
         // When: requesting password change.

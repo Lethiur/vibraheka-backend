@@ -1,5 +1,6 @@
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using Amazon;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
@@ -42,15 +43,14 @@ public class UserService(
             CredentialProfileStoreChain chain = new();
             if (chain.TryGetAWSCredentials(profileName, out AWSCredentials? credentials))
             {
-                return new AmazonCognitoIdentityProviderClient(credentials, new AmazonCognitoIdentityProviderConfig 
-                { 
-                    RegionEndpoint = region 
-                });
+                return new AmazonCognitoIdentityProviderClient(credentials,
+                    new AmazonCognitoIdentityProviderConfig { RegionEndpoint = region });
             }
         }
 
         throw new DataException("AWS profile is required");
     }
+
     /// <summary>
     /// Registers a new user in the system by creating an account with the provided credentials and user information.
     /// </summary>
@@ -100,20 +100,17 @@ public class UserService(
                 UserPoolId = _userPoolId,
                 ClientId = _clientId,
                 AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
-                AuthParameters = new Dictionary<string, string>
-                {
-                    { "USERNAME", email },
-                    { "PASSWORD", password }
-                }
+                AuthParameters = new Dictionary<string, string> { { "USERNAME", email }, { "PASSWORD", password } }
             };
 
             AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request);
-            
+
             JwtSecurityTokenHandler handler = new();
             JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
             string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
 
-            return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,response.AuthenticationResult.RefreshToken ));
+            return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,
+                response.AuthenticationResult.RefreshToken));
         }
         catch (Exception ex)
         {
@@ -130,10 +127,7 @@ public class UserService(
     /// <exception cref="NotImplementedException">Thrown when the method is not implemented.</exception>
     public async Task<Result<Unit>> ResendVerificationCodeAsync(string email)
     {
-        ResendConfirmationCodeRequest request = new()
-        {
-            ClientId = _clientId, Username = email
-        };
+        ResendConfirmationCodeRequest request = new() { ClientId = _clientId, Username = email };
 
         try
         {
@@ -158,11 +152,7 @@ public class UserService(
         try
         {
             logger.LogInformation("Starting Cognito forgot password flow for user {Email}", email);
-            ForgotPasswordRequest request = new()
-            {
-                ClientId = _clientId,
-                Username = email
-            };
+            ForgotPasswordRequest request = new() { ClientId = _clientId, Username = email };
 
             await _client.ForgotPasswordAsync(request);
             logger.LogInformation("Cognito forgot password flow started for user {Email}", email);
@@ -194,10 +184,7 @@ public class UserService(
             logger.LogInformation("Confirming Cognito forgot password flow for user {Email}", email);
             ConfirmForgotPasswordRequest request = new()
             {
-                ClientId = _clientId,
-                Username = email,
-                ConfirmationCode = recoveryCode,
-                Password = newPassword
+                ClientId = _clientId, Username = email, ConfirmationCode = recoveryCode, Password = newPassword
             };
 
             await _client.ConfirmForgotPasswordAsync(request, cancellationToken);
@@ -231,9 +218,7 @@ public class UserService(
             logger.LogInformation("Changing password for authenticated user");
             ChangePasswordRequest request = new()
             {
-                AccessToken = accessToken,
-                PreviousPassword = currentPassword,
-                ProposedPassword = newPassword
+                AccessToken = accessToken, PreviousPassword = currentPassword, ProposedPassword = newPassword
             };
 
             await _client.ChangePasswordAsync(request, cancellationToken);
@@ -256,11 +241,7 @@ public class UserService(
     {
         try
         {
-            AdminGetUserRequest request = new()
-            {
-                UserPoolId = _userPoolId,
-                Username = email
-            };
+            AdminGetUserRequest request = new() { UserPoolId = _userPoolId, Username = email };
 
             AdminGetUserResponse response = await _client.AdminGetUserAsync(request, cancellationToken);
             return Result.Success(response.UserAttributes.First(attr => attr.Name == "sub").Value);
@@ -298,18 +279,57 @@ public class UserService(
         CancellationToken cancellationToken)
     {
         return GetUserByID(newUserData.Id, cancellationToken).MapTry(user =>
+            {
+                user.LastModified = DateTime.UtcNow;
+                user.LastModifiedBy = updater;
+                user.FirstName = newUserData.FirstName;
+                user.MiddleName = newUserData.MiddleName;
+                user.LastName = newUserData.LastName;
+                user.Bio = newUserData.Bio;
+                user.PhoneNumber = newUserData.PhoneNumber;
+                return user;
+            }).BindTry(userRepository.AddAsync)
+            .Map(_ => Unit.Value);
+    }
+
+    /// <summary>
+    /// Refreshes the authentication token for the user using the provided refresh token and email address.
+    /// </summary>
+    /// <param name="refreshToken">The refresh token used to obtain a new access token.</param>
+    /// <param name="email">The email address associated with the user requesting the token refresh.</param>
+    /// <param name="cancellationToken">A token that may be used to cancel the operation.</param>
+    /// <returns>A <see cref="Result{T}"/> wrapping a <see cref="string"/> that indicates the outcome of the token refresh operation.</returns>
+    /// <exception cref="NotImplementedException">Thrown when the method is not yet implemented.</exception>
+    public async Task<Result<string>> RefreshToken(string refreshToken, string email, CancellationToken cancellationToken)
+    {
+        InitiateAuthRequest refreshRequest = new()
         {
-            user.LastModified = DateTime.UtcNow;
-            user.LastModifiedBy = updater;
-            user.FirstName = newUserData.FirstName;
-            user.MiddleName = newUserData.MiddleName;
-            user.LastName = newUserData.LastName;
-            user.Bio = newUserData.Bio;
-            user.PhoneNumber = newUserData.PhoneNumber;
-            return user;
-        }).BindTry(userRepository.AddAsync)
-        .Map(_ => Unit.Value);
-        
+            AuthFlow = AuthFlowType.REFRESH_TOKEN_AUTH,
+            ClientId = _clientId,
+            AuthParameters = new Dictionary<string, string>
+            {
+                { "REFRESH_TOKEN", refreshToken }, { "USERNAME", email }
+            }
+        };
+
+        try
+        {
+            InitiateAuthResponse response = await _client.InitiateAuthAsync(refreshRequest, cancellationToken);
+
+            if (response.HttpStatusCode == HttpStatusCode.OK)
+            {
+                return Result.Success(response.AuthenticationResult.AccessToken);
+            }
+
+            logger.LogWarning("Refresh token for email {Email} returned a status code different than 200 {Code}",
+                email, response.HttpStatusCode);
+            return Result.Failure<string>(UserErrors.UnexpectedError);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while refreshing the token for user {Email}", email);
+            return MapCognitoException<string>(ex);
+        }
     }
 
     /// <summary>

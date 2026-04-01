@@ -6,12 +6,14 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 using VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
+using VibraHeka.Application.Users.Commands.RefreshToken;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
 using VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Controllers;
 
@@ -161,6 +163,30 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess("If the account exists, a recovery email has been sent."));
+    }
+
+    /// <summary>
+    /// Processes a token refresh request by validating the provided refresh token and username
+    /// and returns a new access token if the request is valid.
+    /// </summary>
+    /// <param name="request">The request object containing the refresh token and username for authentication.</param>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the token refresh process.
+    /// Success response contains the new access token, while failure response contains error details.</returns>
+    [HttpPost("refresh-token")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        RefreshTokenCommand command = new(request.RefreshToken, request.Username);
+        Result<string> result = await mediator.Send(command);
+        if (result.IsFailure)
+        {
+            Logger.LogWarning("Refresh token failed with error {Error}", result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
     /// <summary>
