@@ -700,6 +700,8 @@ jobs:
 
             timeout 300 sudo docker pull "${IMAGE_URI}"
 
+            sudo docker network create vibraheka-observability || true
+
             sudo docker rm -f vibraheka-backend || true
             sudo docker rm -f xray-daemon || true
 
@@ -707,10 +709,10 @@ jobs:
               sudo docker run -d \
                 --name xray-daemon \
                 --restart always \
+                --network vibraheka-observability \
                 -p 2000:2000/udp \
                 -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
-                -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
                 -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
                 -e AWS_SDK_LOAD_CONFIG=1 \
@@ -726,13 +728,16 @@ jobs:
             sudo docker run -d \
               --name vibraheka-backend \
               --restart always \
+              --network vibraheka-observability \
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
               -e AWS_SDK_LOAD_CONFIG=1 \
+              -e AWS_XRAY_DAEMON_ADDRESS="xray-daemon:2000" \
               -e HOME="/app" \
               -e AWS__Profile="${{ env.AWS_PROFILE_NAME }}" \
               -e AWSLogging__Profile="${{ env.AWS_PROFILE_NAME }}" \
+              -e XRay__DaemonAddress="xray-daemon:2000" \
               -e AWS_SHARED_CREDENTIALS_FILE="/app/.aws/credentials" \
               -e AWS_CONFIG_FILE="/app/.aws/config" \
               -v /opt/vibraheka/.aws:/app/.aws:ro \

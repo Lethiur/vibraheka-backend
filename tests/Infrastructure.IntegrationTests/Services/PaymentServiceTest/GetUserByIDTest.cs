@@ -19,7 +19,11 @@ public class GetUserByIDTest : TestBase
         base.OneTimeSetUp();
         _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
         _paymentService = new PaymentService(
-            new PaymentsRepository(_stripeConfig, CreateTestLogger<PaymentsRepository>()),
+            new PaymentsRepository(
+                _stripeConfig,
+                _configuration,
+                CreateSystemsManagementClient(),
+                CreateTestLogger<PaymentsRepository>()),
             _userRepository);
     }
 

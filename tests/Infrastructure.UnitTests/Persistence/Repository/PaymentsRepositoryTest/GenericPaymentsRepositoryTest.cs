@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+using Amazon.SimpleSystemsManagement;
+using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
@@ -8,10 +9,13 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.PaymentsRepo
 public abstract class GenericPaymentsRepositoryTest
 {
     protected PaymentsRepository Repository;
+    protected Mock<IAmazonSimpleSystemsManagement> SystemsManagementMock;
 
     [SetUp]
     public void SetUp()
     {
+        SystemsManagementMock = new Mock<IAmazonSimpleSystemsManagement>();
+
         StripeConfig config = new()
         {
             SecretKey = "sk_test",
@@ -21,6 +25,27 @@ public abstract class GenericPaymentsRepositoryTest
             SubscriptionID = "price_1"
         };
 
-        Repository = new PaymentsRepository(config, new Mock<ILogger<PaymentsRepository>>().Object);
+        AWSConfig awsConfig = new()
+        {
+            SettingsNameSpace = "VibraHeka",
+            Profile = "Twingers",
+            Location = "eu-west-1",
+            ClientId = "client-id",
+            UserPoolId = "user-pool-id",
+            EmailTemplatesBucketName = "bucket",
+            UsersTable = "users",
+            CodesTable = "codes",
+            UserCodesTable = "user-codes",
+            EmailTemplatesTable = "templates",
+            ActionLogTable = "action-log",
+            SubscriptionTable = "subscription",
+            SubscriptionUserIdIndex = "user-index"
+        };
+
+        Repository = new PaymentsRepository(
+            config,
+            awsConfig,
+            SystemsManagementMock.Object,
+            new Mock<ILogger<PaymentsRepository>>().Object);
     }
 }

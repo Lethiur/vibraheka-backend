@@ -1,7 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
+using Amazon.SimpleSystemsManagement;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Bogus;
@@ -67,7 +70,7 @@ public abstract class TestBase
                               ?? throw new InvalidOperationException("Missing AWS config section.");
         ValidateObject(
             awsConfig, new ValidationContext(awsConfig), validateAllProperties: true);
-        
+
         return awsConfig;
     }
 
@@ -92,12 +95,27 @@ public abstract class TestBase
         return dynamoDbContext;
     }
 
+    protected IAmazonSimpleSystemsManagement CreateSystemsManagementClient()
+    {
+        RegionEndpoint region = RegionEndpoint.GetBySystemName(_configuration.Location);
+        CredentialProfileStoreChain profileChain = new();
+
+        if (profileChain.TryGetAWSCredentials(_configuration.Profile, out AWSCredentials? credentials))
+        {
+            return new AmazonSimpleSystemsManagementClient(
+                credentials,
+                new AmazonSimpleSystemsManagementConfig { RegionEndpoint = region });
+        }
+
+        return new AmazonSimpleSystemsManagementClient(
+            new AmazonSimpleSystemsManagementConfig { RegionEndpoint = region });
+    }
+
     protected AppSettingsEntity CreateAppSettings()
     {
         return new AppSettingsEntity();
     }
-    
-        
+
     protected UserEntity CreateValidUser()
     {
         return new UserEntity(
@@ -116,7 +134,7 @@ public abstract class TestBase
             LastModified = DateTime.UtcNow
         };
     }
-    
+
     protected async Task CleanupUser(string userId, IDynamoDBContext dynamoContext)
     {
         try
@@ -129,5 +147,4 @@ public abstract class TestBase
             Console.WriteLine($"Warning: Could not cleanup user {userId}: {ex.Message}");
         }
     }
-    
 }
