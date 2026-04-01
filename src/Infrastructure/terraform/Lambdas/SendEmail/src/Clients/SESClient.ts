@@ -44,7 +44,7 @@ export default class SESClientWrapper {
                 const sesAttachments = attachmentResults.map(r => r.value);
 
                 const command = new SendEmailCommand({
-                    FromEmailAddress: normalizedFromEmail,
+                    FromEmailAddress: `Comunidad VibraHeka <${normalizedFromEmail}>`,
                     Destination: {
                         ToAddresses: [normalizedRecipient]
                     },
