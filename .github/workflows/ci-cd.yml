@@ -150,6 +150,7 @@ jobs:
           jq -er '.backend_ec2_instance_id.value' terraform-outputs.json >/dev/null
           jq -er '.backend_ec2_ssh_private_key_ssm_parameter_name.value' terraform-outputs.json >/dev/null
           jq -er '.cognito_pool_id.value' terraform-outputs.json >/dev/null
+          jq -er '.ssm_frontend_url.value' terraform-outputs.json >/dev/null
           jq -er '.users_table_name.value' terraform-outputs.json >/dev/null
 
       - name: Encrypt prod terraform outputs
@@ -407,9 +408,25 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: |
           set -euo pipefail
+          FRONTEND_URL_SSM_PARAMETER_NAME="$(jq -r '.ssm_frontend_url.value' /tmp/tf-prod.json)"
+          if [[ -z "${FRONTEND_URL_SSM_PARAMETER_NAME:-}" || "${FRONTEND_URL_SSM_PARAMETER_NAME}" == "null" ]]; then
+            echo "ssm_frontend_url is empty/null. Cannot resolve frontend URL from SSM."
+            exit 1
+          fi
+
+          FRONTEND_BASE_URL="$(aws ssm get-parameter \
+            --name "${FRONTEND_URL_SSM_PARAMETER_NAME}" \
+            --query 'Parameter.Value' \
+            --output text)"
+
+          if [[ -z "${FRONTEND_BASE_URL:-}" || "${FRONTEND_BASE_URL}" == "null" ]]; then
+            echo "Frontend URL SSM parameter ${FRONTEND_URL_SSM_PARAMETER_NAME} is empty/null."
+            exit 1
+          fi
+
           chmod +x ./update-appsettings-from-terraform.sh
-          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
-          ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
+          FRONTEND_BASE_URL="${FRONTEND_BASE_URL}" ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.json"
+          FRONTEND_BASE_URL="${FRONTEND_BASE_URL}" ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-prod.json "src/Web/appsettings.Development.json"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -700,6 +717,8 @@ jobs:
 
             timeout 300 sudo docker pull "${IMAGE_URI}"
 
+            sudo docker network create vibraheka-observability || true
+
             sudo docker rm -f vibraheka-backend || true
             sudo docker rm -f xray-daemon || true
 
@@ -707,10 +726,10 @@ jobs:
               sudo docker run -d \
                 --name xray-daemon \
                 --restart always \
+                --network vibraheka-observability \
                 -p 2000:2000/udp \
                 -e AWS_ACCESS_KEY_ID=${CI_AWS_ACCESS_KEY_ID} \
                 -e AWS_SECRET_ACCESS_KEY=${CI_AWS_SECRET_ACCESS_KEY} \
-                -e AWS_XRAY_DAEMON_ADDRESS="127.0.0.1:2000" \
                 -e AWS_REGION="${AWS_REGION}" \
                 -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
                 -e AWS_SDK_LOAD_CONFIG=1 \
@@ -726,13 +745,16 @@ jobs:
             sudo docker run -d \
               --name vibraheka-backend \
               --restart always \
+              --network vibraheka-observability \
               -p 8080:8080 \
               -e ASPNETCORE_ENVIRONMENT="${APP_ENVIRONMENT}" \
               -e AWS_PROFILE="${{ env.AWS_PROFILE_NAME }}" \
               -e AWS_SDK_LOAD_CONFIG=1 \
+              -e AWS_XRAY_DAEMON_ADDRESS="xray-daemon:2000" \
               -e HOME="/app" \
               -e AWS__Profile="${{ env.AWS_PROFILE_NAME }}" \
               -e AWSLogging__Profile="${{ env.AWS_PROFILE_NAME }}" \
+              -e XRay__DaemonAddress="xray-daemon:2000" \
               -e AWS_SHARED_CREDENTIALS_FILE="/app/.aws/credentials" \
               -e AWS_CONFIG_FILE="/app/.aws/config" \
               -v /opt/vibraheka/.aws:/app/.aws:ro \
