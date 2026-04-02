@@ -38,49 +38,69 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
     {
-        builder.Services.AddOptions<AWSConfig>().Bind(builder.Configuration.GetSection("AWS"))
+        configurationManager.AddInfrastructureConfiguration(config);
+        builder.Services.AddInfrastructureServices(config);
+    }
+
+    public static IConfigurationBuilder AddInfrastructureConfiguration(
+        this IConfigurationBuilder configurationBuilder,
+        IConfiguration configuration)
+    {
+        AWSConfig? awsConfig = configuration.GetSection("AWS").Get<AWSConfig>();
+
+        if (string.IsNullOrWhiteSpace(awsConfig?.SettingsNameSpace))
+        {
+            return configurationBuilder;
+        }
+
+        configurationBuilder.AddSystemsManager(options =>
+        {
+            options.Path = $"/{awsConfig.SettingsNameSpace}/";
+            options.ReloadAfter = TimeSpan.FromSeconds(2);
+            options.Optional = true;
+        });
+
+        return configurationBuilder;
+    }
+
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<AWSConfig>().Bind(configuration.GetSection("AWS"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
-        builder.Services
+        services
             .AddOptions<StripeConfig>()
-            .Bind(builder.Configuration.GetSection("Stripe"))
+            .Bind(configuration.GetSection("Stripe"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
       
-        builder.Services.AddDefaultAWSOptions(config.GetAWSOptions());
-        builder.Services.AddAWSService<IAmazonDynamoDB>();
-        builder.Services.AddAWSService<IAmazonSimpleSystemsManagement>();
-        builder.Services.AddAWSService<IAmazonS3>();
-        builder.Services.AddAWSService<IAmazonCloudWatchLogs>();
+        services.AddDefaultAWSOptions(configuration.GetAWSOptions());
+        services.AddAWSService<IAmazonDynamoDB>();
+        services.AddAWSService<IAmazonSimpleSystemsManagement>();
+        services.AddAWSService<IAmazonS3>();
+        services.AddAWSService<IAmazonCloudWatchLogs>();
         AWSSDKHandler.RegisterXRayForAllServices();
-        AWSConfig? awsConfig = builder.Configuration.GetSection("AWS").Get<AWSConfig>();
+        AWSConfig? awsConfig = configuration.GetSection("AWS").Get<AWSConfig>();
 
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
 
-        builder.Services.AddSingleton<ITracer, XRayTracer>();
-        builder.Services.AddSingleton(sp =>
+        services.AddSingleton<ITracer, XRayTracer>();
+        services.AddSingleton(sp =>
             sp.GetRequiredService<
                 IOptions<StripeConfig>>().Value);
         
-        builder.Services.AddSingleton(sp =>
+        services.AddSingleton(sp =>
             sp.GetRequiredService<
                 IOptions<AWSConfig>>().Value);
         
-        builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
-
-        configurationManager.AddSystemsManager(options =>
-        {
-            options.Path = $"/{awsConfig?.SettingsNameSpace}/";
-            options.ReloadAfter = TimeSpan.FromSeconds(2); 
-            options.Optional = true;
-        });
+        services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
         
-        builder.Services.Configure<AppSettingsEntity>(configurationManager);
+        services.Configure<AppSettingsEntity>(configuration);
         
         
-        StripeConfig? stripeConfig = builder.Configuration
+        StripeConfig? stripeConfig = configuration
             .GetSection("Stripe")
             .Get<StripeConfig>();
 
@@ -91,49 +111,49 @@ public static class DependencyInjection
         
         StripeConfiguration.ApiKey = stripeConfig.SecretKey;
 
-        builder.Services.AddSingleton<SubscriptionEntityMapper>();
-        builder.Services.AddSingleton<VerificationCodeEntityMapper>();
-        builder.Services.AddSingleton<UsersCodeMapper>();
+        services.AddSingleton<SubscriptionEntityMapper>();
+        services.AddSingleton<VerificationCodeEntityMapper>();
+        services.AddSingleton<UsersCodeMapper>();
         #if DEBUG
-        builder.Services.AddScoped<ICodeRepository, VerificationCodesRepository>();
+        services.AddScoped<ICodeRepository, VerificationCodesRepository>();
         #endif
-        builder.Services.AddScoped<IUserCodeRepository, UserCodeRepository>();
-        builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
-        builder.Services.AddScoped<ApplicationDynamoContext>();
+        services.AddScoped<IUserCodeRepository, UserCodeRepository>();
+        services.AddScoped<IDynamoDBContext, DynamoDBContext>();
+        services.AddScoped<ApplicationDynamoContext>();
 
-        builder.Services.AddScoped<IActionLogRepository, ActionLogRepository>();
+        services.AddScoped<IActionLogRepository, ActionLogRepository>();
         
         // Settings
-        builder.Services.AddScoped<ISettingsService, SettingsService>();
-        builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<ISettingsRepository, SettingsRepository>();
         
         // Payments
-        builder.Services.AddScoped<IPaymentService, PaymentService>();
-        builder.Services.AddScoped<IPaymentRepository, PaymentsRepository>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IPaymentRepository, PaymentsRepository>();
         
         // Subscription
-        builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
-        builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<ISubscriptionService, SubscriptionService>();
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         
         // Email Templates
-        builder.Services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
-        builder.Services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
+        services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
+        services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
         
         // Email template storage
-        builder.Services.AddScoped<IEmailTemplateStorageService, EmailTemplateStorageService>();
-        builder.Services.AddScoped<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
+        services.AddScoped<IEmailTemplateStorageService, EmailTemplateStorageService>();
+        services.AddScoped<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
         
         // Privileges
-        builder.Services.AddScoped<IPrivilegeService, PrivilegeService>();
-        builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IPrivilegeService, PrivilegeService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         
         // Users
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IUserCodeService, UserCodeService>();
-        builder.Services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserCodeService, UserCodeService>();
+        services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         
-        builder.Services.AddSingleton(TimeProvider.System);
+        services.AddSingleton(TimeProvider.System);
         
      
     }

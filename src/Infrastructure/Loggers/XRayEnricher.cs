@@ -2,7 +2,7 @@
 using Serilog.Core;
 using Serilog.Events;
 
-namespace VibraHeka.Web.Logging;
+namespace VibraHeka.Infrastructure.Loggers;
 
 public class XRayEnricher: ILogEventEnricher
 {

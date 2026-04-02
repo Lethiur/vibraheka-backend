@@ -12,7 +12,7 @@ using Serilog.Formatting.Compact;
 using Serilog.Sinks.AwsCloudWatch;
 using VibraHeka.Application;
 using VibraHeka.Infrastructure;
-using VibraHeka.Web.Logging;
+using VibraHeka.Infrastructure.Loggers;
 using VibraHeka.Web.Middleware;
 using static System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler;
 
