@@ -42,7 +42,7 @@ public static class DependencyInjection
         builder.Services.AddInfrastructureServices(config);
     }
 
-    public static IConfigurationBuilder AddInfrastructureConfiguration(
+    private static IConfigurationBuilder AddInfrastructureConfiguration(
         this IConfigurationBuilder configurationBuilder,
         IConfiguration configuration)
     {
@@ -63,9 +63,13 @@ public static class DependencyInjection
         return configurationBuilder;
     }
 
-    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    private static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<AWSConfig>().Bind(configuration.GetSection("AWS"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<AWSLoggingConfig>().Bind(configuration.GetSection("AWSLogging"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
@@ -87,17 +91,13 @@ public static class DependencyInjection
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
 
         services.AddSingleton<ITracer, XRayTracer>();
-        services.AddSingleton(sp =>
-            sp.GetRequiredService<
-                IOptions<StripeConfig>>().Value);
-        
-        services.AddSingleton(sp =>
-            sp.GetRequiredService<
-                IOptions<AWSConfig>>().Value);
-        
+
+
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<AWSLoggingConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
         
         services.Configure<AppSettingsEntity>(configuration);
+        services.Configure<AWSLoggingConfig>(configuration.GetSection("AWSLogging"));
         
         
         StripeConfig? stripeConfig = configuration

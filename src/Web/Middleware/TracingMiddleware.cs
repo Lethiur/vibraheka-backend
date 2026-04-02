@@ -1,10 +1,11 @@
 ﻿using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Web.Middleware;
 
-public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<TracingMiddleware> logger)
+public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<TracingMiddleware> logger, AWSLoggingConfig loggingConfig)
 {
     public async Task Invoke(HttpContext context)
     {
@@ -13,7 +14,7 @@ public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<Tra
             Entity? entity = AWSXRayRecorder.Instance.GetEntity();
             if (entity?.Aws != null)
             {
-                List<object> logGroupMetadata = [new { log_group = "/my-app/logs" }];
+                List<object> logGroupMetadata = [new { log_group = loggingConfig.LogGroup }];
                 entity.Aws["cloudwatch_logs"] = logGroupMetadata;
             }
             else
