@@ -7,6 +7,8 @@ namespace VibraHeka.Infrastructure.Entities;
 /// </summary>
 public class StripeConfig
 {
+    private List<string> _paymentMethodsAccepted = [];
+
     /// <summary>
     /// Gets or sets the secret key used to authenticate requests to the Stripe API.
     /// This key is critical for secure operations and should be stored and accessed securely.
@@ -35,7 +37,11 @@ public class StripeConfig
     /// such as card, ACH, or other supported methods.
     /// </summary>
     [Required]
-    public List<string> PaymentMethodsAccepted { get; set; } = [];
+    public List<string> PaymentMethodsAccepted
+    {
+        get => _paymentMethodsAccepted;
+        set => _paymentMethodsAccepted = NormalizePaymentMethods(value);
+    }
 
     /// <summary>
     /// Gets or sets the subscription ID associated with a customer's subscription in Stripe.
@@ -49,4 +55,18 @@ public class StripeConfig
     /// This value determines the duration during which a user can use the service without incurring charges.
     /// </summary>
     public int TrialPeriodInDays { get; set; } = 0;
+
+    private static List<string> NormalizePaymentMethods(IEnumerable<string>? paymentMethods)
+    {
+        if (paymentMethods == null)
+        {
+            return [];
+        }
+
+        return paymentMethods
+            .Where(static method => !string.IsNullOrWhiteSpace(method))
+            .Select(static method => method.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
 }
