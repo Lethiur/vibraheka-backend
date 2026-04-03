@@ -28,7 +28,6 @@ using VibraHeka.Infrastructure.Persistence;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Persistence.S3;
 using VibraHeka.Infrastructure.Services;
-using VibraHeka.Infrastructure.Tracer;
 using SubscriptionService = VibraHeka.Infrastructure.Services.SubscriptionService;
 
 
@@ -90,15 +89,13 @@ public static class DependencyInjection
         CredentialProfileStoreChain amazonSimpleSystemsManagementConfig = new();
         amazonSimpleSystemsManagementConfig.TryGetAWSCredentials(awsConfig?.Profile, out AWSCredentials credentials);
 
-        services.AddSingleton<ITracer, XRayTracer>();
-
-
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<AWSLoggingConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
+        services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<StripeConfig>>().Value);
         
         services.Configure<AppSettingsEntity>(configuration);
         services.Configure<AWSLoggingConfig>(configuration.GetSection("AWSLogging"));
-        
+        services.Configure<StripeConfig>(configuration.GetSection("Stripe"));
         
         StripeConfig? stripeConfig = configuration
             .GetSection("Stripe")
