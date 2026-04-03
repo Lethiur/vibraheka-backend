@@ -1,10 +1,12 @@
 ﻿using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using VibraHeka.Domain.Common.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using VibraHeka.Infrastructure.Entities;
 
-namespace VibraHeka.Web.Middleware;
+namespace VibraHeka.Infrastructure.Middlewares;
 
-public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<TracingMiddleware> logger)
+public class TracingMiddleware(RequestDelegate next, ILogger<TracingMiddleware> logger, AWSLoggingConfig loggingConfig)
 {
     public async Task Invoke(HttpContext context)
     {
@@ -13,8 +15,7 @@ public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<Tra
             Entity? entity = AWSXRayRecorder.Instance.GetEntity();
             if (entity?.Aws != null)
             {
-                List<object> logGroupMetadata = [new { log_group = "/my-app/logs" }];
-                entity.Aws["cloudwatch_logs"] = logGroupMetadata;
+                entity.Aws["cloudwatch_logs"] = new List<object> { new { log_group = loggingConfig.LogGroup } };
             }
             else
             {
@@ -26,7 +27,6 @@ public class TracingMiddleware(RequestDelegate next, ITracer tracer, ILogger<Tra
         {
             logger.LogWarning(ex, "Tracing middleware enrichment failed for {Method} {Path}",
                 context.Request.Method, context.Request.Path);
-            tracer.AddException(ex);
         }
 
         await next(context);
