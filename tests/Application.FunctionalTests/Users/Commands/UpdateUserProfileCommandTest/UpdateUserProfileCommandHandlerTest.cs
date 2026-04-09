@@ -42,7 +42,7 @@ public class UpdateUserProfileCommandHandlerTest
             PhoneNumber = "+34911111222"
         };
 
-        _userServiceMock.Setup(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), "updater-id", It.IsAny<CancellationToken>()))
+        _userServiceMock.Setup(x => x.UpdateUserAsync(It.IsAny<UserProfileEntity>(), "updater-id", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));
 
         // When
@@ -83,7 +83,7 @@ public class UpdateUserProfileCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserProfileEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
 

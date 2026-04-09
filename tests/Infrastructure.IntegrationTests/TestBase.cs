@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -116,9 +116,9 @@ public abstract class TestBase
         return new AppSettingsEntity();
     }
 
-    protected UserEntity CreateValidUser()
+    protected UserProfileEntity CreateValidUser()
     {
-        return new UserEntity(
+        return new UserProfileEntity(
             Guid.NewGuid().ToString(),
             _faker.Internet.Email(),
             _faker.Person.FirstName

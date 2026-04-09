@@ -1,4 +1,4 @@
-using Amazon.SimpleSystemsManagement;
+﻿using Amazon.SimpleSystemsManagement;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -35,7 +35,7 @@ public class PaymentsRepository(
     /// <exception cref="NotImplementedException">
     /// Thrown if the method has not been implemented.
     /// </exception>
-    public async Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+    public async Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserProfileEntity payer,
         CancellationToken cancellationToken)
     {
         try
@@ -114,7 +114,7 @@ public class PaymentsRepository(
     /// <exception cref="StripeException">
     /// Thrown if there is an error while communicating with the Stripe API.
     /// </exception>
-    public async Task<Result<string>> GetSubscriptionPanelUrlAsync(UserEntity payer,
+    public async Task<Result<string>> GetSubscriptionPanelUrlAsync(UserProfileEntity payer,
         CancellationToken cancellationToken)
     {
         try
@@ -156,7 +156,7 @@ public class PaymentsRepository(
     /// <exception cref="NotImplementedException">
     /// Thrown if the method has not been implemented.
     /// </exception>
-    public async Task<Result<string>> RegisterCustomerAsync(UserEntity payer, CancellationToken cancellationToken)
+    public async Task<Result<string>> RegisterCustomerAsync(UserProfileEntity payer, CancellationToken cancellationToken)
     {
         try
         {

@@ -44,7 +44,7 @@ public class UpdateUserProfileCommandHandlerTest
         };
 
         _userServiceMock.Setup(x => x.UpdateUserAsync(
-                It.Is<UserEntity>(u =>
+                It.Is<UserProfileEntity>(u =>
                     u.Id == dto.Id &&
                     u.Email == dto.Email &&
                     u.FirstName == dto.FirstName &&
@@ -63,7 +63,7 @@ public class UpdateUserProfileCommandHandlerTest
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), "updater-id", It.IsAny<CancellationToken>()), Times.Once);
+        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserProfileEntity>(), "updater-id", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -78,7 +78,7 @@ public class UpdateUserProfileCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserProfileEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -99,7 +99,7 @@ public class UpdateUserProfileCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserProfileEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
 

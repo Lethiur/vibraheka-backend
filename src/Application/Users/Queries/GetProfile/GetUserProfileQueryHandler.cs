@@ -1,15 +1,15 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Queries.GetProfile;
 
-public class GetUserProfileQueryHandler(ICurrentUserService currentUserService, IUserService userService) : IRequestHandler<GetUserProfileQuery, Result<UserDTO>>
+public class GetUserProfileQueryHandler(ICurrentUserService currentUserService, UserProfilePort userService) : IRequestHandler<GetUserProfileQuery, Result<UserDTO>>
 {
     public Task<Result<UserDTO>> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
     {
-        return userService.GetUserByID(request.UserID, cancellationToken)
+        return userService.GetProfileByUserId(request.UserID, cancellationToken)
             .MapTry(user =>
             {
                 UserDTO result = new()

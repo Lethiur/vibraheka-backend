@@ -32,7 +32,7 @@ public class GetUserProfileQueryHandlerTest
         _currentUserServiceMock.Setup(x => x.UserId).Returns(userId);
 
         _userServiceMock.Setup(x => x.GetUserByID(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(new UserEntity
+            .ReturnsAsync(Result.Success(new UserProfileEntity
             {
                 Id = userId,
                 Email = "user@test.com",
@@ -59,7 +59,7 @@ public class GetUserProfileQueryHandlerTest
         _currentUserServiceMock.Setup(x => x.UserId).Returns(currentUserId);
 
         _userServiceMock.Setup(x => x.GetUserByID(targetUserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(new UserEntity
+            .ReturnsAsync(Result.Success(new UserProfileEntity
             {
                 Id = targetUserId,
                 Email = "other@test.com",

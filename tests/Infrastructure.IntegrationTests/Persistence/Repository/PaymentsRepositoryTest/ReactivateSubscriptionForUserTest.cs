@@ -61,8 +61,8 @@ public class ReactivateSubscriptionForUserTest : GenericPaymentsRepositoryIntegr
 
     private async Task<SubscriptionEntity> CreateStripeSubscriptionEntityAsync()
     {
-        UserEntity user = CreateValidUser();
-        Result<string> customerResult = await _repository.RegisterCustomerAsync(user, CancellationToken.None);
+        UserProfileEntity userProfile = CreateValidUser();
+        Result<string> customerResult = await _repository.RegisterCustomerAsync(userProfile, CancellationToken.None);
 
         SubscriptionService service = new();
         Subscription stripeSubscription = await service.CreateAsync(new SubscriptionCreateOptions
@@ -74,7 +74,7 @@ public class ReactivateSubscriptionForUserTest : GenericPaymentsRepositoryIntegr
 
         return new SubscriptionEntity
         {
-            UserID = user.Id,
+            UserID = userProfile.Id,
             ExternalSubscriptionID = stripeSubscription.Id,
             ExternalCustomerID = customerResult.Value,
             ExternalSubscriptionItemID = stripeSubscription.Items.Data.FirstOrDefault()?.Id ?? string.Empty

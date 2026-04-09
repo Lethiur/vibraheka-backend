@@ -11,12 +11,12 @@ public class GetSubscriptionPanelUrlAsyncTest : GenericPaymentsRepositoryIntegra
     public async Task ShouldReturnBillingPortalUrlWhenCustomerExists()
     {
         // Given: un usuario con customer id valido en Stripe.
-        UserEntity user = CreateValidUser();
-        Result<string> customerResult = await _repository.RegisterCustomerAsync(user, CancellationToken.None);
-        user.CustomerID = customerResult.Value;
+        UserProfileEntity userProfile = CreateValidUser();
+        Result<string> customerResult = await _repository.RegisterCustomerAsync(userProfile, CancellationToken.None);
+        userProfile.CustomerID = customerResult.Value;
 
         // When: se solicita la URL del portal de suscripcion.
-        Result<string> result = await _repository.GetSubscriptionPanelUrlAsync(user, CancellationToken.None);
+        Result<string> result = await _repository.GetSubscriptionPanelUrlAsync(userProfile, CancellationToken.None);
 
         // Then: debe devolverse una URL valida del billing portal.
         Assert.That(result.IsSuccess, Is.True);
@@ -28,11 +28,11 @@ public class GetSubscriptionPanelUrlAsyncTest : GenericPaymentsRepositoryIntegra
     public async Task ShouldReturnStripeErrorWhenCustomerIdIsInvalid()
     {
         // Given: un usuario con customer id invalido para Stripe.
-        UserEntity user = CreateValidUser();
-        user.CustomerID = "cus_invalid_for_integration_test";
+        UserProfileEntity userProfile = CreateValidUser();
+        userProfile.CustomerID = "cus_invalid_for_integration_test";
 
         // When: se consulta el portal con customer inexistente.
-        Result<string> result = await _repository.GetSubscriptionPanelUrlAsync(user, CancellationToken.None);
+        Result<string> result = await _repository.GetSubscriptionPanelUrlAsync(userProfile, CancellationToken.None);
 
         // Then: debe devolverse error de Stripe.
         Assert.That(result.IsFailure, Is.True);

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 
@@ -11,7 +12,7 @@ namespace VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 /// </summary>
 public class ChangeAuthenticatedPasswordCommandHandler(
     ICurrentUserService currentUserService,
-    IUserService userService,
+    UserPort userService,
     ILogger<ChangeAuthenticatedPasswordCommandHandler> logger)
     : IRequestHandler<ChangeAuthenticatedPasswordCommand, Result<Unit>>
 {

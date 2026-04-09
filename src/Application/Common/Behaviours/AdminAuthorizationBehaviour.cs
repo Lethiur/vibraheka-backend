@@ -3,6 +3,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Common.Behaviours;
 
@@ -18,31 +19,22 @@ namespace VibraHeka.Application.Common.Behaviours;
 /// is thrown. Uses <see cref="ICurrentUserService"/> to retrieve the current user's identity
 /// and <see cref="IPrivilegeService"/> to verify their role.
 /// </remarks>
-public sealed class AdminAuthorizationBehavior<TRequest, TResponse>
+public sealed class AdminAuthorizationBehavior<TRequest, TResponse>(
+    ICurrentUserService currentUser,
+    UserPrivilegePort privilegeService)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequireAdmin
 {
-    private readonly ICurrentUserService _currentUser;
-    private readonly IPrivilegeService _privilegeService;
-
-    public AdminAuthorizationBehavior(
-        ICurrentUserService currentUser,
-        IPrivilegeService privilegeService)
-    {
-        _currentUser = currentUser;
-        _privilegeService = privilegeService;
-    }
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
         Result<bool> result = await Maybe
-            .From(_currentUser.UserId)
+            .From(currentUser.UserId)
             .Where(id => !string.IsNullOrWhiteSpace(id))
             .ToResult(UserErrors.InvalidUserID)
-            .Bind(id => _privilegeService.HasRoleAsync(id, UserRole.Admin, cancellationToken))
+            .Bind(id => privilegeService.HasRoleAsync(id, UserRole.Admin, cancellationToken))
             .Ensure(hasRole => hasRole, UserErrors.NotAuthorized);
 
         if (result.IsFailure)

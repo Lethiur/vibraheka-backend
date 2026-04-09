@@ -52,7 +52,7 @@ public class CreateTherapistCommandHandlerTests
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
             .ReturnsAsync(Result.Success(cognitoId));
 
-        RepositoryMock.Setup(x => x.AddAsync(It.Is<UserEntity>(u => 
+        RepositoryMock.Setup(x => x.AddAsync(It.Is<UserProfileEntity>(u => 
                 u.Email == command.TherapistData.Email && 
                 u.FirstName == command.TherapistData.FirstName && 
                 u.Role == UserRole.Therapist &&
@@ -67,7 +67,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.Value, Is.EqualTo(cognitoId));
             
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName), Times.Once);
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserProfileEntity>()), Times.Once);
     }
 
     [Test]
@@ -94,7 +94,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
         
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
     }
 
     [Test]
@@ -114,7 +114,7 @@ public class CreateTherapistCommandHandlerTests
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success("cognito-id"));
 
-        RepositoryMock.Setup(x => x.AddAsync(It.IsAny<UserEntity>()))
+        RepositoryMock.Setup(x => x.AddAsync(It.IsAny<UserProfileEntity>()))
             .ReturnsAsync(Result.Failure<string>(dbError));
 
         // When: Handling the command
@@ -125,7 +125,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.Error, Is.EqualTo(dbError));
         
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
+        RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserProfileEntity>()), Times.Once);
     }
 
     #endregion

@@ -9,11 +9,8 @@
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Riok.Mapperly" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\DTO\" />
   </ItemGroup>
 
 </Project>

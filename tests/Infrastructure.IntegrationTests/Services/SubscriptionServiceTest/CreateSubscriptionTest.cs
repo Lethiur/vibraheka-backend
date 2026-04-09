@@ -17,7 +17,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
         };
 
-        UserEntity user = new()
+        UserProfileEntity userProfile = new()
         {
             Id = Guid.NewGuid().ToString(),
             CustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
@@ -25,12 +25,12 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         };
 
         // When: se crea la suscripcion para el usuario.
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then: debe persistirse una suscripcion en estado Created.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.UserID, Is.EqualTo(user.Id));
-        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(user.CustomerID));
+        Assert.That(result.Value.UserID, Is.EqualTo(userProfile.Id));
+        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(userProfile.CustomerID));
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(checkoutSession.Url));
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
     }
@@ -61,7 +61,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(2),
         };
 
-        UserEntity user = new()
+        UserProfileEntity userProfile = new()
         {
             Id = userId,
             CustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
@@ -69,7 +69,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         };
 
         // When: se crea nuevamente la suscripcion para ese usuario.
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then: debe reutilizarse y resetearse a Created/Pending con datos de checkout nuevos.
         Assert.That(result.IsSuccess, Is.True);
@@ -77,7 +77,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Pending));
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(checkoutSession.Url));
         Assert.That(result.Value.CheckoutSessionExpiresAt, Is.EqualTo(checkoutSession.ExpiresAt));
-        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(user.CustomerID));
+        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(userProfile.CustomerID));
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
             Url = "https://checkout.integration.new.test",
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
         };
-        UserEntity user = new()
+        UserProfileEntity userProfile = new()
         {
             Id = userId,
             CustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
@@ -113,7 +113,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         };
 
         // When: se intenta crear una suscripcion para el mismo usuario.
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then: debe retornarse la suscripcion existente sin resetear estados.
         Assert.That(result.IsSuccess, Is.True);

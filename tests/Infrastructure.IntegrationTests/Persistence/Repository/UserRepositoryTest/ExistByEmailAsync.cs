@@ -12,18 +12,18 @@ public class ExistByEmailAsync : GenericUserRepositoryTest
     public async Task ShouldReturnTrueWhenUserWithEmailExists()
     {
         // Given: A user persisted in DynamoDB
-        UserEntity userEntity = CreateValidUser();
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: Checking if the email exists
-        Result<bool> result = await _userRepository.ExistsByEmailAsync(userEntity.Email);
+        Result<bool> result = await _userRepository.ExistsByEmailAsync(userProfileEntity.Email);
 
         // Then: The result should be true
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.True, "Should find the user by their email");
 
         // Cleanup
-        await CleanupUser(userEntity.Id);
+        await CleanupUser(userProfileEntity.Id);
     }
 
     [Test]
@@ -47,8 +47,8 @@ public class ExistByEmailAsync : GenericUserRepositoryTest
     {
         // Given: A user with a complex email address
         string complexEmail = $"Test.User+Filter-{Guid.NewGuid()}@vibraheka.io";
-        UserEntity userEntity = new(Guid.NewGuid().ToString(), complexEmail, "Special Email User");
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = new(Guid.NewGuid().ToString(), complexEmail, "Special Email User");
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: Checking existence
         Result<bool> result = await _userRepository.ExistsByEmailAsync(complexEmail);
@@ -58,6 +58,6 @@ public class ExistByEmailAsync : GenericUserRepositoryTest
         Assert.That(result.Value, Is.True);
 
         // Cleanup
-        await CleanupUser(userEntity.Id);
+        await CleanupUser(userProfileEntity.Id);
     }
 }

@@ -12,7 +12,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
         public async Task ShouldReturnSuccessWhenEverythingGoesGood()
         {
             // Given: user exists and repo saves successfully
-            var existingUser = new UserEntity
+            var existingUser = new UserProfileEntity
             {
                 Id = "user-1",
                 FirstName = "OldFirst",
@@ -24,7 +24,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 LastModified = DateTime.UtcNow.AddDays(-1)
             };
 
-            var newUserData = new UserEntity
+            var newUserData = new UserProfileEntity
             {
                 Id = "user-1",
                 FirstName = "NewFirst",
@@ -41,7 +41,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 .ReturnsAsync(Result.Success(existingUser));
 
             _userRepositoryMock
-                .Setup(r => r.AddAsync(It.IsAny<UserEntity>()))
+                .Setup(r => r.AddAsync(It.IsAny<UserProfileEntity>()))
                 .ReturnsAsync(Result.Success("ok"));
 
             // When: service is invoked
@@ -60,7 +60,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
 
             // And: AddAsync called with entity having updated fields
             _userRepositoryMock.Verify(r => r.AddAsync(
-                It.Is<UserEntity>(u =>
+                It.Is<UserProfileEntity>(u =>
                     u.Id == "user-1" &&
                     u.FirstName == "NewFirst" &&
                     u.MiddleName == "NewMid" &&
@@ -78,7 +78,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
         public async Task ShouldFailWhenUserIdIsNull()
         {
             // Given: invalid input (null id)
-            var newUserData = new UserEntity { Id = null! };
+            var newUserData = new UserProfileEntity { Id = null! };
 
             // When: service is invoked
             Result<Unit> result = await _service.UpdateUserAsync(newUserData, "updater", CancellationToken.None);
@@ -88,14 +88,14 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
             Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
 
             _userRepositoryMock.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
         }
 
         [Test]
         public async Task ShouldFailWhenUserIdIsWhitespace()
         {
             // Given: invalid input (whitespace id)
-            var newUserData = new UserEntity { Id = "   " };
+            var newUserData = new UserProfileEntity { Id = "   " };
 
             // When: service is invoked
             Result<Unit> result = await _service.UpdateUserAsync(newUserData, "updater", CancellationToken.None);
@@ -105,20 +105,20 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
             Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
 
             _userRepositoryMock.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
         }
 
         [Test]
         public async Task ShouldFailWhenUserNotFound()
         {
             // Given: repo returns success but user is null -> Ensure(user != null) should fail
-            var newUserData = new UserEntity { Id = "missing" };
+            var newUserData = new UserProfileEntity { Id = "missing" };
 
             _userRepositoryMock
                 .Setup(r => r.GetByIdAsync(
                     It.Is<string>(id => id == "missing"),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Success<UserEntity>(null!));
+                .ReturnsAsync(Result.Success<UserProfileEntity>(null!));
 
             // When: service is invoked
             Result<Unit> result = await _service.UpdateUserAsync(newUserData, "updater", CancellationToken.None);
@@ -132,20 +132,20 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)
             ), Times.Once);
 
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
         }
 
         [Test]
         public async Task ShouldFailWhenGetByIdAsyncFails()
         {
             // Given: repo fails fetching user
-            var newUserData = new UserEntity { Id = "user-1" };
+            var newUserData = new UserProfileEntity { Id = "user-1" };
 
             _userRepositoryMock
                 .Setup(r => r.GetByIdAsync(
                     It.Is<string>(id => id == "user-1"),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Failure<UserEntity>("DB read error"));
+                .ReturnsAsync(Result.Failure<UserProfileEntity>("DB read error"));
 
             // When: service is invoked
             Result<Unit> result = await _service.UpdateUserAsync(newUserData, "updater", CancellationToken.None);
@@ -159,15 +159,15 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)
             ), Times.Once);
 
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
         }
 
         [Test]
         public async Task ShouldFailWhenAddAsyncFails()
         {
             // Given: user exists but save fails
-            var existingUser = new UserEntity { Id = "user-1" };
-            var newUserData = new UserEntity { Id = "user-1", FirstName = "NewFirst" };
+            var existingUser = new UserProfileEntity { Id = "user-1" };
+            var newUserData = new UserProfileEntity { Id = "user-1", FirstName = "NewFirst" };
 
             _userRepositoryMock
                 .Setup(r => r.GetByIdAsync(
@@ -176,7 +176,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 .ReturnsAsync(Result.Success(existingUser));
 
             _userRepositoryMock
-                .Setup(r => r.AddAsync(It.IsAny<UserEntity>()))
+                .Setup(r => r.AddAsync(It.IsAny<UserProfileEntity>()))
                 .ReturnsAsync(Result.Failure<string>("DB write error"));
 
             // When: service is invoked
@@ -191,7 +191,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)
             ), Times.Once);
 
-            _userRepositoryMock.Verify(r => r.AddAsync(It.Is<UserEntity>(u =>
+            _userRepositoryMock.Verify(r => r.AddAsync(It.Is<UserProfileEntity>(u =>
                 u.Id == "user-1" &&
                 u.FirstName == "NewFirst" &&
                 u.LastModifiedBy == "updater" &&
@@ -203,7 +203,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
         public async Task ShouldFailWhenGetByIdAsyncThrowsException()
         {
             // Given: repo throws exception -> BindTry should convert to failure
-            var newUserData = new UserEntity { Id = "user-1" };
+            var newUserData = new UserProfileEntity { Id = "user-1" };
 
             _userRepositoryMock
                 .Setup(r => r.GetByIdAsync(
@@ -223,15 +223,15 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)
             ), Times.Once);
 
-            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserEntity>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
         }
 
         [Test]
         public async Task ShouldFailWhenAddAsyncThrowsException()
         {
             // Given: user exists but save throws -> BindTry should convert to failure
-            var existingUser = new UserEntity { Id = "user-1" };
-            var newUserData = new UserEntity { Id = "user-1", FirstName = "NewFirst" };
+            var existingUser = new UserProfileEntity { Id = "user-1" };
+            var newUserData = new UserProfileEntity { Id = "user-1", FirstName = "NewFirst" };
 
             _userRepositoryMock
                 .Setup(r => r.GetByIdAsync(
@@ -240,7 +240,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
                 .ReturnsAsync(Result.Success(existingUser));
 
             _userRepositoryMock
-                .Setup(r => r.AddAsync(It.IsAny<UserEntity>()))
+                .Setup(r => r.AddAsync(It.IsAny<UserProfileEntity>()))
                 .ThrowsAsync(new Exception("Boom"));
 
             // When: service is invoked
@@ -250,7 +250,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
             Assert.That(result.IsFailure, Is.True);
             Assert.That(result.Error, Is.EqualTo("Boom"));
 
-            _userRepositoryMock.Verify(r => r.AddAsync(It.Is<UserEntity>(u =>
+            _userRepositoryMock.Verify(r => r.AddAsync(It.Is<UserProfileEntity>(u =>
                 u.Id == "user-1" &&
                 u.FirstName == "NewFirst" &&
                 u.LastModifiedBy == "updater" &&

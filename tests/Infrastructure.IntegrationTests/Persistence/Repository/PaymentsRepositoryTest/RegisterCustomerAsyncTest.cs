@@ -12,10 +12,10 @@ public class RegisterCustomerAsyncTest : GenericPaymentsRepositoryIntegrationTes
     public async Task ShouldRegisterCustomerInStripe()
     {
         // Given: un usuario valido con datos minimos para crear customer.
-        UserEntity user = CreateValidUser();
+        UserProfileEntity userProfile = CreateValidUser();
 
         // When: se registra el usuario como customer en Stripe.
-        Result<string> result = await _repository.RegisterCustomerAsync(user, CancellationToken.None);
+        Result<string> result = await _repository.RegisterCustomerAsync(userProfile, CancellationToken.None);
 
         // Then: debe devolverse un customer id valido.
         Assert.That(result.IsSuccess, Is.True);
@@ -28,14 +28,14 @@ public class RegisterCustomerAsyncTest : GenericPaymentsRepositoryIntegrationTes
     public async Task ShouldReturnStripeErrorWhenApiKeyIsInvalid()
     {
         // Given: una API key invalida para forzar error de autenticacion en Stripe.
-        UserEntity user = CreateValidUser();
+        UserProfileEntity userProfile = CreateValidUser();
         string previousApiKey = StripeConfiguration.ApiKey;
         StripeConfiguration.ApiKey = "sk_test_invalid_key_for_integration_test";
 
         try
         {
             // When: se intenta registrar customer con credenciales invalidas.
-            Result<string> result = await _repository.RegisterCustomerAsync(user, CancellationToken.None);
+            Result<string> result = await _repository.RegisterCustomerAsync(userProfile, CancellationToken.None);
 
             // Then: debe devolverse el error de Stripe.
             Assert.That(result.IsFailure, Is.True);

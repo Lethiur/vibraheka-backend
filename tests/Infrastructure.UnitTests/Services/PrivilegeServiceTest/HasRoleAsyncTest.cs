@@ -33,10 +33,10 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Admin role in the repository
         const string userId = "admin-id";
-        UserEntity userEntity = new() { Id = userId, Role = UserRole.Admin };
+        UserProfileEntity userProfileEntity = new() { Id = userId, Role = UserRole.Admin };
 
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Success(userEntity));
+            .ReturnsAsync(Result.Success(userProfileEntity));
 
         // When: Checking if the user has the Admin role
         Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);
@@ -53,10 +53,10 @@ public class HasRoleAsyncTest
     {
         // Given: A user with Therapist role
         const string userId = "therapist-id";
-        UserEntity userEntity = new() { Id = userId, Role = UserRole.Therapist };
+        UserProfileEntity userProfileEntity = new() { Id = userId, Role = UserRole.Therapist };
 
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Success(userEntity));
+            .ReturnsAsync(Result.Success(userProfileEntity));
 
         // When: Checking if the user has the Admin role
         Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);
@@ -76,7 +76,7 @@ public class HasRoleAsyncTest
         const string errorMessage = "User not found";
         
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Failure<UserEntity>(errorMessage));
+            .ReturnsAsync(Result.Failure<UserProfileEntity>(errorMessage));
 
         // When: Checking the role
         Result<bool> result = await _service.HasRoleAsync(userId, UserRole.Admin, CancellationToken.None);

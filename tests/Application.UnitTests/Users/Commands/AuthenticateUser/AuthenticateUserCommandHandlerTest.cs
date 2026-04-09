@@ -37,7 +37,7 @@ public class AuthenticateUserCommandHandlerTest
             .ReturnsAsync(expectedResult);
 
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(Result.Of(new UserEntity()));
+            .ReturnsAsync(Result.Of(new UserProfileEntity()));
         
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -62,7 +62,7 @@ public class AuthenticateUserCommandHandlerTest
             .ReturnsAsync(Result.Failure<AuthenticationResult>(expectedError));
         
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(Result.Of(new UserEntity()));
+            .ReturnsAsync(Result.Of(new UserProfileEntity()));
 
         // Act
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -77,7 +77,7 @@ public class AuthenticateUserCommandHandlerTest
     {
         // Given: Some mocking to return error
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(Result.Failure<UserEntity>(UserErrors.UserNotFound));
+            .ReturnsAsync(Result.Failure<UserProfileEntity>(UserErrors.UserNotFound));
         
         _cognitoServiceMock.Setup(s => s.AuthenticateUserAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(Result.Success(new AuthenticationResult()));
         
@@ -104,7 +104,7 @@ public class AuthenticateUserCommandHandlerTest
             .ReturnsAsync(expectedResult);
 
         _userRepositoryMock.Setup(repository => repository.GetByIdAsync(It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(Result.Of(new UserEntity()
+            .ReturnsAsync(Result.Of(new UserProfileEntity()
             {
                 Role = UserRole.Therapist
             }));

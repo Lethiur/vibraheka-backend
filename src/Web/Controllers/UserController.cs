@@ -21,7 +21,7 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger)
     /// <returns>A user profile object containing details about the specified user, or null if no user is found with the given ID.</returns>
     [HttpGet("{id}")]
     [Authorize]
-    [ProducesResponseType(typeof(UserEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileEntity), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserProfileFromId([FromRoute(Name = "id")] string userID)
     {

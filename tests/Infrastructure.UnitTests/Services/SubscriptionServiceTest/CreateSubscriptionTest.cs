@@ -13,7 +13,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
     public async Task ShouldResetCancelledSubscriptionToCreatedAndPending()
     {
         // Given
-        UserEntity user = new() { Id = "user-1", CustomerID = "cus-1" };
+        UserProfileEntity userProfile = new() { Id = "user-1", CustomerID = "cus-1" };
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.test",
@@ -32,7 +32,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
             .ReturnsAsync(Result.Success(cancelled));
 
         // When
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -45,7 +45,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
     public async Task ShouldCreateNewSubscriptionWhenNoneExists()
     {
         // Given
-        UserEntity user = new() { Id = "user-1", CustomerID = "cus-1", CreatedBy = "creator" };
+        UserProfileEntity userProfile = new() { Id = "user-1", CustomerID = "cus-1", CreatedBy = "creator" };
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.test",
@@ -58,7 +58,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
             .ReturnsAsync((SubscriptionEntity entity, CancellationToken _) => Result.Success(entity));
 
         // When
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -75,7 +75,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
     public async Task ShouldPropagateFailureWhenCreateSubscriptionFailsForDifferentReason()
     {
         // Given
-        UserEntity user = new() { Id = "user-1" };
+        UserProfileEntity userProfile = new() { Id = "user-1" };
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.test",
@@ -86,7 +86,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
             .ReturnsAsync(Result.Failure<SubscriptionEntity>("ANY-ERROR"));
 
         // When
-        Result<SubscriptionEntity> result = await _service.CreateSubscription(user, checkoutSession, CancellationToken.None);
+        Result<SubscriptionEntity> result = await _service.CreateSubscription(userProfile, checkoutSession, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

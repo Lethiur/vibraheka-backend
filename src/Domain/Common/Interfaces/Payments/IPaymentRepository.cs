@@ -15,7 +15,7 @@ public interface IPaymentRepository
     /// <param name="payer">The user entity representing the payer initiating the subscription payment.</param>
     /// <param name="cancellationToken">Token used to halt the operation before it finishes</param>
     /// <returns>A task that represents the asynchronous operation, containing the payment initiation response as a string.</returns>
-    Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserEntity payer,
+    Task<Result<SubscriptionCheckoutSessionEntity>> InitiateSubscriptionPaymentAsync(UserProfileEntity payer,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -24,15 +24,15 @@ public interface IPaymentRepository
     /// <param name="payer">The user entity representing the user requesting access to the subscription panel.</param>
     /// <param name="cancellationToken">Token to halt the async op before it finishes</param>
     /// <returns>A task that represents the asynchronous operation, containing the subscription panel URL as a string.</returns>
-    Task<Result<string>> GetSubscriptionPanelUrlAsync(UserEntity payer, CancellationToken cancellationToken);
+    Task<Result<string>> GetSubscriptionPanelUrlAsync(UserProfileEntity payer, CancellationToken cancellationToken);
 
     /// <summary>
     /// Registers a new customer in the system based on the provided user entity details.
     /// </summary>
-    /// <param name="user">The user entity containing the details for the customer to be registered.</param>
+    /// <param name="userProfile">The user entity containing the details for the customer to be registered.</param>
     /// <param name="cancellationToken">Token used to halt the operation before it finishes.</param>
     /// <returns>A task that represents the asynchronous operation, containing the result of the customer registration process as a string.</returns>
-    Task<Result<string>> RegisterCustomerAsync(UserEntity user, CancellationToken cancellationToken);
+    Task<Result<string>> RegisterCustomerAsync(UserProfileEntity userProfile, CancellationToken cancellationToken);
 
     /// <summary>
     /// Cancels an active subscription for the specified user and subscription.

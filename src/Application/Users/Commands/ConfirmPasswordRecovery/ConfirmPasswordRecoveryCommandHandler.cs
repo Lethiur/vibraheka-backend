@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 
@@ -11,8 +13,8 @@ namespace VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 /// </summary>
 public class ConfirmPasswordRecoveryCommandHandler(
     IPasswordResetTokenService passwordResetTokenService,
-    IUserCodeService userCodeService,
-    IUserService userService,
+    PasswordResetTokenPort userCodeService,
+    UserPort userService,
     ILogger<ConfirmPasswordRecoveryCommandHandler> logger)
     : IRequestHandler<ConfirmPasswordRecoveryCommand, Result<Unit>>
 {
@@ -31,12 +33,14 @@ public class ConfirmPasswordRecoveryCommandHandler(
             {
                 Result<PasswordResetTokenData> tokenResult = await passwordResetTokenService
                     .ValidateAndReadToken(request.EncryptedToken)
-                    .Tap(token => logger.LogInformation("Password reset token validated for email {Email}", token.Email))
+                    .Tap(token =>
+                        logger.LogInformation("Password reset token validated for email {Email}", token.Email))
                     .BindTry(token => EnsureTokenNotUsedAsync(token, cancellationToken))
                     .TapError(error => logger.LogWarning(
                         "Password recovery token validation failed with error {Error}", error))
                     .BindTry(token => ConfirmPasswordInCognitoAsync(token, request.NewPassword, cancellationToken))
-                    .Tap(token => logger.LogInformation("Cognito password recovery confirmed for email {Email}", token.Email))
+                    .Tap(token =>
+                        logger.LogInformation("Cognito password recovery confirmed for email {Email}", token.Email))
                     .TapError(error => logger.LogWarning("Cognito password recovery failed with error {Error}", error));
 
                 if (tokenResult.IsFailure)
@@ -61,10 +65,10 @@ public class ConfirmPasswordRecoveryCommandHandler(
         return await Result.Success(token)
             .BindTry(async currentToken =>
                 (await userCodeService.IsPasswordResetTokenUsedAsync(
-                        currentToken.Email,
-                        currentToken.TokenId,
-                        cancellationToken))
-                    .Map(isUsed => (Token: currentToken, IsUsed: isUsed)))
+                    currentToken.Email,
+                    currentToken.TokenId,
+                    cancellationToken))
+                .Map(isUsed => (Token: currentToken, IsUsed: isUsed)))
             .Ensure(result => !result.IsUsed, UserErrors.PasswordResetTokenAlreadyUsed)
             .Map(result => result.Token)
             .Tap(_ => logger.LogInformation("Replay protection validated for token {TokenId}", token.TokenId))
@@ -99,10 +103,11 @@ public class ConfirmPasswordRecoveryCommandHandler(
     /// <returns>Persistence result.</returns>
     private Task<Result<Unit>> SaveUsedTokenAsync(PasswordResetTokenData token, CancellationToken cancellationToken)
     {
-        return userCodeService.MarkPasswordResetTokenAsUsedAsync(
-            token.Email,
-            token.TokenId,
-            token.ExpiresAt,
-            cancellationToken);
+        return userCodeService.SaveCode(new UserCodeEntity()
+            {
+                UserEmail = token.Email,
+                Code = token.CognitoCode,
+                ExpiresAtUnix = token.ExpiresAt.ToUnixTimeSeconds(),
+            }, cancellationToken);
     }
 }

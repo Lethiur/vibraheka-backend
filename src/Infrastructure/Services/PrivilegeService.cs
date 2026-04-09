@@ -32,7 +32,7 @@ public class PrivilegeService(
     /// </returns>
     public async Task<Result<bool>> HasRoleAsync(string userId, UserRole role, CancellationToken cancellationToken)
     {
-        Result<UserEntity> user = await UsersRepository.GetByIdAsync(userId, cancellationToken);
+        Result<UserProfileEntity> user = await UsersRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user.IsFailure)
         {

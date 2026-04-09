@@ -48,11 +48,11 @@ public class CancelSubscriptionPaymentTest : TestBase
     public async Task ShouldCancelPaymentSessionWhenCheckoutSessionExists()
     {
         // Given: una sesion de checkout valida creada para un usuario.
-        UserEntity userEntity = CreateValidUser();
-        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
-        userEntity.CustomerID = registerCustomerResult.Value;
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userProfileEntity, CancellationToken.None);
+        userProfileEntity.CustomerID = registerCustomerResult.Value;
         Result<SubscriptionCheckoutSessionEntity> checkoutSessionResult =
-            await _paymentRepository.InitiateSubscriptionPaymentAsync(userEntity, CancellationToken.None);
+            await _paymentRepository.InitiateSubscriptionPaymentAsync(userProfileEntity, CancellationToken.None);
 
         // When: se solicita cancelar la sesion de checkout.
         Result<Unit> result =

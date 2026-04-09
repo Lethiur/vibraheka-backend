@@ -15,9 +15,9 @@ public class GetUserByIDTest : GenericPaymentServiceTest
         // Given
 
         // When
-        Result<UserEntity> nullResult = await _service.GetUserByID(null!, CancellationToken.None);
-        Result<UserEntity> emptyResult = await _service.GetUserByID("", CancellationToken.None);
-        Result<UserEntity> whitespaceResult = await _service.GetUserByID("  ", CancellationToken.None);
+        Result<UserProfileEntity> nullResult = await _service.GetUserByID(null!, CancellationToken.None);
+        Result<UserProfileEntity> emptyResult = await _service.GetUserByID("", CancellationToken.None);
+        Result<UserProfileEntity> whitespaceResult = await _service.GetUserByID("  ", CancellationToken.None);
 
         // Then
         Assert.That(nullResult.IsFailure, Is.True);
@@ -34,10 +34,10 @@ public class GetUserByIDTest : GenericPaymentServiceTest
     {
         // Given
         _userRepositoryMock.Setup(x => x.GetByIdAsync("user-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<UserEntity>(InfrastructureUserErrors.UserNotFound));
+            .ReturnsAsync(Result.Failure<UserProfileEntity>(InfrastructureUserErrors.UserNotFound));
 
         // When
-        Result<UserEntity> result = await _service.GetUserByID("user-1", CancellationToken.None);
+        Result<UserProfileEntity> result = await _service.GetUserByID("user-1", CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

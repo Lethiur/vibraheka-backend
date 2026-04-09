@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.AuthenticateUsers;
 
@@ -9,21 +10,17 @@ namespace VibraHeka.Application.Users.Commands.AuthenticateUsers;
 /// Uses the <see cref="IUserService"/> to perform the authentication operation
 /// and returns the result of the authentication process.
 /// </summary>
-public class AuthenticateUserCommandHandler(IUserService userService, IUserRepository UserRpository) : IRequestHandler<AuthenticateUserCommand, Result<AuthenticationResult>>
+public class AuthenticateUserCommandHandler(UserPort userService, UserProfilePort UserRpository) : IRequestHandler<AuthenticateUserCommand, Result<AuthenticationResult>>
 {
 
-    public async Task<Result<AuthenticationResult>> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
+    public Task<Result<AuthenticationResult>> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
     {
-        Result<AuthenticationResult> authenticateUserAsync = await userService.AuthenticateUserAsync(request.Email, request.Password);
 
-        return await authenticateUserAsync.Bind(async (result) =>
-        {
-            return (await UserRpository.GetByIdAsync(result.UserID, cancellationToken)).Map(user =>
+        return userService.AuthenticateUserAsync(request.Email, request.Password)
+            .Bind(authResult => UserRpository.GetProfileByUserId(authResult.UserID, cancellationToken).Map(profile =>
             {
-                result.Role = user.Role;
-                return result;
-            });
-        });
-
+                authResult.Role = profile.Role;
+                return authResult;
+            }));
     }
 }

@@ -11,11 +11,11 @@ public class GetSubscriptionDetailsUrlAsyncTest : GenericPaymentServiceTest
     public async Task ShouldReturnPortalUrlFromPaymentRepository()
     {
         // Given
-        UserEntity user = new() { Id = "user-1", CustomerID = "cus-1" };
+        UserProfileEntity userProfile = new() { Id = "user-1", CustomerID = "cus-1" };
 
         _userRepositoryMock.Setup(x => x.GetByIdAsync("user-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(user));
-        _paymentRepositoryMock.Setup(x => x.GetSubscriptionPanelUrlAsync(user, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(userProfile));
+        _paymentRepositoryMock.Setup(x => x.GetSubscriptionPanelUrlAsync(userProfile, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success("https://portal.test"));
 
         // When

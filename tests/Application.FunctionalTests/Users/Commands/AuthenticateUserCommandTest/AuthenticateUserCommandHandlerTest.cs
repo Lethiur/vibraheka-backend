@@ -36,7 +36,7 @@ public class AuthenticateUserCommandHandlerTest
 
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(auth.UserID, CancellationToken.None))
-            .ReturnsAsync(Result.Success(new UserEntity { Role = UserRole.Admin }));
+            .ReturnsAsync(Result.Success(new UserProfileEntity { Role = UserRole.Admin }));
 
         // When
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);
@@ -78,7 +78,7 @@ public class AuthenticateUserCommandHandlerTest
 
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(auth.UserID, CancellationToken.None))
-            .ReturnsAsync(Result.Failure<UserEntity>("DB-FAIL"));
+            .ReturnsAsync(Result.Failure<UserProfileEntity>("DB-FAIL"));
 
         // When
         Result<AuthenticationResult> result = await _handler.Handle(command, CancellationToken.None);

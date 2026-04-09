@@ -177,7 +177,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
 
         string userId = Guid.NewGuid().ToString();
-        UserEntity adminUserEntity = new()
+        UserProfileEntity adminUserProfileEntity = new()
         {
             Id = ID,
             Email = email,
@@ -189,19 +189,19 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
             LastModifiedBy = userId
         };
 
-        await repository.AddAsync(adminUserEntity);
+        await repository.AddAsync(adminUserProfileEntity);
     }
 
     /// <summary>
     /// Retrieves a user entity by their unique identifier from the user repository.
     /// </summary>
     /// <param name="userID">The unique identifier of the user to be retrieved.</param>
-    /// <returns>A <see cref="UserEntity"/> object representing the user associated with the specified identifier, or null if the user is not found.</returns>
-    protected async Task<UserEntity> CheckForUser(string userID)
+    /// <returns>A <see cref="UserProfileEntity"/> object representing the user associated with the specified identifier, or null if the user is not found.</returns>
+    protected async Task<UserProfileEntity> CheckForUser(string userID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
         IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-        Result<UserEntity> user = await repository.GetByIdAsync(userID, CancellationToken.None);
+        Result<UserProfileEntity> user = await repository.GetByIdAsync(userID, CancellationToken.None);
         return user.GetValueOrDefault();
     }
 

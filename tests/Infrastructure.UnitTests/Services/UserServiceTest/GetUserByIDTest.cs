@@ -16,21 +16,21 @@ public class GetUserByIDTests : GenericUserServiceTest
     {
         // Given
         string userId = Guid.NewGuid().ToString();
-        UserEntity user = new(userId, "user@test.com", "John Doe");
+        UserProfileEntity userProfile = new(userId, "user@test.com", "John Doe");
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Success(user));
+            .ReturnsAsync(Result.Success(userProfile));
 
         // When
-        Result<UserEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
+        Result<UserProfileEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.Not.Null);
         Assert.That(result.Value.Id, Is.EqualTo(userId));
-        Assert.That(result.Value.Email, Is.EqualTo(user.Email));
-        Assert.That(result.Value.FirstName, Is.EqualTo(user.FirstName));
+        Assert.That(result.Value.Email, Is.EqualTo(userProfile.Email));
+        Assert.That(result.Value.FirstName, Is.EqualTo(userProfile.FirstName));
 
         _userRepositoryMock.Verify(r => r.GetByIdAsync(userId, CancellationToken.None), Times.Once);
     }
@@ -42,7 +42,7 @@ public class GetUserByIDTests : GenericUserServiceTest
     public async Task ShouldFailWithInvalidUserIdAndNotCallRepositoryWhenUserIdIsInvalid(string? userId)
     {
         // When
-        Result<UserEntity> result = await _service.GetUserByID(userId!, CancellationToken.None);
+        Result<UserProfileEntity> result = await _service.GetUserByID(userId!, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);
@@ -60,10 +60,10 @@ public class GetUserByIDTests : GenericUserServiceTest
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Success<UserEntity>(null!));
+            .ReturnsAsync(Result.Success<UserProfileEntity>(null!));
 
         // When
-        Result<UserEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
+        Result<UserProfileEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);
@@ -81,10 +81,10 @@ public class GetUserByIDTests : GenericUserServiceTest
 
         _userRepositoryMock
             .Setup(r => r.GetByIdAsync(userId, CancellationToken.None))
-            .ReturnsAsync(Result.Failure<UserEntity>(InfrastructureUserErrors.UserNotFound));
+            .ReturnsAsync(Result.Failure<UserProfileEntity>(InfrastructureUserErrors.UserNotFound));
 
         // When
-        Result<UserEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
+        Result<UserProfileEntity> result = await _service.GetUserByID(userId, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

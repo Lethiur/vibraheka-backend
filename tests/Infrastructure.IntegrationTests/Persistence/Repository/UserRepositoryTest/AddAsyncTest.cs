@@ -17,14 +17,14 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldAddUserSuccessfullyWhenValidDataProvided()
     {
         // Given: A valid user entity
-        UserEntity userEntity = CreateValidUser();
+        UserProfileEntity userProfileEntity = CreateValidUser();
 
         // When: Adding the user to repository
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should return success with user ID
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value, Is.EqualTo(userProfileEntity.Id));
         Assert.That(result.Value, Is.Not.Null.And.Not.Empty);
 
     }
@@ -35,14 +35,14 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with complex email format
         string email = $"test.user+complex@{_faker.Internet.DomainName()}";
-        UserEntity userEntity = new(Guid.NewGuid().ToString(), email, _faker.Person.FullName);
+        UserProfileEntity userProfileEntity = new(Guid.NewGuid().ToString(), email, _faker.Person.FullName);
 
         // When: Adding the user
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value, Is.EqualTo(userProfileEntity.Id));
         
     }
 
@@ -51,18 +51,18 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldAddUserSuccessfullyWhenSpecialCharactersInName()
     {
         // Given: A user with special characters in name
-        UserEntity userEntity = new(
+        UserProfileEntity userProfileEntity = new(
             Guid.NewGuid().ToString(), 
             _faker.Internet.Email(), 
             "José María O'Connor-Smith"
         );
 
         // When: Adding the user
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value, Is.EqualTo(userProfileEntity.Id));
 
     }
 
@@ -72,14 +72,14 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with a very long name
         string longName = new string('A', 100) + " " + new string('B', 100);
-        UserEntity userEntity = new(Guid.NewGuid().ToString(), _faker.Internet.Email(), longName);
+        UserProfileEntity userProfileEntity = new(Guid.NewGuid().ToString(), _faker.Internet.Email(), longName);
 
         // When: Adding the user
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value, Is.EqualTo(userProfileEntity.Id));
 
     }
 
@@ -92,10 +92,10 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldPersistUserDataCorrectlyWhenUserAdded()
     {
         // Given: A user with specific data
-        UserEntity originalUserEntity = CreateValidUser();
+        UserProfileEntity originalUserProfileEntity = CreateValidUser();
 
         // When: Adding the user
-        Result<string> addResult = await _userRepository.AddAsync(originalUserEntity);
+        Result<string> addResult = await _userRepository.AddAsync(originalUserProfileEntity);
         Assert.That(addResult.IsSuccess, Is.True);
 
         // And: Retrieving the user directly from DynamoDB
@@ -103,13 +103,13 @@ public class AddAsyncTest : GenericUserRepositoryTest
         {
             OverrideTableName = _configuration.UsersTable
         };
-        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(originalUserEntity.Id, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(originalUserProfileEntity.Id, loadConfig);
 
         // Then: Retrieved user should match original data
         Assert.That(retrievedUser, Is.Not.Null);
-        Assert.That(retrievedUser.Id, Is.EqualTo(originalUserEntity.Id));
-        Assert.That(retrievedUser.Email, Is.EqualTo(originalUserEntity.Email));
-        Assert.That(retrievedUser.FirstName, Is.EqualTo(originalUserEntity.FirstName));
+        Assert.That(retrievedUser.Id, Is.EqualTo(originalUserProfileEntity.Id));
+        Assert.That(retrievedUser.Email, Is.EqualTo(originalUserProfileEntity.Email));
+        Assert.That(retrievedUser.FirstName, Is.EqualTo(originalUserProfileEntity.FirstName));
 
     }
 
@@ -118,10 +118,10 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldVerifyUserExistsWhenUserAdded()
     {
         // Given: A new user
-        UserEntity userEntity = CreateValidUser();
+        UserProfileEntity userProfileEntity = CreateValidUser();
 
         // When: Adding the user
-        Result<string> addResult = await _userRepository.AddAsync(userEntity);
+        Result<string> addResult = await _userRepository.AddAsync(userProfileEntity);
         Assert.That(addResult.IsSuccess, Is.True);
 
         // And: Checking if user exists by email
@@ -129,12 +129,12 @@ public class AddAsyncTest : GenericUserRepositoryTest
         {
             OverrideTableName = _configuration.UsersTable
         };
-        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userEntity.Id, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userProfileEntity.Id, loadConfig);
 
         // Then: User should exist
         Assert.That(retrievedUser, Is.Not.Null, "User should exist after adding");
-        Assert.That(retrievedUser.Id, Is.EqualTo(userEntity.Id), "User ID should match");
-        Assert.That(retrievedUser.Email, Is.EqualTo(userEntity.Email), "User email should match");
+        Assert.That(retrievedUser.Id, Is.EqualTo(userProfileEntity.Id), "User ID should match");
+        Assert.That(retrievedUser.Email, Is.EqualTo(userProfileEntity.Email), "User email should match");
 
     }
 
@@ -148,16 +148,16 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with original data
         string userId = Guid.NewGuid().ToString();
-        UserEntity originalUserEntity = new(userId, "original@example.com", "Original Name");
+        UserProfileEntity originalUserProfileEntity = new(userId, "original@example.com", "Original Name");
         
-        Result<string> firstResult = await _userRepository.AddAsync(originalUserEntity);
+        Result<string> firstResult = await _userRepository.AddAsync(originalUserProfileEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
 
         // And: The same user ID but with different data
-        UserEntity modifiedUserEntity = new(userId, "modified@example.com", "Modified Name");
+        UserProfileEntity modifiedUserProfileEntity = new(userId, "modified@example.com", "Modified Name");
 
         // When: Adding the user with same ID again
-        Result<string> secondResult = await _userRepository.AddAsync(modifiedUserEntity);
+        Result<string> secondResult = await _userRepository.AddAsync(modifiedUserProfileEntity);
 
         // Then: Should succeed (DynamoDB overwrites by default)
         Assert.That(secondResult.IsSuccess, Is.True);
@@ -183,12 +183,12 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: Two different users with the same email
         string email = "duplicate@example.com";
-        UserEntity firstUserEntity = new(Guid.NewGuid().ToString(), email, "First User");
-        UserEntity secondUserEntity = new(Guid.NewGuid().ToString(), email, "Second User");
+        UserProfileEntity firstUserProfileEntity = new(Guid.NewGuid().ToString(), email, "First User");
+        UserProfileEntity secondUserProfileEntity = new(Guid.NewGuid().ToString(), email, "Second User");
 
         // When: Adding both users
-        Result<string> firstResult = await _userRepository.AddAsync(firstUserEntity);
-        Result<string> secondResult = await _userRepository.AddAsync(secondUserEntity);
+        Result<string> firstResult = await _userRepository.AddAsync(firstUserProfileEntity);
+        Result<string> secondResult = await _userRepository.AddAsync(secondUserProfileEntity);
 
         // Then: Both should succeed (different IDs, same email is allowed in DynamoDB)
         Assert.That(firstResult.IsSuccess, Is.True);
@@ -201,8 +201,8 @@ public class AddAsyncTest : GenericUserRepositoryTest
             OverrideTableName = _configuration.UsersTable
         };
         
-        UserDBModel? retrievedFirstUser = await _dynamoContext.LoadAsync<UserDBModel>(firstUserEntity.Id, loadConfig);
-        UserDBModel? retrievedSecondUser = await _dynamoContext.LoadAsync<UserDBModel>(secondUserEntity.Id, loadConfig);
+        UserDBModel? retrievedFirstUser = await _dynamoContext.LoadAsync<UserDBModel>(firstUserProfileEntity.Id, loadConfig);
+        UserDBModel? retrievedSecondUser = await _dynamoContext.LoadAsync<UserDBModel>(secondUserProfileEntity.Id, loadConfig);
 
         Assert.That(retrievedFirstUser, Is.Not.Null);
         Assert.That(retrievedSecondUser, Is.Not.Null);
@@ -220,9 +220,9 @@ public class AddAsyncTest : GenericUserRepositoryTest
         string userId = Guid.NewGuid().ToString();
         string userEmail = "concurrent@example.com";
         
-        UserEntity user1 = new(userId, userEmail, "Concurrent User 1");
-        UserEntity user2 = new(userId, userEmail, "Concurrent User 2");
-        UserEntity user3 = new(userId, userEmail, "Concurrent User 3");
+        UserProfileEntity user1 = new(userId, userEmail, "Concurrent User 1");
+        UserProfileEntity user2 = new(userId, userEmail, "Concurrent User 2");
+        UserProfileEntity user3 = new(userId, userEmail, "Concurrent User 3");
 
         // When: Adding the same user ID concurrently (race condition scenario)
         Task<Result<string>>[] tasks =
@@ -246,7 +246,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         {
             OverrideTableName = _configuration.UsersTable
         };
-        UserEntity? retrievedUser = await _dynamoContext.LoadAsync<UserEntity>(userId, loadConfig);
+        UserProfileEntity? retrievedUser = await _dynamoContext.LoadAsync<UserProfileEntity>(userId, loadConfig);
 
         Assert.That(retrievedUser, Is.Not.Null);
         Assert.That(retrievedUser.Id, Is.EqualTo(userId));
@@ -263,19 +263,19 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user added at time T1
         string userId = Guid.NewGuid().ToString();
-        UserEntity firstUserEntity = new(userId, "first@example.com", "First Version");
+        UserProfileEntity firstUserProfileEntity = new(userId, "first@example.com", "First Version");
         
-        Result<string> firstResult = await _userRepository.AddAsync(firstUserEntity);
+        Result<string> firstResult = await _userRepository.AddAsync(firstUserProfileEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
 
         // And: Wait a small amount to ensure different timestamps
         await Task.Delay(100);
 
         // And: The same user ID with updated data at time T2
-        UserEntity secondUserEntity = new(userId, "second@example.com", "Second Version");
+        UserProfileEntity secondUserProfileEntity = new(userId, "second@example.com", "Second Version");
 
         // When: Adding the updated user
-        Result<string> secondResult = await _userRepository.AddAsync(secondUserEntity);
+        Result<string> secondResult = await _userRepository.AddAsync(secondUserProfileEntity);
 
         // Then: Should succeed and overwrite
         Assert.That(secondResult.IsSuccess, Is.True);
@@ -305,18 +305,18 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleConcurrentAdditionsWhenMultipleUsersAddedSimultaneously()
     {
         // Given: Multiple different users
-        List<UserEntity> users = new();
+        List<UserProfileEntity> users = new();
         List<Task<Result<string>>> tasks = new();
 
         for (int i = 0; i < 5; i++)
         {
-            UserEntity userEntity = new(
+            UserProfileEntity userProfileEntity = new(
                 Guid.NewGuid().ToString(),
                 $"concurrent{i}@{_faker.Internet.DomainName()}",
                 $"Concurrent User {i}"
             );
-            users.Add(userEntity);
-            tasks.Add(_userRepository.AddAsync(userEntity));
+            users.Add(userProfileEntity);
+            tasks.Add(_userRepository.AddAsync(userProfileEntity));
         }
 
         // When: Adding all users concurrently
@@ -339,18 +339,18 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleUserWithMinimumDataWhenOnlyRequiredFieldsProvided()
     {
         // Given: A user with minimum required data
-        UserEntity userEntity = new(
+        UserProfileEntity userProfileEntity = new(
             Guid.NewGuid().ToString(),
             "minimal@example.com",
             "M" // Single character name
         );
 
         // When: Adding the user
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value, Is.EqualTo(userProfileEntity.Id));
     }
 
     [Test]
@@ -358,14 +358,14 @@ public class AddAsyncTest : GenericUserRepositoryTest
     public async Task ShouldHandleUserWhenEmptyGuidProvided()
     {
         // Given: A user with empty GUID as ID
-        UserEntity userEntity = new(
+        UserProfileEntity userProfileEntity = new(
             Guid.Empty.ToString(),
             _faker.Internet.Email(),
             _faker.Person.FullName
         );
 
         // When: Adding the user
-        Result<string> result = await _userRepository.AddAsync(userEntity);
+        Result<string> result = await _userRepository.AddAsync(userProfileEntity);
 
         // Then: Should handle gracefully (might succeed with empty ID)
         Assert.That(result.IsFailure, Is.False, "User with empty GUID should be handled gracefully");

@@ -3,25 +3,26 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Ports.output;
 
 
 namespace VibraHeka.Application.Users.Commands.UpdateUserProfile;
 
-public class UpdateUserCommandHandler(ICurrentUserService currentUserService, IUserService userService) : IRequestHandler<UpdateUserProfileCommand, Result<Unit>>
+public class UpdateUserCommandHandler(ICurrentUserService currentUserService, UserProfilePort userService) : IRequestHandler<UpdateUserProfileCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
         return Maybe.From(request.NewUserData)
             .Where(userDTO => userDTO.Id == currentUserService.UserId)
             .ToResult(UserErrors.NotAuthorized)
-            .MapTry(UserEntity (userDTO) => new UserEntity(userDTO.Id, userDTO.Email, userDTO.FirstName)
+            .MapTry(UserProfileEntity (userDTO) => new UserProfileEntity(userDTO.Id, userDTO.Email, userDTO.FirstName)
             {
                 MiddleName = userDTO.MiddleName,
                 LastName = userDTO.LastName,
                 PhoneNumber = userDTO.PhoneNumber,
                 Bio = userDTO.Bio
             })
-            .BindTry(Task<Result<Unit>> (userDTO) => userService.UpdateUserAsync(userDTO, currentUserService.UserId!, cancellationToken));
+            .BindTry(Task<Result<Unit>> (userDTO) => userService.UpdateUserProfile(userDTO, currentUserService.UserId!, cancellationToken));
 
 
     }

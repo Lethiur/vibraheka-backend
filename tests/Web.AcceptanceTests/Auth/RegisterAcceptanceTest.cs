@@ -36,9 +36,9 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(result!.UserId, Is.Not.Null.And.Not.Empty);
 
         // And: the user should be retrievable from persistence by returned id.
-        UserEntity persistedUser = await CheckForUser(result.UserId);
-        Assert.That(persistedUser, Is.Not.Null);
-        Assert.That(persistedUser.Email, Is.EqualTo(email));
+        UserProfileEntity persistedUserProfile = await CheckForUser(result.UserId);
+        Assert.That(persistedUserProfile, Is.Not.Null);
+        Assert.That(persistedUserProfile.Email, Is.EqualTo(email));
     }
     
    // === EMAIL TESTS ===

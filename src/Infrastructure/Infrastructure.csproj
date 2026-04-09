@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Persistence\DynamoDB\Converters\" />
     <Folder Include="terraform\Lambdas\Payments\src\Application\" />
   </ItemGroup>
 </Project>

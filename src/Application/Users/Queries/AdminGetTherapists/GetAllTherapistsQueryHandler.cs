@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
 
@@ -22,14 +23,14 @@ namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
 /// </param>
 /// <returns>
 /// A task that represents the asynchronous operation, which contains a <see cref="Result{T}"/> object
-/// holding a list of <see cref="UserEntity"/> entities or an error if the operation fails.
+/// holding a list of <see cref="UserProfileEntity"/> entities or an error if the operation fails.
 /// </returns>
 public class GetAllTherapistsQueryHandler(
-    IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<UserEntity>>>
+    UserProfilePort Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<UserProfileEntity>>>
 {
-    public async Task<Result<IEnumerable<UserEntity>>> Handle(GetAllTherapistsQuery request,
+    public async Task<Result<IEnumerable<UserProfileEntity>>> Handle(GetAllTherapistsQuery request,
         CancellationToken cancellationToken)
     {
-        return await Repository.GetByRoleAsync(UserRole.Therapist);
+        return await Repository.GetByRoleAsync(UserRole.Therapist, cancellationToken);
     }
 }

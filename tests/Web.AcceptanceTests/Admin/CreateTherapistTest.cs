@@ -78,8 +78,8 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // And: The created therapist appears in admin listing with same id.
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/admin/therapists");
-        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<UserEntity>>();
-        IEnumerable<UserEntity>? therapists = listEntity.GetContentAs<IEnumerable<UserEntity>>();
+        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<UserProfileEntity>>();
+        IEnumerable<UserProfileEntity>? therapists = listEntity.GetContentAs<IEnumerable<UserProfileEntity>>();
         Assert.That(therapists, Is.Not.Null);
         Assert.That(therapists!.Any(t => t.Id == createdTherapistId), Is.True);
     }

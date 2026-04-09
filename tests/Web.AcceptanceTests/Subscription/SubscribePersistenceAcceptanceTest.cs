@@ -20,10 +20,10 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
         StripeConfig stripeConfig = GetObjectFromFactory<StripeConfig>();
 
-        Result<UserEntity> userBeforeSubscriptionResult =
+        Result<UserProfileEntity> userBeforeSubscriptionResult =
             await userRepository.GetByIdAsync(authResult.UserID, CancellationToken.None);
         Assert.That(userBeforeSubscriptionResult.IsSuccess, Is.True);
-        UserEntity userBeforeSubscription = userBeforeSubscriptionResult.Value;
+        UserProfileEntity userProfileBeforeSubscription = userBeforeSubscriptionResult.Value;
 
         // When: the user starts the subscription flow.
         HttpResponseMessage subscribeResponse = await Client.PutAsync("/api/v1/subscriptions", null);
@@ -39,13 +39,13 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         Assert.That(subscriptionResult.IsSuccess, Is.True);
         SubscriptionEntity subscription = subscriptionResult.Value;
 
-        Result<UserEntity> userAfterSubscriptionResult =
+        Result<UserProfileEntity> userAfterSubscriptionResult =
             await userRepository.GetByIdAsync(authResult.UserID, CancellationToken.None);
         Assert.That(userAfterSubscriptionResult.IsSuccess, Is.True);
-        UserEntity userAfterSubscription = userAfterSubscriptionResult.Value;
+        UserProfileEntity userProfileAfterSubscription = userAfterSubscriptionResult.Value;
 
         Assert.That(subscription.UserID, Is.EqualTo(authResult.UserID));
-        Assert.That(subscription.ExternalCustomerID, Is.EqualTo(userAfterSubscription.CustomerID));
+        Assert.That(subscription.ExternalCustomerID, Is.EqualTo(userProfileAfterSubscription.CustomerID));
         Assert.That(subscription.ExternalCustomerID, Is.Not.Empty);
         Assert.That(subscription.ExternalSubscriptionItemID, Is.EqualTo(stripeConfig.SubscriptionID));
         Assert.That(subscription.ExternalSubscriptionID, Is.Empty);
@@ -53,7 +53,7 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         Assert.That(subscription.Status, Is.EqualTo(OrderStatus.Pending));
         Assert.That(subscription.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
 
-        Assert.That(userBeforeSubscription.CustomerID, Is.Empty);
-        Assert.That(userAfterSubscription.CustomerID, Is.EqualTo(userAfterSubscription.CustomerID));
+        Assert.That(userProfileBeforeSubscription.CustomerID, Is.Empty);
+        Assert.That(userProfileAfterSubscription.CustomerID, Is.EqualTo(userProfileAfterSubscription.CustomerID));
     }
 }

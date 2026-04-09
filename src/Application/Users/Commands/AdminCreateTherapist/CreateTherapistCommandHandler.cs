@@ -2,6 +2,7 @@
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
@@ -14,8 +15,8 @@ namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 /// creation responsibilities to the underlying user repository and authentication service.
 /// </remarks>
 public class CreateTherapistCommandHandler(
-    IUserService CognitService,
-    IUserRepository Repository,
+    UserPort CognitService,
+    UserProfilePort Repository,
     ICurrentUserService CurrentUserService)
     : IRequestHandler<CreateTherapistCommand, Result<string>>
 {
@@ -31,7 +32,7 @@ public class CreateTherapistCommandHandler(
         return CognitService.RegisterUserAsync(request.TherapistData.Email, password, request.TherapistData.FirstName)
             .Bind(async id =>
         {
-            UserEntity userEntity = new()
+            UserProfileEntity userProfileEntity = new()
             {
                 FirstName = request.TherapistData.FirstName,
                 Email = request.TherapistData.Email,
@@ -49,7 +50,7 @@ public class CreateTherapistCommandHandler(
                 LastModifiedBy = CurrentUserService.UserId
             };
 
-            return await Repository.AddAsync(userEntity);
+            return await Repository.SaveAsync(userProfileEntity, cancellationToken);
         });
     }
 }

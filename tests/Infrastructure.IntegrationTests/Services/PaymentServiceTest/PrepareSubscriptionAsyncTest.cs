@@ -33,19 +33,19 @@ public class PrepareSubscriptionAsyncTest : TestBase
     public async Task ShouldPrepareContextAndPersistCustomerIdWhenUserHasNoCustomerId()
     {
         // Given: un usuario valido persistido sin customer id en Stripe.
-        UserEntity userEntity = CreateValidUser();
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se prepara la suscripcion para ese usuario.
-        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe crear contexto de checkout y persistir customer id.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.UserID, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value.UserID, Is.EqualTo(userProfileEntity.Id));
         Assert.That(result.Value.ExternalCustomerID, Is.Not.Null.And.Not.Empty);
         Assert.That(result.Value.CheckoutSession.Url, Is.Not.Null.And.Not.Empty);
 
-        Result<UserEntity> persistedUser = await _userRepository.GetByIdAsync(userEntity.Id, CancellationToken.None);
+        Result<UserProfileEntity> persistedUser = await _userRepository.GetByIdAsync(userProfileEntity.Id, CancellationToken.None);
         Assert.That(persistedUser.IsSuccess, Is.True);
         Assert.That(persistedUser.Value.CustomerID, Is.EqualTo(result.Value.ExternalCustomerID));
     }
@@ -54,17 +54,17 @@ public class PrepareSubscriptionAsyncTest : TestBase
     public async Task ShouldReuseExistingCustomerIdWhenUserAlreadyHasOne()
     {
         // Given: un usuario con customer id ya registrado previamente en Stripe.
-        UserEntity userEntity = CreateValidUser();
-        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
-        userEntity.CustomerID = registerCustomerResult.Value;
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userProfileEntity, CancellationToken.None);
+        userProfileEntity.CustomerID = registerCustomerResult.Value;
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se prepara la suscripcion para el usuario ya asociado.
-        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe usar el customer id existente y devolver sesion valida.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(userEntity.CustomerID));
+        Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(userProfileEntity.CustomerID));
         Assert.That(result.Value.CheckoutSession.PaymentSessionID, Is.Not.Null.And.Not.Empty);
     }
 
@@ -72,12 +72,12 @@ public class PrepareSubscriptionAsyncTest : TestBase
     public async Task ShouldMapStripeErrorToSubscriptionErrorWhenCheckoutCreationFails()
     {
         // Given: un usuario persistido con customer id invalido para forzar error Stripe.
-        UserEntity userEntity = CreateValidUser();
-        userEntity.CustomerID = "cus_invalid_for_integration_test";
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        userProfileEntity.CustomerID = "cus_invalid_for_integration_test";
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se prepara la suscripcion usando ese customer id invalido.
-        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionContext> result = await _paymentService.PrepareSubscriptionAsync(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe mapear al error funcional de suscripcion.
         Assert.That(result.IsFailure, Is.True);

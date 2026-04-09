@@ -32,7 +32,7 @@ public class GetUserProfileQueryHandlerTest
         string targetUserId = Guid.NewGuid().ToString();
         _currentUserServiceMock.Setup(x => x.UserId).Returns(currentUserId);
         _userServiceMock.Setup(x => x.GetUserByID(targetUserId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(new UserEntity { Id = targetUserId, PhoneNumber = "+34999999999" }));
+            .ReturnsAsync(Result.Success(new UserProfileEntity { Id = targetUserId, PhoneNumber = "+34999999999" }));
 
         // When
         Result<UserDTO> result = await _handler.Handle(new GetUserProfileQuery(targetUserId), CancellationToken.None);

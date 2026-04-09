@@ -72,18 +72,18 @@ public class SubscriptionService(
     /// Updates the subscription context with user and session-specific information, and processes
     /// a subscription creation request in the repository.
     /// </summary>
-    /// <param name="user">The user entity for whom the subscription is being created.</param>
+    /// <param name="userProfile">The user entity for whom the subscription is being created.</param>
     /// <param name="context">The subscription checkout session entity containing details about the subscription session.</param>
     /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/> object
     /// with a <see cref="SubscriptionEntity"/> representing the created subscription if successful, or an error if the operation fails.</returns>
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user,
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserProfileEntity userProfile,
         SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken)
     {
         SubscriptionContext preparation = new()
         {
-            UserID = user.Id,
-            ExternalCustomerID = user.CustomerID,
+            UserID = userProfile.Id,
+            ExternalCustomerID = userProfile.CustomerID,
             CheckoutSession = context
         };
 

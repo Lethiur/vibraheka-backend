@@ -88,7 +88,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
     /// <param name="id">The unique identifier of the user to retrieve.</param>
     /// <param name="cancellationToken">The token used to signal cancellation of the operation.</param>
     /// <returns>A result containing the user entity if found, or an error indicating that the user ID is invalid.</returns>
-    public Task<Result<UserEntity>> GetUserByID(string id, CancellationToken cancellationToken)
+    public Task<Result<UserProfileEntity>> GetUserByID(string id, CancellationToken cancellationToken)
     {
         return Maybe.From(id)
             .ToResult(UserErrors.InvalidUserID)

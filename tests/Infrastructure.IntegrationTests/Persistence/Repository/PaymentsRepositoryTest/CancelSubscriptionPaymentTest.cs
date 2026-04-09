@@ -13,11 +13,11 @@ public class CancelSubscriptionPaymentTest : GenericPaymentsRepositoryIntegratio
     public async Task ShouldExpireCheckoutSessionWhenSessionExists()
     {
         // Given: una sesion de checkout creada para un customer valido.
-        UserEntity user = CreateValidUser();
-        Result<string> customerResult = await _repository.RegisterCustomerAsync(user, CancellationToken.None);
-        user.CustomerID = customerResult.Value;
+        UserProfileEntity userProfile = CreateValidUser();
+        Result<string> customerResult = await _repository.RegisterCustomerAsync(userProfile, CancellationToken.None);
+        userProfile.CustomerID = customerResult.Value;
         Result<SubscriptionCheckoutSessionEntity> checkoutSessionResult =
-            await _repository.InitiateSubscriptionPaymentAsync(user, CancellationToken.None);
+            await _repository.InitiateSubscriptionPaymentAsync(userProfile, CancellationToken.None);
 
         // When: se solicita expirar la sesion de checkout.
         Result<Unit> result = await _repository.CancelSubscriptionPayment(checkoutSessionResult.Value, CancellationToken.None);

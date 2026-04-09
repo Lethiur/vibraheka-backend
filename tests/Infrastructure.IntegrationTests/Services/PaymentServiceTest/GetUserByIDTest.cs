@@ -31,15 +31,15 @@ public class GetUserByIDTest : TestBase
     public async Task ShouldReturnUserWhenIdIsValidAndUserExists()
     {
         // Given: un usuario valido almacenado en la base de datos.
-        UserEntity userEntity = CreateValidUser();
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se consulta el usuario por su id valido.
-        Result<UserEntity> result = await _paymentService.GetUserByID(userEntity.Id, CancellationToken.None);
+        Result<UserProfileEntity> result = await _paymentService.GetUserByID(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe devolverse el usuario correctamente.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Id, Is.EqualTo(userEntity.Id));
+        Assert.That(result.Value.Id, Is.EqualTo(userProfileEntity.Id));
     }
 
     [TestCase(null)]
@@ -51,7 +51,7 @@ public class GetUserByIDTest : TestBase
         // Given: un id invalido (null, vacio o solo espacios).
 
         // When: se intenta obtener el usuario con ese id invalido.
-        Result<UserEntity> result = await _paymentService.GetUserByID(invalidUserId!, CancellationToken.None);
+        Result<UserProfileEntity> result = await _paymentService.GetUserByID(invalidUserId!, CancellationToken.None);
 
         // Then: debe retornar error de id invalido.
         Assert.That(result.IsFailure, Is.True);
@@ -65,7 +65,7 @@ public class GetUserByIDTest : TestBase
         string nonExistentUserId = Guid.NewGuid().ToString();
 
         // When: se consulta el usuario inexistente.
-        Result<UserEntity> result = await _paymentService.GetUserByID(nonExistentUserId, CancellationToken.None);
+        Result<UserProfileEntity> result = await _paymentService.GetUserByID(nonExistentUserId, CancellationToken.None);
 
         // Then: debe mapear al error de usuario no encontrado.
         Assert.That(result.IsFailure, Is.True);

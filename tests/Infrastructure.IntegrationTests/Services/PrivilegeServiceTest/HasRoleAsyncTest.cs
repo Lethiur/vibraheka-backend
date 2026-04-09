@@ -16,14 +16,14 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
     {
         // Given: A user persisted in the database with a specific role
         string userId = Guid.NewGuid().ToString();
-        UserEntity userEntity = new()
+        UserProfileEntity userProfileEntity = new()
         {
             Id = userId,
             Email = "therapist@test.com",
             FirstName = "Test Therapist",
             Role = UserRole.Therapist
         };
-        await _userRepository.AddAsync(userEntity);
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: Checking if the user has the Therapist role
         Result<bool> result = await PrivilegeService.HasRoleAsync(userId, UserRole.Therapist, CancellationToken.None);
@@ -39,14 +39,14 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
     {
         // Given: An admin user in the database
         string userId = Guid.NewGuid().ToString();
-        UserEntity userEntity = new()
+        UserProfileEntity userProfileEntity = new()
         {
             Id = userId,
             Email = "admin@test.com",
             FirstName = "Test Admin",
             Role = UserRole.Admin
         };
-        await _userRepository.AddAsync(userEntity);
+        await _userRepository.AddAsync(userProfileEntity);
         
         // When: Checking if this admin has the Therapist role
         Result<bool> result = await PrivilegeService.HasRoleAsync(userId, UserRole.Therapist, CancellationToken.None);

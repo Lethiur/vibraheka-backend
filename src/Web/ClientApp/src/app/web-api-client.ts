@@ -147,6 +147,7 @@ export interface IAuthClient {
     auth_Authenticate(command: AuthenticateUserCommand): Observable<void>;
     auth_ResendConfirmationCode(email: string | undefined): Observable<void>;
     auth_StartPasswordRecovery(command: StartPasswordRecoveryCommand): Observable<void>;
+    auth_RefreshToken(request: RefreshTokenRequest): Observable<void>;
     auth_ConfirmPasswordRecovery(command: ConfirmPasswordRecoveryCommand): Observable<void>;
     auth_ChangeAuthenticatedPassword(command: ChangeAuthenticatedPasswordCommand): Observable<void>;
 }
@@ -414,6 +415,61 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processAuth_StartPasswordRecovery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_RefreshToken(request: RefreshTokenRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/refresh-token";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_RefreshToken(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_RefreshToken(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_RefreshToken(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1963,6 +2019,46 @@ export interface IStartPasswordRecoveryCommand {
     email?: string;
 }
 
+export class RefreshTokenRequest implements IRefreshTokenRequest {
+    refreshToken?: string;
+    username?: string;
+
+    constructor(data?: IRefreshTokenRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.refreshToken = _data["refreshToken"];
+            this.username = _data["username"];
+        }
+    }
+
+    static fromJS(data: any): RefreshTokenRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RefreshTokenRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["refreshToken"] = this.refreshToken;
+        data["username"] = this.username;
+        return data;
+    }
+}
+
+export interface IRefreshTokenRequest {
+    refreshToken?: string;
+    username?: string;
+}
+
 export class ConfirmPasswordRecoveryCommand implements IConfirmPasswordRecoveryCommand {
     encryptedToken?: string;
     newPassword?: string;
@@ -2139,6 +2235,9 @@ export enum ActionType {
     SubscriptionThankYou = 4,
     TrialEndingSoon = 5,
     PasswordChanged = 6,
+    SubscriptionCancelled = 7,
+    SubscriptionReactivated = 8,
+    ForgotPasswordCompleted = 9,
 }
 
 export abstract class BaseAuditableEntity implements IBaseAuditableEntity {

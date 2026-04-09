@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 
@@ -9,7 +9,7 @@ namespace VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 /// Handles password recovery initialization requests.
 /// </summary>
 public class StartPasswordRecoveryCommandHandler(
-    IUserService userService,
+    UserPort userService,
     ILogger<StartPasswordRecoveryCommandHandler> logger)
     : IRequestHandler<StartPasswordRecoveryCommand, Result<Unit>>
 {
@@ -23,7 +23,7 @@ public class StartPasswordRecoveryCommandHandler(
     {
         logger.LogInformation("Starting password recovery command for email {Email}", request.Email);
         return Result.Success(request.Email)
-            .BindTry(email => userService.StartPasswordRecoveryAsync(email))
+            .BindTry(email => userService.StartPasswordRecoveryAsync(email, cancellationToken))
             .OnFailureCompensate(error =>
                 error == UserErrors.UserNotFound
                     ? Result.Success(Unit.Value)

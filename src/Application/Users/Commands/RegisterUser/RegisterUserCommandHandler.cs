@@ -2,6 +2,7 @@
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Ports.output;
 
 namespace VibraHeka.Application.Users.Commands.RegisterUser;
 
@@ -18,7 +19,7 @@ namespace VibraHeka.Application.Users.Commands.RegisterUser;
 /// </remarks>
 /// <param name="user">Abstraction for interacting with the AWS Cognito service.</param>
 /// <param name="users">Repository interface for user persistence operations such as adding a user.</param>
-public class RegisterUserCommandHandler(IUserService user, IUserRepository users)
+public class RegisterUserCommandHandler(UserPort user, UserProfilePort userProfile)
     : IRequestHandler<RegisterUserCommand, Result<UserRegistrationResult>>
 {
     /// <summary>
@@ -35,16 +36,13 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
     /// A <see cref="Result{T}"/> containing a <see cref="UserRegistrationResult"/> with user registration details
     /// or an error if the registration process fails.
     /// </returns>
-    public async Task<Result<UserRegistrationResult>> Handle(RegisterUserCommand request,
+    public Task<Result<UserRegistrationResult>> Handle(RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        Result<string> cognitoId = await user.RegisterUserAsync(request.Email, request.Password, request.FirstName);
-        
-        return await cognitoId.Bind(async realCognitoId =>
-        {
-            UserEntity newUserEntity = new()
+        return user.RegisterUserAsync(request.Email, request.Password, request.FirstName)
+            .Map(realCognitoId => new UserProfileEntity
             {
-                Id =realCognitoId,
+                Id = realCognitoId,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 MiddleName = request.MiddleName,
@@ -52,11 +50,8 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
                 Created = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
                 TimezoneID = request.TimeZone
-            };
-
-            Result<string> addAsync = await users.AddAsync(newUserEntity);
-
-            return addAsync.Match(userId => Result.Success(new UserRegistrationResult(userId, true)), Result.Failure<UserRegistrationResult>);
-        });
+            })
+            .Bind(entity => userProfile.SaveAsync(entity, cancellationToken))
+            .Map(userId => new UserRegistrationResult(userId, true));
     }
 }

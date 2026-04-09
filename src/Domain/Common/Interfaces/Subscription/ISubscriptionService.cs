@@ -18,11 +18,11 @@ public interface ISubscriptionService
     /// <summary>
     /// Creates a subscription for the specified user.
     /// </summary>
-    /// <param name="user">The user entity for which the subscription is being created.</param>
+    /// <param name="userProfile">The user entity for which the subscription is being created.</param>
     /// <param name="context"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>A task that represents the operation, containing the subscription ID as a string.</returns>
-    public Task<Result<SubscriptionEntity>> CreateSubscription(UserEntity user,
+    public Task<Result<SubscriptionEntity>> CreateSubscription(UserProfileEntity userProfile,
         SubscriptionCheckoutSessionEntity context, CancellationToken cancellationToken);
 
 

@@ -45,11 +45,11 @@ public class RegisterOrderTest : TestBase
     public async Task ShouldGenerateCheckoutUrlProperly()
     {
         // Given: An User
-        UserEntity userEntity = CreateValidUser();
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        await _userRepository.AddAsync(userProfileEntity);
         
         // When: Subscribing the user
-        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userProfileEntity.Id, CancellationToken.None);
         
         // Then: The url should be there.
         if (result.IsFailure)
@@ -66,22 +66,22 @@ public class RegisterOrderTest : TestBase
         Assert.That(url.StartsWith("https://checkout.stripe.com/c/pay/cs_"), Is.True);
         
         // And: Order should be registered correctly
-        AssertSessionBasedOnUrl(url, userEntity);
+        AssertSessionBasedOnUrl(url, userProfileEntity);
     }
 
     [Test]
     public async Task ShouldReturnUrlWhenUserHasCustomerID()
     {
          // Given: An User
-        UserEntity userEntity = CreateValidUser();
+        UserProfileEntity userProfileEntity = CreateValidUser();
 
-        Result<string> registerCustomerAsync = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
-        userEntity.CustomerID = registerCustomerAsync.Value;
+        Result<string> registerCustomerAsync = await _paymentRepository.RegisterCustomerAsync(userProfileEntity, CancellationToken.None);
+        userProfileEntity.CustomerID = registerCustomerAsync.Value;
         
-        await _userRepository.AddAsync(userEntity);
+        await _userRepository.AddAsync(userProfileEntity);
         
         // When: Subscribing the user
-        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userProfileEntity.Id, CancellationToken.None);
         
         // Then: The url should be there.
         if (result.IsFailure)
@@ -99,7 +99,7 @@ public class RegisterOrderTest : TestBase
         
         
         // And: Order should be registered correctly
-        AssertSessionBasedOnUrl(url, userEntity);
+        AssertSessionBasedOnUrl(url, userProfileEntity);
     }
 
     [TestCase(null)]
@@ -150,7 +150,7 @@ public class RegisterOrderTest : TestBase
         throw new InvalidOperationException("No Checkout Session id (cs_...) found in URL path.");
     }
 
-    private void AssertSessionBasedOnUrl(string url, UserEntity userEntity)
+    private void AssertSessionBasedOnUrl(string url, UserProfileEntity userProfileEntity)
     {
         SessionService service = new();
         Session? session = service.Get(ExtractSessionId(url), new SessionGetOptions
@@ -166,9 +166,9 @@ public class RegisterOrderTest : TestBase
         using (Assert.EnterMultipleScope())
         {
             Assert.That(session.Url, Is.EqualTo(url));
-            Assert.That(session.Customer.Email, Is.EqualTo(userEntity.Email));
-            Assert.That(session.Customer.Name, Is.EqualTo(userEntity.FirstName + " " + userEntity.MiddleName + " " + userEntity.LastName));
-            Assert.That(session.Customer.Phone, Is.EqualTo(userEntity.PhoneNumber));
+            Assert.That(session.Customer.Email, Is.EqualTo(userProfileEntity.Email));
+            Assert.That(session.Customer.Name, Is.EqualTo(userProfileEntity.FirstName + " " + userProfileEntity.MiddleName + " " + userProfileEntity.LastName));
+            Assert.That(session.Customer.Phone, Is.EqualTo(userProfileEntity.PhoneNumber));
             Assert.That(session.Mode, Is.EqualTo("subscription"));
             // Assert.That(session.SuccessUrl, Is.EqualTo(_stripeConfig.PaymentSuccessUrl));
             // Assert.That(session.CancelUrl, Is.EqualTo(_stripeConfig.PaymentCancelUrl));

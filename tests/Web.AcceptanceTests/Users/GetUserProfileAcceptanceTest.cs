@@ -71,12 +71,12 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
         string targetId = await RegisterAndConfirmUser(TheFaker.Person.FullName, targetEmail, ThePassword);
 
         IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
-        Result<UserEntity> targetResult = await userRepository.GetByIdAsync(targetId, CancellationToken.None);
+        Result<UserProfileEntity> targetResult = await userRepository.GetByIdAsync(targetId, CancellationToken.None);
         Assert.That(targetResult.IsSuccess, Is.True);
 
-        UserEntity targetUser = targetResult.Value;
-        targetUser.PhoneNumber = "+34911111222";
-        await userRepository.AddAsync(targetUser);
+        UserProfileEntity targetUserProfile = targetResult.Value;
+        targetUserProfile.PhoneNumber = "+34911111222";
+        await userRepository.AddAsync(targetUserProfile);
 
         // When: requesting profile of another existing user.
         HttpResponseMessage response = await Client.GetAsync($"/api/v1/users/{targetId}");

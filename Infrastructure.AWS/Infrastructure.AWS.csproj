@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="S3\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.CognitoIdentityProvider" />
+      <PackageReference Include="AWSSDK.DynamoDBv2" />
+      <PackageReference Include="CSharpFunctionalExtensions" />
+      <PackageReference Include="Microsoft.Extensions.Options" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\src\Domain\Domain.csproj" />
+    </ItemGroup>
+
+</Project>

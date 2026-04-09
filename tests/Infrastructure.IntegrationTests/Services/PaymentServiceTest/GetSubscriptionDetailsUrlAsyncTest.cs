@@ -33,13 +33,13 @@ public class GetSubscriptionDetailsUrlAsyncTest : TestBase
     public async Task ShouldReturnBillingPortalUrlWhenUserExistsWithCustomerId()
     {
         // Given: un usuario existente con customer id valido en Stripe.
-        UserEntity userEntity = CreateValidUser();
-        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
-        userEntity.CustomerID = registerCustomerResult.Value;
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        Result<string> registerCustomerResult = await _paymentRepository.RegisterCustomerAsync(userProfileEntity, CancellationToken.None);
+        userProfileEntity.CustomerID = registerCustomerResult.Value;
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se solicita la URL de detalles de suscripcion.
-        Result<string> result = await _paymentService.GetSubscriptionDetailsUrlAsync(userEntity.Id, CancellationToken.None);
+        Result<string> result = await _paymentService.GetSubscriptionDetailsUrlAsync(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe devolverse una URL valida del portal de facturacion.
         Assert.That(result.IsSuccess, Is.True);
@@ -81,12 +81,12 @@ public class GetSubscriptionDetailsUrlAsyncTest : TestBase
     public async Task ShouldReturnStripeErrorWhenUserHasInvalidCustomerId()
     {
         // Given: un usuario existente con customer id invalido para Stripe.
-        UserEntity userEntity = CreateValidUser();
-        userEntity.CustomerID = "cus_invalid_for_integration_test";
-        await _userRepository.AddAsync(userEntity);
+        UserProfileEntity userProfileEntity = CreateValidUser();
+        userProfileEntity.CustomerID = "cus_invalid_for_integration_test";
+        await _userRepository.AddAsync(userProfileEntity);
 
         // When: se solicita la URL de billing portal para ese usuario.
-        Result<string> result = await _paymentService.GetSubscriptionDetailsUrlAsync(userEntity.Id, CancellationToken.None);
+        Result<string> result = await _paymentService.GetSubscriptionDetailsUrlAsync(userProfileEntity.Id, CancellationToken.None);
 
         // Then: debe devolverse el error tecnico de Stripe.
         Assert.That(result.IsFailure, Is.True);
