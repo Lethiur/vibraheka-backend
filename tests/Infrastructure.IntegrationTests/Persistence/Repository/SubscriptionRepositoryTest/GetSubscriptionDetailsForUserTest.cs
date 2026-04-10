@@ -4,8 +4,6 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SubscriptionRepositoryTest;
 

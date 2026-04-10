@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 
@@ -18,14 +18,14 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 /// in the underlying data store.
 /// </param>
 public class AddAttachmentCommandHandler(
-    IEmailTemplatesService templatesService,
-    IEmailTemplateStorageService emailTemplateStorageService
+    EmailTemplatePort templatesService,
+    EmailTemplateContentPort emailTemplateStorageService
 ) : IRequestHandler<AddAttachmentCommand, Result<string>>
 {
     public Task<Result<string>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
     {
         return templatesService.GetTemplateByID(request.TemplateId, cancellationToken)
-            .Bind(templateEntity => emailTemplateStorageService.AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
+            .BindTry(templateEntity => emailTemplateStorageService.SaveAttachment(templateEntity.TemplateID, request.FileStream, request.AttachmentName, cancellationToken)
                 .Tap(url => templateEntity.Attachments.Add(url))
                 .Map(_ => templateEntity)
                 .Bind(entity => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))

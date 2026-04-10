@@ -2,7 +2,6 @@
 using Amazon.S3;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.S3;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.S3.EmailTemplateStorageRepositoryTest;
 

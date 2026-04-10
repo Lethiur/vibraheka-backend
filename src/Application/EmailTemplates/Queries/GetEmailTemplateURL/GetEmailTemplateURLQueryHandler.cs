@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
 
@@ -15,10 +15,10 @@ namespace VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
 /// Offers functionality to interact with the storage mechanism for email templates.
 /// </param>
 public class GetEmailTemplateURLQueryHandler(
-    IEmailTemplateStorageService emailTemplateStorageService) : IRequestHandler<GetEmailTemplateURLQuery, Result<string>> 
+    EmailTemplateContentPort emailTemplateStorageService) : IRequestHandler<GetEmailTemplateURLQuery, Result<string>> 
 {
     public Task<Result<string>> Handle(GetEmailTemplateURLQuery request, CancellationToken cancellationToken)
     {
-        return  emailTemplateStorageService.GetTemplateUrlAsync(request.TemplateID, cancellationToken);
+        return  emailTemplateStorageService.GetTemplateUrlAsync(request.TemplateID);
     }
 }

@@ -5,8 +5,8 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Behaviours;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.UnitTests.Common.Behaviours;
 

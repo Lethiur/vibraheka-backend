@@ -1,7 +1,7 @@
 using System.Net;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Users.Adapters;
 using NUnit.Framework;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;
 using VibraHeka.Infrastructure.Exceptions;
@@ -70,13 +70,13 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
         string targetEmail = TheFaker.Internet.Email();
         string targetId = await RegisterAndConfirmUser(TheFaker.Person.FullName, targetEmail, ThePassword);
 
-        IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
-        Result<UserProfileEntity> targetResult = await userRepository.GetByIdAsync(targetId, CancellationToken.None);
+        UserProfileAdapter userRepository = GetObjectFromFactory<UserProfileAdapter>();
+        Result<UserProfileEntity> targetResult = await userRepository.GetProfileByUserId(targetId, CancellationToken.None);
         Assert.That(targetResult.IsSuccess, Is.True);
 
         UserProfileEntity targetUserProfile = targetResult.Value;
         targetUserProfile.PhoneNumber = "+34911111222";
-        await userRepository.AddAsync(targetUserProfile);
+        await userRepository.SaveAsync(targetUserProfile, CancellationToken.None);
 
         // When: requesting profile of another existing user.
         HttpResponseMessage response = await Client.GetAsync($"/api/v1/users/{targetId}");

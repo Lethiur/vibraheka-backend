@@ -814,7 +814,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserEntity"
+                  "$ref": "#/components/schemas/UserProfileEntity"
                 }
               }
             }
@@ -1114,7 +1114,7 @@
           9
         ]
       },
-      "UserEntity": {
+      "UserProfileEntity": {
         "allOf": [
           {
             "$ref": "#/components/schemas/BaseAuditableEntity"

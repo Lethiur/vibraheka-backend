@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Models.Results.User;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.Users.Queries.GetProfile;
 

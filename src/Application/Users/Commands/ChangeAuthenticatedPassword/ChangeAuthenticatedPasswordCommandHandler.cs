@@ -1,9 +1,8 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 

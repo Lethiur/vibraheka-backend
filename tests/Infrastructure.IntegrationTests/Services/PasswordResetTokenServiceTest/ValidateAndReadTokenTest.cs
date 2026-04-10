@@ -5,7 +5,6 @@ using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PasswordResetTokenServiceTest;
 

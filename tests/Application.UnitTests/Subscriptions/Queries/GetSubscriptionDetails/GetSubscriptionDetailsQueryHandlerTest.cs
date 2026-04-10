@@ -2,9 +2,8 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.UnitTests.Subscriptions.Queries.GetSubscriptionDetails;
 

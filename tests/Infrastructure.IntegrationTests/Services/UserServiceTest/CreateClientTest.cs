@@ -2,9 +2,6 @@ using System.ComponentModel;
 using System.Data;
 using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging.Abstractions;
-using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 

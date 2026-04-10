@@ -11,9 +11,9 @@ public class SaveEmailTemplateTest : GenericEmailTemplateServiceTest
     public async Task ShouldSaveTemplateAndReturnTemplateIdWhenTemplateIsValid()
     {
         // Given: una plantilla valida con ID unico.
-        EmailEntity emailTemplate = new()
+        EmailTemplateEntity emailTemplateTemplate = new()
         {
-            ID = $"integration-template-{Guid.NewGuid():N}",
+            TemplateID = $"integration-template-{Guid.NewGuid():N}",
             Name = "Integration template",
             Path = $"templates/{Guid.NewGuid():N}.html",
             Created = DateTimeOffset.UtcNow,
@@ -23,11 +23,11 @@ public class SaveEmailTemplateTest : GenericEmailTemplateServiceTest
         };
 
         // When: se guarda la plantilla por medio del servicio.
-        Result<string> result = await _service.SaveEmailTemplate(emailTemplate, CancellationToken.None);
+        Result<string> result = await _service.SaveEmailTemplate(emailTemplateTemplate, CancellationToken.None);
 
         // Then: debe completarse correctamente y devolver el ID.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(emailTemplate.ID));
+        Assert.That(result.Value, Is.EqualTo(emailTemplateTemplate.TemplateID));
     }
 
     [Test]

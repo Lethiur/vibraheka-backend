@@ -2,11 +2,8 @@
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SimpleSystemsManagement;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
+using VibraHeka.Domain.EmailTemplates.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SettingsServiceTest;
 

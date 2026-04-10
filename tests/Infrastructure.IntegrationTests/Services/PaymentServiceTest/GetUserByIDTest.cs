@@ -1,9 +1,6 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PaymentServiceTest;
 

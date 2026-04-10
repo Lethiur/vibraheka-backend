@@ -1,28 +1,29 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Errors;
 using Infrastructure.AWS.DynamoDB.Users.Mappers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.AWS.DynamoDB.Users.Adapters;
 
 /// <summary>
 /// Represents a repository for managing user persistence operations using Amazon DynamoDB.
 /// </summary>
 public class UserProfileAdapter(
     IDynamoDBContext context,
-    IOptions<AWSConfig> config,
-    Logger<UserProfileAdapter> logger,
+    IAmazonDynamoDB client,
+    IOptionsMonitor<AWSConfig> config,
+    ILogger<UserProfileAdapter> logger,
     UserProfileMapper mapper) :
-    GenericDynamoRepository<UserProfileDBModel>(context, config.Value.UsersTable, logger),
+    GenericDynamoRepository<UserProfileDBModel>(context, client, config.CurrentValue.UsersTable, logger),
     UserProfilePort
 {
     /// <summary>

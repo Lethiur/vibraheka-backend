@@ -4,7 +4,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.UpdateTemplateContentTest;
@@ -12,15 +12,15 @@ namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.UpdateTe
 [TestFixture]
 public class UpdateTemplateContentCommandHandlerTest
 {
-    private Mock<IEmailTemplatesService> _templatesServiceMock = default!;
-    private Mock<IEmailTemplateStorageService> _storageServiceMock = default!;
+    private Mock<EmailTemplatePort> _templatesServiceMock = default!;
+    private Mock<EmailTemplateContentPort> _storageServiceMock = default!;
     private UpdateTemplateContentCommandHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _templatesServiceMock = new Mock<IEmailTemplatesService>();
-        _storageServiceMock = new Mock<IEmailTemplateStorageService>();
+        _templatesServiceMock = new Mock<EmailTemplatePort>();
+        _storageServiceMock = new Mock<EmailTemplateContentPort>();
         _handler = new UpdateTemplateContentCommandHandler(_templatesServiceMock.Object, _storageServiceMock.Object);
     }
 
@@ -28,13 +28,13 @@ public class UpdateTemplateContentCommandHandlerTest
     public async Task ShouldSaveTemplateContentWhenTemplateExists()
     {
         const string templateId = "template-123";
-        EmailEntity templateEntity = new() { ID = templateId };
+        EmailTemplateEntity templateTemplateEntity = new() { TemplateID = templateId };
         using MemoryStream stream = new(Encoding.UTF8.GetBytes("new-content"));
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
-            .ReturnsAsync(Result.Success(templateEntity));
+            .ReturnsAsync(Result.Success(templateTemplateEntity));
 
         _storageServiceMock
             .Setup(x => x.SaveTemplate(templateId, stream, CancellationToken.None))
@@ -56,7 +56,7 @@ public class UpdateTemplateContentCommandHandlerTest
 
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
-            .ReturnsAsync(Result.Failure<EmailEntity>("ET-002"));
+            .ReturnsAsync(Result.Failure<EmailTemplateEntity>("ET-002"));
 
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
 
@@ -69,13 +69,13 @@ public class UpdateTemplateContentCommandHandlerTest
     public async Task ShouldReturnFailureWhenStorageSaveFails()
     {
         const string templateId = "template-123";
-        EmailEntity templateEntity = new() { ID = templateId };
+        EmailTemplateEntity templateTemplateEntity = new() { TemplateID = templateId };
         using MemoryStream stream = new(Encoding.UTF8.GetBytes("new-content"));
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
-            .ReturnsAsync(Result.Success(templateEntity));
+            .ReturnsAsync(Result.Success(templateTemplateEntity));
 
         _storageServiceMock
             .Setup(x => x.SaveTemplate(templateId, stream, CancellationToken.None))

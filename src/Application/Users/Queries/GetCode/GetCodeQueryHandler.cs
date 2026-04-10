@@ -1,7 +1,7 @@
 ﻿#if DEBUG
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Out;
 
 namespace VibraHeka.Application.Users.Queries.GetCode;
 

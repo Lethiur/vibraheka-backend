@@ -17,11 +17,7 @@
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" />
     <PackageReference Include="AWSXRayRecorder.Handlers.System.Net" />
     <PackageReference Include="CSharpFunctionalExtensions" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
@@ -36,11 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Infrastructure.AWS\Infrastructure.AWS.csproj" />
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\DynamoDB\Converters\" />
     <Folder Include="terraform\Lambdas\Payments\src\Application\" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Infrastructure.AWS;
+using Infrastructure.Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using VibraHeka.Application;
+using VibraHeka.Domain;
 using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Middlewares;
 using VibraHeka.Web.Middleware;
@@ -75,9 +78,14 @@ public class VibraHekaProgram
                     }
                 };
             });
-        IConfigurationSection settingsSection = builder.Configuration.GetSection("Settings");
-        builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
         
+        
+        builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
+        builder.AddDomainServices(builder.Configuration, builder.Configuration);
+        builder.AddPaymentServices(builder.Configuration, builder.Configuration);
+        builder.AddCloudServices(builder.Configuration, builder.Configuration);
+        
+        IConfigurationSection settingsSection = builder.Configuration.GetSection("Settings");
         bool useSerilog = settingsSection.GetValue<bool>("UseSerilog");
         if (useSerilog)
         {

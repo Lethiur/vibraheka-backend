@@ -5,8 +5,7 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.ChangeAuthenticatedPassword;
 

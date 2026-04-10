@@ -1,7 +1,5 @@
 ﻿using Amazon;
 using Amazon.SimpleSystemsManagement;
-using Microsoft.Extensions.Logging;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SettingsRepositoryTest;
 

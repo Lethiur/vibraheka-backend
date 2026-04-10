@@ -1,13 +1,8 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
+using VibraHeka.Domain.Subscriptions.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionServiceTest;
 
@@ -18,9 +13,9 @@ public class SuccessPaymentRepositoryStub : IPaymentRepository
         => Task.FromResult(Result.Success(new SubscriptionCheckoutSessionEntity()
         {
             Url = "https://checkout.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
-            PaymentSessionID = "cs_test",
-            InternalPaymentID = "ref_test",
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            CheckoutSessionID = "cs_test",
+            InternalReferenceID = "ref_test",
         }));
 
     public Task<Result<string>> GetSubscriptionPanelUrlAsync(UserProfileEntity payer, CancellationToken cancellationToken)

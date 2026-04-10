@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.Common.Behaviours;
 

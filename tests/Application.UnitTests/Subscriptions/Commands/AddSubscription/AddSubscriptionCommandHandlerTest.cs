@@ -5,11 +5,10 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Subscriptions.Commands;
 using VibraHeka.Application.Subscriptions.Commands.AddSubscription;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.Subscriptions.Entities;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.UnitTests.Subscriptions.Commands.AddSubscription;
 
@@ -48,9 +47,9 @@ public class AddSubscriptionCommandHandlerTest
         SubscriptionCheckoutSessionEntity session = new()
         {
             Url = "https://checkout.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
-            PaymentSessionID = "cs_123",
-            InternalPaymentID = "ref_123",
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            CheckoutSessionID = "cs_123",
+            InternalReferenceID = "ref_123",
         };
         preparation.CheckoutSession = session;
 
@@ -76,9 +75,9 @@ public class AddSubscriptionCommandHandlerTest
         SubscriptionCheckoutSessionEntity session = new()
         {
             Url = "https://checkout.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
-            PaymentSessionID = "cs_rollback",
-            InternalPaymentID = "ref_rollback",
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            CheckoutSessionID = "cs_rollback",
+            InternalReferenceID = "ref_rollback",
         };
         preparation.CheckoutSession = session;
 

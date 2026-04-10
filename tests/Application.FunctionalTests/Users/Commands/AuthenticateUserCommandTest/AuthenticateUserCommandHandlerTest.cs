@@ -2,24 +2,24 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Ports.Output;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Commands.AuthenticateUserCommandTest;
 
 [TestFixture]
 public class AuthenticateUserCommandHandlerTest
 {
-    private Mock<IUserService> _userServiceMock = default!;
-    private Mock<IUserRepository> _userRepositoryMock = default!;
+    private Mock<UserPort> _userServiceMock = default!;
+    private Mock<UserProfilePort> _userRepositoryMock = default!;
     private AuthenticateUserCommandHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _userServiceMock = new Mock<IUserService>();
-        _userRepositoryMock = new Mock<IUserRepository>();
+        _userServiceMock = new Mock<UserPort>();
+        _userRepositoryMock = new Mock<UserProfilePort>();
         _handler = new AuthenticateUserCommandHandler(_userServiceMock.Object, _userRepositoryMock.Object);
     }
 
@@ -35,7 +35,7 @@ public class AuthenticateUserCommandHandlerTest
             .ReturnsAsync(Result.Success(auth));
 
         _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(auth.UserID, CancellationToken.None))
+            .Setup(x => x.GetProfileByUserId(auth.UserID, CancellationToken.None))
             .ReturnsAsync(Result.Success(new UserProfileEntity { Role = UserRole.Admin }));
 
         // When
@@ -62,7 +62,7 @@ public class AuthenticateUserCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("E-013"));
-        _userRepositoryMock.Verify(x => x.GetByIdAsync(It.IsAny<string>(), CancellationToken.None), Times.Never);
+        _userRepositoryMock.Verify(x => x.GetProfileByUserId(It.IsAny<string>(), CancellationToken.None), Times.Never);
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class AuthenticateUserCommandHandlerTest
             .ReturnsAsync(Result.Success(auth));
 
         _userRepositoryMock
-            .Setup(x => x.GetByIdAsync(auth.UserID, CancellationToken.None))
+            .Setup(x => x.GetProfileByUserId(auth.UserID, CancellationToken.None))
             .ReturnsAsync(Result.Failure<UserProfileEntity>("DB-FAIL"));
 
         // When

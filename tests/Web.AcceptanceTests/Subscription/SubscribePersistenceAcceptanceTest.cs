@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Subscriptions.Adapters;
+using Infrastructure.AWS.DynamoDB.Users.Adapters;
 using NUnit.Framework;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
 
@@ -17,11 +17,11 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
     {
         // Given: a confirmed and authenticated user.
         Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
+        UserProfileAdapter userRepository = GetObjectFromFactory<UserProfileAdapter>();
         StripeConfig stripeConfig = GetObjectFromFactory<StripeConfig>();
 
         Result<UserProfileEntity> userBeforeSubscriptionResult =
-            await userRepository.GetByIdAsync(authResult.UserID, CancellationToken.None);
+            await userRepository.GetProfileByUserId(authResult.UserID, CancellationToken.None);
         Assert.That(userBeforeSubscriptionResult.IsSuccess, Is.True);
         UserProfileEntity userProfileBeforeSubscription = userBeforeSubscriptionResult.Value;
 
@@ -32,15 +32,15 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         Assert.That(subscribeResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
         // And: the subscription persisted in DynamoDB should match expected values.
-        ISubscriptionRepository subscriptionRepository = GetObjectFromFactory<ISubscriptionRepository>();
+        SubscriptionAdapter subscriptionRepository = GetObjectFromFactory<SubscriptionAdapter>();
         Result<SubscriptionEntity> subscriptionResult =
-            await subscriptionRepository.GetSubscriptionDetailsForUser(authResult.UserID, CancellationToken.None);
+            await subscriptionRepository.GetSubscriptionForUser(authResult.UserID, CancellationToken.None);
 
         Assert.That(subscriptionResult.IsSuccess, Is.True);
         SubscriptionEntity subscription = subscriptionResult.Value;
 
         Result<UserProfileEntity> userAfterSubscriptionResult =
-            await userRepository.GetByIdAsync(authResult.UserID, CancellationToken.None);
+            await userRepository.GetProfileByUserId(authResult.UserID, CancellationToken.None);
         Assert.That(userAfterSubscriptionResult.IsSuccess, Is.True);
         UserProfileEntity userProfileAfterSubscription = userAfterSubscriptionResult.Value;
 

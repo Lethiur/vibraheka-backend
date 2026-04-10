@@ -1,15 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Logging;
 using Stripe.Checkout;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Common.Interfaces.Payments;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
+using VibraHeka.Domain.Subscriptions.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.PaymentServiceTest;
 

@@ -3,7 +3,6 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.VerificationCode;
-using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users;
 

@@ -1,9 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Settings;
+using VibraHeka.Domain.EmailTemplates.Entities;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Enums;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 
@@ -15,8 +17,8 @@ namespace VibraHeka.Application.Settings.Queries.GetTemplateForAction;
 /// and returning a list of <see cref="TemplateForActionEntity"/> objects that match the query criteria.
 /// </remarks>
 public class GetTemplatesForActionQueryHandler(
-    ISettingsService SettingsService,
     ICurrentUserService CurrentUserService,
+    IOptionsMonitor<AppSettingsEntity> AppSettings,
     ILogger<GetTemplatesForActionQueryHandler> Logger)
     : IRequestHandler<GetTemplatesForActionQuery, Result<IEnumerable<TemplateForActionEntity>>>
 {
@@ -27,11 +29,59 @@ public class GetTemplatesForActionQueryHandler(
             .Where(userID =>
                 !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
-            .BindTry(_ => SettingsService.GetAllTemplatesForActions(), exception =>
+            .BindTry(_ => GetTemplateList(), exception =>
             {
                 Logger.LogError(exception, "Problem retrieving templates for actions");
                 return AppErrors.GenericError;
             }));
 
     }
+
+
+    private Result<IEnumerable<TemplateForActionEntity>> GetTemplateList()
+    {
+        List<TemplateForActionEntity> templates =
+        [
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.VerificationEmailTemplate, ActionType = ActionType.UserVerification
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.RecoverPasswordEmailTemplate, ActionType = ActionType.PasswordReset
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.UserWelcomeEmailTemplate, ActionType = ActionType.UserRegistered
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.SubscriptionThankYouEmailTemplate, ActionType = ActionType.SubscriptionThankYou
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.TrialEndingSoonEmailTemplate, ActionType = ActionType.TrialEndingSoon
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.PasswordChangedEmailTemplate, ActionType = ActionType.PasswordChanged
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.ForgotPasswordCompletedEmailTemplate, ActionType = ActionType.ForgotPasswordCompleted
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.SubscriptionCancelledEmailTemplate, ActionType = ActionType.SubscriptionCancelled
+            },
+            new()
+            {
+                TemplateID = AppSettings.CurrentValue.SubscriptionReActivatedEmailTemplate, ActionType = ActionType.SubscriptionReactivated
+            }
+        ];
+
+        return templates;
+
+    }
+    
 }

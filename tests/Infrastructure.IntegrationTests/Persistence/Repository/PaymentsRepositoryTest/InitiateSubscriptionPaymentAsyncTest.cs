@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Subscriptions.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.PaymentsRepositoryTest;
@@ -22,7 +23,7 @@ public class InitiateSubscriptionPaymentAsyncTest : GenericPaymentsRepositoryInt
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.Url, Is.Not.Null.And.Not.Empty);
         Assert.That(result.Value.Url.StartsWith("https://checkout.stripe.com/"), Is.True);
-        Assert.That(result.Value.PaymentSessionID, Is.Not.Null.And.Not.Empty);
+        Assert.That(result.Value.CheckoutSessionID, Is.Not.Null.And.Not.Empty);
     }
 
     [Test]

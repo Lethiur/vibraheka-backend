@@ -1,17 +1,18 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Errors;
 using Infrastructure.AWS.DynamoDB.Users.Mappers;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces;
+using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Enums;
+using VibraHeka.Domain.User.Ports.Output;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.AWS.DynamoDB.Users.Adapters;
 
 /// <summary>
 /// Repository for managing action logs in a DynamoDB table. This class extends the functionality of
@@ -22,8 +23,14 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// and retrieves the table configuration from <see cref="AWSConfig.ActionLogTable"/>.
 /// It implements <see cref="IActionLogRepository"/> for retrieving user-specific action logs based on action types.
 /// </remarks>
-public class ActionLogAdapter(IDynamoDBContext context, AWSConfig config, ILogger<ActionLogAdapter> logger, ActionLogMapper mapper)
-    : GenericDynamoRepository<ActionLogDBModel>(context, config.ActionLogTable, logger), ActionLogPort
+public class ActionLogAdapter(
+    IDynamoDBContext context,
+    IAmazonDynamoDB client,
+    IOptionsMonitor<AWSConfig> config,
+    ILogger<ActionLogAdapter> logger,
+    ActionLogMapper mapper)
+    : GenericDynamoRepository<ActionLogDBModel>(context, client, config.CurrentValue.ActionLogTable, logger),
+        ActionLogPort
 {
     /// <summary>
     /// Retrieves the action log for a specific user and action type from the DynamoDB repository.

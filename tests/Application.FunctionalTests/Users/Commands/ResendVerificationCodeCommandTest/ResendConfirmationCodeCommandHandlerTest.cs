@@ -4,9 +4,7 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
+using VibraHeka.Domain.User.Enums;
 
 namespace VibraHeka.Application.FunctionalTests.Users;
 

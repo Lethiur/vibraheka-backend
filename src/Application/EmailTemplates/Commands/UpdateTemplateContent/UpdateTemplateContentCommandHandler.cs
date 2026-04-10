@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 
@@ -13,13 +13,13 @@ namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 /// to authenticate the user, validate permissions, and perform the update action.
 /// </remarks>
 public class UpdateTemplateContentCommandHandler(
-    IEmailTemplatesService emailTemplatesService,
-    IEmailTemplateStorageService emailTemplateStorageService) : IRequestHandler<UpdateTemplateContentCommand, Result<Unit>>
+    EmailTemplatePort emailTemplatesService,
+    EmailTemplateContentPort emailTemplateStorageService) : IRequestHandler<UpdateTemplateContentCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(UpdateTemplateContentCommand request, CancellationToken cancellationToken)
     {
         return emailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken)
-            .Bind(templateEntity => emailTemplateStorageService.SaveTemplate(templateEntity.ID, request.TemplateStream, cancellationToken))
+            .Bind(templateEntity => emailTemplateStorageService.SaveTemplate(templateEntity.TemplateID, request.TemplateStream, cancellationToken))
             .Map(_ => Unit.Value);
     }
 }

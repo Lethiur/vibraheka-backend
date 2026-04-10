@@ -1,4 +1,4 @@
-﻿using VibraHeka.Domain.Common.Enums;
+﻿using VibraHeka.Domain.User.Enums;
 
 namespace VibraHeka.Domain.Entities;
 

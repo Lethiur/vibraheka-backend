@@ -2,8 +2,6 @@ using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
@@ -37,12 +35,12 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
         }, saveConfig);
 
         // When: se solicitan todas las plantillas del repositorio.
-        Result<IEnumerable<EmailEntity>> result = await Repository.GetAllTemplates(CancellationToken.None);
+        Result<IEnumerable<EmailTemplateEntity>> result = await Repository.GetAllTemplates(CancellationToken.None);
 
         // Then: deben incluirse ambas plantillas insertadas.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Has.Some.Matches<EmailEntity>(t => t.ID == templateId1));
-        Assert.That(result.Value, Has.Some.Matches<EmailEntity>(t => t.ID == templateId2));
+        Assert.That(result.Value, Has.Some.Matches<EmailTemplateEntity>(t => t.TemplateID == templateId1));
+        Assert.That(result.Value, Has.Some.Matches<EmailTemplateEntity>(t => t.TemplateID == templateId2));
     }
 
     [Test]
@@ -54,7 +52,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
         cts.Cancel();
 
         // When: se consulta el listado con la operacion cancelada.
-        Result<IEnumerable<EmailEntity>> result = await Repository.GetAllTemplates(cts.Token);
+        Result<IEnumerable<EmailTemplateEntity>> result = await Repository.GetAllTemplates(cts.Token);
 
         // Then: debe devolverse error general de persistencia.
         Assert.That(result.IsFailure, Is.True);

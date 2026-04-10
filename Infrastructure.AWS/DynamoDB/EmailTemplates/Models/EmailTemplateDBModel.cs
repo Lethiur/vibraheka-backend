@@ -1,7 +1,7 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+namespace Infrastructure.AWS.DynamoDB.EmailTemplates.Models;
 
 [DynamoDBTable("EmailTemplates")]
 public class EmailTemplateDBModel : BaseAuditableDBModel
@@ -14,5 +14,8 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
     
     [DynamoDBProperty]
     public string Name { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public List<string> Attachments { get; set; } = [];
     
 }

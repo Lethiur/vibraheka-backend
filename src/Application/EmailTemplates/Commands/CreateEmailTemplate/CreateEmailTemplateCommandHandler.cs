@@ -1,8 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 
@@ -18,25 +18,25 @@ namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 /// <param name="templateService">Service for managing email template metadata.</param>
 /// <param name="storageService">Service for handling email template storage in external systems.</param>
 public class CreateEmailTemplateCommandHandler(
-    IEmailTemplatesService templateService,
-    IEmailTemplateStorageService storageService,
+    EmailTemplatePort templatesService,
+    EmailTemplateContentPort emailTemplateStorageService,
     ICurrentUserService currentUserService
 ) : IRequestHandler<CreateEmailTemplateCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(CreateEmailTemplateCommand request, CancellationToken cancellationToken)
     {
-        EmailEntity entity = new()
+        EmailTemplateEntity templateEntity = new()
         {
-            ID = Guid.NewGuid().ToString(),
+            TemplateID = Guid.NewGuid().ToString(),
             Name = request.TemplateName,
             Created = DateTime.UtcNow,
             CreatedBy = currentUserService.UserId,
             LastModified = DateTime.UtcNow,
             LastModifiedBy = currentUserService.UserId
         };
-        return storageService.SaveTemplate(entity.ID, request.FileStream, cancellationToken)
-            .Map(templatePath => entity.Path = templatePath)
-            .Bind(_ => templateService.SaveEmailTemplate(entity, cancellationToken))
+        return emailTemplateStorageService.SaveTemplate(templateEntity.TemplateID, request.FileStream, cancellationToken)
+            .Map(templatePath => templateEntity.Path = templatePath)
+            .Bind(_ => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
             .Map(_ => Unit.Value);
     }
 }

@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using NUnit.Framework;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
@@ -182,18 +182,18 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
     private async Task InsertTemplateInDatabase(string templateId)
     {
-        IEmailTemplatesRepository repository = GetObjectFromFactory<IEmailTemplatesRepository>();
+        EmailTemplatePort repository = GetObjectFromFactory<EmailTemplatePort>();
 
-        EmailEntity template = new()
+        EmailTemplateEntity template = new()
         {
-            ID = templateId,
+            TemplateID = templateId,
             Name = "Acceptance Template",
             Path = "test",
             Created = DateTime.UtcNow,
             CreatedBy = "SystemTest"
         };
 
-        await repository.SaveTemplate(template, CancellationToken.None);
+        await repository.SaveEmailTemplate(template, CancellationToken.None);
     }
 
     private static MultipartFormDataContent CreateAttachmentForm(string templateId, string attachmentName,

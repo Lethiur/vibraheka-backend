@@ -2,7 +2,6 @@
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
-using VibraHeka.Infrastructure.Persistence.S3;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplateStorageRepositoryTest;
 

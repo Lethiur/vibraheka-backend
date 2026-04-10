@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
 
 namespace VibraHeka.Application.Users.Commands.RefreshToken;
 

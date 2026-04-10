@@ -2,7 +2,7 @@
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.Mappers;
+namespace Infrastructure.AWS.DynamoDB.PasswordResetToken.Mappers;
 
 [Mapper]
 public partial class UsersCodeMapper

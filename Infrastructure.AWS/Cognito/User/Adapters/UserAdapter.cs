@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
 using VibraHeka.Infrastructure.Entities;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 

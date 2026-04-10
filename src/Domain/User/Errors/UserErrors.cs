@@ -85,4 +85,6 @@ public class UserErrors
     public const string PasswordResetTokenExpired = "US-015";
 
     public const string PasswordResetTokenAlreadyUsed = "US-016";
+    
+    public const string ProfileAlreadyHasCustomerID = "US-017";
 }

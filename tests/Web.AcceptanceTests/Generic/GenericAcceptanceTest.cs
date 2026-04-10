@@ -3,24 +3,19 @@ using System.Net.Http.Json;
 using System.Text;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Strategies;
 using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
-using Serilog;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Application.Users.Queries.GetCode;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Ports.Output;
 
 namespace VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -174,7 +169,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     private async Task PromoteToAdmin(string username, string email, string ID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
-        IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        UserProfilePort repository = scope.ServiceProvider.GetRequiredService<UserProfilePort>();
 
         string userId = Guid.NewGuid().ToString();
         UserProfileEntity adminUserProfileEntity = new()
@@ -189,7 +184,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
             LastModifiedBy = userId
         };
 
-        await repository.AddAsync(adminUserProfileEntity);
+        await repository.SaveAsync(adminUserProfileEntity, CancellationToken.None);
     }
 
     /// <summary>
@@ -200,8 +195,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     protected async Task<UserProfileEntity> CheckForUser(string userID)
     {
         using IServiceScope scope = Factory.Services.CreateScope();
-        IUserRepository repository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-        Result<UserProfileEntity> user = await repository.GetByIdAsync(userID, CancellationToken.None);
+        UserProfilePort repository = scope.ServiceProvider.GetRequiredService<UserProfilePort>();
+        Result<UserProfileEntity> user = await repository.GetProfileByUserId(userID, CancellationToken.None);
         return user.GetValueOrDefault();
     }
 

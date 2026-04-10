@@ -2,7 +2,6 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
 

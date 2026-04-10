@@ -1,13 +1,17 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.EmailTemplates.Queries.GetTemplateContent;
 
-public class GetTemplateContentQueryHandler(IEmailTemplatesService templatesService, IEmailTemplateStorageService templateStorageService) : IRequestHandler<GetEmailTemplateContentQuery, Result<string>>
+public class GetTemplateContentQueryHandler(
+    EmailTemplatePort templatesService,
+    EmailTemplateContentPort templateStorageService) : IRequestHandler<GetEmailTemplateContentQuery, Result<string>>
 {
     public Task<Result<string>> Handle(GetEmailTemplateContentQuery request, CancellationToken cancellationToken)
     {
-        return Result.Success(request.TemplateID).Bind((templateID) => templatesService.GetTemplateByID(templateID, cancellationToken))
-            .Bind(emailTemplate => templateStorageService.GetTemplateContent(emailTemplate.ID, cancellationToken));
+        return Result.Success(request.TemplateID)
+            .Bind((templateID) => templatesService.GetTemplateByID(templateID, cancellationToken))
+            .Bind(emailTemplate =>
+                templateStorageService.GetTemplateContent(emailTemplate.TemplateID, cancellationToken));
     }
 }

@@ -2,7 +2,6 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SubscriptionRepositoryTest;
 

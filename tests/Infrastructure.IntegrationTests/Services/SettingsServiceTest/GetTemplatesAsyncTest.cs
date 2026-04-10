@@ -1,9 +1,6 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.EmailTemplates.Entities;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SettingsServiceTest;
 

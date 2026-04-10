@@ -2,7 +2,6 @@ using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.RefreshToken;
-using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.RefreshTokenCommandTest;
 

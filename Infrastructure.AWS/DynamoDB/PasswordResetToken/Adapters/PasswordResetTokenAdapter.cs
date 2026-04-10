@@ -1,27 +1,29 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Ports.Output;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+using UsersCodeMapper = Infrastructure.AWS.DynamoDB.PasswordResetToken.Mappers.UsersCodeMapper;
 
-namespace VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.AWS.DynamoDB.PasswordResetToken.Adapters;
 
 /// <summary>
 /// Repository implementation for persisted user code markers in DynamoDB.
 /// </summary>
-public class UserCodeAdapter(
-    AWSConfig config,
+public class PasswordResetTokenAdapter(
+    IOptionsMonitor<AWSConfig> config,
     IDynamoDBContext context,
+    IAmazonDynamoDB client,
     UsersCodeMapper mapper,
     ILogger<GenericDynamoRepository<UserCodeDBModel>> logger)
-    : GenericDynamoRepository<UserCodeDBModel>(context, config.UserCodesTable, logger), PasswordResetTokenPort
+    : GenericDynamoRepository<UserCodeDBModel>(context, client, config.CurrentValue.UserCodesTable, logger), PasswordResetTokenPort
 {
     public Task<Result<bool>> IsPasswordResetTokenUsedAsync(string email, string tokenId,
         CancellationToken cancellationToken)

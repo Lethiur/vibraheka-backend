@@ -4,12 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 

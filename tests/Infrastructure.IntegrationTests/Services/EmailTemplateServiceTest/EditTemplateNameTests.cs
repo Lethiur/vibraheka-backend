@@ -4,7 +4,6 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServiceTest;
 
@@ -40,7 +39,7 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
         // Then
         Assert.That(editResult.IsSuccess, Is.True);
 
-        EmailEntity updated = await WaitForUpdatedTemplate(templateId, newName, timeout: TimeSpan.FromSeconds(10));
+        EmailTemplateEntity updated = await WaitForUpdatedTemplate(templateId, newName, timeout: TimeSpan.FromSeconds(10));
         Assert.That(updated.Name, Is.EqualTo(newName));
         Assert.That(updated.LastModified, Is.GreaterThan(initialLastModified));
     }
@@ -82,12 +81,12 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
 
-    private async Task<EmailEntity> WaitForUpdatedTemplate(string templateId, string expectedName, TimeSpan timeout)
+    private async Task<EmailTemplateEntity> WaitForUpdatedTemplate(string templateId, string expectedName, TimeSpan timeout)
     {
         DateTimeOffset start = DateTimeOffset.UtcNow;
         while (DateTimeOffset.UtcNow - start < timeout)
         {
-            Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
+            Result<EmailTemplateEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);
             if (result.IsSuccess && result.Value.Name == expectedName) return result.Value;
             await Task.Delay(250);
         }

@@ -3,20 +3,20 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
 
 [TestFixture]
 public class EditTemplateNameCommandHandlerTest
 {
-    private Mock<IEmailTemplatesService> _templatesServiceMock = default!;
+    private Mock<EmailTemplatePort> _templatesServiceMock = default!;
     private EditTemplateNameCommandHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _templatesServiceMock = new Mock<IEmailTemplatesService>();
+        _templatesServiceMock = new Mock<EmailTemplatePort>();
         _handler = new EditTemplateNameCommandHandler(_templatesServiceMock.Object);
     }
 

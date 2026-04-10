@@ -1,6 +1,3 @@
-using VibraHeka.Domain.Common.Interfaces.Payments;
-using VibraHeka.Infrastructure.Persistence.Repository;
-
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.PaymentsRepositoryTest;
 
 public abstract class GenericPaymentsRepositoryIntegrationTest : TestBase

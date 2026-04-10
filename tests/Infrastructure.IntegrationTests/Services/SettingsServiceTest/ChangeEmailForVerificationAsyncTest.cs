@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SettingsServiceTest;
 

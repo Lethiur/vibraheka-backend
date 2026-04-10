@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.User.Ports.output;
+using VibraHeka.Domain.User.Enums;
+using VibraHeka.Domain.User.Ports.Output;
 
 namespace VibraHeka.Application.Users.Commands.ResendConfirmationCode;
 

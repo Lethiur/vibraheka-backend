@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Subscriptions.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionServiceTest;
 
@@ -14,7 +15,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.integration.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
         };
 
         UserProfileEntity userProfile = new()
@@ -58,7 +59,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.integration.reset.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(2),
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(2),
         };
 
         UserProfileEntity userProfile = new()
@@ -76,7 +77,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
         Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Pending));
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(checkoutSession.Url));
-        Assert.That(result.Value.CheckoutSessionExpiresAt, Is.EqualTo(checkoutSession.ExpiresAt));
+        Assert.That(result.Value.CheckoutSessionExpiresAt, Is.EqualTo(checkoutSession.SessionExpiresAt));
         Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(userProfile.CustomerID));
     }
 
@@ -103,7 +104,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         SubscriptionCheckoutSessionEntity checkoutSession = new()
         {
             Url = "https://checkout.integration.new.test",
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            SessionExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
         };
         UserProfileEntity userProfile = new()
         {

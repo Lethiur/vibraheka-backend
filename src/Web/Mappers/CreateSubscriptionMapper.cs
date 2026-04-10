@@ -1,5 +1,5 @@
 ﻿using Riok.Mapperly.Abstractions;
-using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Subscriptions.Entities;
 using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Mappers;

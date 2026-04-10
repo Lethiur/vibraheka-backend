@@ -2,10 +2,9 @@
 using Bogus;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Enums;
+using VibraHeka.Domain.User.Ports.Output;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
@@ -71,8 +70,8 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
             await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
         Assert.That(blockedResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-        IUserService userService = GetObjectFromFactory<IUserService>();
-        IActionLogRepository actionLogRepository = GetObjectFromFactory<IActionLogRepository>();
+        UserPort userService = GetObjectFromFactory<UserPort>();
+        ActionLogPort actionLogRepository = GetObjectFromFactory<ActionLogPort>();
         string userId = (await userService.GetUserID(email, CancellationToken.None)).Value;
         await actionLogRepository.SaveActionLog(new ActionLogEntity
         {

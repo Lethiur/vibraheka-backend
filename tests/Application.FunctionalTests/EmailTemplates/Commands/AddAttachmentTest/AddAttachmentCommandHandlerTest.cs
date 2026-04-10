@@ -3,10 +3,10 @@ using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.User.Services;
 using static CSharpFunctionalExtensions.Result;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.AddAttachmentTest;
@@ -20,22 +20,21 @@ public class AddAttachmentCommandHandlerTest
     private static readonly CancellationToken NoCancellation = CancellationToken.None;
 
     private Mock<ICurrentUserService> _currentUserServiceMock;
-    private Mock<IPrivilegeService> _privilegeServiceMock;
-    private Mock<IEmailTemplatesService> _templatesServiceMock;
-    private Mock<IEmailTemplateStorageService> _storageServiceMock;
+    
+    private Mock<EmailTemplatePort> _emailPort;
+    private Mock<EmailTemplateContentPort> _emailContentPort;
     private AddAttachmentCommandHandler _handler;
 
     [SetUp]
     public void SetUp()
     {
         _currentUserServiceMock = new Mock<ICurrentUserService>();
-        _privilegeServiceMock = new Mock<IPrivilegeService>();
-        _templatesServiceMock = new Mock<IEmailTemplatesService>();
-        _storageServiceMock = new Mock<IEmailTemplateStorageService>();
+        _emailPort = new Mock<EmailTemplatePort>();
+        _emailContentPort = new Mock<EmailTemplateContentPort>();
 
         _handler = new AddAttachmentCommandHandler(
-            _templatesServiceMock.Object,
-            _storageServiceMock.Object);
+            _emailPort.Object,
+            _emailContentPort.Object);
     }
 
     private static MemoryStream CreateStream(string content = "file-content")
@@ -49,9 +48,9 @@ public class AddAttachmentCommandHandlerTest
         return new AddAttachmentCommand(stream, templateId, attachmentName);
     }
 
-    private static EmailEntity CreateTemplateEntity(string templateId = DefaultTemplateId)
+    private static EmailTemplateEntity CreateTemplateEntity(string templateId = DefaultTemplateId)
     {
-        return new EmailEntity { ID = templateId };
+        return new EmailTemplateEntity { TemplateID = templateId };
     }
 
     [Test]
@@ -63,16 +62,15 @@ public class AddAttachmentCommandHandlerTest
         const string attachmentName = "invoice.pdf";
         const string attachmentUrl = "https://cdn.example.com/attachments/invoice.pdf";
         MemoryStream fileStream = CreateStream();
-        EmailEntity templateEntity = CreateTemplateEntity();
+        EmailTemplateEntity templateTemplateEntity = CreateTemplateEntity();
         AddAttachmentCommand command = CreateCommand(fileStream, DefaultTemplateId, attachmentName);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None)).ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
-            .ReturnsAsync(Success(templateEntity));
-        _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, attachmentName, NoCancellation))
+        _emailPort.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
+            .ReturnsAsync(Success(templateTemplateEntity));
+        _emailContentPort.Setup(x => x.SaveAttachment(templateTemplateEntity.TemplateID, fileStream, attachmentName, NoCancellation))
             .ReturnsAsync(Success(attachmentUrl));
-        _templatesServiceMock.Setup(x => x.SaveEmailTemplate(templateEntity, NoCancellation))
+        _emailPort.Setup(x => x.SaveEmailTemplate(templateTemplateEntity, NoCancellation))
             .ReturnsAsync(Success("template-saved"));
 
         // When: handling the add-attachment command.
@@ -80,12 +78,12 @@ public class AddAttachmentCommandHandlerTest
 
         // Then
         Assert.That(result.IsSuccess);
-        _storageServiceMock.Verify(
-            x => x.AddAttachment(templateEntity.ID, fileStream, attachmentName, NoCancellation),
+        _emailContentPort.Verify(
+            x => x.SaveAttachment(templateTemplateEntity.TemplateID, fileStream, attachmentName, NoCancellation),
             Times.Once);
-        _templatesServiceMock.Verify(
+        _emailPort.Verify(
             x => x.SaveEmailTemplate(
-                It.Is<EmailEntity>(e => e.Attachments.Contains(attachmentUrl)),
+                It.Is<EmailTemplateEntity>(e => e.Attachments.Contains(attachmentUrl)),
                 NoCancellation),
             Times.Once);
     }
@@ -100,10 +98,8 @@ public class AddAttachmentCommandHandlerTest
         AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None ))
-            .ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
-            .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));
+        _emailPort.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
+            .ReturnsAsync(Failure<EmailTemplateEntity>(EmailTemplateErrors.TemplateNotFound));
 
         // When: handling the add-attachment command.
         Result<string> result = await _handler.Handle(command, NoCancellation);
@@ -111,8 +107,8 @@ public class AddAttachmentCommandHandlerTest
         // Then
         Assert.That(result.IsFailure);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
-        _storageServiceMock.Verify(
-            x => x.AddAttachment(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+        _emailContentPort.Verify(
+            x => x.SaveAttachment(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -124,12 +120,12 @@ public class AddAttachmentCommandHandlerTest
         // Given: a valid admin request where storage fails to verify error propagation.
         const string errorMessage = "ST-001";
         MemoryStream fileStream = CreateStream();
-        EmailEntity templateEntity = CreateTemplateEntity();
+        EmailTemplateEntity templateTemplateEntity = CreateTemplateEntity();
         AddAttachmentCommand command = CreateCommand(fileStream);
 
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
-            .ReturnsAsync(Success(templateEntity));
-        _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, DefaultAttachmentName, NoCancellation))
+        _emailPort.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
+            .ReturnsAsync(Success(templateTemplateEntity));
+        _emailContentPort.Setup(x => x.SaveAttachment(templateTemplateEntity.TemplateID, fileStream, DefaultAttachmentName, NoCancellation))
             .ReturnsAsync(Failure<string>(errorMessage));
 
         // When: handling the add-attachment command.
@@ -138,8 +134,8 @@ public class AddAttachmentCommandHandlerTest
         // Then
         Assert.That(result.IsFailure);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
-        _templatesServiceMock.Verify(
-            x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()),
+        _emailPort.Verify(
+            x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -151,17 +147,15 @@ public class AddAttachmentCommandHandlerTest
         // Given: a valid admin request where saving the template fails to verify error propagation.
         const string errorMessage = "TPL-500";
         MemoryStream fileStream = CreateStream();
-        EmailEntity templateEntity = CreateTemplateEntity();
+        EmailTemplateEntity templateTemplateEntity = CreateTemplateEntity();
         AddAttachmentCommand command = CreateCommand(fileStream);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))
-            .ReturnsAsync(true);
-        _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
-            .ReturnsAsync(Success(templateEntity));
-        _storageServiceMock.Setup(x => x.AddAttachment(templateEntity.ID, fileStream, DefaultAttachmentName, NoCancellation))
+        _emailPort.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
+            .ReturnsAsync(Success(templateTemplateEntity));
+        _emailContentPort.Setup(x => x.SaveAttachment(templateTemplateEntity.TemplateID, fileStream, DefaultAttachmentName, NoCancellation))
             .ReturnsAsync(Success(DefaultAttachmentUrl));
-        _templatesServiceMock.Setup(x => x.SaveEmailTemplate(templateEntity, NoCancellation))
+        _emailPort.Setup(x => x.SaveEmailTemplate(templateTemplateEntity, NoCancellation))
             .ReturnsAsync(Failure<string>(errorMessage));
 
         // When: handling the add-attachment command.

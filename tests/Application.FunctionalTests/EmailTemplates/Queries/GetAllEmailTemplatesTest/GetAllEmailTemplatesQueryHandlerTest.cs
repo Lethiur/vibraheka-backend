@@ -2,7 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetAllEmailTemplatesTest;
@@ -10,13 +10,13 @@ namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetAllEma
 [TestFixture]
 public class GetAllEmailTemplatesQueryHandlerTest
 {
-    private Mock<IEmailTemplatesService> EmailTemplatesServiceMock;
+    private Mock<EmailTemplatePort> EmailTemplatesServiceMock;
     private GetAllEmailTemplatesQueryHandler Handler;
 
     [SetUp]
     public void SetUp()
     {
-        EmailTemplatesServiceMock = new Mock<IEmailTemplatesService>();
+        EmailTemplatesServiceMock = new Mock<EmailTemplatePort>();
 
         Handler = new GetAllEmailTemplatesQueryHandler(
             EmailTemplatesServiceMock.Object);
@@ -28,14 +28,14 @@ public class GetAllEmailTemplatesQueryHandlerTest
     public async Task ShouldReturnTemplatesIfEverythingIsOk()
     {
         // Given
-        IEnumerable<EmailEntity> templates = new List<EmailEntity> { new() { ID = "1", Name = "Welcome" } };
+        IEnumerable<EmailTemplateEntity> templates = new List<EmailTemplateEntity> { new() { TemplateID = "1", Name = "Welcome" } };
 
         EmailTemplatesServiceMock.Setup(x => x.GetAllTemplates(CancellationToken.None))
             .ReturnsAsync(Result.Success(templates));
         GetAllEmailTemplatesQuery query = new();
 
         // When
-        Result<IEnumerable<EmailEntity>> result = await Handler.Handle(query, CancellationToken.None);
+        Result<IEnumerable<EmailTemplateEntity>> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -51,11 +51,11 @@ public class GetAllEmailTemplatesQueryHandlerTest
         const string errorMessage = "Error fetching from DynamoDB";
 
         EmailTemplatesServiceMock.Setup(x => x.GetAllTemplates(CancellationToken.None))
-            .ReturnsAsync(Result.Failure<IEnumerable<EmailEntity>>(errorMessage));
+            .ReturnsAsync(Result.Failure<IEnumerable<EmailTemplateEntity>>(errorMessage));
         GetAllEmailTemplatesQuery query = new();
 
         // When
-        Result<IEnumerable<EmailEntity>> result = await Handler.Handle(query, CancellationToken.None);
+        Result<IEnumerable<EmailTemplateEntity>> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then
         Assert.That(result.IsFailure, Is.True);

@@ -4,7 +4,6 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.VerificationCode;
-using VibraHeka.Domain.Common.Interfaces.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.VerifyUser;
 

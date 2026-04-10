@@ -3,11 +3,11 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.User.Enums;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;
@@ -183,18 +183,18 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
 
     private async Task SeedEmailTemplate(string id, string subject)
     {
-        IEmailTemplatesRepository repository = GetObjectFromFactory<IEmailTemplatesRepository>();
+        EmailTemplatePort repository = GetObjectFromFactory<EmailTemplatePort>();
 
-        EmailEntity template = new()
+        EmailTemplateEntity template = new()
         {
-            ID = id,
+            TemplateID = id,
             Path = subject,
             Name = "Verification Template",
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow
         };
 
-        await repository.SaveTemplate(template, CancellationToken.None);
+        await repository.SaveEmailTemplate(template, CancellationToken.None);
     }
 
     private async Task<bool> WaitForTemplateAssociation(ActionType actionType, string templateId, TimeSpan timeout)

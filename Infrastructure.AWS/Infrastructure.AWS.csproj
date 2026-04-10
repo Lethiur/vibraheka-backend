@@ -7,14 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="S3\" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" />
+      <PackageReference Include="AWSSDK.CloudWatchLogs" />
       <PackageReference Include="AWSSDK.CognitoIdentityProvider" />
       <PackageReference Include="AWSSDK.DynamoDBv2" />
+      <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
+      <PackageReference Include="AWSSDK.S3" />
+      <PackageReference Include="AWSSDK.SimpleSystemsManagement" />
       <PackageReference Include="CSharpFunctionalExtensions" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
       <PackageReference Include="Microsoft.Extensions.Options" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+      <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     </ItemGroup>
 

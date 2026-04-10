@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Enums;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserCodeServiceTest;
 

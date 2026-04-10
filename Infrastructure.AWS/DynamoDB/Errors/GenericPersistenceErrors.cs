@@ -1,6 +1,6 @@
-﻿namespace VibraHeka.Infrastructure.Exceptions;
+﻿namespace Infrastructure.AWS.DynamoDB.Errors;
 
-public class GenericPersistenceErrors
+internal static class GenericPersistenceErrors
 {
     public const string NoRecordsFound = "GPE-000";
     public const string ResourceNotFound = "GPE-001";

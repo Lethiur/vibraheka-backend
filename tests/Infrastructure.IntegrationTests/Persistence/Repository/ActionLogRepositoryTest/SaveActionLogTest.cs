@@ -1,7 +1,6 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
+using VibraHeka.Domain.User.Enums;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.ActionLogRepositoryTest;
 

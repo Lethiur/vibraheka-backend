@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Domain.Common.Interfaces;
+﻿namespace VibraHeka.Domain.User.Services;
 
 /// <summary>
 /// Represents a service to provide details about the currently authenticated user.

@@ -1509,7 +1509,7 @@ export class SubscriptionClient implements ISubscriptionClient {
 }
 
 export interface IUserClient {
-    user_GetUserProfileFromId(userID: string): Observable<UserEntity>;
+    user_GetUserProfileFromId(userID: string): Observable<UserProfileEntity>;
     user_UpdateUserProfile(profile: UserDTO): Observable<FileResponse>;
 }
 
@@ -1526,7 +1526,7 @@ export class UserClient implements IUserClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    user_GetUserProfileFromId(userID: string): Observable<UserEntity> {
+    user_GetUserProfileFromId(userID: string): Observable<UserProfileEntity> {
         let url_ = this.baseUrl + "/api/v1/users/{id}";
         if (userID === undefined || userID === null)
             throw new globalThis.Error("The parameter 'userID' must be defined.");
@@ -1548,14 +1548,14 @@ export class UserClient implements IUserClient {
                 try {
                     return this.processUser_GetUserProfileFromId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UserEntity>;
+                    return _observableThrow(e) as any as Observable<UserProfileEntity>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UserEntity>;
+                return _observableThrow(response_) as any as Observable<UserProfileEntity>;
         }));
     }
 
-    protected processUser_GetUserProfileFromId(response: HttpResponseBase): Observable<UserEntity> {
+    protected processUser_GetUserProfileFromId(response: HttpResponseBase): Observable<UserProfileEntity> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1566,7 +1566,7 @@ export class UserClient implements IUserClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UserEntity.fromJS(resultData200);
+            result200 = UserProfileEntity.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
@@ -2286,7 +2286,7 @@ export interface IBaseAuditableEntity {
     lastModifiedBy?: string | undefined;
 }
 
-export class UserEntity extends BaseAuditableEntity implements IUserEntity {
+export class UserProfileEntity extends BaseAuditableEntity implements IUserProfileEntity {
     id?: string;
     customerID?: string;
     email?: string;
@@ -2299,7 +2299,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
     timezoneID?: string;
     role?: UserRole;
 
-    constructor(data?: IUserEntity) {
+    constructor(data?: IUserProfileEntity) {
         super(data);
     }
 
@@ -2320,9 +2320,9 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
         }
     }
 
-    static override fromJS(data: any): UserEntity {
+    static override fromJS(data: any): UserProfileEntity {
         data = typeof data === 'object' ? data : {};
-        let result = new UserEntity();
+        let result = new UserProfileEntity();
         result.init(data);
         return result;
     }
@@ -2345,7 +2345,7 @@ export class UserEntity extends BaseAuditableEntity implements IUserEntity {
     }
 }
 
-export interface IUserEntity extends IBaseAuditableEntity {
+export interface IUserProfileEntity extends IBaseAuditableEntity {
     id?: string;
     customerID?: string;
     email?: string;

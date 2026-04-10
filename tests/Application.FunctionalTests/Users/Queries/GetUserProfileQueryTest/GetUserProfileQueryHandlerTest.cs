@@ -2,10 +2,9 @@
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Users.Queries.GetProfile;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Queries.GetUserProfileQueryTest;
 

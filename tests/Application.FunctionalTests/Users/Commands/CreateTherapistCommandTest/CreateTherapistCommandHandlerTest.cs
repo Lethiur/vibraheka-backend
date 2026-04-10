@@ -2,26 +2,26 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.User.Ports.Output;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.FunctionalTests.Users;
 
 [TestFixture]
 public class CreateTherapistCommandHandlerTest
 {
-    private Mock<IUserService> _userServiceMock = default!;
-    private Mock<IUserRepository> _userRepositoryMock = default!;
+    private Mock<UserPort> _userServiceMock = default!;
+    private Mock<UserProfilePort> _userRepositoryMock = default!;
     private Mock<ICurrentUserService> _currentUserServiceMock = default!;
     private CreateTherapistCommandHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _userServiceMock = new Mock<IUserService>();
-        _userRepositoryMock = new Mock<IUserRepository>();
+        _userServiceMock = new Mock<UserPort>();
+        _userRepositoryMock = new Mock<UserProfilePort>();
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new CreateTherapistCommandHandler(_userServiceMock.Object, _userRepositoryMock.Object, _currentUserServiceMock.Object);
     }
@@ -38,7 +38,7 @@ public class CreateTherapistCommandHandlerTest
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<UserProfileEntity>()))
+            .Setup(x => x.SaveAsync(It.IsAny<UserProfileEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success("new-user-id"));
 
         // When
@@ -47,13 +47,13 @@ public class CreateTherapistCommandHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo("new-user-id"));
-        _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserProfileEntity>(u =>
+        _userRepositoryMock.Verify(x => x.SaveAsync(It.Is<UserProfileEntity>(u =>
             u.Id == "new-user-id" &&
             u.Email == command.TherapistData.Email &&
             u.FirstName == command.TherapistData.FirstName &&
             u.Role == UserRole.Therapist &&
             u.CreatedBy == "admin-1" &&
-            u.LastModifiedBy == "admin-1")), Times.Once);
+            u.LastModifiedBy == "admin-1"), CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class CreateTherapistCommandHandlerTest
         // Then
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("E-002"));
-        _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserProfileEntity>()), Times.Never);
+        _userRepositoryMock.Verify(x => x.SaveAsync(It.IsAny<UserProfileEntity>(), CancellationToken.None), Times.Never);
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class CreateTherapistCommandHandlerTest
             .ReturnsAsync(Result.Success("new-user-id"));
 
         _userRepositoryMock
-            .Setup(x => x.AddAsync(It.IsAny<UserProfileEntity>()))
+            .Setup(x => x.SaveAsync(It.IsAny<UserProfileEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<string>("DB-FAIL"));
 
         // When

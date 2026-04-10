@@ -4,10 +4,9 @@ using MediatR;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.UpdateUserProfileCommandTest;
 

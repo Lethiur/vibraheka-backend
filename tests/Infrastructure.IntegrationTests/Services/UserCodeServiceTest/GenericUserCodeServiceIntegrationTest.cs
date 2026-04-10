@@ -1,9 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using VibraHeka.Domain.Common.Interfaces.User;
-using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserCodeServiceTest;
 

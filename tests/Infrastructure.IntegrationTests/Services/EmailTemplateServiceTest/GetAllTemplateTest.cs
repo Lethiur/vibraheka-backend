@@ -1,7 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServiceTest;
 
@@ -28,11 +27,11 @@ public class GetAllTemplateTest : GenericEmailTemplateServiceTest
         await _context.SaveAsync(template2, config, CancellationToken.None);
 
         // When
-        Result<IEnumerable<EmailEntity>> result = await _service.GetAllTemplates(CancellationToken.None);
+        Result<IEnumerable<EmailTemplateEntity>> result = await _service.GetAllTemplates(CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Has.Some.Matches<EmailEntity>(x => x.ID == template1.TemplateID));
-        Assert.That(result.Value, Has.Some.Matches<EmailEntity>(x => x.ID == template2.TemplateID));
+        Assert.That(result.Value, Has.Some.Matches<EmailTemplateEntity>(x => x.TemplateID == template1.TemplateID));
+        Assert.That(result.Value, Has.Some.Matches<EmailTemplateEntity>(x => x.TemplateID == template2.TemplateID));
     }
 }

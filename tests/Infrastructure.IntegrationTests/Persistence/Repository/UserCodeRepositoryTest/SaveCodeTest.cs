@@ -1,9 +1,8 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
+using VibraHeka.Domain.User.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserCodeRepositoryTest;

@@ -3,12 +3,11 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CSharpFunctionalExtensions;
-using MediatR;
 using NUnit.Framework;
 using VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Enums;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;
@@ -70,17 +69,17 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
     private async Task SeedEmailTemplate(string id, string subject)
     {
-        IEmailTemplatesRepository repository = GetObjectFromFactory<IEmailTemplatesRepository>();
+        EmailTemplatePort repository = GetObjectFromFactory<EmailTemplatePort>();
 
-        EmailEntity template = new()
+        EmailTemplateEntity template = new()
         {
-            ID = id,
+            TemplateID = id,
             Path = subject,
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow
         };
 
-        Result<Unit> saveTemplate = await repository.SaveTemplate(template, CancellationToken.None);
+        Result<string> saveTemplate = await repository.SaveEmailTemplate(template, CancellationToken.None);
         Assert.That(saveTemplate.IsSuccess, Is.True);
     }
 }

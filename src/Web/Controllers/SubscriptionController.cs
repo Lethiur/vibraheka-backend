@@ -7,6 +7,7 @@ using VibraHeka.Application.Subscriptions.Commands.ReactivateSubscription;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionPortalUrl;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Subscriptions.Entities;
 using VibraHeka.Web.Mappers;
 
 namespace VibraHeka.Web.Controllers;

@@ -1,9 +1,10 @@
 using System.Net.Http.Headers;
 using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Domain.Subscriptions.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -33,7 +34,7 @@ public abstract class GenericSubscriptionAcceptanceTest : GenericAcceptanceTest<
         DateTimeOffset? startDate = null)
     {
         // Given: a subscription entity prepared with a specific state combination.
-        ISubscriptionRepository subscriptionRepository = GetObjectFromFactory<ISubscriptionRepository>();
+        SubscriptionPort subscriptionRepository = GetObjectFromFactory<SubscriptionPort>();
         StripeConfig stripeConfig = GetObjectFromFactory<StripeConfig>();
 
         SubscriptionEntity subscriptionEntity = new()
@@ -56,10 +57,10 @@ public abstract class GenericSubscriptionAcceptanceTest : GenericAcceptanceTest<
         };
 
         // When: saving it to the subscriptions table.
-        Result<SubscriptionEntity> saveResult =
-            await subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, CancellationToken.None);
+        Result<Unit> saveResult =
+            await subscriptionRepository.CreateSubscription(subscriptionEntity, CancellationToken.None);
 
         // Then: caller can assert whether persistence succeeded before invoking the API.
-        return saveResult;
+        return subscriptionEntity;
     }
 }

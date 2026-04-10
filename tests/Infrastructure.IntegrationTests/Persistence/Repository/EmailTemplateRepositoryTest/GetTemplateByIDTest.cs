@@ -3,8 +3,6 @@ using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
@@ -24,11 +22,11 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         await SeedTemplate(templateId, expectedPath);
 
         // When: Retrieving the template by ID
-        Result<EmailEntity> result = await Repository.GetTemplateByID(templateId, CancellationToken.None);
+        Result<EmailTemplateEntity> result = await Repository.GetTemplateByID(templateId, CancellationToken.None);
 
         // Then: Should return success and match the seeded data
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.ID, Is.EqualTo(templateId));
+        Assert.That(result.Value.TemplateID, Is.EqualTo(templateId));
         Assert.That(result.Value.Path, Is.EqualTo(expectedPath));
     }
 
@@ -44,7 +42,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         string nonExistentId = "non-existent-id-" + Guid.NewGuid();
 
         // When: Trying to retrieve it
-        Result<EmailEntity> result = await Repository.GetTemplateByID(nonExistentId, CancellationToken.None);
+        Result<EmailTemplateEntity> result = await Repository.GetTemplateByID(nonExistentId, CancellationToken.None);
 
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);
@@ -60,7 +58,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         cts.Cancel();
 
         // When: se intenta recuperar plantilla con la operacion cancelada.
-        Result<EmailEntity> result = await Repository.GetTemplateByID(Guid.NewGuid().ToString("N"), cts.Token);
+        Result<EmailTemplateEntity> result = await Repository.GetTemplateByID(Guid.NewGuid().ToString("N"), cts.Token);
 
         // Then: el repositorio debe mapear a error general de persistencia.
         Assert.That(result.IsFailure, Is.True);

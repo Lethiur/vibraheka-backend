@@ -1,14 +1,16 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
+using Infrastructure.AWS.DynamoDB.Errors;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.AWS.DynamoDB;
 
 public abstract class GenericDynamoRepository<T>(
     IDynamoDBContext context,
+    IAmazonDynamoDB  client,
     string tableConfigKey,
     ILogger<GenericDynamoRepository<T>> logger)
 {
@@ -120,6 +122,39 @@ public abstract class GenericDynamoRepository<T>(
         {
             return Task.FromResult(Result.Failure<T>(HandleError(e)));
         }
+    }
+
+
+    protected async Task<Result<Unit>> UpdateAsync(
+        Dictionary<string,AttributeValue> key,
+        DynamoExpression update,
+        DynamoExpression? condition = null,
+        CancellationToken token = default)
+    {
+        UpdateItemRequest request = new UpdateItemRequest
+        {
+            TableName = tableConfigKey,
+            Key = key,
+            
+            UpdateExpression = update.Expression,
+            ConditionExpression = condition?.Expression,
+
+            ExpressionAttributeNames = update.AttributeNames,
+            ExpressionAttributeValues = update.AttributeValues,
+        };
+        
+        if (condition != null)
+        {
+            foreach (var kv in condition.AttributeNames)
+                request.ExpressionAttributeNames[kv.Key] = kv.Value;
+
+            foreach (var kv in condition.AttributeValues)
+                request.ExpressionAttributeValues[kv.Key] = kv.Value;
+        }
+
+        UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
+
+        return Result.Success(Unit.Value);
     }
 
     /// <summary>

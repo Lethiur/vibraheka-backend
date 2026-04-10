@@ -33,4 +33,14 @@ public class UserProfileEntity : BaseAuditableEntity
         FirstName = personFirstName;
         CustomerID = customerId;
     }
+    
+    public bool IsConnectedToPaymentsGateway() => !string.IsNullOrEmpty(CustomerID);
+    
+    public void SetExternalCustomerId(string customerId)
+    {
+        if (string.IsNullOrEmpty(customerId))
+            throw new ArgumentNullException(nameof(customerId));
+        
+        CustomerID = customerId;
+    }
 }

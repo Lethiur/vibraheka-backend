@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
@@ -22,7 +22,7 @@ namespace VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 /// Service to interact with email templates, including operations to fetch all templates from the system.
 /// </param>
 public class GetAllEmailTemplatesQueryHandler(
-    IEmailTemplatesService emailTemplateService) : IRequestHandler<GetAllEmailTemplatesQuery, Result<IEnumerable<EmailEntity>>>
+    EmailTemplatePort emailTemplateService) : IRequestHandler<GetAllEmailTemplatesQuery, Result<IEnumerable<EmailTemplateEntity>>>
 {
     /// <summary>
     /// Handles the request to retrieve all email templates.
@@ -31,9 +31,9 @@ public class GetAllEmailTemplatesQueryHandler(
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="Result{T}"/>
-    /// wrapping an enumerable collection of <see cref="EmailEntity"/> objects if successful, or an error result otherwise.
+    /// wrapping an enumerable collection of <see cref="EmailTemplateEntity"/> objects if successful, or an error result otherwise.
     /// </returns>
-    public Task<Result<IEnumerable<EmailEntity>>> Handle(GetAllEmailTemplatesQuery request,
+    public Task<Result<IEnumerable<EmailTemplateEntity>>> Handle(GetAllEmailTemplatesQuery request,
         CancellationToken cancellationToken)
     {
         return emailTemplateService.GetAllTemplates(cancellationToken);

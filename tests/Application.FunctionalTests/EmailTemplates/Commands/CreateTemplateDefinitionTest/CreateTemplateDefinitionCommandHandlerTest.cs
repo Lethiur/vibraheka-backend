@@ -2,24 +2,24 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Services;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateTemplateDefinitionTest;
 
 [TestFixture]
 public class CreateTemplateDefinitionCommandHandlerTest
 {
     private Mock<ICurrentUserService> _currentUserServiceMock = default!;
-    private Mock<IEmailTemplatesService> _templatesServiceMock = default!;
+    private Mock<EmailTemplatePort> _templatesServiceMock = default!;
     private CreateTemplateDefinitionCommandHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
         _currentUserServiceMock = new Mock<ICurrentUserService>();
-        _templatesServiceMock = new Mock<IEmailTemplatesService>();
+        _templatesServiceMock = new Mock<EmailTemplatePort>();
         _handler = new CreateTemplateDefinitionCommandHandler(_currentUserServiceMock.Object, _templatesServiceMock.Object);
     }
 
@@ -31,7 +31,7 @@ public class CreateTemplateDefinitionCommandHandlerTest
 
         CreateTemplateDefinitionCommand command = new("Welcome Template");
         _templatesServiceMock
-            .Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), CancellationToken.None))
+            .Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), CancellationToken.None))
             .ReturnsAsync(Result.Success("template-id"));
 
         Result<string> result = await _handler.Handle(command, CancellationToken.None);
@@ -42,9 +42,9 @@ public class CreateTemplateDefinitionCommandHandlerTest
         Guid a;
         
         _templatesServiceMock.Verify(x => x.SaveEmailTemplate(
-            It.Is<EmailEntity>(e =>
-                !string.IsNullOrWhiteSpace(e.ID) &&
-                Guid.TryParse(e.ID, out a) &&
+            It.Is<EmailTemplateEntity>(e =>
+                !string.IsNullOrWhiteSpace(e.TemplateID) &&
+                Guid.TryParse(e.TemplateID, out a) &&
                 e.Name == command.TempateName &&
                 e.CreatedBy == userId),
             CancellationToken.None), Times.Once);
@@ -56,7 +56,7 @@ public class CreateTemplateDefinitionCommandHandlerTest
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-1");
         CreateTemplateDefinitionCommand command = new("Welcome Template");
         _templatesServiceMock
-            .Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), CancellationToken.None))
+            .Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), CancellationToken.None))
             .ReturnsAsync(Result.Failure<string>("ET-FAIL"));
 
         Result<string> result = await _handler.Handle(command, CancellationToken.None);

@@ -2,7 +2,6 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Queries.GetCode;
-using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.FunctionalTests.Users;

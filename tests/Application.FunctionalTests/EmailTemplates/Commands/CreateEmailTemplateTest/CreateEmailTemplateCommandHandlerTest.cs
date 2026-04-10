@@ -5,17 +5,17 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.User.Services;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateEmailTemplateTest;
 
 public class CreateEmailTemplateCommandHandlerTests
 {
-    private Mock<IEmailTemplateStorageService> _storageServiceMock;
-    private Mock<IEmailTemplatesService> _templateServiceMock;
+    private Mock<EmailTemplateContentPort> _storageServiceMock;
+    private Mock<EmailTemplatePort> _templateServiceMock;
     private Mock<ICurrentUserService> _currentUserServiceMock;
     
     private CreateEmailTemplateCommandHandler _handler;
@@ -24,8 +24,8 @@ public class CreateEmailTemplateCommandHandlerTests
     [SetUp]
     public void SetUp()
     {
-        _storageServiceMock = new Mock<IEmailTemplateStorageService>();
-        _templateServiceMock = new Mock<IEmailTemplatesService>();
+        _storageServiceMock = new Mock<EmailTemplateContentPort>();
+        _templateServiceMock = new Mock<EmailTemplatePort>();
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new CreateEmailTemplateCommandHandler(
             _templateServiceMock.Object,
@@ -50,7 +50,7 @@ public class CreateEmailTemplateCommandHandlerTests
         
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
-        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
+        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken))
             .ReturnsAsync("a");
 
         // When
@@ -59,7 +59,7 @@ public class CreateEmailTemplateCommandHandlerTests
         // Then
         Assert.That(result.IsSuccess, Is.True);
         _storageServiceMock.Verify(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken), Times.Once);
-        _templateServiceMock.Verify(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken), Times.Once);
+        _templateServiceMock.Verify(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken), Times.Once);
     }
     
     
@@ -86,7 +86,7 @@ public class CreateEmailTemplateCommandHandlerTests
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureFileManagementErrors.InvalidHash));
         _templateServiceMock.Verify(
-            x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()),
+            x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -103,7 +103,7 @@ public class CreateEmailTemplateCommandHandlerTests
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
-        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
+        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken))
             .ReturnsAsync(Result.Failure<string>(InfrastructureFileManagementErrors.InvalidHash));
 
         // When
@@ -127,7 +127,7 @@ public class CreateEmailTemplateCommandHandlerTests
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
-        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
+        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken))
             .ReturnsAsync("string");
 
         // When
@@ -136,7 +136,7 @@ public class CreateEmailTemplateCommandHandlerTests
         // Then
         _templateServiceMock.Verify(
             x => x.SaveEmailTemplate(
-                It.Is<EmailEntity>(e =>
+                It.Is<EmailTemplateEntity>(e =>
                     e.Name == templateName &&
                     e.Path == ("template-id")),
                 cancellationToken),
@@ -156,7 +156,7 @@ public class CreateEmailTemplateCommandHandlerTests
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
-        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
+        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken))
             .ReturnsAsync("string");
 
         // When
@@ -181,7 +181,7 @@ public class CreateEmailTemplateCommandHandlerTests
 
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
-        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
+        _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailTemplateEntity>(), cancellationToken))
             .ReturnsAsync("str");
 
         // When

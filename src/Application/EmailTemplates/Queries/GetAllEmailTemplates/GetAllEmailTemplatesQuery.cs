@@ -12,4 +12,4 @@ namespace VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 /// It enforces the requirement that the querying user has administrative privileges
 /// by implementing the <see cref="IRequireAdmin"/> interface.
 /// </remarks>
-public record GetAllEmailTemplatesQuery() : IRequest<Result<IEnumerable<EmailEntity>>>, IRequireAdmin;
+public record GetAllEmailTemplatesQuery() : IRequest<Result<IEnumerable<EmailTemplateEntity>>>, IRequireAdmin;

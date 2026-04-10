@@ -2,7 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Queries.GetTemplateContent;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetTemplateContentQueryTest;
@@ -10,15 +10,15 @@ namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetTempla
 [TestFixture]
 public class GetTemplateContentQueryHandlerTest
 {
-    private Mock<IEmailTemplatesService> _templatesServiceMock = default!;
-    private Mock<IEmailTemplateStorageService> _storageServiceMock = default!;
+    private Mock<EmailTemplatePort> _templatesServiceMock = default!;
+    private Mock<EmailTemplateContentPort> _storageServiceMock = default!;
     private GetTemplateContentQueryHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _templatesServiceMock = new Mock<IEmailTemplatesService>();
-        _storageServiceMock = new Mock<IEmailTemplateStorageService>();
+        _templatesServiceMock = new Mock<EmailTemplatePort>();
+        _storageServiceMock = new Mock<EmailTemplateContentPort>();
         _handler = new GetTemplateContentQueryHandler(_templatesServiceMock.Object, _storageServiceMock.Object);
     }
 
@@ -28,15 +28,15 @@ public class GetTemplateContentQueryHandlerTest
     {
         // Given
         GetEmailTemplateContentQuery query = new("template-1");
-        EmailEntity templateEntity = new() { ID = "template-1" };
+        EmailTemplateEntity templateTemplateEntity = new() { TemplateID = "template-1" };
         string expectedContent = "content";
 
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
-            .ReturnsAsync(Result.Success(templateEntity));
+            .ReturnsAsync(Result.Success(templateTemplateEntity));
 
         _storageServiceMock
-            .Setup(x => x.GetTemplateContent(templateEntity.ID, CancellationToken.None))
+            .Setup(x => x.GetTemplateContent(templateTemplateEntity.TemplateID, CancellationToken.None))
             .ReturnsAsync(Result.Success(expectedContent));
 
         // When
@@ -56,7 +56,7 @@ public class GetTemplateContentQueryHandlerTest
         string errorMessage = "ET-002";
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
-            .ReturnsAsync(Result.Failure<EmailEntity>(errorMessage));
+            .ReturnsAsync(Result.Failure<EmailTemplateEntity>(errorMessage));
 
         // When
         Result<string> result = await _handler.Handle(query, CancellationToken.None);
@@ -73,15 +73,15 @@ public class GetTemplateContentQueryHandlerTest
     {
         // Given
         GetEmailTemplateContentQuery query = new("template-1");
-        EmailEntity templateEntity = new() { ID = "template-1" };
+        EmailTemplateEntity templateTemplateEntity = new() { TemplateID = "template-1" };
         string errorMessage = "S3-FAIL";
 
         _templatesServiceMock
             .Setup(x => x.GetTemplateByID(query.TemplateID, CancellationToken.None))
-            .ReturnsAsync(Result.Success(templateEntity));
+            .ReturnsAsync(Result.Success(templateTemplateEntity));
 
         _storageServiceMock
-            .Setup(x => x.GetTemplateContent(templateEntity.ID, CancellationToken.None))
+            .Setup(x => x.GetTemplateContent(templateTemplateEntity.TemplateID, CancellationToken.None))
             .ReturnsAsync(Result.Failure<string>(errorMessage));
 
         // When

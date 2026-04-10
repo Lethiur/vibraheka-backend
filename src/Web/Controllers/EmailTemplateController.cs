@@ -35,7 +35,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     [Consumes("application/json")]
     public async Task<IActionResult> GetTemplates()
     {
-        Result<IEnumerable<EmailEntity>> result = await mediator.Send(new GetAllEmailTemplatesQuery());
+        Result<IEnumerable<EmailTemplateEntity>> result = await mediator.Send(new GetAllEmailTemplatesQuery());
 
         if (result.IsFailure)
         {
@@ -45,7 +45,7 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value.Select(template => new EmailTemplateResponseDTO()
         {
             CreatedAt = template.Created,
-            TemplateID = template.ID,
+            TemplateID = template.TemplateID,
             TemplateName = template.Name,
             LastModified = template.LastModified
         })));

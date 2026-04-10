@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using Stripe.Checkout;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Subscriptions.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.PaymentsRepositoryTest;
@@ -26,7 +27,7 @@ public class CancelSubscriptionPaymentTest : GenericPaymentsRepositoryIntegratio
         Assert.That(result.IsSuccess, Is.True);
 
         SessionService sessionService = new();
-        Session session = await sessionService.GetAsync(checkoutSessionResult.Value.PaymentSessionID, cancellationToken: CancellationToken.None);
+        Session session = await sessionService.GetAsync(checkoutSessionResult.Value.CheckoutSessionID, cancellationToken: CancellationToken.None);
         Assert.That(session.Status, Is.EqualTo("expired"));
     }
 
@@ -36,7 +37,7 @@ public class CancelSubscriptionPaymentTest : GenericPaymentsRepositoryIntegratio
         // Given: una entidad con payment session id invalido.
         SubscriptionCheckoutSessionEntity entity = new()
         {
-            PaymentSessionID = "cs_invalid_for_integration_test"
+            CheckoutSessionID = "cs_invalid_for_integration_test"
         };
 
         // When: se intenta expirar una sesion inexistente.

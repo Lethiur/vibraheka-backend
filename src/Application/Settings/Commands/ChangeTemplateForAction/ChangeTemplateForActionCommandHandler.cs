@@ -1,19 +1,16 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
-using VibraHeka.Domain.Common.Interfaces.Settings;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.EmailTemplates.Models;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 
 public class ChangeTemplateForActionCommandHandler(
-    ISettingsService SettingsService,
+    EmailTemplateConfigPort SettingsService,
     ICurrentUserService CurrentUserService,
-    IEmailTemplatesService EmailTemplatesService,
+    EmailTemplatePort EmailTemplatesService,
     ILogger<ChangeTemplateForActionCommandHandler> logger)
     : IRequestHandler<ChangeTemplateForActionCommand, Result<Unit>>
 {
@@ -24,31 +21,7 @@ public class ChangeTemplateForActionCommandHandler(
             .Where(userID => !string.IsNullOrEmpty(userID) && !string.IsNullOrWhiteSpace(userID))
             .ToResult(UserErrors.InvalidUserID)
             .BindTry(_ => EmailTemplatesService.GetTemplateByID(request.TemplateID, cancellationToken))
-            .BindTry(async _ =>
-            {
-                return request.ActionType switch
-                {
-                    ActionType.UserRegistered => await SettingsService.ChangeUserWelcomeEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
-                    ActionType.UserVerification => await SettingsService.ChangeEmailForVerificationAsync(
-                        request.TemplateID, cancellationToken),
-                    ActionType.PasswordReset => await SettingsService.ChangeRecoverPasswordEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
-                    ActionType.SubscriptionThankYou => await SettingsService
-                        .ChangeSubscriptionThankYouEmailTemplateAsync(
-                            request.TemplateID, cancellationToken),
-                    ActionType.TrialEndingSoon => await SettingsService.ChangeTrialEndingSoonEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
-                    ActionType.PasswordChanged => await SettingsService.ChangePasswordChangedEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
-                    ActionType.SubscriptionCancelled => await SettingsService
-                        .ChangeSubscriptionCancelledEmailTemplateAsync(request.TemplateID, cancellationToken),
-                    ActionType.SubscriptionReactivated => await SettingsService
-                        .ChangeSubscriptionReActivatedEmailTemplateAsync(request.TemplateID, cancellationToken),
-                    ActionType.ForgotPasswordCompleted => await SettingsService.ChangeForgotPasswordCompletedEmailTemplateAsync(
-                        request.TemplateID, cancellationToken),
-                    _ => Result.Failure<Unit>(EmailTemplateErrors.InvalidAction)
-                };
-            });
+            .BindTry( entity => SettingsService.ChangeEmailTemplateKeyForAction(ActionTypeModel.ActionTypes[request.ActionType],
+                entity.TemplateID, cancellationToken));
     }
 }

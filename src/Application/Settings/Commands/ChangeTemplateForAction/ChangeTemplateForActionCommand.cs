@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Common.Enums;
+using VibraHeka.Domain.User.Enums;
 
 namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 

@@ -26,15 +26,10 @@
       <PackageReference Include="Moq" />
       <PackageReference Include="Respawn" />
       <PackageReference Include="Shouldly" />
-      <PackageReference Include="Testcontainers.MsSql" />
     </ItemGroup>
     
     <ItemGroup>
         <ProjectReference Include="..\..\src\Web\Web.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Settings\Commands\" />
     </ItemGroup>
 
 </Project>

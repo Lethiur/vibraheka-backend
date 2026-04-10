@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.User.Services;
 
 namespace VibraHeka.Infrastructure.Services;
 

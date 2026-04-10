@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 
@@ -15,7 +15,7 @@ namespace VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 /// </param>
 /// <seealso cref="EditTemplateNameCommand"/>
 /// <seealso cref="IEmailTemplatesService"/>
-public class EditTemplateNameCommandHandler(IEmailTemplatesService emailTemplatesService) : IRequestHandler<EditTemplateNameCommand, Result<Unit>>
+public class EditTemplateNameCommandHandler(EmailTemplatePort emailTemplatesService) : IRequestHandler<EditTemplateNameCommand, Result<Unit>>
 {
     public Task<Result<Unit>> Handle(EditTemplateNameCommand request, CancellationToken cancellationToken)
     {

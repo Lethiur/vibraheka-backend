@@ -3,8 +3,6 @@ using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.EmailTemplateRepositoryTest;
 
@@ -18,7 +16,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldSaveTemplateSuccessfullyWhenValidDataProvided()
     {
         // Given: una entidad de template valida.
-        EmailEntity template = CreateValidTemplate();
+        EmailTemplateEntity template = CreateValidTemplate();
 
         // When: se guarda el template en repositorio.
         Result<Unit> result = await Repository.SaveTemplate(template, CancellationToken.None);
@@ -32,9 +30,9 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldSaveTemplateSuccessfullyWhenDeepPathProvided()
     {
         // Given: una plantilla con ruta profunda de S3.
-        EmailEntity template = new()
+        EmailTemplateEntity template = new()
         {
-            ID = Guid.NewGuid().ToString(),
+            TemplateID = Guid.NewGuid().ToString(),
             Path = "s3://my-bucket/templates/marketing/v1/user-welcome.html"
         };
 
@@ -54,17 +52,17 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldPersistTemplateDataCorrectlyWhenSaved()
     {
         // Given: una plantilla con valores especificos.
-        EmailEntity originalTemplate = CreateValidTemplate();
+        EmailTemplateEntity originalTemplate = CreateValidTemplate();
 
         // When: se guarda la plantilla y luego se carga desde DynamoDB.
         await Repository.SaveTemplate(originalTemplate, CancellationToken.None);
 
         LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
+        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.TemplateID, loadConfig);
 
         // Then: los valores persistidos deben coincidir.
         Assert.That(retrieved, Is.Not.Null);
-        Assert.That(retrieved!.TemplateID, Is.EqualTo(originalTemplate.ID));
+        Assert.That(retrieved!.TemplateID, Is.EqualTo(originalTemplate.TemplateID));
         Assert.That(retrieved.Path, Is.EqualTo(originalTemplate.Path));
         Assert.That(retrieved.Created, Is.EqualTo(originalTemplate.Created));
         Assert.That(retrieved.CreatedBy, Is.EqualTo(originalTemplate.CreatedBy));
@@ -82,7 +80,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     {
         // Given: una plantilla inicial guardada.
         string templateId = Guid.NewGuid().ToString();
-        EmailEntity template = new() { ID = templateId, Path = "path/old.html" };
+        EmailTemplateEntity template = new() { TemplateID = templateId, Path = "path/old.html" };
         await Repository.SaveTemplate(template, CancellationToken.None);
 
         // And: el mismo ID con nueva ruta.
@@ -105,7 +103,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldReturnGenericPersistenceErrorWhenSaveIsCancelled()
     {
         // Given: una plantilla valida y un token de cancelacion cancelado.
-        EmailEntity template = CreateValidTemplate();
+        EmailTemplateEntity template = CreateValidTemplate();
         using CancellationTokenSource cts = new();
         cts.Cancel();
 
@@ -121,11 +119,11 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
 
     #region Helper Methods
 
-    private EmailEntity CreateValidTemplate()
+    private EmailTemplateEntity CreateValidTemplate()
     {
-        return new EmailEntity
+        return new EmailTemplateEntity
         {
-            ID = Guid.NewGuid().ToString(),
+            TemplateID = Guid.NewGuid().ToString(),
             Path = $"templates/{_faker.System.FileName("html")}",
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow,

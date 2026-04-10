@@ -11,9 +11,9 @@ using Bogus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Stripe;
+using VibraHeka.Domain.EmailTemplates.Entities;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using static System.ComponentModel.DataAnnotations.Validator;
 
 namespace VibraHeka.Infrastructure.IntegrationTests;

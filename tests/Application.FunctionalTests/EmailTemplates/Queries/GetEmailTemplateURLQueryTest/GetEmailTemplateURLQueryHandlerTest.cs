@@ -2,20 +2,20 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
-using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
+using VibraHeka.Domain.EmailTemplates.Ports.Out;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetEmailTemplateURLQueryTest;
 
 [TestFixture]
 public class GetEmailTemplateURLQueryHandlerTest
 {
-    private Mock<IEmailTemplateStorageService> _storageServiceMock = default!;
+    private Mock<EmailTemplateContentPort> _storageServiceMock = default!;
     private GetEmailTemplateURLQueryHandler _handler = default!;
 
     [SetUp]
     public void SetUp()
     {
-        _storageServiceMock = new Mock<IEmailTemplateStorageService>();
+        _storageServiceMock = new Mock<EmailTemplateContentPort>();
         _handler = new GetEmailTemplateURLQueryHandler(_storageServiceMock.Object);
     }
 
@@ -27,7 +27,7 @@ public class GetEmailTemplateURLQueryHandlerTest
         GetEmailTemplateURLQuery query = new("template-1");
         string expectedUrl = "https://example.com/url";
         _storageServiceMock
-            .Setup(x => x.GetTemplateUrlAsync(query.TemplateID, CancellationToken.None))
+            .Setup(x => x.GetTemplateUrlAsync(query.TemplateID))
             .ReturnsAsync(Result.Success(expectedUrl));
 
         // When
@@ -36,7 +36,7 @@ public class GetEmailTemplateURLQueryHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(expectedUrl));
-        _storageServiceMock.Verify(x => x.GetTemplateUrlAsync(query.TemplateID, CancellationToken.None), Times.Once);
+        _storageServiceMock.Verify(x => x.GetTemplateUrlAsync(query.TemplateID), Times.Once);
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class GetEmailTemplateURLQueryHandlerTest
         GetEmailTemplateURLQuery query = new("template-1");
         string errorMessage = "ET-002";
         _storageServiceMock
-            .Setup(x => x.GetTemplateUrlAsync(query.TemplateID, CancellationToken.None))
+            .Setup(x => x.GetTemplateUrlAsync(query.TemplateID))
             .ReturnsAsync(Result.Failure<string>(errorMessage));
 
         // When
