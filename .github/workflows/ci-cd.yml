@@ -1,12 +1,14 @@
 name: CI/CD
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types:
       - opened
     branches:
       - main
-      - staging
 
 permissions:
   contents: read
