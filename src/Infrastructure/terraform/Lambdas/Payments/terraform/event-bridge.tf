@@ -1,7 +1,7 @@
 
 resource "aws_cloudwatch_event_rule" "stripe_rule" {
   name          = "stripe-subscriptions-rule-${terraform.workspace}"
-  event_bus_name = "aws.partner/stripe.com/ed_test_61U8OhWNACpdhq6GG16U8LJp90CQBOsqL618O7RCiVVA"
+  event_bus_name = terraform.workspace == "main" ? "aws.partner/stripe.com/ed_61UVaMeHyCfrgJPlT16PJ3we90CQ4242m36qvV5kGV0y" : "aws.partner/stripe.com/ed_test_61U8OhWNACpdhq6GG16U8LJp90CQBOsqL618O7RCiVVA"
   
   event_pattern = jsonencode({
     "source" : [
