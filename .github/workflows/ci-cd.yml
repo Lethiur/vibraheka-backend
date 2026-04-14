@@ -1,11 +1,6 @@
 name: CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - VH-*
-      - staging
   pull_request:
     types:
       - opened
