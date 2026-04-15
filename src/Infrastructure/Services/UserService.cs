@@ -119,6 +119,48 @@ public class UserService(
         }
     }
 
+    /// <inheritdoc />
+    public async Task<Result<AuthenticationResult>> AdminAuthUserAsync(string email, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Nota: El flujo ADMIN_NO_SRP_AUTH normalmente requiere PASSWORD si no es un flujo personalizado.
+            // Si la intención es que un Admin autentique a un usuario sin su password (suplantación), 
+            // AWS Cognito usualmente requiere CUSTOM_AUTH o el Admin debe resetear el password.
+            // Aquí seguimos la estructura solicitada asumiendo que el flujo está configurado.
+            AdminInitiateAuthRequest request = new()
+            {
+                UserPoolId = _userPoolId,
+                ClientId = _clientId,
+                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                AuthParameters = new Dictionary<string, string> { { "USERNAME", email } }
+            };
+
+            AdminInitiateAuthResponse? response = await _client.AdminInitiateAuthAsync(request, cancellationToken);
+
+            JwtSecurityTokenHandler handler = new();
+            JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
+            string? userId = jsonToken.Subject;
+
+            AuthenticationResult authResult = new(userId, response.AuthenticationResult.AccessToken,
+                response.AuthenticationResult.RefreshToken);
+
+            // Intentamos obtener el rol del usuario desde el repositorio
+            Result<UserEntity> userResult = await userRepository.GetByIdAsync(userId, cancellationToken);
+            if (userResult.IsSuccess)
+            {
+                authResult.Role = userResult.Value.Role;
+            }
+
+            return Result.Success(authResult);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error while admin-authenticating the user {Email}", email);
+            return MapCognitoException<AuthenticationResult>(ex);
+        }
+    }
+
     /// <summary>
     /// Resends the verification code to the specified user's email address.
     /// </summary>

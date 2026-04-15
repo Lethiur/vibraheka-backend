@@ -43,6 +43,18 @@ public interface IUserService
     public Task<Result<AuthenticationResult>> AuthenticateUserAsync(string email, string password);
 
     /// <summary>
+    /// Authenticates an admin user with the provided email.
+    /// </summary>
+    /// <param name="email">The email address of the admin user to authenticate.</param>
+    /// <param name="cancellationToken">The cancellation token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> where T is an <see cref="AuthenticationResult"/>
+    /// holding details such as UserID, AccessToken, RefreshToken, and Role, if successful.
+    /// </returns>
+    public Task<Result<AuthenticationResult>> AdminAuthUserAsync(string email, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously resends the verification code to the specified email address through AWS Cognito.
     /// </summary>
     /// <param name="email">The email address to which the verification code will be resent.</param>

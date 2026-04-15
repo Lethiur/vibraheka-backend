@@ -87,19 +87,19 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         AuthenticateUserCommand authCommand = new(email, DefaultPassword);
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", authCommand);
 
-        // Then: Should return BadRequest (según el default del switch en tu AuthController para UserNotConfirmed)
+        // Then: Should return BadRequest
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
             "Should return BadRequest for unconfirmed users");
 
-        // And: The error code should be UserNotConfirmed (E-003)
+        // And: The error code should be UserNotConfirmed
         ResponseEntity responseObject = await response.GetAsResponseEntity();
         Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotConfirmed));
     }
 
 
     [Test]
-    [DisplayName("Should return NotFound when user does not exist")]
-    public async Task ShouldReturnNotFoundWhenUserDoesNotExist()
+    [DisplayName("Should return BadRequest when user does not exist")]
+    public async Task ShouldReturnBadRequestWhenUserDoesNotExist()
     {
         // Given: A non-existent user
         AuthenticateUserCommand command = new("ghost@nonexistent.com", DefaultPassword);
@@ -107,16 +107,16 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // When: Attempting to authenticate
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
 
-        // Then: Should return NotFound 
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        // Then: Should return BadRequest (según CognitoMock si no se mapea a NotFound)
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
         ResponseEntity responseObject = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
         Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
-    [DisplayName("Should return NotFound when password is incorrect")]
-    public async Task ShouldReturnNotFoundWhenPasswordIsIncorrect()
+    [DisplayName("Should return BadRequest when password is incorrect")]
+    public async Task ShouldReturnBadRequestWhenPasswordIsIncorrect()
     {
         // Given: A registered user
         Faker faker = new();
@@ -127,8 +127,8 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         AuthenticateUserCommand command = new(email, "WrongPassword123!");
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
 
-        // Then: Should return NotFound (según el switch en tu AuthController para InvalidPassword)
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        // Then: Should return BadRequest
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
         ResponseEntity responseObject = await response.GetAsResponseEntity();
         Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));

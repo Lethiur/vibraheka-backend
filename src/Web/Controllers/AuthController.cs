@@ -62,7 +62,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ConfirmUser([FromBody] [Required] VerifyUserCommand command)
     {
-        Result<Unit> verificationResult = await mediator.Send(command);
+        Result<AuthenticationResult> verificationResult = await mediator.Send(command);
 
 
         if (verificationResult.IsFailure)

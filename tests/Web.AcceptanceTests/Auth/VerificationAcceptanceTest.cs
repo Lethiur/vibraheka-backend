@@ -6,6 +6,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
@@ -30,10 +31,13 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // When: The user verifies their account
         HttpResponseMessage verificationMessage = await Client.PatchAsJsonAsync("api/v1/auth/confirm", new VerifyUserCommand(email, verificationCode.Code));
         verificationMessage.EnsureSuccessStatusCode();
-        ResponseEntity responseEntity = await verificationMessage.GetAsResponseEntity();
-        
+        ResponseEntity responseEntity = await verificationMessage.GetAsResponseEntityAndContentAs<AuthenticationResult>();
+        AuthenticationResult? authResult = responseEntity.GetContentAs<AuthenticationResult>();
+
         Assert.That(responseEntity.Success, Is.True, "The user should be verified successfully");
         Assert.That(responseEntity.ErrorCode, Is.Null, "The response should not contain any error code");
+        Assert.That(authResult, Is.Not.Null, "The response should contain authentication results");
+        Assert.That(authResult!.AccessToken, Is.Not.Null.And.Not.Empty, "The response should contain an access token");
     }
     
     [Test]

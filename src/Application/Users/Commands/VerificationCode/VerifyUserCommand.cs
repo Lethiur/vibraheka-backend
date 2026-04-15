@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Application.Users.Commands.VerificationCode;
 
@@ -17,4 +18,4 @@ namespace VibraHeka.Application.Users.Commands.VerificationCode;
 /// A result encapsulated in a <see cref="Result{T}"/> object. If the verification succeeds,
 /// the result will contain a <see cref="Unit"/> instance. If it fails, an error message will be provided.
 /// </returns>
-public record VerifyUserCommand(string Email, string Code) : IRequest<Result<Unit>>;
+public record VerifyUserCommand(string Email, string Code) : IRequest<Result<AuthenticationResult>>;
