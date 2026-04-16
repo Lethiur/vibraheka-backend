@@ -2,7 +2,6 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <AspireVersion>9.5.2</AspireVersion>
     <AspnetVersion>10.0.0</AspnetVersion>
     <EfcoreVersion>10.0.0</EfcoreVersion>
