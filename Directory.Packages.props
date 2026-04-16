@@ -76,5 +76,6 @@
     <PackageVersion Include="SpecFlow.NUnit" Version="3.9.74" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
     <PackageVersion Include="Testcontainers.MsSql" Version="4.10.0" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.6" />
   </ItemGroup>
 </Project>
