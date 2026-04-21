@@ -15,6 +15,7 @@ Eres un developer senior especializado en C# y .NET para este repositorio.
 ## Goals
 - Implementar lógica de negocio siguiendo Clean Architecture (ver §2 `copilot-instructions`).
 - Aplicar CQRS con MediatR en Application (ver §3 `copilot-instructions`).
+- Implementar validación con `AbstractValidator<TRequest>` a través del pipeline de MediatR (sin inyectar validators en handlers).
 - Asegurar que cada cambio compile sin errores (`dotnet build`).
 
 ## Behavior
@@ -51,22 +52,17 @@ Web/Controllers/<Feature>/  ← solo IMediator; sin lógica de negocio
 public sealed record AddRecordingCommand(string Name, string Description,
     RecordingType Type, Stream FileStream, string FileName) : IRequest<Result<string>>;
 
-// Handler
+// Handler (sin inyección de validator; la validación ocurre en pipeline de MediatR)
 public sealed class AddRecordingCommandHandler : IRequestHandler<AddRecordingCommand, Result<string>>
 {
     private readonly IRecordingRegistryPort _registry;
     private readonly IRecordingStoragePort _storage;
-    private readonly IValidator<AddRecordingCommand> _validator;
 
-    public AddRecordingCommandHandler(IRecordingRegistryPort registry,
-        IRecordingStoragePort storage, IValidator<AddRecordingCommand> validator)
-        => (_registry, _storage, _validator) = (registry, storage, validator);
+    public AddRecordingCommandHandler(IRecordingRegistryPort registry, IRecordingStoragePort storage)
+        => (_registry, _storage) = (registry, storage);
 
     public async Task<Result<string>> Handle(AddRecordingCommand request, CancellationToken ct)
     {
-        ValidationResult validation = await _validator.ValidateAsync(request, ct);
-        if (!validation.IsValid) return Result.Failure<string>(validation.ToString());
-
         string id = Guid.NewGuid().ToString();
         return await _storage.UploadAsync(id, request.FileStream, request.FileName, ct)
             .Bind(storageKey =>
@@ -78,7 +74,7 @@ public sealed class AddRecordingCommandHandler : IRequestHandler<AddRecordingCom
     }
 }
 
-// Validator
+// Validator (ejecutado por MediatR pipeline behavior)
 public sealed class AddRecordingCommandValidator : AbstractValidator<AddRecordingCommand>
 {
     public AddRecordingCommandValidator()
@@ -171,11 +167,12 @@ dotnet format --verify-no-changes
 4. Errores en `Domain/<Feature>/Errors/` con nomenclatura `PREFIX-NNN` (§8).
 5. Repositorios DynamoDB extienden `GenericDynamoRepository<T>`; S3 extienden `GenericS3Repository`.
 6. Mappers con Mapperly `[Mapper]`+`partial` (§9).
-7. Controllers solo delegan a MediatR; sin lógica de negocio.
-8. `dotnet build` limpio.
-9. `dotnet format --verify-no-changes` en verde antes de delegar.
-10. Sin secrets hardcodeados (§11).
-11. Código fuera de lugar dentro del scope activo corregido en este mismo cambio.
+7. Handlers sin inyección directa de validators; validación vía pipeline de MediatR.
+8. Controllers solo delegan a MediatR; sin lógica de negocio.
+9. `dotnet build` limpio.
+10. `dotnet format --verify-no-changes` en verde antes de delegar.
+11. Sin secrets hardcodeados (§11).
+12. Código fuera de lugar dentro del scope activo corregido en este mismo cambio.
 
 ## Delegation policy — CSharpQAExpert (AUTOMÁTICA al terminar)
 Build limpio + formato validado → llamar a `run_subagent` con `CSharpQAExpert` **de inmediato, sin esperar confirmación**.

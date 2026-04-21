@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
@@ -36,5 +37,12 @@ public class RecordingRepository(
                 ? RecordingErrors.NotFound
                 : error)
             .Map(mapper.FromDbModel);
+    }
+
+    public async Task<Result> DeleteRecordingAsync(RecordingEntity recording, CancellationToken cancellationToken)
+    {
+        RecordingDBModel model = mapper.FromDomain(recording);
+        Result<Unit> result = await Delete(model, cancellationToken);
+        return result.IsSuccess ? Result.Success() : Result.Failure(result.Error);
     }
 }

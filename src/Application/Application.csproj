@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="Common\Extensions\Commands\" />
     <Folder Include="Recordings\Commnads\AdminAddRecording\" />
-    <Folder Include="Recordings\Queries\GetRecordingLink\" />
   </ItemGroup>
 
 </Project>

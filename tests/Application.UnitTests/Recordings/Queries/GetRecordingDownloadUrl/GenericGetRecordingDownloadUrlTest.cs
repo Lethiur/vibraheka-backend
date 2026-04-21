@@ -14,7 +14,6 @@ public abstract class GenericGetRecordingDownloadUrlTest
 {
     protected Mock<IRecordingRegistryPort> RegistryPortMock = default!;
     protected Mock<IRecordingStoragePort> StoragePortMock = default!;
-    protected Mock<IValidator<GetRecordingDownloadUrlQuery>> ValidatorMock = default!;
     protected Mock<ILogger<GetRecordingDownloadUrlQueryHandler>> LoggerMock = default!;
     protected GetRecordingDownloadUrlQueryHandler Handler = default!;
 
@@ -23,12 +22,10 @@ public abstract class GenericGetRecordingDownloadUrlTest
     {
         RegistryPortMock = new Mock<IRecordingRegistryPort>();
         StoragePortMock = new Mock<IRecordingStoragePort>();
-        ValidatorMock = new Mock<IValidator<GetRecordingDownloadUrlQuery>>();
         LoggerMock = new Mock<ILogger<GetRecordingDownloadUrlQueryHandler>>();
         Handler = new GetRecordingDownloadUrlQueryHandler(
             RegistryPortMock.Object,
             StoragePortMock.Object,
-            ValidatorMock.Object,
             LoggerMock.Object);
     }
 
@@ -41,10 +38,11 @@ public abstract class GenericGetRecordingDownloadUrlTest
     protected static ValidationResult ValidValidationResult() => new();
 
     protected static ValidationResult InvalidValidationResult(string errorMessage) =>
-        new(new List<ValidationFailure>
-        {
-            new ValidationFailure(nameof(GetRecordingDownloadUrlQuery.RecordingId), errorMessage)
-        });
+        new(
+            new List<ValidationFailure>
+            {
+                new ValidationFailure(nameof(GetRecordingDownloadUrlQuery.RecordingId), errorMessage),
+            });
 
     protected static RecordingEntity BuildRecordingEntity(string recordingId, string storageKey) =>
         new()
@@ -55,8 +53,6 @@ public abstract class GenericGetRecordingDownloadUrlTest
             Type = RecordingType.Meditacion,
             StorageKey = storageKey,
             Created = DateTimeOffset.UtcNow,
-            CreatedBy = "admin-user-id"
+            CreatedBy = "admin-user-id",
         };
 }
-
-

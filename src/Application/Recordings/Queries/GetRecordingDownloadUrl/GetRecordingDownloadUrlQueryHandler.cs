@@ -8,7 +8,6 @@ namespace VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 public sealed class GetRecordingDownloadUrlQueryHandler(
     IRecordingRegistryPort RegistryPort,
     IRecordingStoragePort StoragePort,
-    IValidator<GetRecordingDownloadUrlQuery> Validator,
     ILogger<GetRecordingDownloadUrlQueryHandler> Logger)
     : IRequestHandler<GetRecordingDownloadUrlQuery, Result<RecordingDownloadUrlDto>>
 {
@@ -16,13 +15,6 @@ public sealed class GetRecordingDownloadUrlQueryHandler(
         GetRecordingDownloadUrlQuery request,
         CancellationToken cancellationToken)
     {
-        ValidationResult validation = await Validator.ValidateAsync(request, cancellationToken);
-        if (!validation.IsValid)
-        {
-            Logger.LogWarning("Validation failed for GetRecordingDownloadUrl: {Errors}", validation);
-            return Result.Failure<RecordingDownloadUrlDto>(validation.ToString());
-        }
-
         Logger.LogInformation("Resolving download URL for recording {RecordingId}", request.RecordingId);
 
         return await RegistryPort

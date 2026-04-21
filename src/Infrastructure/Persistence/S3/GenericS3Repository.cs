@@ -3,6 +3,7 @@ using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.S3;
@@ -135,5 +136,25 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
         };
 
         return await Client.GetPreSignedURLAsync(request);
+    }
+
+    /// <summary>
+    /// Deletes an object from the S3 bucket by its key.
+    /// </summary>
+    /// <param name="key">The key of the object to delete.</param>
+    /// <param name="cancellationToken">Token used to cancel the task.</param>
+    /// <returns>A success result if deleted; failure with error message otherwise.</returns>
+    protected async Task<Result<Unit>> DeleteObjectAsync(string key, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DeleteObjectRequest request = new() { BucketName = BucketName, Key = key };
+            await Client.DeleteObjectAsync(request, cancellationToken);
+            return Unit.Value;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            return Result.Failure<Unit>(ex.ErrorCode ?? ex.Message);
+        }
     }
 }

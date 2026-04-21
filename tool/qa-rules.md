@@ -146,10 +146,22 @@ Los helpers específicos de cada feature (ej: `CreateValidRecordingEntity`, `Cle
 - [ ] `Verify` con `It.Is<T>` exacto y `Times` explícito; nunca `It.IsAny` en Verify
 - [ ] `VerifyNoOtherCalls()` al final de cada test con mocks
 - [ ] PascalCase en campos de instancia de clases de test
+- [ ] Los casos de validación de datos están en tests del `Validator` y no duplicados en tests de `CommandHandler`/`QueryHandler`
+- [ ] Existe cobertura de aceptación para rechazos por datos inválidos en endpoints/casos de uso que validan entrada
 - [ ] Formato validado con `dotnet format --verify-no-changes` antes del quality gate
 
-### Tests de integración / aceptación
-- [ ] Helpers de `GenericAcceptanceTest<TApp>` o `TestBase` usados sin duplicación
+### Tests de integración (Infrastructure.IntegrationTests) — OBLIGATORIOS si se tocó Infrastructure
+- [ ] Existe al menos un fichero de test por cada método público del repositorio/servicio tocado
+- [ ] Camino feliz cubierto (operación correcta devuelve `Result.Success`)
+- [ ] Camino de no encontrado / resultado vacío cubierto → error de dominio mapeado correcto (ej. `RecordingErrors.NotFound`)
+- [ ] Camino de error genérico cubierto → `GenericPersistenceErrors.GeneralError` (`GPE-999`) cuando no hay mapeo específico
+- [ ] Los tres caminos anteriores presentes para métodos de lectura (`GetById`, `GetAll`, `FindBy*`) y escritura (`Save`, `Delete`)
+- [ ] La clase base genérica extiende `TestBase` del proyecto
+- [ ] Los tests limpian su estado al finalizar (`[TearDown]`)
+- [ ] No se testean clases `GenericDynamoRepository` ni `GenericS3Repository` directamente; se testea el adapter concreto
+
+### Tests de aceptación (Web.AcceptanceTests) — OBLIGATORIOS si se tocó Web o Application
+- [ ] Helpers de `GenericAcceptanceTest<TApp>` usados sin duplicación
 - [ ] Los tests limpian su estado al finalizar (`[TearDown]`)
 
 ### Calidad general

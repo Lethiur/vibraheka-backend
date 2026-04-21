@@ -2,6 +2,7 @@ using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Domain.Recordings.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
@@ -38,6 +39,13 @@ public class RecordingStorageRepository(IAmazonS3 client, AWSConfig options)
     {
         string s3ObjectKey = ExtractS3Key(storageKey);
         return GetDownloadPreSignedUrl(s3ObjectKey, DownloadUrlExpirySeconds);
+    }
+
+    public async Task<Result> DeleteFileAsync(string storageKey, CancellationToken cancellationToken)
+    {
+        string s3Key = ExtractS3Key(storageKey);
+        Result<Unit> result = await DeleteObjectAsync(s3Key, cancellationToken);
+        return result.IsSuccess ? Result.Success() : Result.Failure(result.Error);
     }
 
     private static string ExtractS3Key(string storageKey)

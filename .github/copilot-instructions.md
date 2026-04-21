@@ -59,6 +59,7 @@ tests/
 - Escritura: `Command` + `CommandHandler` + `CommandValidator`
 - Lectura: `Query` + `QueryHandler`
 - Cada caso de uso en su propia subcarpeta: `Application/<Feature>/Commands/<CasoDeUso>/`
+- **Validación vía pipeline de MediatR**: los `AbstractValidator<TRequest>` se ejecutan mediante behavior/pipeline; **no inyectar validators directamente en handlers**.
 
 ### Result pattern para errores de dominio
 ```csharp
@@ -93,6 +94,13 @@ Result<T>.Failure("PREFIX-NNN")
 - **NUnit** para todos los tests (no xUnit, no MSTest).
 - **Moq** exclusivamente para mocking (no NSubstitute).
 - Sin `var`; tipos declarados explícitamente en todos los ficheros de test.
+
+### Alcance de pruebas de validación (OBLIGATORIO)
+- Los escenarios de datos inválidos se prueban en los tests del `Validator` y en tests de aceptación.
+- En tests de `CommandHandler`/`QueryHandler`, no duplicar tests de validación de datos del `Validator`; enfocarse en lógica de negocio, puertos, side effects y manejo de resultados.
+- Si un caso de uso requiere validación, debe existir al menos:
+  1. Suite del validator (`<CasoDeUso>CommandValidatorTest.cs` o equivalente).
+  2. Cobertura de extremo a extremo en aceptación del rechazo por datos inválidos.
 
 ### Formato GivenWhenThen obligatorio
 ```csharp
@@ -296,7 +304,74 @@ tests/
 
 ---
 
-## 11. Restricciones de seguridad y configuración
+## 11. Flujo de errores — Infraestructura → Dominio
+
+### Regla fundamental
+Todo `Result<T>` en fallo **siempre** lleva un código de error constante. Nunca se retornan `Result.Failure<T>("mensaje libre")`.
+
+### Tres capas de error
+
+```
+Third-party exception (AWS, Stripe…)
+        │
+        ▼
+GenericDynamoRepository / GenericS3Repository
+        │  catch + mapea a GenericPersistenceErrors (GPE-xxx)
+        ▼
+Repository adapter (RecordingRepository, SubscriptionRepository…)
+        │  .MapError(): GPE-xxx → error de dominio (REC-xxx, SUB-xxx…)
+        ▼
+Application handler  ←  solo ve errores de dominio
+```
+
+### Capa 1 — Conectores genéricos (GenericDynamoRepository, GenericS3Repository)
+- Capturan **todas** las excepciones del SDK y las mapean a `GenericPersistenceErrors` (`GPE-xxx`).
+- **Nunca** dejan escapar excepciones crudas ni retornan mensajes libres.
+- Los códigos `GPE-xxx` son agnósticos de dominio; nunca contienen lógica de negocio.
+
+```csharp
+// GenericDynamoRepository — HandleError centralizado
+private string HandleError(Exception ex) => ex switch
+{
+    ProvisionedThroughputExceededException => GenericPersistenceErrors.ProvisionedThroughputExceeded,
+    ResourceNotFoundException              => GenericPersistenceErrors.ResourceNotFound,
+    ConditionalCheckFailedException        => GenericPersistenceErrors.ConditionalCheckFailed,
+    _                                      => GenericPersistenceErrors.GeneralError
+};
+```
+
+### Capa 2 — Repository adapters
+- Mapean `GPE-xxx` a errores de dominio específicos con `.MapError()`.
+- Solo los errores con semántica de negocio se traducen; los errores genéricos (`GPE-999`, etc.) se propagan tal cual.
+- **Nunca** se mapea a un string literal; siempre se usan constantes de `*Errors`.
+
+```csharp
+// RecordingRepository — mapeo selectivo
+public async Task<Result<RecordingEntity>> GetByIdAsync(string id, CancellationToken ct)
+{
+    return await FindByID(id, ct)
+        .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
+            ? RecordingErrors.NotFound   // GPE-000 → REC-001
+            : error)                     // resto de GPE-xxx se propagan
+        .Map(mapper.FromDbModel);
+}
+```
+
+### Capa 3 — Application handlers
+- Reciben exclusivamente errores de dominio o `GPE-xxx` no mapeados.
+- No conocen la existencia de `GenericPersistenceErrors`; delegan el mapeo al adapter.
+
+### Reglas de codificación
+| Regla | ✅ Correcto | ❌ Incorrecto |
+|-------|------------|--------------|
+| Errores en conectores | `GenericPersistenceErrors.GeneralError` | `"Unexpected error"` |
+| Errores en adapters | `RecordingErrors.NotFound` | `"GPE-000"` literal |
+| Errores en dominio | `UserErrors.AlreadyExists` | `"US-002"` literal |
+| Resultados de fallo | `Result.Failure<T>(SomeErrors.Code)` | `Result.Failure<T>("texto libre")` |
+
+---
+
+## 12. Restricciones de seguridad y configuración
 
 - Sin secrets ni configuración hardcodeada en código fuente.
 - Sin datos sensibles en logs, respuestas HTTP o mensajes de error.

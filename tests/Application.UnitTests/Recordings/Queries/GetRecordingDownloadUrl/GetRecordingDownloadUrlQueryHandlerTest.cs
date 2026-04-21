@@ -25,10 +25,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
 
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidValidationResult());
-
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(BuildRecordingEntity(recordingId, storageKey)));
@@ -46,12 +42,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         Assert.That(result.Value.DownloadUrl, Is.EqualTo(downloadUrl),
             $"Expected DownloadUrl '{downloadUrl}' but got '{result.Value.DownloadUrl}'");
 
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == recordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once with the correct query");
 
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
@@ -67,96 +57,13 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             Times.Once,
             "Expected GetDownloadUrlAsync to be called exactly once with the recording's storage key");
 
-        ValidatorMock.VerifyNoOtherCalls();
         RegistryPortMock.VerifyNoOtherCalls();
         StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 
-    #region Validation Failure Tests
 
-    [Test]
-    [DisplayName("Should return failure and not call ports when validation fails")]
-    public async Task ShouldReturnFailureAndNotCallPortsWhenValidationFails()
-    {
-        // Given: validator returns an invalid result for a bad recording ID
-        GetRecordingDownloadUrlQuery query = BuildValidQuery("not-a-guid");
-
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(InvalidValidationResult(RecordingErrors.InvalidRecordingId));
-
-        // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
-
-        // Then: result should be failure and neither port should be called (short-circuit)
-        Assert.That(result.IsFailure, Is.True,
-            $"Expected failure when validation fails, but got success with value: '{(result.IsSuccess ? result.Value.DownloadUrl : "N/A")}'");
-
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == query.RecordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once");
-
-        RegistryPortMock.Verify(
-            r => r.GetByIdAsync(
-                It.Is<string>(_ => true),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Never,
-            "Expected GetByIdAsync to never be called when validation fails");
-
-        StoragePortMock.Verify(
-            s => s.GetDownloadUrlAsync(
-                It.Is<string>(_ => true),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Never,
-            "Expected GetDownloadUrlAsync to never be called when validation fails");
-
-        ValidatorMock.VerifyNoOtherCalls();
-        RegistryPortMock.VerifyNoOtherCalls();
-        StoragePortMock.VerifyNoOtherCalls();
-    }
-
-    [Test]
-    [DisplayName("Should log warning when validation fails")]
-    public async Task ShouldLogWarningWhenValidationFails()
-    {
-        // Given: validator returns an invalid result
-        GetRecordingDownloadUrlQuery query = BuildValidQuery("not-a-guid");
-
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(InvalidValidationResult(RecordingErrors.InvalidRecordingId));
-
-        // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
-
-        // Then: a Warning log should be emitted for the validation failure
-        Assert.That(result.IsFailure, Is.True,
-            "Expected failure when validation fails");
-
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == query.RecordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once");
-
-        LoggerMock.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Validation failed")),
-                null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once,
-            "Expected a Warning log containing 'Validation failed' when validation fails");
-    }
-
-    #endregion
 
     #region Railway Pattern Tests
 
@@ -168,13 +75,10 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         string recordingId = Guid.NewGuid().ToString();
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidValidationResult());
-
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<Domain.Recordings.Entities.RecordingEntity>(RecordingErrors.NotFound));
+            .ReturnsAsync(
+                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(RecordingErrors.NotFound));
 
         // When: the handler processes the query
         Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
@@ -185,12 +89,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         Assert.That(result.Error, Is.EqualTo(RecordingErrors.NotFound),
             $"Expected error '{RecordingErrors.NotFound}' but got '{result.Error}'");
 
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == recordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once");
 
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
@@ -206,7 +104,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             Times.Never,
             "Expected GetDownloadUrlAsync to never be called when registry returns not found (Railway)");
 
-        ValidatorMock.VerifyNoOtherCalls();
         RegistryPortMock.VerifyNoOtherCalls();
         StoragePortMock.VerifyNoOtherCalls();
     }
@@ -220,13 +117,11 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         string genericError = "GPE-999";
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidValidationResult());
 
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<Domain.Recordings.Entities.RecordingEntity>(genericError));
+            .ReturnsAsync(
+                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(genericError));
 
         // When: the handler processes the query
         Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
@@ -237,12 +132,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         Assert.That(result.Error, Is.EqualTo(genericError),
             $"Expected error '{genericError}' but got '{result.Error}'");
 
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == recordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once");
 
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
@@ -258,7 +147,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             Times.Never,
             "Expected GetDownloadUrlAsync to never be called when RegistryPort fails (Railway pattern)");
 
-        ValidatorMock.VerifyNoOtherCalls();
         RegistryPortMock.VerifyNoOtherCalls();
         StoragePortMock.VerifyNoOtherCalls();
     }
@@ -273,9 +161,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         string storageError = "S3_PRESIGN_FAILED";
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
-        ValidatorMock
-            .Setup(v => v.ValidateAsync(It.IsAny<GetRecordingDownloadUrlQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidValidationResult());
+
 
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -294,13 +180,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         Assert.That(result.Error, Is.EqualTo(storageError),
             $"Expected error '{storageError}' but got '{result.Error}'");
 
-        ValidatorMock.Verify(
-            v => v.ValidateAsync(
-                It.Is<GetRecordingDownloadUrlQuery>(q => q.RecordingId == recordingId),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected ValidateAsync to be called exactly once");
-
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
                 It.Is<string>(id => id == recordingId),
@@ -315,12 +194,64 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             Times.Once,
             "Expected GetDownloadUrlAsync to be called once with the recording's storage key even on failure");
 
-        ValidatorMock.VerifyNoOtherCalls();
+        RegistryPortMock.VerifyNoOtherCalls();
+        StoragePortMock.VerifyNoOtherCalls();
+    }
+
+    #endregion
+
+    #region Logging Tests
+
+    [Test]
+    [DisplayName("Should log warning when registry port fails to retrieve recording")]
+    public async Task ShouldLogWarningWhenRegistryPortFails()
+    {
+        // Given: validation passes but registry returns not-found failure
+        string recordingId = Guid.NewGuid().ToString();
+        GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
+
+
+
+        RegistryPortMock
+            .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(RecordingErrors.NotFound));
+
+        // When: the handler processes the query
+        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+
+        // Then: result is failure and a Warning is logged containing the error code
+        Assert.That(result.IsFailure, Is.True,
+            "Expected failure result when RegistryPort fails");
+
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(RecordingErrors.NotFound)),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once,
+            $"Expected a Warning log containing '{RecordingErrors.NotFound}' when RegistryPort fails");
+
+        RegistryPortMock.Verify(
+            r => r.GetByIdAsync(
+                It.Is<string>(id => id == recordingId),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Once,
+            "Expected GetByIdAsync to be called once");
+
+        StoragePortMock.Verify(
+            s => s.GetDownloadUrlAsync(
+                It.Is<string>(_ => true),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Never,
+            "Expected GetDownloadUrlAsync to never be called when RegistryPort fails");
+
         RegistryPortMock.VerifyNoOtherCalls();
         StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 }
-
 
