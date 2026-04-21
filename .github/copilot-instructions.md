@@ -17,6 +17,7 @@ Todos los agentes (`CSharpExpert`, `CSharpQAExpert`, `ProductOwner`) deben segui
 - **Bogus** (datos ficticios en tests)
 - **Serilog** (logging estructurado)
 - **AWS** (DynamoDB, S3, Cognito) — solo en Infrastructure
+- **Mapperly** (source generator de mapeo — `[Mapper]`, clases `partial`) — solo en Infrastructure
 
 ---
 
@@ -188,7 +189,134 @@ ProductOwner
 
 ---
 
-## 8. Restricciones de seguridad y configuración
+## 8. DynamoDB — Mappers de Infrastructure
+
+### Regla obligatoria de mappers
+Toda operación con DynamoDB **debe** pasar por un mapper explícito que convierta entre la entidad de dominio y el documento DynamoDB (`Dictionary<string, AttributeValue>`). Está **prohibido** construir o leer `AttributeValue` directamente dentro del repositorio.
+
+### Estructura de archivos
+```
+Infrastructure/
+  Repositories/
+    FeatureRepository.cs          # Solo orquesta; llama al mapper
+  Mappers/
+    FeatureDynamoMapper.cs        # Dominio ↔ DynamoDB document
+```
+
+### Naming conventions
+- Mapper: `<Entity>DynamoMapper`
+- Métodos: `ToDocument(Entity entity) → Dictionary<string, AttributeValue>` y `ToDomain(Dictionary<string, AttributeValue> item) → Entity`
+
+## 9. Estructura de tests — Carpetas por clase y suites por método
+
+### Organización de carpetas
+Cada clase bajo test tiene su **propia carpeta** dentro del proyecto de tests correspondiente.
+Los archivos de test, fixtures y helpers específicos de esa clase viven en esa carpeta, ademas se ha 
+de crear una test suite por metodo de la clase que se quiere crear en archivos diferentes que heredaran de
+la clase base, por ejemplo:
+
+```cshap
+public abstract class GenericSettingsRepositoryTest : TestBase
+{
+    protected IAmazonSimpleSystemsManagement SSMClient;
+    protected SettingsRepository Repository;
+    protected string VerificationParameterName = string.Empty;
+    protected string RecoverPasswordParameterName = string.Empty;
+    protected string UserWelcomeParameterName = string.Empty;
+    protected string SubscriptionThankYouParameterName = string.Empty;
+    protected string TrialEndingSoonParameterName = string.Empty;
+    protected string PasswordChangedParameterName = string.Empty;
+}
+
+[TestFixture]
+public class GetVerificationEmailTemplateAsyncTest : GenericSettingsRepositoryTest
+{
+    [Test]
+    public async Task ShouldOverwriteExistingParameterWhenUpdating()
+    {
+    }
+}
+
+[TestFixture]
+public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
+{
+    [TestCase("welcome-template", "UserWelcome")]
+    [TestCase("subscription-thank-you-template", "SubscriptionThankYou")]
+    [TestCase("trial-ending-soon-template", "TrialEndingSoon")]
+    [TestCase("password-changed-template", "PasswordChanged")]
+    public async Task ShouldUpdateAndGetNewAdminManagedTemplates(string templateValue, string templateType)
+    {
+    }
+}
+```
+
+```
+tests/
+  Application.UnitTests/
+    Handlers/
+      CreateUser/
+        CreateUserHandlerTests.cs     # Suite de tests del handler
+    Validators/
+      CreateUser/
+        CreateUserValidatorTests.cs
+  Infrastructure.UnitTests/
+    Repositories/
+      UserRepository/
+        GenericUserRepositoryTest.cs
+        SaveTest.cs
+        GetAllTest.cs
+    Mappers/
+      UserDynamoMapper/
+        UserDynamoMapperTests.cs
+```
+
+### Suites por método — `[TestFixture]` anidado
+Dentro de cada archivo de tests, cada método público bajo prueba tiene su propia clase `[TestFixture]` anidada. Esto agrupa visualmente los casos de un mismo método.
+
+```csharp
+[TestFixture]
+public sealed class CreateUserHandlerTests
+{
+    [TestFixture]
+    [Category("Unit")]
+    public sealed class Handle : CreateUserHandlerTests
+    {
+        // SetUp y tests del método Handle()
+
+        [SetUp]
+        public void SetUp() { /* mocks */ }
+
+        [Test]
+        [DisplayName("Should return success when user is created")]
+        public async Task ShouldReturnSuccessWhenUserIsCreated() { ... }
+
+        [Test]
+        [DisplayName("Should return failure when validation fails")]
+        public async Task ShouldReturnFailureWhenValidationFails() { ... }
+    }
+}
+```
+
+### Clases genéricas/compartidas en carpetas separadas
+- Los builders, factories, fakes y helpers **no** se crean dentro de la carpeta de la clase bajo prueba si su scope es más amplio.
+- Scope **local a un conjunto de tests** → carpeta `_Shared/` dentro del mismo directorio de la clase.
+- Scope **compartido entre varios proyectos o carpetas** → directorio raíz del proyecto de tests o en `Helpers/`.
+
+```
+tests/
+  Application.UnitTests/
+    Helpers/                         # Scope global al proyecto
+      UserFakeBuilder.cs
+    Handlers/
+      CreateUser/
+        _Shared/                     # Scope local al handler CreateUser
+          CreateUserCommandBuilder.cs
+        CreateUserHandlerTests.cs
+```
+
+---
+
+## 10. Restricciones de seguridad y configuración
 
 - Sin secrets ni configuración hardcodeada en código fuente.
 - Sin datos sensibles en logs, respuestas HTTP o mensajes de error.
