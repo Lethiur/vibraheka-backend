@@ -71,7 +71,7 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Should fail with InvalidPassword error
         Assert.That(authResult.IsFailure, Is.True);
-        Assert.That(authResult.Error, Is.EqualTo(UserErrors.NotAuthorized)); 
+        Assert.That(authResult.Error, Is.EqualTo(UserErrors.NotAuthorized));
         // Nota: Cognito a veces lanza UserNotFound o NotAuthorized por seguridad para no revelar si el usuario existe.
         // Según tu implementación de CognitoService.cs, NotAuthorizedException mapea a UserException.InvalidPassword.
     }

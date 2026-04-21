@@ -11,7 +11,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServic
 [TestFixture]
 public class EditTemplateNameTests : GenericEmailTemplateServiceTest
 {
-  
+
 
     [Test]
     [DisplayName("Should update template name and last modified when template exists")]

@@ -19,21 +19,21 @@ public class VerifyUserCommandHandlerTest
         _cognitoServiceMock = new Mock<IUserService>();
         _handler = new VerifyUserCommandHandler(_cognitoServiceMock.Object);
     }
-    
+
     [Test]
     public async Task ShouldVerifyUserSuccessfully()
     {
         // Given: Some mocking
         _cognitoServiceMock.Setup(service => service.ConfirmUserAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(Result.Success(Unit.Value));
-        
+
         // When: User is confirmed
         Result<Unit> result = await _handler.Handle(new VerifyUserCommand("test", "test"), CancellationToken.None);
-        
+
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        
-        _cognitoServiceMock.Verify(service => service.ConfirmUserAsync("test","test"), Times.Once);
+
+        _cognitoServiceMock.Verify(service => service.ConfirmUserAsync("test", "test"), Times.Once);
     }
 
     [Test]
@@ -44,13 +44,13 @@ public class VerifyUserCommandHandlerTest
             .ReturnsAsync(Result.Failure<Unit>(UserErrors.UnexpectedError));
         // When: User is confirmed
         Result<Unit> result = await _handler.Handle(new VerifyUserCommand("test", "test"), CancellationToken.None);
-        
+
         // Then: Should return failure
         Assert.That(result.IsSuccess, Is.False);
-        
+
         // And: With the expected error
         Assert.That(result.Error, Is.EqualTo(UserErrors.UnexpectedError));
-        
-        _cognitoServiceMock.Verify(service => service.ConfirmUserAsync("test","test"), Times.Once);
+
+        _cognitoServiceMock.Verify(service => service.ConfirmUserAsync("test", "test"), Times.Once);
     }
 }

@@ -27,11 +27,11 @@ public static class RecordingAcceptanceHelpers
         string fileName = "meditacion.mp4")
     {
         MultipartFormDataContent form = new();
-        
+
         form.Add(new StringContent(name, null, "text/plain"), "name");
         form.Add(new StringContent(description, null, "text/plain"), "description");
         form.Add(new StringContent(type.GetHashCode().ToString(), null, "text/plain"), "type");
-        
+
         MemoryStream fileStream = new(fileBytes ?? DefaultFileBytes);
         StreamContent filePart = new(fileStream);
         filePart.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
@@ -40,5 +40,5 @@ public static class RecordingAcceptanceHelpers
         return form;
 
     }
-        
+
 }

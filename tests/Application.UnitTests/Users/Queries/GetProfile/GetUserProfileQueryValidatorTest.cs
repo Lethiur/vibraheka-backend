@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using FluentValidation.TestHelper;
+﻿using FluentValidation.TestHelper;
+using NUnit.Framework;
 using VibraHeka.Application.Users.Queries.GetProfile;
 using VibraHeka.Domain.Exceptions;
 

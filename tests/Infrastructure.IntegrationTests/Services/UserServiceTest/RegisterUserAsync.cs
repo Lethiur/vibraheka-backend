@@ -7,7 +7,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 [TestFixture]
 public class RegisterUserAsync : GenericCognitoServiceTest
 {
-    
+
     [Test]
     [DisplayName("Should successfully register user with valid data")]
     public async Task ShouldRegisterUserSuccessfullyWhenValidDataProvided()
@@ -69,9 +69,9 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         // Given: A user that already exists
         string email = _faker.Internet.Email();
         await RegisterUser(email);
-    
+
         // When: Trying to register the same user again
-        Result<string> secondResult = await UserService.RegisterUserAsync(email,"Password123@", "Hello policeman");
+        Result<string> secondResult = await UserService.RegisterUserAsync(email, "Password123@", "Hello policeman");
 
         // Then: Should fail with UserAlreadyExist error
         Assert.That(secondResult.IsFailure, Is.True);
@@ -96,8 +96,8 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
     }
-    
-    
+
+
     [TestCase("123", TestName = "Too short password")]
     [TestCase("password", TestName = "No uppercase")]
     [TestCase("PASSWORD", TestName = "No lowercase")]

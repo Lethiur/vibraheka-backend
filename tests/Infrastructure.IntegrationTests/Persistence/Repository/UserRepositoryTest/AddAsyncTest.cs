@@ -9,7 +9,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserR
 [TestFixture]
 public class AddAsyncTest : GenericUserRepositoryTest
 {
-    
+
     #region AddAsync - Success Cases
 
     [Test]
@@ -43,7 +43,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(userEntity.Id));
-        
+
     }
 
     [Test]
@@ -52,8 +52,8 @@ public class AddAsyncTest : GenericUserRepositoryTest
     {
         // Given: A user with special characters in name
         UserEntity userEntity = new(
-            Guid.NewGuid().ToString(), 
-            _faker.Internet.Email(), 
+            Guid.NewGuid().ToString(),
+            _faker.Internet.Email(),
             "José María O'Connor-Smith"
         );
 
@@ -149,7 +149,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // Given: A user with original data
         string userId = Guid.NewGuid().ToString();
         UserEntity originalUserEntity = new(userId, "original@example.com", "Original Name");
-        
+
         Result<string> firstResult = await _userRepository.AddAsync(originalUserEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
 
@@ -200,7 +200,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         {
             OverrideTableName = _configuration.UsersTable
         };
-        
+
         UserDBModel? retrievedFirstUser = await _dynamoContext.LoadAsync<UserDBModel>(firstUserEntity.Id, loadConfig);
         UserDBModel? retrievedSecondUser = await _dynamoContext.LoadAsync<UserDBModel>(secondUserEntity.Id, loadConfig);
 
@@ -219,7 +219,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // Given: The same user data for concurrent operations
         string userId = Guid.NewGuid().ToString();
         string userEmail = "concurrent@example.com";
-        
+
         UserEntity user1 = new(userId, userEmail, "Concurrent User 1");
         UserEntity user2 = new(userId, userEmail, "Concurrent User 2");
         UserEntity user3 = new(userId, userEmail, "Concurrent User 3");
@@ -251,7 +251,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(retrievedUser, Is.Not.Null);
         Assert.That(retrievedUser.Id, Is.EqualTo(userId));
         Assert.That(retrievedUser.Email, Is.EqualTo(userEmail));
-        
+
         // The name should be one of the three (whichever won the race)
         string[] possibleNames = new[] { "Concurrent User 1", "Concurrent User 2", "Concurrent User 3" };
         Assert.That(possibleNames, Contains.Item(retrievedUser.FirstName));
@@ -264,7 +264,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         // Given: A user added at time T1
         string userId = Guid.NewGuid().ToString();
         UserEntity firstUserEntity = new(userId, "first@example.com", "First Version");
-        
+
         Result<string> firstResult = await _userRepository.AddAsync(firstUserEntity);
         Assert.That(firstResult.IsSuccess, Is.True);
 
@@ -290,7 +290,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(finalUser, Is.Not.Null);
         Assert.That(finalUser.Email, Is.EqualTo("second@example.com"));
         Assert.That(finalUser.FirstName, Is.EqualTo("Second Version"));
-        
+
         // Verify the original data is completely gone
         Assert.That(finalUser.Email, Is.Not.EqualTo("first@example.com"));
         Assert.That(finalUser.FirstName, Is.Not.EqualTo("First Version"));

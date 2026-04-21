@@ -47,10 +47,10 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
             Role = UserRole.Admin
         };
         await _userRepository.AddAsync(userEntity);
-        
+
         // When: Checking if this admin has the Therapist role
         Result<bool> result = await PrivilegeService.HasRoleAsync(userId, UserRole.Therapist, CancellationToken.None);
-        
+
         // Then: The result should be success but false
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.False);
@@ -65,7 +65,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
 
         // When: Checking privileges for a user that isn't in the DB
         Result<bool> result = await PrivilegeService.HasRoleAsync(nonExistentUserId, UserRole.Therapist, CancellationToken.None);
-        
+
         // Then: Should return failure (bubbled up from Repository.GetByIdAsync)
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureUserErrors.UserNotFound));

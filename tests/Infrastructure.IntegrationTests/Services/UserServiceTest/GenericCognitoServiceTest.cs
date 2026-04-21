@@ -19,7 +19,7 @@ public abstract class GenericCognitoServiceTest : TestBase
     protected IUserService UserService;
     private ILogger<UserService> Logger;
     protected IUserRepository UserRepository;
-    
+
     private VerificationCodesRepository _verificationCodeRepository;
 
     [OneTimeSetUp]

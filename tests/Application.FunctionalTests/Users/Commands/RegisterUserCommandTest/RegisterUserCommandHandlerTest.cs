@@ -27,7 +27,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldRegisterAndPersistUserWhenCognitoSucceeds()
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
         const string cognitoId = "cognito-123";
 
         _userServiceMock
@@ -56,7 +56,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldReturnFailureWhenCognitoFails()
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
 
         _userServiceMock
             .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FirstName))
@@ -75,7 +75,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldReturnFailureWhenRepositoryAddFails()
     {
         // Given
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
 
         _userServiceMock
             .Setup(x => x.RegisterUserAsync(command.Email, command.Password, command.FirstName))

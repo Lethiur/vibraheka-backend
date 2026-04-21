@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
+using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
 using VibraHeka.Domain.Models.Results.User;
 

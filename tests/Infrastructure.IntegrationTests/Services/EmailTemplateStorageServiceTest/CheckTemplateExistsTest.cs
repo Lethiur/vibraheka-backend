@@ -1,6 +1,6 @@
+using System.Text;
 using CSharpFunctionalExtensions;
 using MediatR;
-using System.Text;
 using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateStorageServiceTest;

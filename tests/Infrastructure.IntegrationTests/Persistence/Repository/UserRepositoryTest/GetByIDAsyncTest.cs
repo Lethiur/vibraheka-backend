@@ -8,7 +8,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserR
 [TestFixture]
 public class GetByIDAsyncTest : GenericUserRepositoryTest
 {
-     [Test]
+    [Test]
     [DisplayName("Should return user when a valid ID is provided")]
     public async Task ShouldReturnUserWhenValidIdProvided()
     {

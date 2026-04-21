@@ -33,7 +33,7 @@ public class CreateTherapistCommandHandlerTests
             CurrentUserServiceMock.Object);
     }
 
-    
+
     #region Therapist Creation Tests
 
     [Test]
@@ -41,22 +41,22 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnSuccessWhenTherapistIsCreated()
     {
         // Given: A valid command and an admin user with successful service responses
-        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
         string adminId = "admin-id";
         string cognitoId = "new-cognito-id";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
         PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
-        
+
         CognitoServiceMock.Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
             .ReturnsAsync(Result.Success(cognitoId));
 
-        RepositoryMock.Setup(x => x.AddAsync(It.Is<UserEntity>(u => 
-                u.Email == command.TherapistData.Email && 
-                u.FirstName == command.TherapistData.FirstName && 
+        RepositoryMock.Setup(x => x.AddAsync(It.Is<UserEntity>(u =>
+                u.Email == command.TherapistData.Email &&
+                u.FirstName == command.TherapistData.FirstName &&
                 u.Role == UserRole.Therapist &&
-                u.Id == cognitoId )))
+                u.Id == cognitoId)))
             .ReturnsAsync(Result.Success(cognitoId));
 
         // When: Handling the command
@@ -65,7 +65,7 @@ public class CreateTherapistCommandHandlerTests
         // Then: Should return success with the new ID and verify all steps were called
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(cognitoId));
-            
+
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName), Times.Once);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
@@ -75,7 +75,7 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenCognitoRegistrationFails()
     {
         // Given: An admin user but Cognito registration fails
-        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
 
         string adminId = "admin-id";
         string errorMessage = "Cognito registration error";
@@ -93,7 +93,7 @@ public class CreateTherapistCommandHandlerTests
         // Then: Should return failure and not attempt to save to repository
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
-        
+
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Never);
     }
 
@@ -102,7 +102,7 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenRepositoryFails()
     {
         // Given: Successful Cognito registration but database failure
-        CreateTherapistCommand command = new(new UserDTO(){Email = "test@therapist.com", FirstName = "Dr. Smith"});
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
 
         string adminId = "admin-id";
         string dbError = "Error saving user to DB";
@@ -123,7 +123,7 @@ public class CreateTherapistCommandHandlerTests
         // Then: Should return failure from the repository layer
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(dbError));
-        
+
         CognitoServiceMock.Verify(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }

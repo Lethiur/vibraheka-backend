@@ -18,7 +18,7 @@ public class GetAllTherapistsQueryHandlerTests
     public void SetUp()
     {
         RepositoryMock = new Mock<IUserRepository>();
-        
+
         Handler = new GetAllTherapistsQueryHandler(
             RepositoryMock.Object);
     }
@@ -30,7 +30,7 @@ public class GetAllTherapistsQueryHandlerTests
         // Given: An admin user and some therapists in the repository
         IEnumerable<UserEntity> therapists = new List<UserEntity> { new() { FirstName = "Therapist Name" } };
         GetAllTherapistsQuery query = new();
-        
+
         RepositoryMock.Setup(x => x.GetByRoleAsync(UserRole.Therapist))
             .ReturnsAsync(Result.Success(therapists));
 

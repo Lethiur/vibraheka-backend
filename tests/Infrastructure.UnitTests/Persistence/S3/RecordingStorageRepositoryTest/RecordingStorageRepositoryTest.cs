@@ -1,11 +1,11 @@
+using System.ComponentModel;
+using System.Net;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using System.ComponentModel;
-using System.Net;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.S3;
 

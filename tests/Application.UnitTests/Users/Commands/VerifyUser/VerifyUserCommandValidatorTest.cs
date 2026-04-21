@@ -214,7 +214,7 @@ public class VerifyUserCommandValidatorTests
         // Then: Should have validation errors for both fields
         result.ShouldHaveValidationErrorFor(x => x.Email);
         result.ShouldHaveValidationErrorFor(x => x.Code);
-        
+
         // And: Should have exactly 2 errors
         Assert.That(result.Errors.Count, Is.EqualTo(2));
     }
@@ -270,7 +270,7 @@ public class VerifyUserCommandValidatorTests
         // Then: Should fail on email format validation
         result.ShouldHaveValidationErrorFor(x => x.Email);
         result.ShouldNotHaveValidationErrorFor(x => x.Code);
-        
+
         // And: Should have exactly one error (cascade stopped after format validation)
         IEnumerable<ValidationFailure> emailErrors = result.Errors.Where(e => e.PropertyName == nameof(VerifyUserCommand.Email));
         Assert.That(emailErrors.Count(), Is.EqualTo(1));
@@ -322,10 +322,10 @@ public class VerifyUserCommandValidatorTests
     {
         // Given: Email of specific length
         int totalDomainLength = emailLength - 65; // 64 (local) + 1 (@)
-        string domainName = totalDomainLength > 4 
+        string domainName = totalDomainLength > 4
             ? new string('b', totalDomainLength - 4) + ".com"
             : "b.co";
-    
+
         string email = $"{new string('a', 64)}@{domainName}";
         VerifyUserCommand command = new(email, "123456");
 

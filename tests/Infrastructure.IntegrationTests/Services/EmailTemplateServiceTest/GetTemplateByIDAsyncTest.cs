@@ -10,7 +10,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.EmailTemplateServic
 [TestFixture]
 public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
 {
-   
+
 
     [Test]
     [DisplayName("Should retrieve email template from DynamoDB when valid ID is provided")]
@@ -20,7 +20,8 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
         string templateId = $"test-template-{Guid.NewGuid()}";
         EmailTemplateDBModel expectedTemplate = new()
         {
-            TemplateID = templateId, Path = "Integration Test Subject"
+            TemplateID = templateId,
+            Path = "Integration Test Subject"
         };
 
         await _context.SaveAsync(expectedTemplate,

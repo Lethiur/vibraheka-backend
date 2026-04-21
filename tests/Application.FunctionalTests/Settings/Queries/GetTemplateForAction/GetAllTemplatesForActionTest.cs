@@ -14,7 +14,7 @@ namespace VibraHeka.Application.FunctionalTests.Settings.Queries.GetTemplateForA
 [TestFixture]
 public class GetAllTemplatesForActionTest
 {
-   private Mock<ISettingsService> SettingsServiceMock;
+    private Mock<ISettingsService> SettingsServiceMock;
     private Mock<ICurrentUserService> CurrentUserServiceMock;
     private Mock<ILogger<GetTemplatesForActionQueryHandler>> LoggerMock;
     private GetTemplatesForActionQueryHandler Handler;
@@ -46,7 +46,7 @@ public class GetAllTemplatesForActionTest
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidUserID));
         LoggerMock.VerifyNoOtherCalls();
     }
-    
+
     [Test]
     public async Task ShouldReturnTemplatesWhenUserIsAdminAndServiceSucceeds()
     {
@@ -60,7 +60,7 @@ public class GetAllTemplatesForActionTest
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Success<IEnumerable<TemplateForActionEntity>>(expectedTemplates));
-        
+
         GetTemplatesForActionQuery query = new();
 
         // When
@@ -82,7 +82,7 @@ public class GetAllTemplatesForActionTest
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(userId);
         SettingsServiceMock.Setup(x => x.GetAllTemplatesForActions())
             .Returns(Result.Failure<IEnumerable<TemplateForActionEntity>>(errorMessage));
-        
+
         GetTemplatesForActionQuery query = new();
 
         // When
