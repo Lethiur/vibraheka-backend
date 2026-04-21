@@ -59,17 +59,6 @@ public partial class SettingsController(IMediator mediator, ILogger<SettingsCont
     public async Task<IActionResult> GetTemplates()
     {
         Result<IEnumerable<TemplateForActionEntity>> result = await mediator.Send(new GetTemplatesForActionQuery());
-        
-        if (result.IsFailure)
-        {
-            LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
-        }
-        
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 

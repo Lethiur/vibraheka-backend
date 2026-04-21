@@ -56,6 +56,10 @@ module "ActionLog" {
   source = "./ActionLog"
 }
 
+module "Recordings" {
+  source = "./Recordings"
+}
+
 module "Subscriptions" {
   source = "./Subscriptions"
 }

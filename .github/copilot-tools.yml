@@ -1,0 +1,13 @@
+tools:
+  - name: quality_gate
+    type: shell
+    description: |
+      Ejecuta el quality gate completo del repositorio: tests con cobertura XPlat,
+      generación de reporte HTML, verificación del umbral de cobertura ≥ 80% en
+      los proyectos Application, Domain e Infrastructure, y comprobación de formato
+      con `dotnet format --verify-no-changes`.
+      Excluye automáticamente los proyectos IntegrationTests y AcceptanceTests (requieren AWS).
+      Devuelve código de salida 0 si todo pasa, distinto de 0 si algo falla.
+    command: chmod +x tool/quality_gate.sh && ./tool/quality_gate.sh
+    workingDirectory: .
+

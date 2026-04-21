@@ -147,6 +147,7 @@ export interface IAuthClient {
     auth_Authenticate(command: AuthenticateUserCommand): Observable<void>;
     auth_ResendConfirmationCode(email: string | undefined): Observable<void>;
     auth_StartPasswordRecovery(command: StartPasswordRecoveryCommand): Observable<void>;
+    auth_RefreshToken(request: RefreshTokenRequest): Observable<void>;
     auth_ConfirmPasswordRecovery(command: ConfirmPasswordRecoveryCommand): Observable<void>;
     auth_ChangeAuthenticatedPassword(command: ChangeAuthenticatedPasswordCommand): Observable<void>;
 }
@@ -414,6 +415,61 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processAuth_StartPasswordRecovery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    auth_RefreshToken(request: RefreshTokenRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/auth/refresh-token";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAuth_RefreshToken(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAuth_RefreshToken(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAuth_RefreshToken(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1035,6 +1091,103 @@ export class EmailTemplateClient implements IEmailTemplateClient {
                 fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IRecordingClient {
+    recording_UploadRecording(file: FileParameter | null | undefined, name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RecordingClient implements IRecordingClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    recording_UploadRecording(file: FileParameter | null | undefined, name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/recordings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        if (name !== null && name !== undefined)
+            content_.append("Name", name.toString());
+        if (description !== null && description !== undefined)
+            content_.append("Description", description.toString());
+        if (type === null || type === undefined)
+            throw new globalThis.Error("The parameter 'type' cannot be null.");
+        else
+            content_.append("Type", type.toString());
+        if (file !== null && file !== undefined)
+            content_.append("File", file.data, file.fileName ? file.fileName : "File");
+        if (fileName !== null && fileName !== undefined)
+            content_.append("FileName", fileName.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_UploadRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_UploadRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_UploadRecording(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1963,6 +2116,46 @@ export interface IStartPasswordRecoveryCommand {
     email?: string;
 }
 
+export class RefreshTokenRequest implements IRefreshTokenRequest {
+    refreshToken?: string;
+    username?: string;
+
+    constructor(data?: IRefreshTokenRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.refreshToken = _data["refreshToken"];
+            this.username = _data["username"];
+        }
+    }
+
+    static fromJS(data: any): RefreshTokenRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RefreshTokenRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["refreshToken"] = this.refreshToken;
+        data["username"] = this.username;
+        return data;
+    }
+}
+
+export interface IRefreshTokenRequest {
+    refreshToken?: string;
+    username?: string;
+}
+
 export class ConfirmPasswordRecoveryCommand implements IConfirmPasswordRecoveryCommand {
     encryptedToken?: string;
     newPassword?: string;
@@ -2091,6 +2284,56 @@ export interface IEditTemplateNameRequest {
     newTemplateName?: string;
 }
 
+export class ResponseEntity implements IResponseEntity {
+    success?: boolean;
+    errorCode?: string | undefined;
+    content?: any | undefined;
+
+    constructor(data?: IResponseEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            this.errorCode = _data["errorCode"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): ResponseEntity {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResponseEntity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["errorCode"] = this.errorCode;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface IResponseEntity {
+    success?: boolean;
+    errorCode?: string | undefined;
+    content?: any | undefined;
+}
+
+export enum RecordingType {
+    Meditacion = 0,
+    Masterclass = 1,
+    Taller = 2,
+}
+
 export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {
     templateID?: string;
     actionType?: ActionType;
@@ -2139,6 +2382,9 @@ export enum ActionType {
     SubscriptionThankYou = 4,
     TrialEndingSoon = 5,
     PasswordChanged = 6,
+    SubscriptionCancelled = 7,
+    SubscriptionReactivated = 8,
+    ForgotPasswordCompleted = 9,
 }
 
 export abstract class BaseAuditableEntity implements IBaseAuditableEntity {

@@ -22,6 +22,7 @@ using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Recordings.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence;
@@ -149,6 +150,10 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserCodeService, UserCodeService>();
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+
+        // Recordings
+        services.AddScoped<IRecordingRegistryPort, RecordingRepository>();
+        services.AddScoped<IRecordingStoragePort, RecordingStorageRepository>();
         
         services.AddSingleton(TimeProvider.System);
         

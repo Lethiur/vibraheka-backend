@@ -85,3 +85,19 @@ output "backend_ecr_repository_name" {
 output "settings_namespace" {
   value = module.Config.settings_namespace
 }
+
+output "recordings_table_name" {
+  value = module.Recordings.dynamodb_recordings_table_name
+}
+
+output "recordings_table_arn" {
+  value = module.Recordings.dynamodb_recordings_table_arn
+}
+
+output "recordings_bucket_name" {
+  value = module.Recordings.s3_recordings_bucket_name
+}
+
+output "recordings_bucket_arn" {
+  value = module.Recordings.s3_recordings_bucket_arn
+}

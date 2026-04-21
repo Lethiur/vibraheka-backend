@@ -1,6 +1,9 @@
+using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Recordings.Entities;
+
 namespace VibraHeka.Domain.Recordings.Ports.Out;
 
-public class RecordingRegistryPort
+public interface IRecordingRegistryPort
 {
-    
+    Task<Result<string>> SaveAsync(RecordingEntity recording, CancellationToken cancellationToken);
 }

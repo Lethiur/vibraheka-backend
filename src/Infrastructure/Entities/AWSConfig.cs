@@ -105,4 +105,16 @@ public class AWSConfig
 
     [Required]
     public string SettingsNameSpace { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the name of the private S3 bucket that stores recording video files.
+    /// </summary>
+    [Required]
+    public string RecordingsBucketName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the name of the DynamoDB table that stores recording metadata.
+    /// </summary>
+    [Required]
+    public string RecordingsTable { get; set; } = string.Empty;
 }
