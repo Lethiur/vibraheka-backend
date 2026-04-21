@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Behaviours;
@@ -18,6 +19,7 @@ public class AdminAddRecordingCommandHandlerTest
     private Mock<IRecordingStoragePort> StoragePortMock = default!;
     private Mock<IRecordingRegistryPort> RegistryPortMock = default!;
     private Mock<ICurrentUserService> CurrentUserServiceMock = default!;
+    private Mock<ILogger<AdminAddRecordingCommandHandler>> LoggerMock = default!;
     private AdminAddRecordingCommandHandler Handler = default!;
     private ValidationBehaviour<AdminAddRecordingCommand, Result<string>> Pipeline = default!;
 
@@ -27,11 +29,13 @@ public class AdminAddRecordingCommandHandlerTest
         StoragePortMock = new Mock<IRecordingStoragePort>();
         RegistryPortMock = new Mock<IRecordingRegistryPort>();
         CurrentUserServiceMock = new Mock<ICurrentUserService>();
+        LoggerMock = new Mock<ILogger<AdminAddRecordingCommandHandler>>();
 
         Handler = new AdminAddRecordingCommandHandler(
             StoragePortMock.Object,
             RegistryPortMock.Object,
-            CurrentUserServiceMock.Object);
+            CurrentUserServiceMock.Object,
+            LoggerMock.Object);
 
         Pipeline = new ValidationBehaviour<AdminAddRecordingCommand, Result<string>>(
             [new AdminAddRecordingCommandValidator()]);

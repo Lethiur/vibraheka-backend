@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
@@ -17,6 +18,7 @@ public class AdminAddRecordingCommandHandlerTest
     private Mock<IRecordingStoragePort> StoragePortMock = default!;
     private Mock<IRecordingRegistryPort> RegistryPortMock = default!;
     private Mock<ICurrentUserService> CurrentUserServiceMock = default!;
+    private Mock<ILogger<AdminAddRecordingCommandHandler>> LoggerMock = default!;
     private AdminAddRecordingCommandHandler Handler = default!;
 
     [SetUp]
@@ -25,11 +27,13 @@ public class AdminAddRecordingCommandHandlerTest
         StoragePortMock = new Mock<IRecordingStoragePort>();
         RegistryPortMock = new Mock<IRecordingRegistryPort>();
         CurrentUserServiceMock = new Mock<ICurrentUserService>();
+        LoggerMock = new Mock<ILogger<AdminAddRecordingCommandHandler>>();
 
         Handler = new AdminAddRecordingCommandHandler(
             StoragePortMock.Object,
             RegistryPortMock.Object,
-            CurrentUserServiceMock.Object);
+            CurrentUserServiceMock.Object,
+            LoggerMock.Object);
     }
 
     #region Happy Path Tests
@@ -245,12 +249,51 @@ public class AdminAddRecordingCommandHandlerTest
         Assert.That(result1.IsSuccess, Is.True,
             $"Expected first result to be success but got error: '{(result1.IsSuccess ? "N/A" : result1.Error)}'");
         Assert.That(result2.IsSuccess, Is.True,
-            $"Expected second result to be success but got error: '{(result2.IsSuccess ? "N/A" : result2.Error)}'");;
+            $"Expected second result to be success but got error: '{(result2.IsSuccess ? "N/A" : result2.Error)}'");
         Assert.That(result1.Value, Is.Not.EqualTo(result2.Value),
             $"Expected unique IDs per execution but both returned: '{result1.Value}'");
     }
 
     #endregion
+
+    #region Logging Tests
+
+    [Test]
+    [DisplayName("Should log warning when StoragePort fails")]
+    public async Task ShouldLogWarningWhenStoragePortFails()
+    {
+        // Given: storage upload fails
+        Stream fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
+        AdminAddRecordingCommand command = new(
+            Name: "Yoga nocturno",
+            Description: "Sesion de yoga para relajarse",
+            Type: RecordingType.Masterclass,
+            FileStream: fileStream,
+            FileName: "yoga.mp4");
+
+        string uploadError = RecordingErrors.UploadFailed;
+        CurrentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
+        StoragePortMock
+            .Setup(x => x.UploadAsync(It.IsAny<string>(), fileStream, command.FileName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure<string>(uploadError));
+
+        // When: the handler processes the command
+        Result<string> result = await Handler.Handle(command, CancellationToken.None);
+
+        // Then: result is failure and a Warning is logged with the error
+        Assert.That(result.IsSuccess, Is.False,
+            "Expected failure result when StoragePort fails");
+
+        LoggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(uploadError)),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once,
+            "Expected a Warning log containing the error message");
+    }
+
+    #endregion
 }
-
-

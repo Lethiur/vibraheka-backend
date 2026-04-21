@@ -63,7 +63,8 @@ if [[ ! -f "$SUMMARY_FILE" ]]; then
   exit 1
 fi
 
-LINE_COVERAGE=$(grep -oP 'Line coverage: \K[\d.]+' "$SUMMARY_FILE" || echo "0")
+LINE_COVERAGE=$(awk -F': ' '/Line coverage:/{gsub(/%/,"",$2); print $2; exit}' "$SUMMARY_FILE")
+LINE_COVERAGE=${LINE_COVERAGE:-0}
 LINE_COVERAGE_INT=${LINE_COVERAGE%.*}
 
 echo "📈  Cobertura de línea: ${LINE_COVERAGE}%"

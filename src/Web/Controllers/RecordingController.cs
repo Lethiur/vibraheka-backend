@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Recordings.Enums;
-using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Controllers;
