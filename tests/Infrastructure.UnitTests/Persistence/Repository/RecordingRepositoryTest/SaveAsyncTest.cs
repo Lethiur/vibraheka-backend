@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.RecordingRepositoryTest;
@@ -97,7 +98,7 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
 
     [Test]
     [Description("Should propagate exception when context.SaveAsync throws")]
-    public void ShouldPropagateExceptionWhenDynamoDbSaveAsyncThrows()
+    public async Task ShouldPropagateExceptionWhenDynamoDbSaveAsyncThrows()
     {
         // Given: a valid RecordingEntity and a DynamoDB context that throws
         RecordingEntity entity = new()
@@ -120,10 +121,11 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
             .ThrowsAsync(expectedException);
 
         // When / Then: invoking SaveAsync should propagate the exception
-        Assert.That(
-            async () => await Repository.SaveRecording(entity, CancellationToken.None),
-            Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("DynamoDB connection failed"),
-            "Expected the DynamoDB exception to propagate unmodified from Repository.SaveAsync");
+        Result<string> saveRecording = await Repository.SaveRecording(entity, CancellationToken.None);
+
+        Assert.That(saveRecording.IsFailure, Is.True, "Expected Result.Failure when SaveAsync throws an exception");
+
+        Assert.That(saveRecording.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError), "Expected specific error message from SaveAsync exception");
 
         ContextMock.Verify(
             c => c.SaveAsync(

@@ -11,6 +11,8 @@ namespace VibraHeka.Infrastructure.Persistence.S3;
 public class RecordingStorageRepository(IAmazonS3 client, AWSConfig options)
     : GenericS3Repository(client, options.RecordingsBucketName), IRecordingStoragePort
 {
+    private const int DownloadUrlExpirySeconds = 3600;
+
     public async Task<Result<string>> UploadAsync(
         string recordingId,
         Stream fileStream,
@@ -30,5 +32,21 @@ public class RecordingStorageRepository(IAmazonS3 client, AWSConfig options)
             if (File.Exists(tempPath))
                 File.Delete(tempPath);
         }
+    }
+
+    public Task<Result<string>> GetDownloadUrlAsync(string storageKey, CancellationToken cancellationToken)
+    {
+        string s3ObjectKey = ExtractS3Key(storageKey);
+        return GetDownloadPreSignedUrl(s3ObjectKey, DownloadUrlExpirySeconds);
+    }
+
+    private static string ExtractS3Key(string storageKey)
+    {
+        if (!Uri.TryCreate(storageKey, UriKind.Absolute, out Uri? uri))
+        {
+            return storageKey;
+        }
+
+        return uri.AbsolutePath.TrimStart('/');
     }
 }

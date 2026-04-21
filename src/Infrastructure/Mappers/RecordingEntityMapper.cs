@@ -8,6 +8,6 @@ namespace VibraHeka.Infrastructure.Mappers;
 public partial class RecordingEntityMapper
 {
     public partial RecordingDBModel FromDomain(RecordingEntity entity);
-    
+
     public partial RecordingEntity FromDbModel(RecordingDBModel model);
 }

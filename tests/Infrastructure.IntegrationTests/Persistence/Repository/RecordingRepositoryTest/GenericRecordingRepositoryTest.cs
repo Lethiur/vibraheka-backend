@@ -20,7 +20,7 @@ public abstract class GenericRecordingRepositoryTest : TestBase
         base.OneTimeSetUp();
         Logger = CreateTestLogger<RecordingRepository>();
         DynamoContext = CreateDynamoDBContext();
-        RecordingRepository = new RecordingRepository(DynamoContext, _configuration, new RecordingEntityMapper(),  Logger);
+        RecordingRepository = new RecordingRepository(DynamoContext, _configuration, new RecordingEntityMapper(), Logger);
     }
 
     [OneTimeTearDown]

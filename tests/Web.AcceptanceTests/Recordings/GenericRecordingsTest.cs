@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Recordings;
@@ -9,17 +10,16 @@ namespace VibraHeka.Web.AcceptanceTests.Recordings;
 /// Helpers para construir cuerpos de petición JSON de grabaciones.
 /// Para autenticación y registro usar los métodos heredados de <see cref="Generic.GenericAcceptanceTest{TAppClass}"/>.
 /// </summary>
-public static class RecordingAcceptanceHelpers
+public abstract class GenericRecordingsTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     private static readonly byte[] DefaultFileBytes = [1, 2, 3, 4, 5];
 
-    public static MultipartFormDataContent BuildValidBody() =>
-        BuildBody();
+    protected MultipartFormDataContent BuildValidBody() => BuildBody();
 
-    public static MultipartFormDataContent BuildBodyWithFile(byte[] fileBytes, string fileName) =>
+    protected MultipartFormDataContent BuildBodyWithFile(byte[] fileBytes, string fileName) =>
         BuildBody(fileBytes: fileBytes, fileName: fileName);
 
-    public static MultipartFormDataContent BuildBody(
+    protected MultipartFormDataContent BuildBody(
         string name = "Sesion de meditacion",
         string description = "Descripcion valida de la sesion de meditacion guiada",
         RecordingType type = RecordingType.Meditacion,

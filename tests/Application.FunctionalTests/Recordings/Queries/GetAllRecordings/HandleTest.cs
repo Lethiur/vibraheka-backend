@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;

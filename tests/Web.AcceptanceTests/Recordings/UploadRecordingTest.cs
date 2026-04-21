@@ -10,7 +10,7 @@ using VibraHeka.Web.AcceptanceTests.Generic;
 namespace VibraHeka.Web.AcceptanceTests.Recordings;
 
 [TestFixture]
-public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
+public class UploadRecordingTest : GenericRecordingsTest
 {
     private const string UploadEndpoint = "/api/v1/recordings";
 
@@ -20,7 +20,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: no authentication token is set on the client
 
         // When: calling the upload endpoint without a bearer token
-        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, RecordingAcceptanceHelpers.BuildValidBody());
+        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, BuildValidBody());
 
         // Then: the response should be 401 Unauthorized
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized),
@@ -40,7 +40,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: calling the upload endpoint
-        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, RecordingAcceptanceHelpers.BuildValidBody());
+        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, BuildValidBody());
 
         // Then: the response should be 401 or 403 because the user is not an admin
         bool isAccessDenied =
@@ -63,7 +63,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: calling the upload endpoint with a valid JSON body
-        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, RecordingAcceptanceHelpers.BuildValidBody());
+        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, BuildValidBody());
 
         // Then: the response should be 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK),
@@ -92,7 +92,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
         // When: calling the upload endpoint with an empty file
         HttpResponseMessage response = await Client.PostAsync(
             UploadEndpoint,
-            RecordingAcceptanceHelpers.BuildBodyWithFile(Array.Empty<byte>(), "empty.mp4"));
+            BuildBodyWithFile(Array.Empty<byte>(), "empty.mp4"));
 
         // Then: the response should be 400 Bad Request
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
@@ -116,9 +116,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: calling the upload endpoint with an empty name
-        HttpResponseMessage response = await Client.PostAsync(
-            UploadEndpoint,
-            RecordingAcceptanceHelpers.BuildBody(name: ""));
+        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, BuildBody(name: ""));
 
         // Then: the response should be 400 Bad Request with InvalidName error
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
@@ -142,9 +140,7 @@ public class UploadRecordingTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: calling the upload endpoint with an empty description
-        HttpResponseMessage response = await Client.PostAsync(
-            UploadEndpoint,
-            RecordingAcceptanceHelpers.BuildBody(description: ""));
+        HttpResponseMessage response = await Client.PostAsync(UploadEndpoint, BuildBody(description: ""));
 
         // Then: the response should be 400 Bad Request with InvalidDescription error
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),

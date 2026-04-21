@@ -2,8 +2,8 @@ using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Exceptions;
@@ -108,7 +108,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
                 It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)),
             Times.Once,
             "Expected ScanAsync to be called exactly once");
-        
+
     }
 
     [Test]

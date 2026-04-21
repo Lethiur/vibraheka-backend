@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
+using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Controllers;
@@ -60,6 +62,35 @@ public class RecordingController(IMediator mediator)
 
         if (result.IsFailure)
         {
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    /// <summary>
+    /// Returns a temporary download URL for the specified recording.
+    /// </summary>
+    /// <param name="recordingId">The unique identifier of the recording.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A pre-signed download URL valid for a limited time.</returns>
+    [HttpGet("{recordingId}/download-url")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDownloadUrl(string recordingId, CancellationToken ct)
+    {
+        Result<RecordingDownloadUrlDto> result =
+            await mediator.Send(new GetRecordingDownloadUrlQuery(recordingId), ct);
+
+        if (result.IsFailure)
+        {
+            if (result.Error == RecordingErrors.NotFound)
+                return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
 
