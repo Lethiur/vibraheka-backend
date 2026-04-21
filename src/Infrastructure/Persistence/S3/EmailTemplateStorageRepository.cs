@@ -18,7 +18,7 @@ namespace VibraHeka.Infrastructure.Persistence.S3;
 public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     : GenericS3Repository(client, options.EmailTemplatesBucketName), IEmailTemplateStorageRepository
 {
-    
+
 
     /// <summary>
     /// Retrieves the email template identified by the specified template ID.
@@ -76,7 +76,7 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
     {
         string tempPath = Path.Combine(Path.GetTempPath(), attachmentName);
         FileInfo info = await StreamToFile(attachmentStream, attachmentName, cancellationToken);
-        try 
+        try
         {
             Result<string> uploadAsync =
                 await UploadAsync(info, $"{templateID}/attachments", cancellationToken);
@@ -89,7 +89,7 @@ public class EmailTemplateStorageRepository(IAmazonS3 client, AWSConfig options)
                 File.Delete(tempPath);
             }
         }
-        
+
     }
 
     /// <summary>

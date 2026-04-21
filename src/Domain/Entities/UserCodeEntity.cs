@@ -16,7 +16,7 @@ public class UserCodeEntity : BaseAuditableEntity
     /// Gets or sets the action represented by this code.
     /// </summary>
     public ActionType ActionType { get; set; } = ActionType.UserVerification;
-    
+
     /// <summary>
     /// Gets or sets the token identifier (unique code id).
     /// </summary>

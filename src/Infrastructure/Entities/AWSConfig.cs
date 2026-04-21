@@ -19,7 +19,7 @@ public class AWSConfig
     /// This property is used to specify the storage location for managing and retrieving codes associated with user operations in the database.
     /// </summary>
     [Required]
-    public string UserCodesTable { get; set; } = string.Empty;  
+    public string UserCodesTable { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores email templates.
@@ -35,15 +35,15 @@ public class AWSConfig
     [Required]
     public string UsersTable { get; set; } = string.Empty;
 
-    #if DEBUG
+#if DEBUG
     /// <summary>
     /// Gets or sets the name of the DynamoDB table that stores code-related data.
     /// This property is used to define the table location for managing and accessing code entities within the AWS infrastructure.
     /// </summary>
     [Required]
     public string CodesTable { get; set; } = string.Empty;
-    
-    #endif
+
+#endif
 
     /// <summary>
     /// Gets or sets the unique identifier for the AWS Cognito client application.

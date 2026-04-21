@@ -21,5 +21,5 @@ public partial class VerifyUserCommandValidator : AbstractValidator<VerifyUserCo
             .MinimumLength(6)
             .WithMessage(UserErrors.InvalidVerificationCode);
     }
-    
+
 }

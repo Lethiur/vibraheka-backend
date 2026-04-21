@@ -26,7 +26,7 @@ public class UserErrors
     /// Represents the error code indicating that the provided verification code is invalid or does not meet the expected criteria.
     /// </summary>
     public const string InvalidVerificationCode = "US-004";
-    
+
     /// <summary>
     /// Represents the error code indicating that an unexpected error has occurred.
     /// </summary>
@@ -42,12 +42,12 @@ public class UserErrors
     /// Represents the error code indicating that the provided full name is invalid or does not meet the required criteria.
     /// </summary>
     public const string InvalidFullName = "US-007";
-    
+
     /// <summary>
     /// Represents the error code indicating that the provided confirmation code has expired.
     /// </summary>
     public const string ExpiredCode = "US-008";
-    
+
     /// <summary>
     /// Represents the error code indicating that the provided verification code is incorrect or does not match the expected value.
     /// </summary>
@@ -67,17 +67,17 @@ public class UserErrors
     /// Represents the error code indicating that a limit has been exceeded, such as a rate limit or resource allocation threshold.
     /// </summary>
     public const string LimitExceeded = "US-012";
-    
+
     /// <summary>
     /// Represents the error code indicating that the user is not authorized to perform the requested operation.
     /// </summary>
     public const string NotAuthorized = "US-013";
-    
+
     /// <summary>
     /// Represents the error code indicating that the user has exceeded the allowed number of attempts for a specific operation or action.
     /// </summary>
     public const string TooManyAttempts = "US-012";
-    
+
     public const string EmailTooLong = "US-013";
 
     public const string InvalidPasswordResetToken = "US-014";

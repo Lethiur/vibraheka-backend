@@ -13,7 +13,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest;
 [TestFixture]
 public class AuthenticateUserAsync : GenericUserServiceTest
 {
-     [Test]
+    [Test]
     [DisplayName("Should return AuthenticationResult when credentials are valid")]
     public async Task ShouldReturnAuthenticationResultWhenCredentialsAreValid()
     {
@@ -21,7 +21,7 @@ public class AuthenticateUserAsync : GenericUserServiceTest
         const string email = "user@test.com";
         const string password = "Password123!";
         const string expectedUserId = "user-guid-123";
-        
+
         // Creamos un JWT real pero simple para que JwtSecurityTokenHandler pueda leerlo
         JwtSecurityTokenHandler tokenHandler = new();
         SecurityTokenDescriptor tokenDescriptor = new()

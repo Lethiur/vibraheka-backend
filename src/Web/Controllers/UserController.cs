@@ -25,10 +25,10 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserProfileFromId([FromRoute(Name = "id")] string userID)
     {
-        Logger.Log(LogLevel.Information, "Getting user profile for user with ID {UserID}" , userID);
+        Logger.Log(LogLevel.Information, "Getting user profile for user with ID {UserID}", userID);
         GetUserProfileQuery query = new(userID);
         Result<UserDTO> result = await mediator.Send(query);
-        
+
         if (result.IsFailure)
         {
             Logger.LogError("Failed to execute Change Template For Action because {Error}", result.Error);
@@ -38,7 +38,7 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger)
                 _ => new BadRequestObjectResult(ResponseEntity.FromError(result.Error))
             };
         }
-        
+
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 
@@ -55,12 +55,12 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger)
     {
         UpdateUserProfileCommand command = new(profile);
         Result<Unit> result = await mediator.Send(command);
-        
+
         if (result.IsFailure)
         {
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
-        
+
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
 }

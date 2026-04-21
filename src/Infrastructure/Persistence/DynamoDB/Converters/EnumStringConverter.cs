@@ -42,7 +42,7 @@ public class EnumStringConverter<T> : IPropertyConverter where T : struct
     /// </returns>
     public object FromEntry(DynamoDBEntry entry)
     {
-        if (entry is not Primitive primitive || string.IsNullOrWhiteSpace(primitive)) 
+        if (entry is not Primitive primitive || string.IsNullOrWhiteSpace(primitive))
             return new DynamoDBNull();
 
         return Enum.TryParse(primitive, out T result) ? result : new DynamoDBNull();

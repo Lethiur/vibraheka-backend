@@ -1101,7 +1101,8 @@ export class EmailTemplateClient implements IEmailTemplateClient {
 }
 
 export interface IRecordingClient {
-    recording_UploadRecording(file: FileParameter | null | undefined, name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity>;
+    recording_UploadRecording(name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity>;
+    recording_GetAllRecordings(): Observable<ResponseEntity>;
 }
 
 @Injectable({
@@ -1117,13 +1118,11 @@ export class RecordingClient implements IRecordingClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    recording_UploadRecording(file: FileParameter | null | undefined, name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity> {
+    recording_UploadRecording(name: string | null | undefined, description: string | null | undefined, type: RecordingType | undefined, file: FileParameter | null | undefined, fileName: string | null | undefined): Observable<ResponseEntity> {
         let url_ = this.baseUrl + "/api/v1/recordings";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
-            content_.append("file", file.data, file.fileName ? file.fileName : "file");
         if (name !== null && name !== undefined)
             content_.append("Name", name.toString());
         if (description !== null && description !== undefined)
@@ -1180,6 +1179,61 @@ export class RecordingClient implements IRecordingClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetAllRecordings(): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/recordings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetAllRecordings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetAllRecordings(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetAllRecordings(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {

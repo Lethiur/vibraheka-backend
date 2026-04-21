@@ -152,7 +152,7 @@ public class SettingsRepository(
         string fullName = BuildParameterName(parameterName);
         string? traceId = GetTraceIdSafe();
         using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
-            { ["TraceId"] = traceId });
+        { ["TraceId"] = traceId });
 
         try
         {

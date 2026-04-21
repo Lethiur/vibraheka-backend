@@ -158,7 +158,7 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         UserDTO validDTO = CreateValidDTO();
         switch (targetField)
         {
-            case "Email" : validDTO.Email = value!; break;
+            case "Email": validDTO.Email = value!; break;
             case "FirstName": validDTO.FirstName = value!; break;
             case "MiddleName": validDTO.MiddleName = value!; break;
             case "LastName": validDTO.LastName = value!; break;

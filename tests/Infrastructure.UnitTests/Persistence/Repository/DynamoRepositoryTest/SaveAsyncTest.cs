@@ -26,7 +26,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
         // Then: Result should be success Unit
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
-        _contextMock.Verify(x => x.SaveAsync(entity, 
+        _contextMock.Verify(x => x.SaveAsync(entity,
             It.Is<SaveConfig>(c => c.OverrideTableName == TableName), None), Times.Once);
     }
 

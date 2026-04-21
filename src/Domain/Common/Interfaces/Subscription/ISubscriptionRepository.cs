@@ -25,7 +25,7 @@ public interface ISubscriptionRepository
     /// <param name="cancellationToken">The token used to halt the operation before it finishes</param>
     /// <returns>A task that represents the asynchronous operation, containing the result of the operation as a <see cref="SubscriptionEntity"/>.</returns>
     Task<Result<SubscriptionEntity>> SaveSubscriptionAsync(SubscriptionEntity subscriptionEntity, CancellationToken cancellationToken);
-    
+
     /// <summary>
     /// 
     /// </summary>

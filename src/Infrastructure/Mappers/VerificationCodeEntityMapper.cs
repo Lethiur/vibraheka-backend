@@ -8,6 +8,6 @@ namespace VibraHeka.Infrastructure.Mappers;
 public partial class VerificationCodeEntityMapper
 {
     public partial VerificationCodeDBModel ToInternal(VerificationCodeEntity entity);
-    
+
     public partial VerificationCodeEntity ToDomain(VerificationCodeDBModel entity);
 }

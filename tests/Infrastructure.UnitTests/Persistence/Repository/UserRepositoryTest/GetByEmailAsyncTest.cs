@@ -9,7 +9,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserReposito
 [TestFixture]
 public class GetByEmailAsyncTest : GenericUserRepositoryTest
 {
-    
+
     [Test]
     [DisplayName("Should return true when user exists by email")]
     public async Task ShouldReturnTrueWhenUserExistsByEmail()

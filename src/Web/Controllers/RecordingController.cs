@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
+using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
 
@@ -35,6 +36,27 @@ public class RecordingController(IMediator mediator)
             FileName: request.File.FileName);
 
         Result<string> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+
+    /// <summary>
+    /// Returns all available recordings.
+    /// </summary>
+    /// <returns>List of recordings.</returns>
+    [HttpGet]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetAllRecordings()
+    {
+        Result<IEnumerable<RecordingDto>> result = await mediator.Send(new GetAllRecordingsQuery());
 
         if (result.IsFailure)
         {

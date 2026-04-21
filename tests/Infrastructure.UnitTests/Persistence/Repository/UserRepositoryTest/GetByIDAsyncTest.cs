@@ -9,7 +9,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class GetByIDAsyncTest: GenericUserRepositoryTest
+public class GetByIDAsyncTest : GenericUserRepositoryTest
 {
 
     [Test]
@@ -19,9 +19,9 @@ public class GetByIDAsyncTest: GenericUserRepositoryTest
         // Given: A valid ID and a corresponding model in DynamoDB
         const string userId = "test-id";
         UserDBModel userModel = new()
-        { 
-            Id = userId, 
-            Email = "test@example.com", 
+        {
+            Id = userId,
+            Email = "test@example.com",
             FirstName = "Test User",
             Role = UserRole.Therapist
         };

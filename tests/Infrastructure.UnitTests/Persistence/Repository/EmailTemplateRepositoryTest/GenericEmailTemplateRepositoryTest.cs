@@ -9,7 +9,7 @@ public abstract class GenericEmailTemplateRepositoryTest : GenericDynamoReposito
 {
     protected EmailTemplateRepository Repository = default!;
     protected Mock<ILogger<EmailTemplateRepository>> logger;
-    
+
     [SetUp]
     public void SetUpEmailTemplateRepository()
     {

@@ -7,7 +7,7 @@ public class AuthenticationResult
     public string UserID { get; set; } = string.Empty;
     public string AccessToken { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
-    
+
     public UserRole Role { get; set; } = UserRole.User;
 
     // Constructor vacío para permitir la creación en dos pasos

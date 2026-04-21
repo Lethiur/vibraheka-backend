@@ -24,7 +24,7 @@ public abstract class GenericPasswordResetTokenServiceTest
         LoggerMock = new Mock<ILogger<PasswordResetTokenService>>();
         Service = new PasswordResetTokenService(Config, LoggerMock.Object);
     }
-    
+
     protected static string BuildEncryptedToken(
         string email,
         string cognitoCode,
@@ -68,7 +68,7 @@ public abstract class GenericPasswordResetTokenServiceTest
         public string TokenId { get; set; } = string.Empty;
         public long ExpiresAtUnix { get; set; }
     }
-    
+
     protected byte[] FromBase64Url(string s)
     {
         s = s.Replace('-', '+').Replace('_', '/');

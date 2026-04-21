@@ -22,7 +22,7 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
         ClientMock
             .Setup(c => c.PutObjectAsync(It.IsAny<PutObjectRequest>(), cancellationToken))
             .ReturnsAsync(new PutObjectResponse { HttpStatusCode = System.Net.HttpStatusCode.OK });
-        
+
         string expectedTempPath = Path.Combine(Path.GetTempPath(), templateId);
 
         // When
@@ -30,11 +30,11 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        
+
         // And: File should have been deleted
         Assert.That(File.Exists(expectedTempPath), Is.False);
 
-        
+
         ClientMock.Verify(
             c => c.PutObjectAsync(
                 It.Is<PutObjectRequest>(r =>
@@ -80,5 +80,5 @@ public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryTest
             File.Delete(expectedTempPath);
         }
     }
-    
+
 }

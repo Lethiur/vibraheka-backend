@@ -31,7 +31,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     {
         if (file is not { Exists: true })
         {
-            return  Result.Failure<string>("File does not exist");
+            return Result.Failure<string>("File does not exist");
         }
 
         await using Stream strean = file.OpenRead();
@@ -70,7 +70,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             return false;
         }
     }
-    
+
     /// <summary>
     /// Retrieves the contents of a file inside the bucket using its file key
     /// </summary>
@@ -103,7 +103,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
         {
             stream.Position = 0;
         }
-        
+
         await using (FileStream file = new(
                          filePath,
                          FileMode.Create,
@@ -113,10 +113,10 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             await stream.CopyToAsync(file, cancellationToken);
             await file.FlushAsync(cancellationToken);
         }
-        
+
         return new FileInfo(filePath);
     }
-    
+
     /// <summary>
     /// Generates a pre-signed URL for downloading a file from an S3 bucket.
     /// </summary>
@@ -131,7 +131,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             Key = key,
             Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
             Verb = HttpVerb.GET,
-            
+
         };
 
         return await Client.GetPreSignedURLAsync(request);

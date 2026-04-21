@@ -6,7 +6,7 @@ public class ChangeTemplateForActionCommandValidator : AbstractValidator<ChangeT
 {
     public ChangeTemplateForActionCommandValidator()
     {
-        RuleLevelCascadeMode = CascadeMode.Stop; 
+        RuleLevelCascadeMode = CascadeMode.Stop;
         RuleFor(x => x.TemplateID).ValidTemplateID();
     }
 }

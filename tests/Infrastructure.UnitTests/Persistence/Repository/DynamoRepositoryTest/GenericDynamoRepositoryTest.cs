@@ -12,7 +12,7 @@ public abstract class GenericDynamoRepositoryTest
     protected AWSConfig _configMock;
     protected TestableDynamoRepository _repository;
     protected const string TableName = "RealTableName";
-    
+
     [SetUp]
     public void SetUp()
     {

@@ -7,41 +7,41 @@ namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 [DynamoDBTable("TABLE_USERS")]
 public class UserDBModel : BaseAuditableDBModel
 {
-    
+
     [DynamoDBHashKey]
     public string Id { get; set; } = string.Empty;
     [DynamoDBProperty]
     public string CustomerID { get; set; } = string.Empty; // Sub de Cognito
     [DynamoDBGlobalSecondaryIndexHashKey("EmailIndex")]
     public string Email { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string FirstName { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string MiddleName { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string LastName { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string PhoneNumber { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string Bio { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string TimezoneID { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string ProfilePictureUrl { get; set; } = string.Empty;
-    
 
-    
+
+
     [DynamoDBProperty(typeof(EnumStringConverter<UserRole>))]
     [DynamoDBGlobalSecondaryIndexHashKey("Role-Index")]
     public UserRole Role { get; set; } = UserRole.User;
-    
+
     public static UserDBModel FromDomain(UserEntity userEntity) => new()
     {
         Id = userEntity.Id,

@@ -140,7 +140,7 @@ public class SettingsService(
             cancellationToken,
             "Error while updating the password changed email template");
     }
-    
+
     public Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
@@ -168,8 +168,8 @@ public class SettingsService(
 
         return repositoryResult;
     }
-    
-    
+
+
 
     /// <summary>
     /// Retrieves the password changed email template.
@@ -236,8 +236,8 @@ public class SettingsService(
             repository.GetPasswordChangedEmailTemplateAsync,
             SettingsErrors.GenericError);
     }
-    
-    
+
+
 
     /// <summary>
     /// Retrieves all templates used for actions.
@@ -285,13 +285,13 @@ public class SettingsService(
             {
                 TemplateID = appSettings.SubscriptionReActivatedEmailTemplate, ActionType = ActionType.SubscriptionReactivated
             }
-            
+
         ];
 
         return templates;
     }
 
-    
+
 
     /// <summary>
     /// Maps infrastructure repository errors to domain errors for update operations.

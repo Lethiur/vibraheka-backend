@@ -15,7 +15,7 @@ public class ToEntryTest
     {
         Converter = new EnumStringConverter<UserRole>();
     }
-    
+
     [Test]
     [DisplayName("Should convert enum value to string primitive")]
     public void ShouldConvertEnumValueToStringPrimitive()
@@ -35,13 +35,13 @@ public class ToEntryTest
     [DisplayName("Should convert to dynamoDB null if the role is not present")]
     public void ShouldConvertEnumValueToNull()
     {
-    
+
         // When: Converting to DynamoDBEntry
         DynamoDBEntry entry = Converter.ToEntry(null!);
 
         // Then: It should be a dynamo db null
         Assert.That(entry, Is.InstanceOf<DynamoDBNull>());
     }
-    
-    
+
+
 }

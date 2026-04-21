@@ -23,7 +23,7 @@ public class AdminAddRecordingCommandHandler(
 
         return StoragePort
             .UploadAsync(recordingId, request.FileStream, request.FileName, cancellationToken)
-            .Tap(storageKey =>  Logger.LogInformation(
+            .Tap(storageKey => Logger.LogInformation(
                 "Saving recording {RecordingId} with storage key {StorageKey}",
                 recordingId, storageKey))
             .BindTry(storageKey =>

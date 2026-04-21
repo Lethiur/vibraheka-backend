@@ -8,7 +8,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     public RegisterUserCommandValidator()
     {
         RuleFor(x => x.Email).Cascade(CascadeMode.Stop).ValidEmail();
-        
+
         RuleFor(x => x.Password).Cascade(CascadeMode.Stop).ValidPassword();
         RuleFor(x => x.FirstName)
             .Cascade(CascadeMode.Stop)
@@ -18,7 +18,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             {
                 if (string.IsNullOrWhiteSpace(value))
                     return false;
-            
+
                 string trimmed = value.Trim();
                 return trimmed.Length >= 3;
             })

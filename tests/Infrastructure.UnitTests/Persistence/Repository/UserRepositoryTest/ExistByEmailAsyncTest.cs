@@ -7,10 +7,10 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
 
 [TestFixture]
-public class ExistByEmailAsyncTest: GenericUserRepositoryTest
+public class ExistByEmailAsyncTest : GenericUserRepositoryTest
 {
-   
-     [Test]
+
+    [Test]
     [DisplayName("Should return true when user exists by email in DynamoDB")]
     public async Task ShouldReturnTrueWhenUserExistsByEmail()
     {
@@ -21,7 +21,7 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
         Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(models);
-        
+
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()))
             .Returns(searchMock.Object);
 
@@ -43,7 +43,7 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
         Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<UserDBModel>());
-        
+
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()))
             .Returns(searchMock.Object);
 
@@ -64,7 +64,7 @@ public class ExistByEmailAsyncTest: GenericUserRepositoryTest
         Mock<IAsyncSearch<UserDBModel>> searchMock = new();
         searchMock.Setup(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((List<UserDBModel>)null!);
-        
+
         ContextMock.Setup(x => x.QueryAsync<UserDBModel>(email, It.IsAny<QueryConfig>()))
             .Returns(searchMock.Object);
 

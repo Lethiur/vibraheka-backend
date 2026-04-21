@@ -1,4 +1,4 @@
 ﻿global using BoDi;
-global using Shouldly;
 global using Microsoft.Playwright;
+global using Shouldly;
 global using TechTalk.SpecFlow;

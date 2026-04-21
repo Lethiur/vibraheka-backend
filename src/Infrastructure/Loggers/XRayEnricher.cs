@@ -4,7 +4,7 @@ using Serilog.Events;
 
 namespace VibraHeka.Infrastructure.Loggers;
 
-public class XRayEnricher: ILogEventEnricher
+public class XRayEnricher : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {

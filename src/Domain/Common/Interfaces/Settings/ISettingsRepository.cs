@@ -154,5 +154,5 @@ public interface ISettingsRepository
     /// </returns>
     Task<Result<string>> GetSubscriptionReActivatedEmailTemplateAsync();
 
-    
+
 }

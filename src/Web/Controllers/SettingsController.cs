@@ -41,10 +41,10 @@ public partial class SettingsController(IMediator mediator, ILogger<SettingsCont
                 _ => new BadRequestObjectResult(ResponseEntity.FromError(send.Error))
             };
         }
-        
+
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
-    
+
     /// <summary>
     /// Retrieves all email templates.
     /// </summary>

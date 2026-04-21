@@ -8,7 +8,7 @@ namespace VibraHeka.Infrastructure.Mappers;
 public partial class SubscriptionEntityMapper
 {
     public partial SubscriptionDBModel ToInternal(SubscriptionEntity entity);
-    
+
     public partial SubscriptionEntity ToDomain(SubscriptionDBModel entity);
-    
+
 }

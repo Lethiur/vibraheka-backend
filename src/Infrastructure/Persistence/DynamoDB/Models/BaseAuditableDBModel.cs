@@ -5,16 +5,16 @@ namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 public class BaseAuditableDBModel
 {
-     
+
     [DynamoDBProperty(typeof(DateTimeOffsetConverter))]
     public DateTimeOffset Created { get; set; }
 
-    [DynamoDBProperty] 
+    [DynamoDBProperty]
     public string? CreatedBy { get; set; }
 
-    [DynamoDBProperty(typeof(DateTimeOffsetConverter))] 
+    [DynamoDBProperty(typeof(DateTimeOffsetConverter))]
     public DateTimeOffset LastModified { get; set; }
 
-    [DynamoDBProperty] 
+    [DynamoDBProperty]
     public string? LastModifiedBy { get; set; }
 }

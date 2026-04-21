@@ -26,7 +26,7 @@ public class VibraHekaProgram
                     policy.WithOrigins("http://localhost:5173") // La URL de tu frontend
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials(); 
+                        .AllowCredentials();
                 });
         });
 
@@ -36,12 +36,12 @@ public class VibraHekaProgram
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-        });;
+        }); ;
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                
+
                 string? region = builder.Configuration["AWS:Location"];
                 string? userPoolId = builder.Configuration["AWS:UserPoolId"];
                 string? clientId = builder.Configuration["AWS:ClientId"];
@@ -55,7 +55,7 @@ public class VibraHekaProgram
                     ValidIssuer = options.Authority,
                     ValidateAudience = true,
                     ValidAudience = clientId,
-                    
+
                     ClockSkew = TimeSpan.FromMinutes(2),
                     ValidateLifetime = true,
                     AudienceValidator = (audiences, securityToken, validationParameters) =>
@@ -77,27 +77,27 @@ public class VibraHekaProgram
             });
         IConfigurationSection settingsSection = builder.Configuration.GetSection("Settings");
         builder.AddInfrastructureServices(builder.Configuration, builder.Configuration);
-        
+
         bool useSerilog = settingsSection.GetValue<bool>("UseSerilog");
         if (useSerilog)
         {
             builder.ConfigureLogging(builder.Configuration, builder.Configuration);
 
         }
-        
+
         WebApplication app = builder.Build();
         if (useSerilog)
         {
-            app.UseSerilogRequestLogging();    
+            app.UseSerilogRequestLogging();
         }
-        
+
         app.UseRouting();
         app.UseCors("AllowFrontend");
         app.UseAuthentication();
         app.UseAuthorization();
-        
+
         app.UseXRay("VibraHeka", builder.Configuration);
-        
+
         app.UseMiddleware<TracingMiddleware>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseStaticFiles();

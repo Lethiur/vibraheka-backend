@@ -26,11 +26,11 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         string username = TheFaker.Person.FullName;
         string templateID = Guid.NewGuid().ToString();
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        
+
         // And: The user is authenticated
         var authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-        
+
         // And: Template in the DB
         await SeedEmailTemplate(templateID, "test/verification-email.html");
 
@@ -42,7 +42,7 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: The response should be 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "Admin should be able to update the template");
-        
+
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
     }
@@ -62,7 +62,7 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: Should return 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        
+
         ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
         Assert.That(responseEntity.Success, Is.True);
         Assert.That(responseEntity.Content, Is.Not.Null);

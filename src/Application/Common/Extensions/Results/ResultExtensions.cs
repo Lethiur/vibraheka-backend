@@ -29,7 +29,7 @@ public static class ResultExtensions
         {
             return Result.Failure<T>(taskResult.Error);
         }
-        
+
         return await compensateFunc(taskResult.Error);
     }
 
@@ -43,14 +43,14 @@ public static class ResultExtensions
             {
                 return taskResult;
             }
-            
+
             return await bindFunc(taskResult.Value);
         }
-        
+
         return taskResult;
-        
+
     }
-    
+
     public static async Task<Result<T>> OnFailureCompensateWhen<T>(this Task<Result<T>> result,
         Func<string, bool> compensationPredicate, Func<string, T> compensateFunc)
     {

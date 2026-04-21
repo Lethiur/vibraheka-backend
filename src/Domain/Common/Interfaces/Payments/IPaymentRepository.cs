@@ -43,6 +43,6 @@ public interface IPaymentRepository
     Task<Result<Unit>> CancelSubscriptionForUser(SubscriptionEntity subscription, CancellationToken cancellationToken);
 
     Task<Result<Unit>> ReactivateSubscriptionForUser(SubscriptionEntity entity, CancellationToken cancellationToken);
-    
+
     Task<Result<Unit>> CancelSubscriptionPayment(SubscriptionCheckoutSessionEntity entity, CancellationToken cancellationToken);
 }

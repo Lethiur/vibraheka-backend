@@ -10,7 +10,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserReposito
 [TestFixture]
 public class GetByRoleAsyncTest : GenericUserRepositoryTest
 {
-    
+
     [Test]
     [DisplayName("Should return list of users when role matches")]
     public async Task ShouldReturnListWhenRoleMatches()

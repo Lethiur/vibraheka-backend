@@ -28,7 +28,7 @@ public static class EmailValidationExtension
     private static bool BeValidEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email)) return false;
-       
+
         bool doesMatch = EmailRegex.IsMatch(email.Trim());
         if (doesMatch)
         {

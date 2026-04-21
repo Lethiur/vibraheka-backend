@@ -50,7 +50,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         // And: A newly created template
         string templateName = $"NewListTemplate-{TheFaker.Random.AlphaNumeric(8)}";
         using MultipartFormDataContent form = new();
@@ -64,7 +64,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: The list should contain the new template
         ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
         IEnumerable<EmailTemplateResponseDTO>? templates = responseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        
+
         Assert.That(templates, Is.Not.Null);
         Assert.That(templates!.Any(t => t.TemplateName == templateName), Is.True);
     }

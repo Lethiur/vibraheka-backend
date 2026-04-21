@@ -8,6 +8,6 @@ namespace VibraHeka.Infrastructure.Mappers;
 public partial class UsersCodeMapper
 {
     public partial UserCodeDBModel FromDomain(UserCodeEntity entity);
-    
+
     public partial UserCodeEntity ToDomain(UserCodeDBModel model);
 }

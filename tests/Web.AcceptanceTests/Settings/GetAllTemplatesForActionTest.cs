@@ -36,7 +36,7 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
 
         // Then: Should return 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        
+
         ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
         IEnumerable<TemplateForActionEntity>? templates = responseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
         Assert.That(responseEntity.Success, Is.True);
@@ -53,7 +53,7 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
         // Given: A registered and confirmed standard user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        
+
         // And: The user is authenticated
         AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);

@@ -184,7 +184,10 @@ public class UserService(
             logger.LogInformation("Confirming Cognito forgot password flow for user {Email}", email);
             ConfirmForgotPasswordRequest request = new()
             {
-                ClientId = _clientId, Username = email, ConfirmationCode = recoveryCode, Password = newPassword
+                ClientId = _clientId,
+                Username = email,
+                ConfirmationCode = recoveryCode,
+                Password = newPassword
             };
 
             await _client.ConfirmForgotPasswordAsync(request, cancellationToken);
@@ -218,7 +221,9 @@ public class UserService(
             logger.LogInformation("Changing password for authenticated user");
             ChangePasswordRequest request = new()
             {
-                AccessToken = accessToken, PreviousPassword = currentPassword, ProposedPassword = newPassword
+                AccessToken = accessToken,
+                PreviousPassword = currentPassword,
+                ProposedPassword = newPassword
             };
 
             await _client.ChangePasswordAsync(request, cancellationToken);
@@ -344,7 +349,9 @@ public class UserService(
         {
             ConfirmSignUpRequest request = new()
             {
-                Username = email, ConfirmationCode = confirmationCode, ClientId = _clientId
+                Username = email,
+                ConfirmationCode = confirmationCode,
+                ClientId = _clientId
             };
 
             ConfirmSignUpResponse confirmSignUpResponse = await _client.ConfirmSignUpAsync(request);

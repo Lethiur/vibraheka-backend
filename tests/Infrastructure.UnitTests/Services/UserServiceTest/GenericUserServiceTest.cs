@@ -14,7 +14,7 @@ public abstract class GenericUserServiceTest
     protected Mock<IAmazonCognitoIdentityProvider> CognitoMock;
     protected Mock<IUserRepository> _userRepositoryMock;
     protected TestableUserService _service;
-    
+
     [SetUp]
     public void SetUp()
     {
@@ -25,7 +25,7 @@ public abstract class GenericUserServiceTest
 
         ConfigMock.Location = "eu-west-1";
         ConfigMock.Profile = "Twingers";
-        
+
         // Asumiendo que UserService permite inyectar o acceder al cliente para tests
         _service = new TestableUserService(ConfigMock, LoggerMock.Object, CognitoMock.Object, _userRepositoryMock.Object);
     }

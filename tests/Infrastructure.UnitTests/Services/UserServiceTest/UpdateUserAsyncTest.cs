@@ -152,7 +152,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
 
             // Then: should fail and not save
             Assert.That(result.IsFailure, Is.True);
-            Assert.That(result.Error, Is.EqualTo("DB read error"));           
+            Assert.That(result.Error, Is.EqualTo("DB read error"));
 
             _userRepositoryMock.Verify(r => r.GetByIdAsync(
                 It.Is<string>(id => id == "user-1"),
@@ -185,7 +185,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
             // Then: should fail
             Assert.That(result.IsFailure, Is.True);
             Assert.That(result.Error, Is.EqualTo("DB write error"));
-            
+
             _userRepositoryMock.Verify(r => r.GetByIdAsync(
                 It.Is<string>(id => id == "user-1"),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)
@@ -217,7 +217,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest
             // Then: should fail and not save
             Assert.That(result.IsFailure, Is.True);
             Assert.That(result.Error, Is.EqualTo("Boom"));
-            
+
             _userRepositoryMock.Verify(r => r.GetByIdAsync(
                 It.Is<string>(id => id == "user-1"),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)

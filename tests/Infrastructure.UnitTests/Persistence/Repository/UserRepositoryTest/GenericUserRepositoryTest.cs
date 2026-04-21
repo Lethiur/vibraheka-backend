@@ -7,7 +7,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserReposito
 
 public abstract class GenericUserRepositoryTest
 {
-    
+
     protected Mock<IDynamoDBContext> ContextMock;
     protected AWSConfig ConfigMock;
     protected UserRepository Repository;

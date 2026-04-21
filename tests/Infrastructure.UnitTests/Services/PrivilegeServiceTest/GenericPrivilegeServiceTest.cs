@@ -11,7 +11,7 @@ public abstract class GenericPrivilegeServiceTest
     protected Mock<IUserRepository> _userRepositoryMock;
     protected Mock<IActionLogRepository> _actionLogRepositoryMock;
     protected Mock<ILogger<IPrivilegeService>> _loggerMock;
-    
+
     protected PrivilegeService _service;
 
     [SetUp]

@@ -9,13 +9,13 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
     [DynamoDBHashKey("ID")]
     public string TemplateID { get; set; } = string.Empty;
 
-    [DynamoDBProperty] 
+    [DynamoDBProperty]
     public string Path { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string Name { get; set; } = string.Empty;
-    
-    
+
+
     public EmailEntity ToDomain() => new()
     {
         ID = TemplateID,
@@ -26,7 +26,7 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
         LastModified = LastModified,
         LastModifiedBy = LastModifiedBy
     };
-    
+
     public static EmailTemplateDBModel FromDomain(EmailEntity entity) => new()
     {
         TemplateID = entity.ID,
@@ -37,5 +37,5 @@ public class EmailTemplateDBModel : BaseAuditableDBModel
         LastModified = entity.LastModified,
         LastModifiedBy = entity.LastModifiedBy
     };
-    
+
 }

@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Domain.Common.Interfaces.User;
 

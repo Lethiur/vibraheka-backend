@@ -2,8 +2,8 @@ using System.Net;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Web.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 

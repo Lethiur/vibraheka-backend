@@ -44,11 +44,11 @@ public class ResponseEntity
         return new ResponseEntity { Success = false, ErrorCode = errorCode, Content = null };
     }
 
-    #if DEBUG
+#if DEBUG
     public T? GetContentAs<T>()
     {
         return Content == null ? default : (T)Content;
     }
-    #endif
+#endif
 
 }

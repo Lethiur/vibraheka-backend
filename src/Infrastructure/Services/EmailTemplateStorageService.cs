@@ -56,7 +56,7 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
         return Result.Of(templateID)
             .Ensure(tpl => !string.IsNullOrWhiteSpace(tpl) && !string.IsNullOrEmpty(tpl), InvalidTempalteID)
             .Check(tpl => CheckTemplateExists(tpl, cancellationToken))
-            .BindTry(tpl =>_repository.GetTemplateUrlAsync(tpl) );
+            .BindTry(tpl => _repository.GetTemplateUrlAsync(tpl));
     }
 
     /// <summary>

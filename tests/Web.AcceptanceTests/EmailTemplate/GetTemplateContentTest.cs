@@ -33,18 +33,18 @@ public class GetTemplateContentTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         // And: A template created WITH a file
         string templateName = $"FullTemplateContent-{TheFaker.Random.AlphaNumeric(8)}";
         string content = "<html>Sample Content</html>";
-        
-        
+
+
         using MultipartFormDataContent form = CreateValidMultipartForm(
             templateName: templateName,
             fileName: "template.json",
             fileContent: content);
 
-        
+
         HttpResponseMessage httpResponseMessage = await Client.PutAsync("/api/v1/email-templates/create", form);
         Assert.That(httpResponseMessage.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
@@ -72,7 +72,7 @@ public class GetTemplateContentTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         string templateName = $"SkeletonOnly-{TheFaker.Random.AlphaNumeric(8)}";
         HttpResponseMessage createResponse = await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={templateName}", null);
         ResponseEntity createEntity = await createResponse.GetAsResponseEntityAndContentAs<string>();

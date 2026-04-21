@@ -14,4 +14,4 @@ namespace VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 /// </remarks>
 /// <param name="TemplateID">The unique identifier of the email template to be updated.</param>
 /// <param name="TemplateStream">The stream containing the new content for the email template.</param>
-public record UpdateTemplateContentCommand(string TemplateID, Stream TemplateStream) : IRequest<Result<Unit>>,  IRequireAdmin;
+public record UpdateTemplateContentCommand(string TemplateID, Stream TemplateStream) : IRequest<Result<Unit>>, IRequireAdmin;
