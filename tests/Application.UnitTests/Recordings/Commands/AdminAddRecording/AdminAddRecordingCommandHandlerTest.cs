@@ -61,7 +61,7 @@ public class AdminAddRecordingCommandHandlerTest
             .ReturnsAsync(Result.Success(storageKey));
 
         RegistryPortMock
-            .Setup(x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecordingEntity entity, CancellationToken _) => Result.Success(entity.Id));
 
         // When: the handler processes the command
@@ -83,7 +83,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to be called exactly once with the provided stream and fileName");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(
+            x => x.SaveRecording(
                 It.Is<RecordingEntity>(e =>
                     e.Name == command.Name &&
                     e.Description == command.Description &&
@@ -143,7 +143,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to be called once even on failure");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(
+            x => x.SaveRecording(
                 It.Is<RecordingEntity>(e => e != null),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Never,
@@ -176,7 +176,7 @@ public class AdminAddRecordingCommandHandlerTest
             .ReturnsAsync(Result.Success(storageKey));
 
         RegistryPortMock
-            .Setup(x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<string>(registryError));
 
         // When: the handler processes the command
@@ -198,7 +198,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to be called once");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(
+            x => x.SaveRecording(
                 It.Is<RecordingEntity>(e =>
                     e.Name == command.Name &&
                     e.Description == command.Description &&
@@ -238,7 +238,7 @@ public class AdminAddRecordingCommandHandlerTest
             .ReturnsAsync(Result.Success("key"));
 
         RegistryPortMock
-            .Setup(x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecordingEntity entity, CancellationToken _) => Result.Success(entity.Id));
 
         // When: the handler processes both commands

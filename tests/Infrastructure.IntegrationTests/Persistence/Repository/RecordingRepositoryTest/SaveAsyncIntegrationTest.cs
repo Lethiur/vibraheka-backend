@@ -1,62 +1,10 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
-using NUnit.Framework;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.RecordingRepositoryTest;
-
-public abstract class GenericRecordingRepositoryTest : TestBase
-{
-    protected RecordingRepository RecordingRepository = default!;
-    protected IDynamoDBContext DynamoContext = default!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetup()
-    {
-        base.OneTimeSetUp();
-        DynamoContext = CreateDynamoDBContext();
-        RecordingRepository = new RecordingRepository(DynamoContext, _configuration);
-    }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDownContext()
-    {
-        DynamoContext.Dispose();
-    }
-
-    protected async Task CleanupRecording(string recordingId)
-    {
-        try
-        {
-            SaveConfig deleteConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-            await DynamoContext.DeleteAsync<RecordingDBModel>(recordingId, deleteConfig);
-            Console.WriteLine($"Cleanup: Deleted recording {recordingId}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Warning: Could not cleanup recording {recordingId}: {ex.Message}");
-        }
-    }
-
-    protected RecordingEntity CreateValidRecordingEntity()
-    {
-        return new RecordingEntity
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = _faker.Lorem.Sentence(3),
-            Description = _faker.Lorem.Paragraph(),
-            Type = RecordingType.Meditacion,
-            StorageKey = $"recordings/{Guid.NewGuid()}/audio.mp4",
-            Created = DateTimeOffset.UtcNow,
-            CreatedBy = "admin-user-id",
-            LastModified = DateTimeOffset.UtcNow,
-            LastModifiedBy = "admin-user-id"
-        };
-    }
-}
 
 [TestFixture]
 public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
@@ -84,7 +32,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         LastCreatedRecordingId = entity.Id;
 
         // When: saving the entity
-        Result<string> result = await RecordingRepository.SaveAsync(entity, CancellationToken.None);
+        Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
 
         // Then: result should be success and contain the entity's ID
         Assert.That(result.IsSuccess, Is.True,
@@ -113,7 +61,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         LastCreatedRecordingId = entity.Id;
 
         // When: saving the entity
-        Result<string> saveResult = await RecordingRepository.SaveAsync(entity, CancellationToken.None);
+        Result<string> saveResult = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
         Assert.That(saveResult.IsSuccess, Is.True,
             $"Pre-condition failed: SaveAsync returned failure with error: '{(saveResult.IsSuccess ? "N/A" : saveResult.Error)}'");
 
@@ -149,7 +97,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         LastCreatedRecordingId = entity.Id;
 
         // When: saving the entity
-        Result<string> result = await RecordingRepository.SaveAsync(entity, CancellationToken.None);
+        Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
 
         // Then: the persisted record should have the same type
         Assert.That(result.IsSuccess, Is.True,
@@ -188,7 +136,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         };
         LastCreatedRecordingId = recordingId;
 
-        Result<string> firstResult = await RecordingRepository.SaveAsync(firstEntity, CancellationToken.None);
+        Result<string> firstResult = await RecordingRepository.SaveRecording(firstEntity, CancellationToken.None);
         Assert.That(firstResult.IsSuccess, Is.True,
             $"Pre-condition failed: first SaveAsync returned failure: '{(firstResult.IsSuccess ? "N/A" : firstResult.Error)}'");
 
@@ -207,7 +155,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         };
 
         // When: saving the updated entity
-        Result<string> secondResult = await RecordingRepository.SaveAsync(updatedEntity, CancellationToken.None);
+        Result<string> secondResult = await RecordingRepository.SaveRecording(updatedEntity, CancellationToken.None);
 
         // Then: the second save should succeed and the record should reflect updated data
         Assert.That(secondResult.IsSuccess, Is.True,
@@ -239,7 +187,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         LastCreatedRecordingId = entity.Id;
 
         // When: saving the entity via the repository
-        Result<string> result = await RecordingRepository.SaveAsync(entity, CancellationToken.None);
+        Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
 
         // Then: the record should be retrievable from the configured RecordingsTable
         Assert.That(result.IsSuccess, Is.True,

@@ -110,6 +110,7 @@ public static class DependencyInjection
         StripeConfiguration.ApiKey = stripeConfig.SecretKey;
 
         services.AddSingleton<SubscriptionEntityMapper>();
+        services.AddSingleton<RecordingEntityMapper>();
         services.AddSingleton<VerificationCodeEntityMapper>();
         services.AddSingleton<UsersCodeMapper>();
 #if DEBUG

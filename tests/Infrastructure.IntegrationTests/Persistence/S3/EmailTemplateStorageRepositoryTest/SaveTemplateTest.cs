@@ -8,7 +8,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplate
 [Category("Integration")]
 public class SaveTemplateTest : GenericEmailTemplateStorageRepositoryIntegrationTest
 {
-     [Test]
+    [Test]
     public async Task ShouldUploadTemplateToS3AndDeleteTempFileWhenSaveTemplateIsCalled()
     {
         // Given: a valid template stream to verify upload and cleanup.

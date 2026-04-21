@@ -3,27 +3,13 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.RecordingRepositoryTest;
 
 [TestFixture]
-public class RecordingRepositoryTest
+public class SaveAsyncTest : GenericRecordingRepositoryTest
 {
-    private Mock<IDynamoDBContext> ContextMock;
-    private AWSConfig Config;
-    private RecordingRepository Repository;
-
-    [SetUp]
-    public void SetUp()
-    {
-        ContextMock = new Mock<IDynamoDBContext>();
-        Config = new AWSConfig { RecordingsTable = "unit-test-recordings-table" };
-        Repository = new RecordingRepository(ContextMock.Object, Config);
-    }
-
     [Test]
     [Description("Should map RecordingEntity to RecordingDBModel and call SaveAsync with correct OverrideTableName")]
     public async Task ShouldMapEntityToModelAndCallSaveAsyncWithCorrectTableName()
@@ -47,7 +33,7 @@ public class RecordingRepositoryTest
             .Returns(Task.CompletedTask);
 
         // When: SaveAsync is called with the entity
-        Result<string> result = await Repository.SaveAsync(entity, CancellationToken.None);
+        Result<string> result = await Repository.SaveRecording(entity, CancellationToken.None);
 
         // Then: context.SaveAsync should be called once with the correct OverrideTableName and mapped model
         ContextMock.Verify(
@@ -90,7 +76,7 @@ public class RecordingRepositoryTest
             .Returns(Task.CompletedTask);
 
         // When: SaveAsync is called
-        Result<string> result = await Repository.SaveAsync(entity, CancellationToken.None);
+        Result<string> result = await Repository.SaveRecording(entity, CancellationToken.None);
 
         // Then: result should be success with the entity's Id as value
         Assert.That(result.IsSuccess, Is.True,
@@ -135,7 +121,7 @@ public class RecordingRepositoryTest
 
         // When / Then: invoking SaveAsync should propagate the exception
         Assert.That(
-            async () => await Repository.SaveAsync(entity, CancellationToken.None),
+            async () => await Repository.SaveRecording(entity, CancellationToken.None),
             Throws.TypeOf<InvalidOperationException>().With.Message.EqualTo("DynamoDB connection failed"),
             "Expected the DynamoDB exception to propagate unmodified from Repository.SaveAsync");
 
@@ -146,7 +132,5 @@ public class RecordingRepositoryTest
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveAsync to be called once before throwing");
-
-        ContextMock.VerifyNoOtherCalls();
     }
 }

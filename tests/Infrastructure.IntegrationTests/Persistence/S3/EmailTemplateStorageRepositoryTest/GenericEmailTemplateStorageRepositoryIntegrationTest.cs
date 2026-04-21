@@ -8,7 +8,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.S3.EmailTemplate
 
 public abstract class GenericEmailTemplateStorageRepositoryIntegrationTest : TestBase
 {
-    
+
     protected IAmazonS3 S3 = null!;
     protected EmailTemplateStorageRepository Repository = default!;
     protected CancellationToken TestCancellationToken;

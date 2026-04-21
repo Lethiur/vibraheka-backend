@@ -64,7 +64,7 @@ public class AdminAddRecordingCommandHandlerTest
             .ReturnsAsync(Result.Success(storageKey));
 
         RegistryPortMock
-            .Setup(x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecordingEntity entity, CancellationToken _) => Result.Success(entity.Id));
 
         // When: the ValidationBehaviour + handler pipeline processes the command
@@ -89,7 +89,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to be called exactly once through the full pipeline");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(
+            x => x.SaveRecording(
                 It.Is<RecordingEntity>(e =>
                     e.Name == command.Name &&
                     e.Description == command.Description &&
@@ -128,7 +128,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to never be called when validation fails on Name");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
+            x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
             Times.Never,
             "Expected SaveAsync to never be called when validation fails on Name");
 
@@ -159,7 +159,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to never be called when validation fails on FileStream");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
+            x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
             Times.Never,
             "Expected SaveAsync to never be called when validation fails on FileStream");
 
@@ -190,7 +190,7 @@ public class AdminAddRecordingCommandHandlerTest
             "Expected UploadAsync to never be called when validation fails on Type");
 
         RegistryPortMock.Verify(
-            x => x.SaveAsync(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
+            x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()),
             Times.Never,
             "Expected SaveAsync to never be called when validation fails on Type");
 

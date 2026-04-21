@@ -41,7 +41,7 @@ public class AdminAddRecordingCommandHandler(
                     LastModifiedBy = CurrentUserService.UserId
                 };
 
-                return RegistryPort.SaveAsync(entity, cancellationToken);
+                return RegistryPort.SaveRecording(entity, cancellationToken);
             })
             .Tap(id => Logger.LogInformation(
                 "Recording {RecordingId} successfully added", id))
