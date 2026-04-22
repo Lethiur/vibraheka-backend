@@ -22,8 +22,6 @@ public class RecordingEntityTest
             $"Expected Name to default to empty string but got: '{entity.Name}'");
         Assert.That(entity.Description, Is.EqualTo(string.Empty),
             $"Expected Description to default to empty string but got: '{entity.Description}'");
-        Assert.That(entity.StorageKey, Is.EqualTo(string.Empty),
-            $"Expected StorageKey to default to empty string but got: '{entity.StorageKey}'");
     }
 
     [Test]
@@ -35,7 +33,6 @@ public class RecordingEntityTest
         string expectedName = "Sesion de meditacion matutina";
         string expectedDescription = "Una sesion guiada de meditacion para empezar el dia";
         RecordingType expectedType = RecordingType.Meditacion;
-        string expectedStorageKey = "recordings/recording-abc-123/meditacion.mp4";
         string expectedCreatedBy = "admin-user-id";
         DateTimeOffset expectedCreated = new DateTimeOffset(2024, 1, 15, 10, 0, 0, TimeSpan.Zero);
 
@@ -46,7 +43,6 @@ public class RecordingEntityTest
             Name = expectedName,
             Description = expectedDescription,
             Type = expectedType,
-            StorageKey = expectedStorageKey,
             CreatedBy = expectedCreatedBy,
             Created = expectedCreated
         };
@@ -60,8 +56,6 @@ public class RecordingEntityTest
             $"Expected Description='{expectedDescription}' but got: '{entity.Description}'");
         Assert.That(entity.Type, Is.EqualTo(expectedType),
             $"Expected Type='{expectedType}' but got: '{entity.Type}'");
-        Assert.That(entity.StorageKey, Is.EqualTo(expectedStorageKey),
-            $"Expected StorageKey='{expectedStorageKey}' but got: '{entity.StorageKey}'");
         Assert.That(entity.CreatedBy, Is.EqualTo(expectedCreatedBy),
             $"Expected CreatedBy='{expectedCreatedBy}' but got: '{entity.CreatedBy}'");
         Assert.That(entity.Created, Is.EqualTo(expectedCreated),

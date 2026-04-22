@@ -28,7 +28,7 @@ public class DeleteRecordingCommandHandler(
 
         RecordingEntity entity = entityResult.Value;
 
-        Result deleteFileResult = await StoragePort.DeleteFileAsync(entity.StorageKey, cancellationToken);
+        Result deleteFileResult = await StoragePort.DeleteFileAsync(entity.Id, cancellationToken);
 
         if (deleteFileResult.IsFailure)
         {

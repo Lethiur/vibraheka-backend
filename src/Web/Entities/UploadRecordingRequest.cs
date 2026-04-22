@@ -22,10 +22,4 @@ public sealed class UploadRecordingRequest
     /// The type of recording: Meditacion, Masterclass or Taller.
     /// </summary>
     public RecordingType Type { get; set; }
-
-    /// <summary>
-    /// The original file name including its extension (e.g. "meditacion.mp4").
-    /// Used to build the S3 object key and the pre-signed PUT URL.
-    /// </summary>
-    public string FileName { get; set; } = string.Empty;
 }

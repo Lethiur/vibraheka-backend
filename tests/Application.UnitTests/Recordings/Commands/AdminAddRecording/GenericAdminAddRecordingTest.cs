@@ -46,7 +46,6 @@ public abstract class GenericAdminAddRecordingTest
             Name = "Sesion de meditacion",
             Description = "Descripcion de la sesion de meditacion guiada",
             Type = RecordingType.Meditacion,
-            StorageKey = storageKey,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
         };

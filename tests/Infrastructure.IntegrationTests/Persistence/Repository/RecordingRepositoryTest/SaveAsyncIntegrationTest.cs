@@ -46,18 +46,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     public async Task ShouldPersistAllRecordingFieldsCorrectlyWhenEntityIsSaved()
     {
         // Given: a RecordingEntity with all fields populated
-        RecordingEntity entity = new()
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "Meditacion matutina",
-            Description = "Sesion guiada de meditacion para el inicio del dia",
-            Type = RecordingType.Meditacion,
-            StorageKey = $"recordings/{Guid.NewGuid()}/meditacion.mp4",
-            Created = DateTimeOffset.UtcNow,
-            CreatedBy = "admin-user-id",
-            LastModified = DateTimeOffset.UtcNow,
-            LastModifiedBy = "admin-user-id"
-        };
+        RecordingEntity entity = CreateValidRecordingEntity();
         LastCreatedRecordingId = entity.Id;
 
         // When: saving the entity
@@ -79,8 +68,6 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
             $"Expected Description='{entity.Description}' but got: '{persisted.Description}'");
         Assert.That(persisted.Type, Is.EqualTo(entity.Type),
             $"Expected Type='{entity.Type}' but got: '{persisted.Type}'");
-        Assert.That(persisted.StorageKey, Is.EqualTo(entity.StorageKey),
-            $"Expected StorageKey='{entity.StorageKey}' but got: '{persisted.StorageKey}'");
         Assert.That(persisted.CreatedBy, Is.EqualTo(entity.CreatedBy),
             $"Expected CreatedBy='{entity.CreatedBy}' but got: '{persisted.CreatedBy}'");
     }
@@ -122,18 +109,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     {
         // Given: a recording persisted once
         string recordingId = Guid.NewGuid().ToString();
-        RecordingEntity firstEntity = new()
-        {
-            Id = recordingId,
-            Name = "Nombre original",
-            Description = "Descripcion original",
-            Type = RecordingType.Meditacion,
-            StorageKey = "recordings/original-key.mp4",
-            Created = DateTimeOffset.UtcNow,
-            CreatedBy = "admin-user-id",
-            LastModified = DateTimeOffset.UtcNow,
-            LastModifiedBy = "admin-user-id"
-        };
+        RecordingEntity firstEntity = CreateValidRecordingEntity();
         LastCreatedRecordingId = recordingId;
 
         Result<string> firstResult = await RecordingRepository.SaveRecording(firstEntity, CancellationToken.None);
@@ -147,7 +123,6 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
             Name = "Nombre actualizado",
             Description = "Descripcion actualizada",
             Type = RecordingType.Taller,
-            StorageKey = "recordings/updated-key.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,

@@ -29,7 +29,6 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
                 Name = "Meditacion",
                 Description = "Desc1",
                 Type = RecordingType.Meditacion,
-                StorageKey = "key1",
                 Created = now
             },
             new RecordingDBModel
@@ -38,7 +37,6 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
                 Name = "Taller",
                 Description = "Desc2",
                 Type = RecordingType.Taller,
-                StorageKey = "key2",
                 Created = now
             }
         ];

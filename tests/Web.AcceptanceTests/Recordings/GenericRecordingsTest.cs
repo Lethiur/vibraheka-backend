@@ -16,15 +16,13 @@ public abstract class GenericRecordingsTest : GenericAcceptanceTest<VibraHekaPro
     protected UploadRecordingRequest BuildBody(
         string name = "Sesion de meditacion",
         string description = "Descripcion valida de la sesion de meditacion guiada",
-        RecordingType type = RecordingType.Meditacion,
-        string fileName = "meditacion.mp4")
+        RecordingType type = RecordingType.Meditacion)
     {
         UploadRecordingRequest request = new()
         {
             Name = name,
             Description = description,
-            Type = type,
-            FileName = fileName
+            Type = type
         };
 
         return request;

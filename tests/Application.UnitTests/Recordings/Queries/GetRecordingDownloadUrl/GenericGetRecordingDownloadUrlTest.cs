@@ -51,7 +51,6 @@ public abstract class GenericGetRecordingDownloadUrlTest
             Name = "Meditacion matutina",
             Description = "Una sesion de meditacion para empezar el dia",
             Type = RecordingType.Meditacion,
-            StorageKey = storageKey,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
         };

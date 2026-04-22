@@ -27,7 +27,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
             Name = "Meditacion matutina",
             Description = "Una sesion de meditacion para empezar el dia",
             Type = RecordingType.Meditacion,
-            StorageKey = $"recordings/{recordingId}/meditacion.mp4",
             Created = now,
             CreatedBy = "admin-user-id",
             LastModified = now,
@@ -53,8 +52,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
             $"Expected entity Name '{model.Name}' but got '{result.Value.Name}'");
         Assert.That(result.Value.Description, Is.EqualTo(model.Description),
             $"Expected entity Description '{model.Description}' but got '{result.Value.Description}'");
-        Assert.That(result.Value.StorageKey, Is.EqualTo(model.StorageKey),
-            $"Expected entity StorageKey '{model.StorageKey}' but got '{result.Value.StorageKey}'");
 
         ContextMock.Verify(
             c => c.LoadAsync<RecordingDBModel>(
@@ -149,7 +146,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
             Name = "Taller de respiracion",
             Description = "Tecnicas de respiracion",
             Type = RecordingType.Taller,
-            StorageKey = $"recordings/{recordingId}/taller.mp4",
             Created = DateTimeOffset.UtcNow
         };
 

@@ -14,14 +14,11 @@ public sealed class AdminAddRecordingCommandHandler(
     ILogger<AdminAddRecordingCommandHandler> Logger)
     : IRequestHandler<AdminAddRecordingCommand, Result<AddRecordingResult>>
 {
-    private const string StoragePrefix = "recordings";
-
     public async Task<Result<AddRecordingResult>> Handle(
         AdminAddRecordingCommand request,
         CancellationToken cancellationToken)
     {
         string recordingId = Guid.NewGuid().ToString();
-        string storageKey = $"{StoragePrefix}/{recordingId}/{request.FileName}";
 
         Logger.LogInformation(
             "Creating recording entry {RecordingId} with name {Name} and type {Type}",
@@ -33,7 +30,6 @@ public sealed class AdminAddRecordingCommandHandler(
             Name = request.Name,
             Description = request.Description,
             Type = request.Type,
-            StorageKey = storageKey,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = CurrentUserService.UserId,
             LastModified = DateTimeOffset.UtcNow,
@@ -48,17 +44,17 @@ public sealed class AdminAddRecordingCommandHandler(
         }
 
         Logger.LogInformation(
-            "Recording {RecordingId} persisted. Generating pre-signed upload URL for {StorageKey}",
-            recordingId, storageKey);
+            "Recording {RecordingId} persisted. Generating pre-signed upload URL for",
+            recordingId);
 
-        Result<string> urlResult = await StoragePort.GetUploadUrlAsync(storageKey, cancellationToken);
+        Result<string> urlResult = await StoragePort.GetUploadUrlAsync(entity.Id, cancellationToken);
         if (urlResult.IsFailure)
         {
             Logger.LogWarning("Failed to generate upload URL for recording {RecordingId}: {Error}", recordingId, urlResult.Error);
             return Result.Failure<AddRecordingResult>(urlResult.Error);
         }
 
-        Logger.LogInformation("Recording {RecordingId} ready for direct upload", recordingId);
-        return Result.Success(new AddRecordingResult(recordingId, urlResult.Value));
+        Logger.LogInformation("Recording {RecordingId} ready for direct upload", entity.Id);
+        return Result.Success(new AddRecordingResult(entity.Id, urlResult.Value));
     }
 }

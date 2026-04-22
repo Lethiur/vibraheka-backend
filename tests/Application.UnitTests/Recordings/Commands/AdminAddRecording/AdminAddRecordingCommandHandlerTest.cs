@@ -48,8 +48,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
                     e.Name == command.Name &&
                     e.Description == command.Description &&
                     e.Type == command.Type &&
-                    !string.IsNullOrEmpty(e.Id) &&
-                    e.StorageKey.Contains(command.FileName)),
+                    !string.IsNullOrEmpty(e.Id)),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveRecording to be called once with an entity matching the command");
@@ -184,10 +183,6 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
         Assert.That(capturedEntity, Is.Not.Null,
             "Expected the entity to have been captured by the SaveRecording callback");
-        Assert.That(capturedEntity!.StorageKey, Does.StartWith("recordings/"),
-            $"Expected StorageKey to start with 'recordings/' but got: '{capturedEntity.StorageKey}'");
-        Assert.That(capturedEntity.StorageKey, Does.EndWith($"/{command.FileName}"),
-            $"Expected StorageKey to end with '/{command.FileName}' but got: '{capturedEntity.StorageKey}'");
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
@@ -198,7 +193,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         StoragePortMock.Verify(
             x => x.GetUploadUrlAsync(
-                It.Is<string>(key => key == capturedEntity.StorageKey),
+                It.Is<string>(key => key == capturedEntity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected GetUploadUrlAsync to be called once with the captured storage key");

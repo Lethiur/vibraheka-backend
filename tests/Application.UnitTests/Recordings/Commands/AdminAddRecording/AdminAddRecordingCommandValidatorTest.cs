@@ -31,8 +31,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: name,
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: "file.mp4");
+            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -50,8 +49,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: new string('A', 201),
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: "file.mp4");
+            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -74,8 +72,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
             Description: description,
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: "file.mp4");
+            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -93,8 +90,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
             Description: new string('D', 2001),
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: "file.mp4");
+            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -116,8 +112,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
             Description: "Descripcion valida",
-            Type: (Domain.Recordings.Enums.RecordingType)999,
-            FileName: "file.mp4");
+            Type: (Domain.Recordings.Enums.RecordingType)999);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -125,51 +120,6 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         // Then: should have a validation error for Type with InvalidType error code
         result.ShouldHaveValidationErrorFor(x => x.Type)
             .WithErrorMessage(RecordingErrors.InvalidType);
-    }
-
-    #endregion
-
-    #region FileName Validation
-
-    [TestCase("", TestName = "Empty FileName")]
-    [TestCase("   ", TestName = "Whitespace FileName")]
-    [DisplayName("Should fail validation when FileName is empty or whitespace")]
-    public void ShouldFailValidationWhenFileNameIsEmptyOrWhitespace(string fileName)
-    {
-        // Given: a command with an empty or whitespace FileName
-        AdminAddRecordingCommand command = new(
-            Name: "Nombre valido",
-            Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: fileName);
-
-        // When: validating the command
-        TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
-
-        // Then: should have a validation error for FileName with InvalidFile error code
-        result.ShouldHaveValidationErrorFor(x => x.FileName)
-            .WithErrorMessage(RecordingErrors.InvalidFile);
-    }
-
-    [TestCase("video", TestName = "No extension")]
-    [TestCase("video/name.mp4", TestName = "Contains slash")]
-    [TestCase("video\\name.mp4", TestName = "Contains backslash")]
-    [DisplayName("Should fail validation when FileName has invalid format")]
-    public void ShouldFailValidationWhenFileNameHasInvalidFormat(string fileName)
-    {
-        // Given: a command with a FileName that does not match the required pattern
-        AdminAddRecordingCommand command = new(
-            Name: "Nombre valido",
-            Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: fileName);
-
-        // When: validating the command
-        TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
-
-        // Then: should have a validation error for FileName with InvalidFile error code
-        result.ShouldHaveValidationErrorFor(x => x.FileName)
-            .WithErrorMessage(RecordingErrors.InvalidFile);
     }
 
     #endregion
@@ -202,8 +152,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "",
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion,
-            FileName: "file.mp4");
+            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);

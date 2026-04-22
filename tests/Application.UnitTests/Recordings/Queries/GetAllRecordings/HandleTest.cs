@@ -21,9 +21,9 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
         DateTimeOffset now = DateTimeOffset.UtcNow;
         IEnumerable<RecordingEntity> entities =
         [
-            new RecordingEntity { Id = "id-1", Name = "Meditacion", Description = "Desc1", Type = RecordingType.Meditacion, StorageKey = "key1", Created = now },
-            new RecordingEntity { Id = "id-2", Name = "Masterclass", Description = "Desc2", Type = RecordingType.Masterclass, StorageKey = "key2", Created = now },
-            new RecordingEntity { Id = "id-3", Name = "Taller", Description = "Desc3", Type = RecordingType.Taller, StorageKey = "key3", Created = now }
+            new RecordingEntity { Id = "id-1", Name = "Meditacion", Description = "Desc1", Type = RecordingType.Meditacion, Created = now },
+            new RecordingEntity { Id = "id-2", Name = "Masterclass", Description = "Desc2", Type = RecordingType.Masterclass, Created = now },
+            new RecordingEntity { Id = "id-3", Name = "Taller", Description = "Desc3", Type = RecordingType.Taller, Created = now }
         ];
 
         RegistryPortMock
@@ -116,7 +116,6 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             Name = "Meditacion matutina",
             Description = "Sesion guiada",
             Type = RecordingType.Meditacion,
-            StorageKey = "recordings/map-id-1/file.mp4",
             Created = now
         };
 

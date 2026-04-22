@@ -19,7 +19,7 @@ public sealed class GetRecordingDownloadUrlQueryHandler(
 
         return await RegistryPort
             .GetByIdAsync(request.RecordingId, cancellationToken)
-            .Bind(recording => StoragePort.GetDownloadUrlAsync(recording.StorageKey, cancellationToken))
+            .Bind(recording => StoragePort.GetDownloadUrlAsync(recording.Id, cancellationToken))
             .Map(url => new RecordingDownloadUrlDto(url))
             .Tap(_ => Logger.LogInformation(
                 "Download URL resolved for recording {RecordingId}", request.RecordingId))

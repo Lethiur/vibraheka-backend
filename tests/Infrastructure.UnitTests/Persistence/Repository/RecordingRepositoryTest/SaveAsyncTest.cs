@@ -22,7 +22,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
             Name = "Meditacion matutina",
             Description = "Sesion guiada de meditacion para el inicio del dia",
             Type = RecordingType.Meditacion,
-            StorageKey = "recordings/abc/meditacion.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,
@@ -44,7 +43,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
                     m.Name == entity.Name &&
                     m.Description == entity.Description &&
                     m.Type == entity.Type &&
-                    m.StorageKey == entity.StorageKey &&
                     m.CreatedBy == entity.CreatedBy),
                 It.Is<SaveConfig>(s => s.OverrideTableName == Config.RecordingsTable),
                 It.IsAny<CancellationToken>()),
@@ -65,7 +63,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
             Name = "Taller de respiracion",
             Description = "Tecnicas avanzadas de respiracion consciente",
             Type = RecordingType.Taller,
-            StorageKey = "recordings/expected-recording-id/taller.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,
@@ -107,7 +104,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
             Name = "Masterclass de yoga",
             Description = "Clase completa de yoga para principiantes",
             Type = RecordingType.Masterclass,
-            StorageKey = "recordings/some-id/yoga.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,

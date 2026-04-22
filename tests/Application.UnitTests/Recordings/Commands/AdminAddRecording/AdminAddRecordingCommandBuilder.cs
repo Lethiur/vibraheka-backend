@@ -12,6 +12,5 @@ public static class AdminAddRecordingCommandBuilder
         new(
             Name: "Sesion de meditacion",
             Description: "Descripcion de la sesion de meditacion guiada",
-            Type: RecordingType.Meditacion,
-            FileName: "meditacion.mp4");
+            Type: RecordingType.Meditacion);
 }

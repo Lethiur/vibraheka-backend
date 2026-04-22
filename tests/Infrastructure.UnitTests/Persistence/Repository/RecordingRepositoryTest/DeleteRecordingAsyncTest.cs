@@ -15,14 +15,13 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.RecordingRep
 [NUnit.Framework.Category("Unit")]
 public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
 {
-    private static RecordingEntity BuildValidEntity(string? id = null) =>
+    private static RecordingEntity CreateValidRecordingEntity(string? id = null) =>
         new()
         {
             Id = id ?? Guid.NewGuid().ToString(),
             Name = "Sesion de meditacion",
             Description = "Descripcion de la sesion de meditacion guiada",
             Type = RecordingType.Meditacion,
-            StorageKey = "recordings/some-id/sesion.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,
@@ -34,7 +33,7 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
     public async Task ShouldMapEntityToModelAndCallDeleteAsyncWithCorrectTableName()
     {
         // Given: a valid RecordingEntity and DynamoDB context that deletes successfully
-        RecordingEntity entity = BuildValidEntity();
+        RecordingEntity entity = CreateValidRecordingEntity();
 
         ContextMock
             .Setup(c => c.DeleteAsync(
@@ -56,7 +55,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
             c => c.DeleteAsync(
                 It.Is<RecordingDBModel>(m =>
                     m.Id == entity.Id &&
-                    m.StorageKey == entity.StorageKey &&
                     m.Name == entity.Name),
                 It.Is<DeleteConfig>(d => d.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
@@ -71,7 +69,7 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
     public async Task ShouldReturnSuccessWhenDynamoDbDeleteAsyncCompletesWithoutException()
     {
         // Given: a valid RecordingEntity and a DynamoDB context that completes successfully
-        RecordingEntity entity = BuildValidEntity("existing-recording-id");
+        RecordingEntity entity = CreateValidRecordingEntity("existing-recording-id");
 
         ContextMock
             .Setup(c => c.DeleteAsync(
@@ -105,7 +103,7 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
     public async Task ShouldReturnGPE999FailureWhenDynamoDbDeleteAsyncThrowsUnexpectedException()
     {
         // Given: a valid RecordingEntity and DynamoDB context that throws an unexpected exception
-        RecordingEntity entity = BuildValidEntity();
+        RecordingEntity entity = CreateValidRecordingEntity();
         InvalidOperationException expectedException = new("DynamoDB connection failed");
 
         ContextMock
@@ -145,7 +143,7 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
     public async Task ShouldReturnProvisionedThroughputExceededFailureWhenDynamoDbThrottlesDelete()
     {
         // Given: a valid RecordingEntity and DynamoDB context that throws ProvisionedThroughputExceededException
-        RecordingEntity entity = BuildValidEntity();
+        RecordingEntity entity = CreateValidRecordingEntity();
 
         ContextMock
             .Setup(c => c.DeleteAsync(

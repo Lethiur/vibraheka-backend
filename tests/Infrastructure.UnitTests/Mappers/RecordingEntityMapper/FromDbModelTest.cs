@@ -22,7 +22,6 @@ public sealed class FromDbModelTest : GenericRecordingEntityMapperTest
             Name = "Taller de respiracion",
             Description = "Tecnicas avanzadas",
             Type = RecordingType.Taller,
-            StorageKey = "recordings/db-model-id-1/taller.mp4",
             Created = now,
             CreatedBy = "admin-user",
             LastModified = now,
@@ -41,8 +40,6 @@ public sealed class FromDbModelTest : GenericRecordingEntityMapperTest
             $"Expected Description '{model.Description}' but got '{entity.Description}'");
         Assert.That(entity.Type, Is.EqualTo(model.Type),
             $"Expected Type '{model.Type}' but got '{entity.Type}'");
-        Assert.That(entity.StorageKey, Is.EqualTo(model.StorageKey),
-            $"Expected StorageKey '{model.StorageKey}' but got '{entity.StorageKey}'");
         Assert.That(entity.Created, Is.EqualTo(model.Created),
             $"Expected Created '{model.Created}' but got '{entity.Created}'");
         Assert.That(entity.CreatedBy, Is.EqualTo(model.CreatedBy),
@@ -65,7 +62,6 @@ public sealed class FromDbModelTest : GenericRecordingEntityMapperTest
             Name = "Meditacion",
             Description = "Sesion guiada",
             Type = RecordingType.Meditacion,
-            StorageKey = "recordings/roundtrip-id/file.mp4",
             Created = now,
             CreatedBy = "admin",
             LastModified = now,
@@ -85,8 +81,6 @@ public sealed class FromDbModelTest : GenericRecordingEntityMapperTest
             "Round-trip Description mismatch");
         Assert.That(restoredEntity.Type, Is.EqualTo(originalEntity.Type),
             $"Round-trip Type mismatch: expected '{originalEntity.Type}' but got '{restoredEntity.Type}'");
-        Assert.That(restoredEntity.StorageKey, Is.EqualTo(originalEntity.StorageKey),
-            "Round-trip StorageKey mismatch");
         Assert.That(restoredEntity.Created, Is.EqualTo(originalEntity.Created),
             "Round-trip Created mismatch");
         Assert.That(restoredEntity.CreatedBy, Is.EqualTo(originalEntity.CreatedBy),

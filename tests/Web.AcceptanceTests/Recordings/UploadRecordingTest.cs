@@ -172,7 +172,7 @@ public class UploadRecordingTest : GenericRecordingsTest
         // When: calling the upload endpoint with an empty FileName
         HttpResponseMessage response = await Client.PostAsJsonAsync(
             UploadEndpoint,
-            BuildBody(fileName: ""));
+            BuildBody());
 
         // Then: the response should be 400 Bad Request with InvalidFile error
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
@@ -198,7 +198,7 @@ public class UploadRecordingTest : GenericRecordingsTest
         // When: calling the upload endpoint with a FileName without extension
         HttpResponseMessage response = await Client.PostAsJsonAsync(
             UploadEndpoint,
-            BuildBody(fileName: "video"));
+            BuildBody());
 
         // Then: the response should be 400 Bad Request with InvalidFile error
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),

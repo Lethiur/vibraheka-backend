@@ -22,7 +22,6 @@ public sealed class FromDomainTest : GenericRecordingEntityMapperTest
             Name = "Meditacion matutina",
             Description = "Sesion guiada de meditacion",
             Type = RecordingType.Meditacion,
-            StorageKey = "recordings/domain-id-1/file.mp4",
             Created = now,
             CreatedBy = "admin-user",
             LastModified = now,
@@ -41,8 +40,6 @@ public sealed class FromDomainTest : GenericRecordingEntityMapperTest
             $"Expected Description '{entity.Description}' but got '{model.Description}'");
         Assert.That(model.Type, Is.EqualTo(entity.Type),
             $"Expected Type '{entity.Type}' but got '{model.Type}'");
-        Assert.That(model.StorageKey, Is.EqualTo(entity.StorageKey),
-            $"Expected StorageKey '{entity.StorageKey}' but got '{model.StorageKey}'");
         Assert.That(model.Created, Is.EqualTo(entity.Created),
             $"Expected Created '{entity.Created}' but got '{model.Created}'");
         Assert.That(model.CreatedBy, Is.EqualTo(entity.CreatedBy),
@@ -64,7 +61,6 @@ public sealed class FromDomainTest : GenericRecordingEntityMapperTest
             Name = "Masterclass yoga",
             Description = "Yoga avanzado",
             Type = RecordingType.Masterclass,
-            StorageKey = "recordings/masterclass-id/yoga.mp4",
             Created = DateTimeOffset.UtcNow
         };
 
@@ -87,7 +83,6 @@ public sealed class FromDomainTest : GenericRecordingEntityMapperTest
             Name = "Taller respiracion",
             Description = "Respiracion consciente",
             Type = RecordingType.Taller,
-            StorageKey = "recordings/taller-id/resp.mp4",
             Created = DateTimeOffset.UtcNow
         };
 

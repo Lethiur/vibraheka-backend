@@ -51,7 +51,6 @@ public abstract class GenericRecordingRepositoryTest : TestBase
             Name = _faker.Lorem.Sentence(3),
             Description = _faker.Lorem.Paragraph(),
             Type = RecordingType.Meditacion,
-            StorageKey = $"recordings/{Guid.NewGuid()}/audio.mp4",
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,

@@ -36,8 +36,7 @@ public abstract class GenericDeleteRecordingTest
         {
             Id = id ?? "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             Name = "Sesion de meditacion",
-            Description = "Descripcion de la sesion de meditacion guiada",
-            StorageKey = storageKey ?? "recordings/a1b2c3d4-e5f6-7890-abcd-ef1234567890/sesion.mp4",
+            Description = "Descripcion de la sesion de meditacion guiada"
         };
 }
 

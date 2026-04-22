@@ -53,14 +53,14 @@ public sealed class DeleteRecordingCommandHandlerTest : GenericDeleteRecordingTe
 
         StoragePortMock.Verify(
             x => x.DeleteFileAsync(
-                It.Is<string>(key => key == entity.StorageKey),
+                It.Is<string>(key => key == entity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteFileAsync to be called once with the entity storage key");
 
         RegistryPortMock.Verify(
             x => x.DeleteRecordingAsync(
-                It.Is<RecordingEntity>(e => e.Id == entity.Id && e.StorageKey == entity.StorageKey),
+                It.Is<RecordingEntity>(e => e.Id == entity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteRecordingAsync to be called once with the correct entity");
@@ -167,7 +167,7 @@ public sealed class DeleteRecordingCommandHandlerTest : GenericDeleteRecordingTe
 
         StoragePortMock.Verify(
             x => x.DeleteFileAsync(
-                It.Is<string>(key => key == entity.StorageKey),
+                It.Is<string>(key => key == entity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteFileAsync to be called once even when it fails");
@@ -228,14 +228,14 @@ public sealed class DeleteRecordingCommandHandlerTest : GenericDeleteRecordingTe
 
         StoragePortMock.Verify(
             x => x.DeleteFileAsync(
-                It.Is<string>(key => key == entity.StorageKey),
+                It.Is<string>(key => key == entity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteFileAsync to be called once");
 
         RegistryPortMock.Verify(
             x => x.DeleteRecordingAsync(
-                It.Is<RecordingEntity>(e => e.Id == entity.Id && e.StorageKey == entity.StorageKey),
+                It.Is<RecordingEntity>(e => e.Id == entity.Id),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteRecordingAsync to be called once (S3 already deleted — stale record risk documented)");

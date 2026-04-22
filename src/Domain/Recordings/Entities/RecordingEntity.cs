@@ -8,7 +8,6 @@ public class RecordingEntity : BaseAuditableEntity
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public RecordingType Type { get; set; }
-    public string StorageKey { get; set; } = string.Empty;
 
     public RecordingState State { get; set; } = RecordingState.Active;
 
