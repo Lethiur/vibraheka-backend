@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using NUnit.Framework;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Domain.Recordings.Errors;
@@ -134,19 +136,19 @@ public sealed class DeleteRecordingTest : GenericRecordingsTest
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
-        HttpResponseMessage uploadResponse = await Client.PostAsync(UploadEndpoint, BuildValidBody());
+        HttpResponseMessage uploadResponse = await Client.PostAsJsonAsync(UploadEndpoint, BuildValidBody());
         uploadResponse.EnsureSuccessStatusCode();
 
-        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<string>();
-        string? recordingId = uploadEntity.GetContentAs<string>();
+        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult? result = uploadEntity.GetContentAs<AddRecordingResult>();
 
         Assert.That(
-            recordingId,
-            Is.Not.Null.And.Not.Empty,
-            $"Expected a non-empty recording ID after upload but got: '{recordingId}'");
+            result,
+            Is.Not.Null,
+            $"Expected a non-empty recording result after upload but got: '{result}'");
 
         // When: deleting the uploaded recording
-        HttpResponseMessage response = await Client.DeleteAsync(BuildDeleteEndpoint(recordingId!));
+        HttpResponseMessage response = await Client.DeleteAsync(BuildDeleteEndpoint(result!.RecordingId!));
 
         // Then: the response should be 204 NoContent with no body
         Assert.That(

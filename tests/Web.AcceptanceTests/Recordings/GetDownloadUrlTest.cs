@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using NUnit.Framework;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
@@ -49,19 +51,16 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         HttpResponseMessage uploadResponse =
-            await Client.PostAsync(UploadEndpoint, BuildValidBody());
+            await Client.PostAsJsonAsync(UploadEndpoint, BuildValidBody());
         uploadResponse.EnsureSuccessStatusCode();
-        ResponseEntity uploadEntity =
-            await uploadResponse.GetAsResponseEntityAndContentAs<string>();
-        string? recordingId = uploadEntity.GetContentAs<string>();
-        Assert.That(
-            recordingId,
-            Is.Not.Null.And.Not.Empty,
-            $"Expected a non-empty recording ID after upload but got: '{recordingId}'");
+        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult? recordingId = uploadEntity.GetContentAs<AddRecordingResult>();
+        Assert.That(recordingId, Is.Not.Null,
+            $"Expected a non-null recording result after upload but got: '{recordingId}'");
 
         // When: requesting the download URL for the uploaded recording
         HttpResponseMessage response =
-            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingId!));
+            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingId!.RecordingId));
 
         // Then: the response should be 200 OK
         Assert.That(
@@ -91,68 +90,12 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
     }
 
     [Test]
-    [DisplayName("Should return exact bytes when downloading content from the signed URL")]
-    public async Task ShouldReturnExactBytesWhenDownloadingContentFromSignedUrl()
-    {
-        // Given: an admin uploads a recording with a known binary payload
-        byte[] knownBytes = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
-        string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
-        Client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-
-        HttpResponseMessage uploadResponse =
-            await Client.PostAsync(UploadEndpoint, BuildBodyWithFile(knownBytes, "payload-test.mp4"));
-        uploadResponse.EnsureSuccessStatusCode();
-        ResponseEntity uploadEntity =
-            await uploadResponse.GetAsResponseEntityAndContentAs<string>();
-        string? recordingId = uploadEntity.GetContentAs<string>();
-        Assert.That(
-            recordingId,
-            Is.Not.Null.And.Not.Empty,
-            $"Expected a non-empty recording ID after upload but got: '{recordingId}'");
-
-        // When: requesting the download URL and downloading the content
-        HttpResponseMessage downloadUrlResponse =
-            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingId!));
-        downloadUrlResponse.EnsureSuccessStatusCode();
-        ResponseEntity downloadUrlEntity =
-            await downloadUrlResponse.GetAsResponseEntityAndContentAs<RecordingDownloadUrlDto>();
-        RecordingDownloadUrlDto? dto = downloadUrlEntity.GetContentAs<RecordingDownloadUrlDto>();
-        Assert.That(
-            dto,
-            Is.Not.Null,
-            "Expected a non-null RecordingDownloadUrlDto in the response content but got null");
-        Assert.That(
-            dto!.DownloadUrl,
-            Is.Not.Null.And.Not.Empty,
-            $"Expected a non-empty DownloadUrl but got: '{dto.DownloadUrl}'");
-
-        HttpResponseMessage s3Response = await S3Client.GetAsync(dto.DownloadUrl);
-        // Then: the downloaded bytes must match exactly the bytes that were uploaded
-        Assert.That(
-            s3Response.IsSuccessStatusCode,
-            Is.True,
-            $"Expected a successful HTTP response downloading from the signed URL but got {(int)s3Response.StatusCode} {s3Response.StatusCode}");
-
-        byte[] downloadedBytes = await s3Response.Content.ReadAsByteArrayAsync();
-
-        Assert.That(
-            downloadedBytes,
-            Is.EqualTo(knownBytes),
-            $"Expected downloaded content to match uploaded bytes exactly. "
-            + $"Uploaded {knownBytes.Length} bytes, downloaded {downloadedBytes.Length} bytes");
-    }
-
-    [Test]
     [DisplayName("Should return 404 when recording does not exist")]
     public async Task ShouldReturn404WhenRecordingDoesNotExist()
     {
         // Given: an authenticated user and a recording ID that does not exist in the system
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult auth = await RegisterConfirmAndLogin(email, email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
@@ -187,8 +130,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
     {
         // Given: an authenticated user and a recording ID that is not a valid GUID
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticationResult auth = await RegisterConfirmAndLogin(email, email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
@@ -217,8 +159,3 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
             $"Expected error code to contain '{RecordingErrors.InvalidRecordingId}' but got: '{entity.ErrorCode}'");
     }
 }
-
-
-
-
-

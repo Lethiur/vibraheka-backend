@@ -1,299 +1,214 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
-using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Recordings.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace VibraHeka.Application.UnitTests.Recordings.Commands.AdminAddRecording;
 
 [TestFixture]
-public class AdminAddRecordingCommandHandlerTest
+[NUnit.Framework.Category("Unit")]
+public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordingTest
 {
-    private Mock<IRecordingStoragePort> StoragePortMock = default!;
-    private Mock<IRecordingRegistryPort> RegistryPortMock = default!;
-    private Mock<ICurrentUserService> CurrentUserServiceMock = default!;
-    private Mock<ILogger<AdminAddRecordingCommandHandler>> LoggerMock = default!;
-    private AdminAddRecordingCommandHandler Handler = default!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        StoragePortMock = new Mock<IRecordingStoragePort>();
-        RegistryPortMock = new Mock<IRecordingRegistryPort>();
-        CurrentUserServiceMock = new Mock<ICurrentUserService>();
-        LoggerMock = new Mock<ILogger<AdminAddRecordingCommandHandler>>();
-
-        Handler = new AdminAddRecordingCommandHandler(
-            StoragePortMock.Object,
-            RegistryPortMock.Object,
-            CurrentUserServiceMock.Object,
-            LoggerMock.Object);
-    }
-
     #region Happy Path Tests
 
     [Test]
-    [DisplayName("Should return success with recording ID when upload and save succeed")]
-    public async Task ShouldReturnSuccessWithRecordingIdWhenUploadAndSaveSucceed()
+    [DisplayName("Should return success with RecordingId and UploadUrl when registry save and storage URL generation succeed")]
+    public async Task ShouldReturnSuccessWithRecordingIdAndUploadUrlWhenBothPortsSucceed()
     {
-        // Given: a valid command, storage returns a storage key, and registry saves successfully
-        Stream fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
-        AdminAddRecordingCommand command = new(
-            Name: "Meditacion matutina",
-            Description: "Una sesion de meditacion para empezar el dia",
-            Type: RecordingType.Meditacion,
-            FileStream: fileStream,
-            FileName: "meditacion.mp4");
-
-        string adminUserId = "admin-user-id";
-        string storageKey = "recordings/some-id/meditacion.mp4";
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminUserId);
-
-        StoragePortMock
-            .Setup(x => x.UploadAsync(It.IsAny<string>(), fileStream, command.FileName, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(storageKey));
+        // Given: a valid command, registry save succeeds and storage returns a pre-signed URL
+        AdminAddRecordingCommand command = BuildValidCommand();
+        string expectedUploadUrl = "https://bucket.s3.amazonaws.com/recordings/id/file.mp4?X-Amz-Signature=abc";
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RecordingEntity entity, CancellationToken _) => Result.Success(entity.Id));
+            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success("saved"));
+
+        StoragePortMock
+            .Setup(x => x.GetUploadUrlAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(expectedUploadUrl));
 
         // When: the handler processes the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
+        Result<AddRecordingResult> result = await Handler.Handle(command, CancellationToken.None);
 
-        // Then: the result should be success and contain a non-empty recording ID
+        // Then: result is success with a non-empty RecordingId and the expected UploadUrl
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        Assert.That(result.Value, Is.Not.Null.And.Not.Empty,
-            "Expected a non-empty recording ID but got null or empty");
-
-        StoragePortMock.Verify(
-            x => x.UploadAsync(
-                It.Is<string>(id => !string.IsNullOrEmpty(id)),
-                It.Is<Stream>(s => ReferenceEquals(s, fileStream)),
-                It.Is<string>(fn => fn == command.FileName),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected UploadAsync to be called exactly once with the provided stream and fileName");
+        Assert.That(result.Value.RecordingId, Is.Not.Null.And.Not.Empty,
+            $"Expected a non-empty RecordingId but got: '{result.Value.RecordingId}'");
+        Assert.That(result.Value.UploadUrl, Is.EqualTo(expectedUploadUrl),
+            $"Expected UploadUrl '{expectedUploadUrl}' but got '{result.Value.UploadUrl}'");
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<RecordingEntity>(e =>
+                It.Is<Domain.Recordings.Entities.RecordingEntity>(e =>
                     e.Name == command.Name &&
                     e.Description == command.Description &&
                     e.Type == command.Type &&
-                    e.StorageKey == storageKey &&
-                    e.CreatedBy == adminUserId &&
-                    !string.IsNullOrEmpty(e.Id)),
+                    !string.IsNullOrEmpty(e.Id) &&
+                    e.StorageKey.Contains(command.FileName)),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected SaveAsync to be called once with entity containing correct Name, Description, Type, StorageKey and CreatedBy");
+            "Expected SaveRecording to be called once with an entity matching the command");
 
-        StoragePortMock.VerifyNoOtherCalls();
+        StoragePortMock.Verify(
+            x => x.GetUploadUrlAsync(
+                It.Is<string>(key => key.Contains(command.FileName)),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Once,
+            "Expected GetUploadUrlAsync to be called once with the storage key containing the FileName");
+
         RegistryPortMock.VerifyNoOtherCalls();
+        StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 
-    #region Railway Pattern Tests
+    #region Railway Pattern — Registry Failure
 
     [Test]
-    [DisplayName("Should not call RegistryPort when StoragePort fails (Railway)")]
-    public async Task ShouldNotCallRegistryPortWhenStoragePortFails()
+    [DisplayName("Should return failure and not call StoragePort when RegistryPort save fails")]
+    public async Task ShouldReturnFailureAndNotCallStoragePortWhenRegistrySaveFails()
     {
-        // Given: a valid command but storage upload fails
-        Stream fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
-        AdminAddRecordingCommand command = new(
-            Name: "Masterclass de yoga",
-            Description: "Clase completa de yoga para principiantes",
-            Type: RecordingType.Masterclass,
-            FileStream: fileStream,
-            FileName: "yoga.mp4");
-
-        string uploadError = RecordingErrors.UploadFailed;
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
-
-        StoragePortMock
-            .Setup(x => x.UploadAsync(It.IsAny<string>(), fileStream, command.FileName, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<string>(uploadError));
-
-        // When: the handler processes the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
-
-        // Then: result should be failure and RegistryPort should never be invoked
-        Assert.That(result.IsSuccess, Is.False,
-            $"Expected failure when StoragePort fails, but got success with value: '{(result.IsSuccess ? result.Value : "N/A")}'");
-        Assert.That(result.Error, Is.EqualTo(uploadError),
-            $"Expected error '{uploadError}' but got: '{result.Error}'");
-
-        StoragePortMock.Verify(
-            x => x.UploadAsync(
-                It.Is<string>(id => !string.IsNullOrEmpty(id)),
-                It.Is<Stream>(s => ReferenceEquals(s, fileStream)),
-                It.Is<string>(fn => fn == command.FileName),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected UploadAsync to be called once even on failure");
-
-        RegistryPortMock.Verify(
-            x => x.SaveRecording(
-                It.Is<RecordingEntity>(e => e != null),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Never,
-            "Expected SaveAsync to never be called when StoragePort fails (Railway pattern)");
-
-        StoragePortMock.VerifyNoOtherCalls();
-        RegistryPortMock.VerifyNoOtherCalls();
-    }
-
-    [Test]
-    [DisplayName("Should return failure when RegistryPort fails after successful upload")]
-    public async Task ShouldReturnFailureWhenRegistryPortFails()
-    {
-        // Given: storage upload succeeds but registry save fails
-        Stream fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
-        AdminAddRecordingCommand command = new(
-            Name: "Taller de respiracion",
-            Description: "Tecnicas avanzadas de respiracion consciente",
-            Type: RecordingType.Taller,
-            FileStream: fileStream,
-            FileName: "respiracion.mp4");
-
-        string storageKey = "recordings/some-id/respiracion.mp4";
-        string registryError = "REGISTRY_SAVE_FAILED";
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
-
-        StoragePortMock
-            .Setup(x => x.UploadAsync(It.IsAny<string>(), fileStream, command.FileName, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(storageKey));
+        // Given: a valid command but the registry fails to persist
+        AdminAddRecordingCommand command = BuildValidCommand();
+        string registryError = RecordingErrors.UploadFailed;
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<string>(registryError));
 
         // When: the handler processes the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
+        Result<AddRecordingResult> result = await Handler.Handle(command, CancellationToken.None);
 
-        // Then: result should be failure with the registry error message
-        Assert.That(result.IsSuccess, Is.False,
-            $"Expected failure when RegistryPort fails, but got success with value: '{(result.IsSuccess ? result.Value : "N/A")}'");
+        // Then: result is failure with the registry error and StoragePort is never called (railway short-circuit)
+        Assert.That(result.IsFailure, Is.True,
+            "Expected failure when RegistryPort save fails but got success");
         Assert.That(result.Error, Is.EqualTo(registryError),
-            $"Expected error '{registryError}' but got: '{result.Error}'");
-
-        StoragePortMock.Verify(
-            x => x.UploadAsync(
-                It.Is<string>(id => !string.IsNullOrEmpty(id)),
-                It.Is<Stream>(s => ReferenceEquals(s, fileStream)),
-                It.Is<string>(fn => fn == command.FileName),
-                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected UploadAsync to be called once");
+            $"Expected error '{registryError}' but got '{result.Error}'");
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<RecordingEntity>(e =>
-                    e.Name == command.Name &&
-                    e.Description == command.Description &&
-                    e.Type == command.Type &&
-                    e.StorageKey == storageKey &&
-                    !string.IsNullOrEmpty(e.Id)),
+                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected SaveAsync to be called once even when it returns failure");
+            "Expected SaveRecording to be called once even on failure");
 
-        StoragePortMock.VerifyNoOtherCalls();
+        StoragePortMock.Verify(
+            x => x.GetUploadUrlAsync(
+                It.Is<string>(_ => true),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Never,
+            "Expected GetUploadUrlAsync to never be called when RegistryPort save fails (railway pattern)");
+
         RegistryPortMock.VerifyNoOtherCalls();
+        StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 
-    #region Entity Mapping Tests
+    #region Railway Pattern — Storage Failure
 
     [Test]
-    [DisplayName("Should generate a unique recording ID for each command execution")]
-    public async Task ShouldGenerateUniqueRecordingIdForEachExecution()
+    [DisplayName("Should return failure when RegistryPort save succeeds but StoragePort URL generation fails")]
+    public async Task ShouldReturnFailureWhenRegistrySaveSuceedsButStorageUrlGenerationFails()
     {
-        // Given: two identical commands
-        Stream fileStream1 = new MemoryStream(new byte[] { 1, 2, 3 });
-        Stream fileStream2 = new MemoryStream(new byte[] { 4, 5, 6 });
-        AdminAddRecordingCommand command1 = new(
-            Name: "Meditacion", Description: "Descripcion", Type: RecordingType.Meditacion,
-            FileStream: fileStream1, FileName: "file.mp4");
-        AdminAddRecordingCommand command2 = new(
-            Name: "Meditacion", Description: "Descripcion", Type: RecordingType.Meditacion,
-            FileStream: fileStream2, FileName: "file.mp4");
-
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
-
-        StoragePortMock
-            .Setup(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success("key"));
+        // Given: registry save succeeds but storage URL generation fails
+        AdminAddRecordingCommand command = BuildValidCommand();
+        string storageError = RecordingErrors.UrlGenerationFailed;
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RecordingEntity entity, CancellationToken _) => Result.Success(entity.Id));
+            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success("saved"));
 
-        // When: the handler processes both commands
-        Result<string> result1 = await Handler.Handle(command1, CancellationToken.None);
-        Result<string> result2 = await Handler.Handle(command2, CancellationToken.None);
+        StoragePortMock
+            .Setup(x => x.GetUploadUrlAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure<string>(storageError));
 
-        // Then: each execution should produce a different ID
-        Assert.That(result1.IsSuccess, Is.True,
-            $"Expected first result to be success but got error: '{(result1.IsSuccess ? "N/A" : result1.Error)}'");
-        Assert.That(result2.IsSuccess, Is.True,
-            $"Expected second result to be success but got error: '{(result2.IsSuccess ? "N/A" : result2.Error)}'");
-        Assert.That(result1.Value, Is.Not.EqualTo(result2.Value),
-            $"Expected unique IDs per execution but both returned: '{result1.Value}'");
+        // When: the handler processes the command
+        Result<AddRecordingResult> result = await Handler.Handle(command, CancellationToken.None);
+
+        // Then: result is failure with the storage error
+        Assert.That(result.IsFailure, Is.True,
+            "Expected failure when StoragePort URL generation fails but got success");
+        Assert.That(result.Error, Is.EqualTo(storageError),
+            $"Expected error '{storageError}' but got '{result.Error}'");
+
+        RegistryPortMock.Verify(
+            x => x.SaveRecording(
+                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Once,
+            "Expected SaveRecording to be called once");
+
+        StoragePortMock.Verify(
+            x => x.GetUploadUrlAsync(
+                It.Is<string>(key => key.Contains(command.FileName)),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Once,
+            "Expected GetUploadUrlAsync to be called once even when it fails");
+
+        RegistryPortMock.VerifyNoOtherCalls();
+        StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 
-    #region Logging Tests
+    #region Entity Construction Tests
 
     [Test]
-    [DisplayName("Should log warning when StoragePort fails")]
-    public async Task ShouldLogWarningWhenStoragePortFails()
+    [DisplayName("Should set StorageKey using recordings prefix, generated ID, and FileName")]
+    public async Task ShouldSetStorageKeyWithCorrectPrefixIdAndFileName()
     {
-        // Given: storage upload fails
-        Stream fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
-        AdminAddRecordingCommand command = new(
-            Name: "Yoga nocturno",
-            Description: "Sesion de yoga para relajarse",
-            Type: RecordingType.Masterclass,
-            FileStream: fileStream,
-            FileName: "yoga.mp4");
+        // Given: a valid command
+        AdminAddRecordingCommand command = BuildValidCommand();
+        Domain.Recordings.Entities.RecordingEntity? capturedEntity = null;
 
-        string uploadError = RecordingErrors.UploadFailed;
-        CurrentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
+        RegistryPortMock
+            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Callback<Domain.Recordings.Entities.RecordingEntity, CancellationToken>((e, _) => capturedEntity = e)
+            .ReturnsAsync(Result.Success("saved"));
+
         StoragePortMock
-            .Setup(x => x.UploadAsync(It.IsAny<string>(), fileStream, command.FileName, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Failure<string>(uploadError));
+            .Setup(x => x.GetUploadUrlAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success("https://presigned-url.example.com/upload"));
 
         // When: the handler processes the command
-        Result<string> result = await Handler.Handle(command, CancellationToken.None);
+        Result<AddRecordingResult> result = await Handler.Handle(command, CancellationToken.None);
 
-        // Then: result is failure and a Warning is logged with the error
-        Assert.That(result.IsSuccess, Is.False,
-            "Expected failure result when StoragePort fails");
+        // Then: the entity StorageKey follows the pattern "recordings/{id}/{fileName}"
+        Assert.That(result.IsSuccess, Is.True,
+            $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
+        Assert.That(capturedEntity, Is.Not.Null,
+            "Expected the entity to have been captured by the SaveRecording callback");
+        Assert.That(capturedEntity!.StorageKey, Does.StartWith("recordings/"),
+            $"Expected StorageKey to start with 'recordings/' but got: '{capturedEntity.StorageKey}'");
+        Assert.That(capturedEntity.StorageKey, Does.EndWith($"/{command.FileName}"),
+            $"Expected StorageKey to end with '/{command.FileName}' but got: '{capturedEntity.StorageKey}'");
 
-        LoggerMock.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(uploadError)),
-                null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        RegistryPortMock.Verify(
+            x => x.SaveRecording(
+                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected a Warning log containing the error message");
+            "Expected SaveRecording to be called once with the correct entity");
+
+        StoragePortMock.Verify(
+            x => x.GetUploadUrlAsync(
+                It.Is<string>(key => key == capturedEntity.StorageKey),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+            Times.Once,
+            "Expected GetUploadUrlAsync to be called once with the captured storage key");
+
+        RegistryPortMock.VerifyNoOtherCalls();
+        StoragePortMock.VerifyNoOtherCalls();
     }
 
     #endregion
 }
+
+
+

@@ -4,8 +4,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Infrastructure.Exceptions;
-
 namespace VibraHeka.Infrastructure.Persistence.S3;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -133,6 +131,25 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
             Verb = HttpVerb.GET,
 
+        };
+
+        return await Client.GetPreSignedURLAsync(request);
+    }
+
+    /// <summary>
+    /// Generates a pre-signed URL for uploading (HTTP PUT) a file directly to an S3 bucket.
+    /// </summary>
+    /// <param name="key">The object key under which the file will be stored.</param>
+    /// <param name="expiresInSeconds">The duration in seconds for which the URL will remain valid.</param>
+    /// <returns>A result containing the pre-signed upload URL if successful.</returns>
+    protected async Task<Result<string>> GetUploadPreSignedUrl(string key, int expiresInSeconds)
+    {
+        GetPreSignedUrlRequest request = new()
+        {
+            BucketName = BucketName,
+            Key = key,
+            Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
+            Verb = HttpVerb.PUT,
         };
 
         return await Client.GetPreSignedURLAsync(request);

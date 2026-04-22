@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
 using VibraHeka.Application.Recordings.Commnads.DeleteRecording;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Entities;
@@ -16,29 +17,31 @@ namespace VibraHeka.Web.Controllers;
 public class RecordingController(IMediator mediator)
 {
     /// <summary>
-    /// Uploads a new video recording. Only administrators can perform this action.
+    /// Registers a new recording entry and returns a pre-signed S3 PUT URL.
+    /// The client must PUT the video file directly to the returned <c>uploadUrl</c>.
+    /// Only administrators can perform this action.
     /// </summary>
-    /// <param name="request">The video file to upload request.</param>
-    /// <returns>The ID of the newly created recording on success.</returns>
+    /// <param name="request">Recording metadata (no binary payload).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Object containing <c>recordingId</c> and <c>uploadUrl</c>.</returns>
     [HttpPost]
     [Authorize]
-    [Consumes("multipart/form-data")]
+    [Consumes("application/json")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UploadRecording(
-        [FromForm] UploadRecordingRequest request)
+        [FromBody] UploadRecordingRequest request,
+        CancellationToken ct)
     {
-
         AdminAddRecordingCommand command = new(
             Name: request.Name,
             Description: request.Description,
             Type: request.Type,
-            FileStream: request.File.OpenReadStream(),
-            FileName: request.File.FileName);
+            FileName: request.FileName);
 
-        Result<string> result = await mediator.Send(command);
+        Result<AddRecordingResult> result = await mediator.Send(command, ct);
 
         if (result.IsFailure)
         {

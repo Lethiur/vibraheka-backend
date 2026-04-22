@@ -1,51 +1,64 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
 
-public class AdminAddRecordingCommandHandler(
+public sealed class AdminAddRecordingCommandHandler(
     IRecordingStoragePort StoragePort,
     IRecordingRegistryPort RegistryPort,
     ICurrentUserService CurrentUserService,
     ILogger<AdminAddRecordingCommandHandler> Logger)
-    : IRequestHandler<AdminAddRecordingCommand, Result<string>>
+    : IRequestHandler<AdminAddRecordingCommand, Result<AddRecordingResult>>
 {
-    public Task<Result<string>> Handle(AdminAddRecordingCommand request, CancellationToken cancellationToken)
+    private const string StoragePrefix = "recordings";
+
+    public async Task<Result<AddRecordingResult>> Handle(
+        AdminAddRecordingCommand request,
+        CancellationToken cancellationToken)
     {
         string recordingId = Guid.NewGuid().ToString();
+        string storageKey = $"{StoragePrefix}/{recordingId}/{request.FileName}";
 
         Logger.LogInformation(
-            "Uploading recording {RecordingId} with name {Name} and type {Type}",
+            "Creating recording entry {RecordingId} with name {Name} and type {Type}",
             recordingId, request.Name, request.Type);
 
-        return StoragePort
-            .UploadAsync(recordingId, request.FileStream, request.FileName, cancellationToken)
-            .Tap(storageKey => Logger.LogInformation(
-                "Saving recording {RecordingId} with storage key {StorageKey}",
-                recordingId, storageKey))
-            .BindTry(storageKey =>
-            {
-                RecordingEntity entity = new()
-                {
-                    Id = recordingId,
-                    Name = request.Name,
-                    Description = request.Description,
-                    Type = request.Type,
-                    StorageKey = storageKey,
-                    Created = DateTimeOffset.UtcNow,
-                    CreatedBy = CurrentUserService.UserId,
-                    LastModified = DateTimeOffset.UtcNow,
-                    LastModifiedBy = CurrentUserService.UserId
-                };
+        RecordingEntity entity = new()
+        {
+            Id = recordingId,
+            Name = request.Name,
+            Description = request.Description,
+            Type = request.Type,
+            StorageKey = storageKey,
+            Created = DateTimeOffset.UtcNow,
+            CreatedBy = CurrentUserService.UserId,
+            LastModified = DateTimeOffset.UtcNow,
+            LastModifiedBy = CurrentUserService.UserId
+        };
 
-                return RegistryPort.SaveRecording(entity, cancellationToken);
-            })
-            .Tap(id => Logger.LogInformation(
-                "Recording {RecordingId} successfully added", id))
-            .TapError(error => Logger.LogWarning(
-                "Failed to add recording {RecordingId}: {Error}", recordingId, error));
+        Result<string> saveResult = await RegistryPort.SaveRecording(entity, cancellationToken);
+        if (saveResult.IsFailure)
+        {
+            Logger.LogWarning("Failed to persist recording {RecordingId}: {Error}", recordingId, saveResult.Error);
+            return Result.Failure<AddRecordingResult>(saveResult.Error);
+        }
+
+        Logger.LogInformation(
+            "Recording {RecordingId} persisted. Generating pre-signed upload URL for {StorageKey}",
+            recordingId, storageKey);
+
+        Result<string> urlResult = await StoragePort.GetUploadUrlAsync(storageKey, cancellationToken);
+        if (urlResult.IsFailure)
+        {
+            Logger.LogWarning("Failed to generate upload URL for recording {RecordingId}: {Error}", recordingId, urlResult.Error);
+            return Result.Failure<AddRecordingResult>(urlResult.Error);
+        }
+
+        Logger.LogInformation("Recording {RecordingId} ready for direct upload", recordingId);
+        return Result.Success(new AddRecordingResult(recordingId, urlResult.Value));
     }
 }

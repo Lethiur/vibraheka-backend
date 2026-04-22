@@ -148,6 +148,26 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     }
 
     /// <summary>
+    /// Registers a user with the specified credentials, confirms their account through verification,
+    /// and logs them in to retrieve authentication tokens.
+    /// </summary>
+    /// <param name="username">The username of the user to be registered.</param>
+    /// <param name="email">The email address of the user, which will also receive the verification code.</param>
+    /// <param name="password">The password for the user's account.</param>
+    /// <returns>An instance of <c>AuthenticationResult</c> containing the user's authentication information, including tokens and roles.</returns>
+    /// <exception cref="HttpRequestException">Thrown when the confirmation or authentication process encounters an HTTP error.</exception>
+    protected async Task<AuthenticationResult> RegisterConfirmAndLogin(string username, string email, string password)
+    {
+        await RegisterUser(username, email, password);
+        VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
+        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
+        HttpResponseMessage patchAsJsonAsync =
+            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+        patchAsJsonAsync.EnsureSuccessStatusCode();
+        return await AuthenticateUser(email, password);
+    }
+
+    /// <summary>
     /// Authenticates a user by validating their credentials and retrieving authentication details upon success.
     /// </summary>
     /// <param name="email">The email address of the user attempting to authenticate.</param>
