@@ -17,6 +17,7 @@ public sealed class GetRecordingsTest : GenericRecordingsTest
     public async Task ShouldReturn401WhenNoAuthenticationToken()
     {
         // Given: no authentication token is set on the client
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: calling the GET recordings endpoint without a bearer token
         HttpResponseMessage response = await Client.GetAsync(GetRecordingsEndpoint);

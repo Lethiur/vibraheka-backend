@@ -91,7 +91,8 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnUnauthorizedWhenRequestIsUnauthenticated()
     {
         // Given: no authentication header to verify unauthenticated access is rejected.
-
+        Client.DefaultRequestHeaders.Remove("Authorization");
+        
         // When: requesting all templates.
         HttpResponseMessage response = await Client.GetAsync("api/v1/email-templates");
 

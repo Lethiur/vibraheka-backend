@@ -14,6 +14,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given: no authenticated user.
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: requesting subscription details.
         HttpResponseMessage response = await Client.GetAsync("/api/v1/subscriptions");

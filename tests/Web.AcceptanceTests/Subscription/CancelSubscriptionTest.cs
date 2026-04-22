@@ -14,6 +14,7 @@ public class CancelSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given: no authenticated user context.
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: invoking subscription cancellation.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions", null);

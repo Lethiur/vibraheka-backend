@@ -19,6 +19,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnUnauthorizedWhenNoAuthenticationIsProvided()
     {
         // Given: no authentication headers and a valid command payload.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
 
         // When: calling change-template endpoint without auth.

@@ -15,6 +15,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given: no authentication token is attached to the request.
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: calling the reactivate subscription endpoint.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);

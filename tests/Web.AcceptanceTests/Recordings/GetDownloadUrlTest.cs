@@ -27,6 +27,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
     public async Task ShouldReturn401WhenNoAuthenticationToken()
     {
         // Given: no authentication token is set on the client
+        Client.DefaultRequestHeaders.Remove("Authorization");
         string fakeRecordingId = Guid.NewGuid().ToString();
 
         // When: calling the download-url endpoint without a bearer token

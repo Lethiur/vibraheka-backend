@@ -15,6 +15,7 @@ public class ChangeTemplateContentsTest : GenericAcceptanceTest<VibraHekaProgram
     public async Task ShouldReturnUnauthorizedWhenChangingContentsWithoutAuthentication()
     {
         // Given: a valid request payload but no authentication token.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         using MultipartFormDataContent form = new();
         form.Add(new StringContent(Guid.NewGuid().ToString()), "TemplateID");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("content"))), "TemplateFile", "template.html");

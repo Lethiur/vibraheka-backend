@@ -16,6 +16,7 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenRequestIsNotAuthenticated()
     {
         // Given: no authenticated user context.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         string userId = Guid.NewGuid().ToString();
 
         // When: requesting profile for any user id.
