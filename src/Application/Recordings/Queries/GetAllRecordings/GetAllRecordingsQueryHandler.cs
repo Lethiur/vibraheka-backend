@@ -17,7 +17,7 @@ public class GetAllRecordingsQueryHandler(
 
         return await RegistryPort
             .GetAllAsync(cancellationToken)
-            .Map(recordings => recordings.Select(RecordingDto.FromDomain))
+            .Map(recordings => recordings.Where(entity => entity.IsActive()).Select(RecordingDto.FromDomain))
             .Tap(_ => Logger.LogInformation("Successfully retrieved all recordings"))
             .TapError(error => Logger.LogWarning("Failed to retrieve recordings: {Error}", error));
     }

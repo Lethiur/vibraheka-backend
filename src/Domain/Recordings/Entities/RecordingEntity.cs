@@ -9,4 +9,11 @@ public class RecordingEntity : BaseAuditableEntity
     public string Description { get; set; } = string.Empty;
     public RecordingType Type { get; set; }
     public string StorageKey { get; set; } = string.Empty;
+
+    public RecordingState State { get; set; } = RecordingState.Active;
+
+    public bool IsActive()
+    {
+        return State == RecordingState.Active;
+    }
 }

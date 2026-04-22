@@ -22,6 +22,9 @@ public class RecordingDBModel : BaseAuditableDBModel
 
     [DynamoDBProperty]
     public string StorageKey { get; set; } = string.Empty;
+    
+    [DynamoDBProperty(typeof(EnumStringConverter<RecordingState>))]
+    public RecordingState State { get; set; } = RecordingState.Active; 
 
     public static RecordingDBModel FromDomain(RecordingEntity entity) => new()
     {
