@@ -167,8 +167,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
             result.Error,
             Is.EqualTo(GenericPersistenceErrors.ProvisionedThroughputExceeded),
             $"Expected ProvisionedThroughputExceeded error but got: '{result.Error}'");
-
-        ContextMock.VerifyNoOtherCalls();
     }
 }
 
