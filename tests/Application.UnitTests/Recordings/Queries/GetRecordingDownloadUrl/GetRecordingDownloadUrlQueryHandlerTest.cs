@@ -20,14 +20,13 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
     {
         // Given: a valid query, registry returns recording, storage returns pre-signed URL
         string recordingId = Guid.NewGuid().ToString();
-        string storageKey = $"https://bucket.s3.us-east-1.amazonaws.com/{recordingId}/meditacion.mp4";
         string downloadUrl = "https://pre-signed-url.example.com/download?token=abc";
 
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(BuildRecordingEntity(recordingId, storageKey)));
+            .ReturnsAsync(Result.Success(BuildRecordingEntity(recordingId)));
 
         StoragePortMock
             .Setup(s => s.GetDownloadUrlAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -52,7 +51,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
 
         StoragePortMock.Verify(
             s => s.GetDownloadUrlAsync(
-                It.Is<string>(key => key == storageKey),
+                It.Is<string>(key => key == recordingId),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected GetDownloadUrlAsync to be called exactly once with the recording's storage key");
@@ -157,7 +156,6 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
     {
         // Given: validation and registry succeed, but storage fails
         string recordingId = Guid.NewGuid().ToString();
-        string storageKey = $"recordings/{recordingId}/taller.mp4";
         string storageError = "S3_PRESIGN_FAILED";
         GetRecordingDownloadUrlQuery query = BuildValidQuery(recordingId);
 
@@ -165,7 +163,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
 
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Success(BuildRecordingEntity(recordingId, storageKey)));
+            .ReturnsAsync(Result.Success(BuildRecordingEntity(recordingId)));
 
         StoragePortMock
             .Setup(s => s.GetDownloadUrlAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -189,7 +187,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
 
         StoragePortMock.Verify(
             s => s.GetDownloadUrlAsync(
-                It.Is<string>(key => key == storageKey),
+                It.Is<string>(key => key == recordingId),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected GetDownloadUrlAsync to be called once with the recording's storage key even on failure");

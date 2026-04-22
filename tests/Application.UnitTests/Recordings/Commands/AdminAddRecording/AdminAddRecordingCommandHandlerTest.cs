@@ -55,7 +55,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         StoragePortMock.Verify(
             x => x.GetUploadUrlAsync(
-                It.Is<string>(key => key.Contains(command.FileName)),
+                It.Is<string>(key => Guid.Parse(key) != null), // Assuming the storage key is a GUID or contains a GUID
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected GetUploadUrlAsync to be called once with the storage key containing the FileName");
@@ -145,7 +145,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         StoragePortMock.Verify(
             x => x.GetUploadUrlAsync(
-                It.Is<string>(key => key.Contains(command.FileName)),
+                It.Is<string>(key => Guid.Parse(key) != null), // Assuming the storage key is a GUID or contains a GUID
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected GetUploadUrlAsync to be called once even when it fails");

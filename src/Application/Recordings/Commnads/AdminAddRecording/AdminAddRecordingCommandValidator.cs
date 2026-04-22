@@ -26,12 +26,5 @@ public class AdminAddRecordingCommandValidator : AbstractValidator<AdminAddRecor
             .Cascade(CascadeMode.Stop)
             .IsInEnum()
             .WithMessage(RecordingErrors.InvalidType);
-
-        RuleFor(x => x.FileName)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .WithMessage(RecordingErrors.InvalidFile)
-            .Matches(@"^[^/\\:*?""<>|]+\.[a-zA-Z0-9]+$")
-            .WithMessage(RecordingErrors.InvalidFile);
     }
 }

@@ -44,7 +44,7 @@ public abstract class GenericGetRecordingDownloadUrlTest
                 new ValidationFailure(nameof(GetRecordingDownloadUrlQuery.RecordingId), errorMessage),
             });
 
-    protected static RecordingEntity BuildRecordingEntity(string recordingId, string storageKey) =>
+    protected static RecordingEntity BuildRecordingEntity(string recordingId) =>
         new()
         {
             Id = recordingId,
