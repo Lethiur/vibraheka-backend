@@ -22,9 +22,8 @@ public class ChangePasswordAsyncIntegrationTest : GenericCognitoServiceTest
         Result<string> registerResult = await UserService.RegisterUserAsync(email, initialPassword, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
 
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Assert.That(codeResult.IsSuccess, Is.True);
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, initialPassword);
@@ -60,9 +59,8 @@ public class ChangePasswordAsyncIntegrationTest : GenericCognitoServiceTest
         Result<string> registerResult = await UserService.RegisterUserAsync(email, initialPassword, fullName);
         Assert.That(registerResult.IsSuccess, Is.True);
 
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Assert.That(codeResult.IsSuccess, Is.True);
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, initialPassword);

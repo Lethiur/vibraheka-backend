@@ -19,8 +19,8 @@ public class RefreshTokenTest : GenericCognitoServiceTest
         // Given: a registered and confirmed user with a valid authenticated session.
         string email = GenerateUniqueEmail("test-refresh-success@");
         await RegisterUser(email);
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         Result<AuthenticationResult> authenticationResult = await UserService.AuthenticateUserAsync(email, DefaultPassword);
@@ -48,8 +48,8 @@ public class RefreshTokenTest : GenericCognitoServiceTest
         // Given: a registered and confirmed user.
         string email = GenerateUniqueEmail("test-refresh-invalid-token@");
         await RegisterUser(email);
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         // When: attempting refresh with an invalid token.

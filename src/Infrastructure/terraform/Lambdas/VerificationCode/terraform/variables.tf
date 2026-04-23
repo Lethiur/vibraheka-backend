@@ -21,3 +21,7 @@ variable "kms_alias_arn" {
 variable "kms_alias_name" {
   
 }
+
+variable "password_reset_token_secret" {
+  
+}

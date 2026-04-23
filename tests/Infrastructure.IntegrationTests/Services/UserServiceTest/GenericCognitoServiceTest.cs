@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Models.Results;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.Repository;
 using VibraHeka.Infrastructure.Services;
@@ -19,6 +20,7 @@ public abstract class GenericCognitoServiceTest : TestBase
     protected IUserService UserService;
     private ILogger<UserService> Logger;
     protected IUserRepository UserRepository;
+    private PasswordResetTokenService PasswordResetTokenService = default!;
 
     private VerificationCodesRepository _verificationCodeRepository;
 
@@ -34,8 +36,19 @@ public abstract class GenericCognitoServiceTest : TestBase
             new VerificationCodesRepository(dynamoDbContext, _configuration, new VerificationCodeEntityMapper());
         UserRepository = new UserRepository(dynamoDbContext, _configuration);
         UserService = new UserService(_configuration, Logger, UserRepository);
+        PasswordResetTokenService = new(
+            _configuration,
+            CreateTestLogger<PasswordResetTokenService>()
+        );
     }
 
+
+    protected async Task<string> GetAndDecryptCode(string email)
+    {
+        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
+        Result<PasswordResetTokenData> validateAndReadToken = PasswordResetTokenService.ValidateAndReadToken(codeResult.Value.Code);
+        return validateAndReadToken.Value.CognitoCode;
+    }
 
 
     protected string GenerateUniqueEmail(string prefix = "test-confirm@")

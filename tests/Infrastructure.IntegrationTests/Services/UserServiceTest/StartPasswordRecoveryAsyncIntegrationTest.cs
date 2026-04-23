@@ -16,8 +16,8 @@ public class StartPasswordRecoveryAsyncIntegrationTest : GenericCognitoServiceTe
         // Given: un usuario registrado y confirmado.
         string email = GenerateUniqueEmail("test-start-recovery@");
         await RegisterUser(email);
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True);
 
         // When: se inicia el flujo forgot-password.

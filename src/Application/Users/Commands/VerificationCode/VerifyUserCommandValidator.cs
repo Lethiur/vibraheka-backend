@@ -1,5 +1,4 @@
-﻿using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Common.Extensions.Validation;
+using VibraHeka.Application.Common.Exceptions;
 
 namespace VibraHeka.Application.Users.Commands.VerificationCode;
 
@@ -7,19 +6,13 @@ public partial class VerifyUserCommandValidator : AbstractValidator<VerifyUserCo
 {
     public VerifyUserCommandValidator()
     {
-        RuleFor(x => x.Email)
-            .Cascade(CascadeMode.Stop)
-            .ValidEmail();
+        RuleLevelCascadeMode = CascadeMode.Stop;
 
-        RuleFor(x => x.Code)
-            .Cascade(CascadeMode.Stop)
+        RuleFor(x => x.EncryptedCode)
             .NotEmpty()
-            .WithMessage(UserErrors.InvalidVerificationCode)
+            .WithMessage(UserErrors.InvalidPasswordResetToken)
             .NotNull()
-            .Matches(@"^\d+$")
-            .WithMessage(UserErrors.InvalidVerificationCode)
-            .MinimumLength(6)
-            .WithMessage(UserErrors.InvalidVerificationCode);
+            .WithMessage(UserErrors.InvalidPasswordResetToken);
     }
 
 }

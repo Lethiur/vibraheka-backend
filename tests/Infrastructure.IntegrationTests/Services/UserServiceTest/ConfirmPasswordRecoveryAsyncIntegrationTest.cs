@@ -20,9 +20,9 @@ public class ConfirmPasswordRecoveryAsyncIntegrationTest : GenericCognitoService
 
         Result<string> registerResult = await UserService.RegisterUserAsync(email, initialPassword, "Recovery Invalid Code");
         Assert.That(registerResult.IsSuccess, Is.True);
-        Result<VerificationCodeEntity> verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        Result<Unit> confirmUserResult = await UserService.ConfirmUserAsync(email, verificationCode.Value.Code);
-        Assert.That(confirmUserResult.IsSuccess, Is.True);
+        string codeResult = await GetAndDecryptCode(email);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
+        Assert.That(confirmResult.IsSuccess, Is.True);
         Result<Unit> startRecoveryResult = await UserService.StartPasswordRecoveryAsync(email);
         Assert.That(startRecoveryResult.IsSuccess, Is.True);
 

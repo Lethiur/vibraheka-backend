@@ -1,4 +1,4 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.VerificationCode;
@@ -17,11 +17,11 @@ public class VerifyUserCommandValidatorTest
     }
 
     [Test]
-    [Description("Given a valid verification command, when validating, then it should pass validation")]
-    public async Task ShouldPassValidationWhenCommandIsCorrect()
+    [Description("Given a valid command with an encrypted code, when validating, then it should pass")]
+    public async Task ShouldPassValidationWhenEncryptedCodeIsPresent()
     {
         // Given
-        VerifyUserCommand command = new("test@example.com", "123456");
+        VerifyUserCommand command = new("v1.someencryptedtoken");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -30,14 +30,14 @@ public class VerifyUserCommandValidatorTest
         Assert.That(result.IsValid, Is.True);
     }
 
-    [TestCase("", Description = "Empty email")]
-    [TestCase(null!, Description = "Null email")]
-    [TestCase("invalid-email", Description = "Invalid email format")]
-    [Description("Given an invalid email for verification, when validating, then it should fail with InvalidEmail error")]
-    public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
+    [TestCase("", Description = "Empty encrypted code")]
+    [TestCase(null!, Description = "Null encrypted code")]
+    [TestCase("   ", Description = "Whitespace encrypted code")]
+    [Description("Given an invalid encrypted code, when validating, then it should fail with InvalidPasswordResetToken error")]
+    public async Task ShouldHaveErrorWhenEncryptedCodeIsEmptyOrNull(string encryptedCode)
     {
         // Given
-        VerifyUserCommand command = new(email, "123456");
+        VerifyUserCommand command = new(encryptedCode);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -46,28 +46,7 @@ public class VerifyUserCommandValidatorTest
         Assert.That(result.IsValid, Is.False);
         Assert.That(
             result.Errors,
-            Has.Some.Matches<ValidationFailure>(e => e.ErrorMessage == UserErrors.InvalidEmail)
-        );
-    }
-
-    [TestCase("", Description = "Empty code")]
-    [TestCase(null!, Description = "Null code")]
-    [TestCase("abc", Description = "Non-numeric code")]
-    [TestCase("12345", Description = "Too short code")]
-    [Description("Given an invalid verification code, when validating, then it should fail with InvalidVerificationCode error")]
-    public async Task ShouldHaveErrorWhenCodeIsInvalid(string code)
-    {
-        // Given
-        VerifyUserCommand command = new("test@example.com", code);
-
-        // When
-        ValidationResult result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.That(result.IsValid, Is.False);
-        Assert.That(
-            result.Errors,
-            Has.Some.Matches<ValidationFailure>(e => e.ErrorMessage == UserErrors.InvalidVerificationCode)
+            Has.Some.Matches<ValidationFailure>(e => e.ErrorMessage == UserErrors.InvalidPasswordResetToken)
         );
     }
 }

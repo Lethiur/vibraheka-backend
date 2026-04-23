@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Infrastructure.Services;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 
@@ -10,9 +11,9 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 public class AuthenticateUserTests : GenericCognitoServiceTest
 {
     private const string DefaultPassword = "ValidPassword123!";
-
+    
     #region AuthenticateUserAsync - Success Cases
-
+    
     [Test]
     [DisplayName("Should successfully authenticate a confirmed user")]
     public async Task ShouldAuthenticateUserSuccessfullyWhenCredentialsAreValid()
@@ -20,8 +21,8 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         // Given: A registered and confirmed user
         string email = GenerateUniqueEmail("test-auth-success@");
         await RegisterUser(email);
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        await UserService.ConfirmUserAsync(email, codeResult);
 
         // When: Attempting to authenticate
         Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, DefaultPassword);
@@ -63,8 +64,8 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
         // Given: A registered and confirmed user
         string email = GenerateUniqueEmail("test-auth-wrong-pass@");
         await RegisterUser(email);
-        Result<VerificationCodeEntity> codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await UserService.ConfirmUserAsync(email, codeResult.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        await UserService.ConfirmUserAsync(email, codeResult);
 
         // When: Attempting to authenticate with wrong password
         Result<AuthenticationResult> authResult = await UserService.AuthenticateUserAsync(email, "WrongPass123!");
