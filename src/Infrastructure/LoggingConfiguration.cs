@@ -24,7 +24,7 @@ public static class LoggingConfiguration
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
                 .Enrich.With(new XRayEnricher());
-            
+
             AWSConfig? awsConfig = config.GetSection("AWS").Get<AWSConfig>();
             AWSLoggingConfig? loggingConfig = config.GetSection("AWSLogging").Get<AWSLoggingConfig>();
             RegionEndpoint regionEndpoint = RegionEndpoint.GetBySystemName(awsConfig!.Location);

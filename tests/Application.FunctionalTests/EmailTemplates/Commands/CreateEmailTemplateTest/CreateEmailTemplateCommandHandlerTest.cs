@@ -17,9 +17,9 @@ public class CreateEmailTemplateCommandHandlerTests
     private Mock<IEmailTemplateStorageService> _storageServiceMock;
     private Mock<IEmailTemplatesService> _templateServiceMock;
     private Mock<ICurrentUserService> _currentUserServiceMock;
-    
+
     private CreateEmailTemplateCommandHandler _handler;
-    
+
 
     [SetUp]
     public void SetUp()
@@ -32,7 +32,7 @@ public class CreateEmailTemplateCommandHandlerTests
             _storageServiceMock.Object,
             _currentUserServiceMock.Object
         );
-        
+
         _currentUserServiceMock.Setup(x => x.UserId).Returns("admin-user-id");
     }
 
@@ -46,8 +46,8 @@ public class CreateEmailTemplateCommandHandlerTests
         MemoryStream fileStream = new(Encoding.UTF8.GetBytes("{a: 3}"));
         CancellationToken cancellationToken = CancellationToken.None;
         CreateEmailTemplateCommand command = new(fileStream, templateName);
-            
-        
+
+
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Success("template-id"));
         _templateServiceMock.Setup(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken))
@@ -61,21 +61,21 @@ public class CreateEmailTemplateCommandHandlerTests
         _storageServiceMock.Verify(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken), Times.Once);
         _templateServiceMock.Verify(x => x.SaveEmailTemplate(It.IsAny<EmailEntity>(), cancellationToken), Times.Once);
     }
-    
-    
+
+
     [Test]
     [Description(
         "Given a valid admin user but storage service fails, when creating an email template, then it should return storage error")]
     public async Task ShouldReturnStorageErrorWhenStorageServiceFails()
     {
         // Given
-      
+
         const string templateName = "Welcome Email";
         MemoryStream fileStream = new(Encoding.UTF8.GetBytes("Template content"));
         CancellationToken cancellationToken = CancellationToken.None;
         CreateEmailTemplateCommand command = new(fileStream, templateName);
 
-      
+
         _storageServiceMock.Setup(x => x.SaveTemplate(It.IsAny<string>(), fileStream, cancellationToken))
             .ReturnsAsync(Result.Failure<string>(InfrastructureFileManagementErrors.InvalidHash));
 

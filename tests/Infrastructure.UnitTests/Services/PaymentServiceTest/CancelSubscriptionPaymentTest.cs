@@ -14,10 +14,10 @@ public class CancelSubscriptionPaymentTest : GenericPaymentServiceTest
     {
         // When: Service is invoked with null entity
         Result<Unit> result = await _service.CancelSubscriptionPayment(null!, CancellationToken.None);
-        
+
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);
-        
+
         // And: Should have specific error message
         Assert.That(result.Error, Is.EqualTo(SubscriptionErrors.ErrorWhileSubscribing));
     }
@@ -28,13 +28,13 @@ public class CancelSubscriptionPaymentTest : GenericPaymentServiceTest
         // Given: Some mocking
         _paymentRepositoryMock.Setup(repository => repository.CancelSubscriptionPayment(It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
-        
+
         // When: Service is invoked
         Result<Unit> result = await _service.CancelSubscriptionPayment(new SubscriptionCheckoutSessionEntity(), CancellationToken.None);
-        
+
         // Then: Should return failure
         Assert.That(result.IsFailure, Is.True);
-        
+
         // And: Should have specific error message
         Assert.That(result.Error, Is.EqualTo("Database error"));
     }
@@ -45,13 +45,13 @@ public class CancelSubscriptionPaymentTest : GenericPaymentServiceTest
         // Given: Some mocking
         _paymentRepositoryMock.Setup(repository => repository.CancelSubscriptionPayment(It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Unit.Value);
-        
+
         // When: Service is invoked
         Result<Unit> result = await _service.CancelSubscriptionPayment(new SubscriptionCheckoutSessionEntity(), CancellationToken.None);
-        
+
         // Then: Should return success
         Assert.That(result.IsSuccess, Is.True);
-        
+
         // And: The mock should have been invoked once
         _paymentRepositoryMock.Verify(repository => repository.CancelSubscriptionPayment(It.IsAny<SubscriptionCheckoutSessionEntity>(), It.IsAny<CancellationToken>()), Times.Once);
     }

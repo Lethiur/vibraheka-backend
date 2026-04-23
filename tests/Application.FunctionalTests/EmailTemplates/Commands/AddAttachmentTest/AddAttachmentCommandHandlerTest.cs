@@ -89,7 +89,7 @@ public class AddAttachmentCommandHandlerTest
                 NoCancellation),
             Times.Once);
     }
-    
+
 
     [Test]
     [Description(
@@ -100,7 +100,7 @@ public class AddAttachmentCommandHandlerTest
         AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
-        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None ))
+        _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(true);
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Failure<EmailEntity>(EmailTemplateErrors.TemplateNotFound));

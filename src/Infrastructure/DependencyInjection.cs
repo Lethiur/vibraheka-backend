@@ -22,6 +22,7 @@ using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Recordings.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence;
@@ -35,7 +36,7 @@ namespace VibraHeka.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager )
+    public static void AddInfrastructureServices(this IHostApplicationBuilder builder, IConfiguration config, ConfigurationManager configurationManager)
     {
         configurationManager.AddInfrastructureConfiguration(config);
         builder.Services.AddInfrastructureServices(config);
@@ -71,13 +72,13 @@ public static class DependencyInjection
         services.AddOptions<AWSLoggingConfig>().Bind(configuration.GetSection("AWSLogging"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         services
             .AddOptions<StripeConfig>()
             .Bind(configuration.GetSection("Stripe"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-      
+
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.AddAWSService<IAmazonDynamoDB>();
         services.AddAWSService<IAmazonSimpleSystemsManagement>();
@@ -92,11 +93,11 @@ public static class DependencyInjection
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<AWSLoggingConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<StripeConfig>>().Value);
-        
+
         services.Configure<AppSettingsEntity>(configuration);
         services.Configure<AWSLoggingConfig>(configuration.GetSection("AWSLogging"));
         services.Configure<StripeConfig>(configuration.GetSection("Stripe"));
-        
+
         StripeConfig? stripeConfig = configuration
             .GetSection("Stripe")
             .Get<StripeConfig>();
@@ -105,53 +106,58 @@ public static class DependencyInjection
         {
             throw new Exception("Stripe configuration not found.");
         }
-        
+
         StripeConfiguration.ApiKey = stripeConfig.SecretKey;
 
         services.AddSingleton<SubscriptionEntityMapper>();
+        services.AddSingleton<RecordingEntityMapper>();
         services.AddSingleton<VerificationCodeEntityMapper>();
         services.AddSingleton<UsersCodeMapper>();
-        #if DEBUG
+#if DEBUG
         services.AddScoped<ICodeRepository, VerificationCodesRepository>();
-        #endif
+#endif
         services.AddScoped<IUserCodeRepository, UserCodeRepository>();
         services.AddScoped<IDynamoDBContext, DynamoDBContext>();
         services.AddScoped<ApplicationDynamoContext>();
 
         services.AddScoped<IActionLogRepository, ActionLogRepository>();
-        
+
         // Settings
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
-        
+
         // Payments
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IPaymentRepository, PaymentsRepository>();
-        
+
         // Subscription
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-        
+
         // Email Templates
         services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
         services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
-        
+
         // Email template storage
         services.AddScoped<IEmailTemplateStorageService, EmailTemplateStorageService>();
         services.AddScoped<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
-        
+
         // Privileges
         services.AddScoped<IPrivilegeService, PrivilegeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        
+
         // Users
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserCodeService, UserCodeService>();
         services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
-        
+
+        // Recordings
+        services.AddScoped<IRecordingRegistryPort, RecordingRepository>();
+        services.AddScoped<IRecordingStoragePort, RecordingStorageRepository>();
+
         services.AddSingleton(TimeProvider.System);
-        
-     
+
+
     }
 }

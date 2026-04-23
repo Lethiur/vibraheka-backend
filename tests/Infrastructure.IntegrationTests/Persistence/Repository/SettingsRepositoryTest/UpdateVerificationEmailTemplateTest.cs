@@ -42,7 +42,7 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
 
         // Then: Should succeed and reflect the new value
         Assert.That(result.IsSuccess, Is.True);
-        
+
         GetParameterResponse? response = await SSMClient.GetParameterAsync(new GetParameterRequest { Name = VerificationParameterName });
         Assert.That(response.Parameter.Value, Is.EqualTo(newTemplate));
     }
@@ -56,7 +56,7 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
     public async Task ShouldHandleLargeTemplateContent()
     {
         // Given: A large string (SSM Standard parameters support up to 4KB)
-        string largeTemplate = new('A', 3000); 
+        string largeTemplate = new('A', 3000);
 
         // When: Updating the template
         Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);

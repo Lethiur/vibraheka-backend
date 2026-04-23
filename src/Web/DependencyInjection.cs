@@ -8,10 +8,10 @@ public static class DependencyInjection
     public static void AddWebServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
-        
+
         builder.Services.AddSingleton<SubscriptionMapper>();
         builder.Services.AddSingleton<CreateSubscriptionMapper>();
-        
+
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 

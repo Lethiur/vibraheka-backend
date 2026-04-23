@@ -24,7 +24,7 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
         {
             OverrideTableName = config.UsersTable,
         };
-        
+
         await context.SaveAsync(UserDBModel.FromDomain(userEntity), saveConfig);
         return userEntity.Id;
     }
@@ -41,7 +41,7 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
             IndexName = "EmailIndex",
             OverrideTableName = config.UsersTable
         };
-        
+
         List<UserDBModel>? results = await context.QueryAsync<UserDBModel>(email, queryConfig).GetRemainingAsync();
         return results?.Count > 0;
     }

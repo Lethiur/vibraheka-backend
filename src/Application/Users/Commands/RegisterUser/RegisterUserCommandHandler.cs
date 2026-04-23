@@ -39,12 +39,12 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
         CancellationToken cancellationToken)
     {
         Result<string> cognitoId = await user.RegisterUserAsync(request.Email, request.Password, request.FirstName);
-        
+
         return await cognitoId.Bind(async realCognitoId =>
         {
             UserEntity newUserEntity = new()
             {
-                Id =realCognitoId,
+                Id = realCognitoId,
                 Email = request.Email,
                 FirstName = request.FirstName,
                 MiddleName = request.MiddleName,

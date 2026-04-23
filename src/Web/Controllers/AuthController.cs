@@ -33,7 +33,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Register([FromBody] [Required] RegisterUserCommand command)
+    public async Task<IActionResult> Register([FromBody][Required] RegisterUserCommand command)
     {
         Logger.LogInformation("Register endpoint called for email {Email}", command.Email);
         Result<UserRegistrationResult> id = await mediator.Send(command);
@@ -60,7 +60,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ConfirmUser([FromBody] [Required] VerifyUserCommand command)
+    public async Task<IActionResult> ConfirmUser([FromBody][Required] VerifyUserCommand command)
     {
         Result<Unit> verificationResult = await mediator.Send(command);
 
@@ -96,7 +96,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Authenticate([FromBody] [Required] AuthenticateUserCommand command)
+    public async Task<IActionResult> Authenticate([FromBody][Required] AuthenticateUserCommand command)
     {
         Result<AuthenticationResult> result = await mediator.Send(command);
 
@@ -151,7 +151,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> StartPasswordRecovery([FromBody] [Required] StartPasswordRecoveryCommand command)
+    public async Task<IActionResult> StartPasswordRecovery([FromBody][Required] StartPasswordRecoveryCommand command)
     {
         Logger.LogInformation("Starting password recovery endpoint for email {Email}", command.Email);
         Result<Unit> result = await mediator.Send(command);
@@ -200,7 +200,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ConfirmPasswordRecovery([FromBody] [Required] ConfirmPasswordRecoveryCommand command)
+    public async Task<IActionResult> ConfirmPasswordRecovery([FromBody][Required] ConfirmPasswordRecoveryCommand command)
     {
         Logger.LogInformation("Confirming password recovery endpoint called");
         Result<Unit> result = await mediator.Send(command);
@@ -237,7 +237,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger)
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> ChangeAuthenticatedPassword([FromBody] [Required] ChangeAuthenticatedPasswordCommand command)
+    public async Task<IActionResult> ChangeAuthenticatedPassword([FromBody][Required] ChangeAuthenticatedPasswordCommand command)
     {
         Logger.LogInformation("Authenticated password change endpoint called");
         Result<Unit> result = await mediator.Send(command);

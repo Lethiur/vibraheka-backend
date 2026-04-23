@@ -13,10 +13,10 @@ public class ActionLogDBModel
 
     [DynamoDBRangeKey(typeof(EnumStringConverter<ActionType>))]
     public ActionType Action { get; set; } = ActionType.UserVerification;
-    
+
     [DynamoDBProperty(typeof(DateTimeOffsetConverter))]
     public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-    
+
     public static ActionLogDBModel FromDomain(ActionLogEntity actionLog) => new()
     {
         ID = actionLog.ID,

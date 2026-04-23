@@ -12,11 +12,11 @@ public abstract class GenericPrivilegeServiceTest : TestBase
     protected IPrivilegeService PrivilegeService;
 
     protected ILogger<IPrivilegeService> _logger;
-    
+
     protected IUserRepository _userRepository;
-    
+
     protected IActionLogRepository _actionLogRepository;
-    
+
     [OneTimeSetUp]
     public void OneTimeSetUpChild()
     {

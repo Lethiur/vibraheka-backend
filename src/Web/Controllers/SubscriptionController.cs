@@ -27,7 +27,7 @@ public class SubscriptionController(
         Logger.LogInformation("Subscription created successfully");
         AddSubscriptionCommand command = new();
         Result<SubscriptionCheckoutSessionEntity> result = await mediator.Send(command);
-        
+
         if (result.IsFailure)
         {
             Logger.LogError("Subscription creation failed: {Error}", result.Error);
@@ -90,15 +90,15 @@ public class SubscriptionController(
     public async Task<IActionResult> UpdateSubscription()
     {
         CancelSubscriptionCommand command = new();
-        
+
         Result<Unit> result = await mediator.Send(command);
-        
+
         if (result.IsFailure)
         {
             Logger.LogError("Subscription cancellation failed: {Error}", result.Error);
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
-        
+
         return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 }

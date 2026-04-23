@@ -21,7 +21,7 @@ public class AddAttachmentCommandValidator : AbstractValidator<AddAttachmentComm
             .WithMessage(EmailTemplateErrors.InvalidAttachmentContent)
             .ValidImageOrVideoStream()
             .WithMessage(EmailTemplateErrors.InvalidAttachmentContent);
-        
+
         RuleFor(x => x.TemplateId).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateId);
     }
 }

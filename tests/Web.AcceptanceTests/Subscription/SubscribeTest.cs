@@ -13,6 +13,7 @@ public class SubscribeTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When
         HttpResponseMessage response = await Client.PutAsync("/api/v1/subscriptions", null);

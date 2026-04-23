@@ -36,7 +36,7 @@ public class RefreshTokenTest : GenericCognitoServiceTest
         // Then: the refresh operation should succeed and return an access token.
         Assert.That(refreshResult.IsSuccess, Is.True);
         Assert.That(refreshResult.Value, Is.Not.Null.Or.Empty);
-        
+
         // And: the access token should be different from the original one.
         Assert.That(refreshResult.Value, Is.Not.EqualTo(authenticationResult.Value.AccessToken));
     }

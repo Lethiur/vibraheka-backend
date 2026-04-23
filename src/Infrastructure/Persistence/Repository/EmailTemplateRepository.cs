@@ -21,7 +21,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Inherits from GenericDynamoRepository for shared data access behaviors.
 /// </remarks>
 public class EmailTemplateRepository(IDynamoDBContext context, AWSConfig config, ILogger<EmailTemplateRepository> logger)
-    : GenericDynamoRepository<EmailTemplateDBModel>(context, config.EmailTemplatesTable, logger), 
+    : GenericDynamoRepository<EmailTemplateDBModel>(context, config.EmailTemplatesTable, logger),
         IEmailTemplatesRepository
 {
     /// <summary>

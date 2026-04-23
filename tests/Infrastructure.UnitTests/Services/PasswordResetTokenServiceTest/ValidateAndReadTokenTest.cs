@@ -151,7 +151,7 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
-    
+
     [Test]
     [TestCase(0)]
     [TestCase(1)]
@@ -169,7 +169,7 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
-    
+
     [Test]
     public void ShouldFailIfTamperedToken()
     {

@@ -11,7 +11,7 @@ public sealed class UpdateUserProfileCommandValidator : AbstractValidator<Update
             .NotNull()
             .WithErrorCode(UserErrors.InvalidForm)
             .WithMessage("NewUserData is required.");
-        
+
         // Id
         RuleFor(x => x.NewUserData.Id)
             .NotEmpty()

@@ -8,7 +8,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Services.UserServiceTest;
 
 public class TestableUserService : UserService
 {
-    public TestableUserService(AWSConfig config, ILogger<UserService> logger, IAmazonCognitoIdentityProvider mockClient, IUserRepository userRepository) 
+    public TestableUserService(AWSConfig config, ILogger<UserService> logger, IAmazonCognitoIdentityProvider mockClient, IUserRepository userRepository)
         : base(config, logger, userRepository)
     {
         _client = mockClient;

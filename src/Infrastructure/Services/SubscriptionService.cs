@@ -142,11 +142,11 @@ public class SubscriptionService(
                 if (subscriptionEntity.Status == OrderStatus.OrderDelayed && subscriptionEntity.StartDate > DateTime.UtcNow)
                 {
                     logger.LogInformation($"Subscription for user {subscriptionEntity.UserID} is delayed. Restoring trialing");
-                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Trialing;    
+                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Trialing;
                 }
                 else
                 {
-                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Active;   
+                    subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Active;
                 }
                 return subscriptionRepository.SaveSubscriptionAsync(subscriptionEntity, cancellationToken);
             })

@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
+using NUnit.Framework;
 using VibraHeka.Application.Users.Queries.GetProfile;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Queries.GetUserProfileQueryTest;

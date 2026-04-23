@@ -34,7 +34,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         string initialName = $"Initial-{TheFaker.Random.AlphaNumeric(8)}";
         HttpResponseMessage createResponse = await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={initialName}", null);
         ResponseEntity createEntity = await createResponse.GetAsResponseEntityAndContentAs<string>();

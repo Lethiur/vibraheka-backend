@@ -16,7 +16,7 @@ public interface IUserCodeRepository
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Operation result.</returns>
     Task<Result<Unit>> SaveCode(UserCodeEntity userCode, CancellationToken cancellationToken);
-    
+
 
     /// <summary>
     /// Retrieves a user code entity by token identifier.

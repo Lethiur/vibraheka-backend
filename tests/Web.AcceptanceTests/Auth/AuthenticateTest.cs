@@ -20,7 +20,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldAuthenticateAConfirmedUser()
     {
         // Given: A registered and confirmed user
-      
+
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
 
@@ -38,7 +38,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(result.RefreshToken, Is.Not.Null.And.Not.Empty);
         Assert.That(result!.Role, Is.EqualTo(UserRole.User));
     }
-    
+
 
     #region Validation Tests
 

@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Entities;
 using Moq;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SubscriptionRepositoryTest;
 

@@ -4,5 +4,5 @@ namespace VibraHeka.Application.Common.Exceptions;
 
 public class UnauthorizedException : VibraHekaException
 {
-    
+
 }

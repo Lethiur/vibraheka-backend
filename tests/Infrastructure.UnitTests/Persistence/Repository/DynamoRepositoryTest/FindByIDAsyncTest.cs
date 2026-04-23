@@ -25,7 +25,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
         // Then: Result should be success and contain the entity
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(entity));
-        _contextMock.Verify(x => x.LoadAsync<TestEntity>(id, 
+        _contextMock.Verify(x => x.LoadAsync<TestEntity>(id,
             It.Is<LoadConfig>(c => c.OverrideTableName == TableName), CancellationToken.None), Times.Once);
     }
 

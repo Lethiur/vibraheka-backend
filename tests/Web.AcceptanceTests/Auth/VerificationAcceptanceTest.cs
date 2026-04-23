@@ -21,21 +21,21 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         Faker faker = new();
         string email = faker.Internet.Email();
         string password = "Password123@";
-        
-        await RegisterUser( faker.Person.FullName, email, password);
-        
+
+        await RegisterUser(faker.Person.FullName, email, password);
+
         // And: The verification code
         VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        
+
         // When: The user verifies their account
         HttpResponseMessage verificationMessage = await Client.PatchAsJsonAsync("api/v1/auth/confirm", new VerifyUserCommand(email, verificationCode.Code));
         verificationMessage.EnsureSuccessStatusCode();
         ResponseEntity responseEntity = await verificationMessage.GetAsResponseEntity();
-        
+
         Assert.That(responseEntity.Success, Is.True, "The user should be verified successfully");
         Assert.That(responseEntity.ErrorCode, Is.Null, "The response should not contain any error code");
     }
-    
+
     [Test]
     [DisplayName("Should fail verification with non-existent user")]
     [TestCase("user@example.com", "123456")] // Email y código válidos básicos
@@ -49,13 +49,13 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
 
         // Then: Should return appropriate error (not validation error)
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound), 
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound),
             "Should return 404 Not Found when trying to verify a non-existent user");
-        
+
         Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
-    
+
     [Test]
     [DisplayName("Should fail verification with wrong code")]
     public async Task ShouldFailVerificationWithWrongCode()
@@ -76,13 +76,13 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         // Then: Should fail but not with validation error
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), 
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
             "Should not return BadRequest for valid format but wrong code");
-        
+
         Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
-    
+
     // === EMAIL TESTS ===
     [TestCase("", "123456", UserErrors.InvalidEmail)] // Email vacío
     [TestCase(null, "123456", UserErrors.InvalidEmail)] // Email null
@@ -109,9 +109,9 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
     [TestCase("test@example.com", "test", UserErrors.InvalidVerificationCode)] // Code 5 chars (límite)
 
     // === EDGE CASES COMBINADOS ===
-    [TestCase(null, null, $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
-    [TestCase("", "", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
-    [TestCase("   ", "   ", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] 
+    [TestCase(null, null, $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
+    [TestCase("", "", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
+    [TestCase("   ", "   ", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
     [TestCase("invalid-email", "123", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] // Ambos inválidos
 
     [DisplayName("Should not allow verification with invalid data")]
@@ -129,12 +129,12 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // And: The response should contain the expected error message
 
         ResponseEntity responseObject = await response.GetAsResponseEntity();
-        
+
         Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword), 
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword),
             $"The response should contain the error keyword '{expectedErrorKeyword}'. Actual error: {responseObject.ErrorCode}");
     }
-    
+
     [Test]
     [DisplayName("Should return BadRequest when verification code is numeric but incorrect")]
     public async Task ShouldReturnBadRequestWhenVerificationCodeIsNumericButIncorrect()
@@ -154,9 +154,9 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // Then: Should return 400 BadRequest 
         // El switch en tu controlador capturará el error devuelto por el servicio
         ResponseEntity responseObject = await response.GetAsResponseEntity();
-        
+
         Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode),  
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode),
             $"The response should contain the error keyword '{UserErrors.WrongVerificationCode}'. Actual error: {responseObject.ErrorCode}");
     }
 }

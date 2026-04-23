@@ -3,6 +3,7 @@ using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Mappers;
+
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public partial class CreateSubscriptionMapper
 {

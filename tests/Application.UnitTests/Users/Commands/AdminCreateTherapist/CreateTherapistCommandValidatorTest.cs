@@ -84,7 +84,7 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenNameIsEmptyOrNull(string? name)
     {
         // Given: Command with invalid name
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name!, MiddleName = "Test", LastName = "Test", Bio = "Test", TimezoneID = "Europe/Madrid", PhoneNumber = "6359875", ProfilePictureUrl = "test"});
+        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name!, MiddleName = "Test", LastName = "Test", Bio = "Test", TimezoneID = "Europe/Madrid", PhoneNumber = "6359875", ProfilePictureUrl = "test" });
 
 
         // When: Validating the command
@@ -144,7 +144,7 @@ public class CreateTherapistCommandValidatorTest
 
     [Test]
     public void ShouldFailValidationWhenUrlIsInvalid()
-    {   
+    {
         // Given: A command with an invalid url
         CreateTherapistCommand command = new(new UserDTO()
         {
@@ -157,14 +157,14 @@ public class CreateTherapistCommandValidatorTest
             TimezoneID = "Europe/Madrid",
             ProfilePictureUrl = "invalid-url"
         });
-        
+
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
-        
+
         // Then: Should have validation errors
         Assert.That(result, Is.Not.Null);
         Assert.That(result.IsValid, Is.False);
-        
+
         result.ShouldHaveValidationErrorFor(x => x.TherapistData.ProfilePictureUrl)
             .WithErrorMessage(UserErrors.InvalidForm);
     }
@@ -184,14 +184,14 @@ public class CreateTherapistCommandValidatorTest
             TimezoneID = "Europe/Madrid",
             ProfilePictureUrl = "https://example.com/avatar.png"
         });
-        
+
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
-        
+
         // Then: Should have validation errors
         Assert.That(result, Is.Not.Null);
         Assert.That(result.IsValid, Is.True);
-        
+
         result.ShouldNotHaveAnyValidationErrors();
     }
 
@@ -210,19 +210,19 @@ public class CreateTherapistCommandValidatorTest
             TimezoneID = "Europe/Madrid",
             ProfilePictureUrl = new string('a', 3001)
         });
-        
+
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
-        
+
         // Then: Should have validation errors
         Assert.That(result, Is.Not.Null);
         Assert.That(result.IsValid, Is.False);
-        
+
         result.ShouldHaveValidationErrorFor(x => x.TherapistData.ProfilePictureUrl)
             .WithErrorMessage(UserErrors.InvalidForm);
     }
     #endregion
-    
+
     #region Cascade Mode Tests
 
     [Test]

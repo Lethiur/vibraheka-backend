@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Moq;
+using NUnit.Framework;
 using VibraHeka.Application.Users.Queries.GetProfile;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;

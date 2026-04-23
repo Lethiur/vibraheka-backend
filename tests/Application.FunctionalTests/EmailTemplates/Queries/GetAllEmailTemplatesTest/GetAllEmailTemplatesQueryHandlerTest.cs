@@ -22,7 +22,7 @@ public class GetAllEmailTemplatesQueryHandlerTest
             EmailTemplatesServiceMock.Object);
     }
 
- 
+
     [Test]
     [Description("Given a request for all templates, when the service returns a successful list, then the handler should return that list")]
     public async Task ShouldReturnTemplatesIfEverythingIsOk()

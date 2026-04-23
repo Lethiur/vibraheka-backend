@@ -16,13 +16,13 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.PaymentServiceTest;
 [TestFixture]
 public class RegisterOrderTest : TestBase
 {
-    
+
     private IPaymentService _paymentService;
 
     private IPaymentRepository _paymentRepository;
-    
+
     private ISubscriptionRepository _subscriptionRepository;
-    
+
     private IUserRepository _userRepository;
 
     [OneTimeSetUp]
@@ -36,35 +36,35 @@ public class RegisterOrderTest : TestBase
             _configuration,
             CreateSystemsManagementClient(),
             CreateTestLogger<PaymentsRepository>());
-        _subscriptionRepository = new SubscriptionRepository( _configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper(), CreateTestLogger<SubscriptionRepository>());
+        _subscriptionRepository = new SubscriptionRepository(_configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper(), CreateTestLogger<SubscriptionRepository>());
         _paymentService = new PaymentService(_paymentRepository, _userRepository);
     }
-    
-    
+
+
     [Test]
     public async Task ShouldGenerateCheckoutUrlProperly()
     {
         // Given: An User
         UserEntity userEntity = CreateValidUser();
         await _userRepository.AddAsync(userEntity);
-        
+
         // When: Subscribing the user
         Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
-        
+
         // Then: The url should be there.
         if (result.IsFailure)
         {
             Assert.Fail(result.Error);
         }
-        
+
         Assert.That(result.IsSuccess, Is.True);
-        
+
         // And: URL should be valid
         string url = result.Value.Url;
         Assert.That(url, Is.Not.Null);
         Assert.That(url, Is.Not.Empty);
         Assert.That(url.StartsWith("https://checkout.stripe.com/c/pay/cs_"), Is.True);
-        
+
         // And: Order should be registered correctly
         AssertSessionBasedOnUrl(url, userEntity);
     }
@@ -72,32 +72,32 @@ public class RegisterOrderTest : TestBase
     [Test]
     public async Task ShouldReturnUrlWhenUserHasCustomerID()
     {
-         // Given: An User
+        // Given: An User
         UserEntity userEntity = CreateValidUser();
 
         Result<string> registerCustomerAsync = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
         userEntity.CustomerID = registerCustomerAsync.Value;
-        
+
         await _userRepository.AddAsync(userEntity);
-        
+
         // When: Subscribing the user
         Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
-        
+
         // Then: The url should be there.
         if (result.IsFailure)
         {
             Assert.Fail(result.Error);
         }
-        
+
         Assert.That(result.IsSuccess, Is.True);
-        
+
         // And: URL should be valid
         string url = result.Value.Url;
         Assert.That(url, Is.Not.Null);
         Assert.That(url, Is.Not.Empty);
         Assert.That(url.StartsWith("https://checkout.stripe.com/c/pay/cs_"), Is.True);
-        
-        
+
+
         // And: Order should be registered correctly
         AssertSessionBasedOnUrl(url, userEntity);
     }
@@ -110,10 +110,10 @@ public class RegisterOrderTest : TestBase
     {
         // When: Service is invoked with invalid user id
         Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync = await _paymentService.RegisterSubscriptionAsync(invalidUserId!, CancellationToken.None);
-        
+
         // Then: The result should be in a failure state
         Assert.That(registerSubscriptionAsync.IsFailure, Is.True);
-        
+
         // And: Error should be the expected one
         Assert.That(registerSubscriptionAsync.Error, Is.EqualTo(UserErrors.InvalidUserID));
     }
@@ -124,15 +124,15 @@ public class RegisterOrderTest : TestBase
     {
         // When: Service is invoked with invalid user id
         Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync = await _paymentService.RegisterSubscriptionAsync(Guid.NewGuid().ToString(), CancellationToken.None);
-        
+
         // Then: The result should be in a failure state
         Assert.That(registerSubscriptionAsync.IsFailure, Is.True);
-        
+
         // And: Error should be the expected one
         Assert.That(registerSubscriptionAsync.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
-    
-    
+
+
     public static string ExtractSessionId(string checkoutUrl)
     {
         Uri uri = new(checkoutUrl);

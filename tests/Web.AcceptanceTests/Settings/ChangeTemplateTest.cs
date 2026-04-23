@@ -19,6 +19,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnUnauthorizedWhenNoAuthenticationIsProvided()
     {
         // Given: no authentication headers and a valid command payload.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
 
         // When: calling change-template endpoint without auth.
@@ -36,11 +37,11 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         string username = TheFaker.Person.FullName;
         string templateID = Guid.NewGuid().ToString();
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        
+
         // And: The user is authenticated
         AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-        
+
         // And: Template in the DB
         await SeedEmailTemplate(templateID, "test/verification-email.html");
 
@@ -52,7 +53,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: The response should be 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        
+
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
         Assert.That(responseEntity.Success, Is.True);
         bool foundAssociation = await WaitForTemplateAssociation(ActionType.UserVerification, templateID, TimeSpan.FromSeconds(10));
@@ -128,11 +129,11 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A registered and confirmed standard user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        
+
         // And: The user is authenticated
         AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-        
+
         // And: A command to change the template
         ChangeTemplateForActionCommand command = new(Guid.NewGuid().ToString(), ActionType.UserVerification);
 

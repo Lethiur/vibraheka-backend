@@ -21,7 +21,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // When: The user is confirmed
         Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-    
+
         // Then: The user should be confirmed successfully
         Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
         Assert.That(confirmResult.IsSuccess, Is.True, "User confirmation should succeed");
@@ -93,7 +93,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         // Given: A registered user
         string email = GenerateUniqueEmail();
         await RegisterUser(email);
-    
+
         // When: Confirming with invalid code format
         Result<Unit> result = await UserService.ConfirmUserAsync(email, invalidCode);
 
@@ -127,7 +127,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         // Given: A registered user
         string email = GenerateUniqueEmail();
         await RegisterUser(email);
-        
+
         // When: Trying to confirm with non-numeric code
         Result<Unit> result = await UserService.ConfirmUserAsync(email, "testes");
 
@@ -151,7 +151,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
     }
 
     #endregion
-    
+
     #region ConfirmUserAsync - Wrong Code Cases
 
     [Test]
@@ -168,10 +168,10 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // Then: The service should catch the AWS exception and return our domain error
         Assert.That(result.IsFailure, Is.True, "The operation should fail");
-        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode), 
+        Assert.That(result.Error, Is.EqualTo(UserErrors.WrongVerificationCode),
             "Should return WrongVerificationCode when the code does not match AWS records");
     }
-    
+
     #endregion
 
     #region ConfirmUserAsync - Already Confirmed User
@@ -188,7 +188,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
         Result<Unit> secondConfirmResult = await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
-    
+
         // Then: The error should be NotAuthorized (Cognito does not allow confirming already confirmed users)
         Assert.That(secondConfirmResult.IsFailure, Is.True);
         Assert.That(secondConfirmResult.Error, Is.EqualTo(UserErrors.NotAuthorized));
@@ -232,7 +232,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         // Given: A registered user
         string email = GenerateUniqueEmail();
         await RegisterUser(email);
-    
+
         // When: Making concurrent confirmation attempts
         List<Task<Result<Unit>>> tasks = new();
 

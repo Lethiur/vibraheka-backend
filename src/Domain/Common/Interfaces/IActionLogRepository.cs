@@ -4,7 +4,7 @@ using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces;
 
-public interface IActionLogRepository 
+public interface IActionLogRepository
 {
     /// <summary>
     /// Retrieves the action log for a specific user based on the provided user ID and action type.

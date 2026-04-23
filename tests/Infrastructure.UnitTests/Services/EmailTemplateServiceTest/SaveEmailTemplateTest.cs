@@ -54,7 +54,9 @@ public class SaveEmailTemplateTest
         // Given
         EmailEntity emailTemplate = new()
         {
-            ID = "template-id-123", Name = "Welcome", Path = "template-id-123"
+            ID = "template-id-123",
+            Name = "Welcome",
+            Path = "template-id-123"
         };
         CancellationToken token = CancellationToken.None;
 
@@ -83,7 +85,9 @@ public class SaveEmailTemplateTest
         // Given
         EmailEntity emailTemplate = new()
         {
-            ID = "template-id-123", Name = "Welcome", Path = "template-id-123"
+            ID = "template-id-123",
+            Name = "Welcome",
+            Path = "template-id-123"
         };
         CancellationToken token = CancellationToken.None;
 

@@ -18,6 +18,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
     public async Task ShouldReturnUnauthorizedWhenChangingPasswordWithoutAuthentication()
     {
         // Given: a valid command without bearer token.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         ChangeAuthenticatedPasswordCommand command = new("Password123@", "NewPassword123@", "NewPassword123@");
 
         // When: calling the authenticated password change endpoint.

@@ -16,7 +16,7 @@ public class RegisterUserCommandHandlerTest
     private IRequestHandler<RegisterUserCommand, Result<UserRegistrationResult>> _handler;
     private Mock<IUserRepository> _userRepositoryMock;
     private Mock<IUserService> _cognitoServiceMock;
-    
+
 
     [SetUp]
     public void SetUp()
@@ -34,7 +34,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldRegisterUserSuccessfullyWhenValidCommandProvided()
     {
         // Given: Valid command and successful external services
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
 
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -61,7 +61,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldFailWhenUserAlreadyExists()
     {
         // Given: Command for existing user
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
 
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -84,7 +84,7 @@ public class RegisterUserCommandHandlerTest
     public async Task ShouldFailWhenDynamoFails()
     {
         // Given: Command for existing user
-        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST","Europe/Madrid");
+        RegisterUserCommand command = new("test@example.com", "Password123!", "John Doe", "TEST", "TEST", "Europe/Madrid");
 
 
         _cognitoServiceMock.Setup(x => x.RegisterUserAsync("existing@example.com", "Password123!", "John Doe"))

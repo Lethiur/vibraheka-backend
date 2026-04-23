@@ -13,7 +13,7 @@ public class DateTimeOffsetConverter : IPropertyConverter
         {
             return new Primitive(dto.ToString("O", CultureInfo.InvariantCulture));
         }
-        
+
         return new DynamoDBNull();
     }
 

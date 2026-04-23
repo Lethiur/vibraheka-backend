@@ -17,7 +17,7 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceTest
         RepositoryMock
             .Setup(r => r.GetTemplateContent(templateId, TestCancellationToken))
             .ReturnsAsync(Result.Success(expectedContent));
-        
+
         RepositoryMock.Setup(r => r.TemplateExistsAsync(templateId, TestCancellationToken))
             .ReturnsAsync(Result.Success(true));
 
@@ -50,6 +50,6 @@ public class GetTemplateContentTest : GenericEmailTemplateStorageServiceTest
         RepositoryMock.Verify(r => r.GetTemplateContent(templateId, TestCancellationToken), Times.Never);
         RepositoryMock.Verify(r => r.TemplateExistsAsync(templateId, TestCancellationToken), Times.Once);
         RepositoryMock.VerifyNoOtherCalls();
-        
+
     }
 }

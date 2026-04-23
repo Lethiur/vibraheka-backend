@@ -15,6 +15,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenRequestIsNotAuthenticated()
     {
         // Given: a request payload without authenticated context.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         UserDTO payload = new()
         {
             Id = Guid.NewGuid().ToString(),

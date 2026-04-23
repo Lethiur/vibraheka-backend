@@ -1,9 +1,9 @@
 ﻿using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using CSharpFunctionalExtensions;
+using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using Moq;
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.ActionLogRepositoryTest;
 
 [TestFixture]

@@ -33,7 +33,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         string templateName = $"Skeleton-{TheFaker.Random.AlphaNumeric(8)}";
 
         // When: Creating a skeleton

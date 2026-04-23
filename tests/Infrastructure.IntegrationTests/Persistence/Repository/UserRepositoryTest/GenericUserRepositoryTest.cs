@@ -9,8 +9,8 @@ public abstract class GenericUserRepositoryTest : TestBase
 {
     protected IUserRepository _userRepository;
     protected IDynamoDBContext _dynamoContext;
-    
-    
+
+
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
@@ -19,7 +19,7 @@ public abstract class GenericUserRepositoryTest : TestBase
         _userRepository = new UserRepository(_dynamoContext, _configuration);
         _faker = new Faker();
     }
-    
+
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {

@@ -29,5 +29,5 @@ public class InfrastructureFileManagementErrors
     /// the expected format or standards for a valid MD5 hash.
     /// </summary>
     public static readonly string InvalidHash = "IFM-002";
-        
+
 }

@@ -12,9 +12,9 @@ namespace VibraHeka.Web.Controllers;
 [Route("api/v1/auth")]
 public class VerificationCodeController(IMediator mediator)
 {
-    
+
     [HttpPost("verification-code")]
-    public async Task<IActionResult> Register([FromBody] [Required] GetCodeQuery query)
+    public async Task<IActionResult> Register([FromBody][Required] GetCodeQuery query)
     {
         Result<VerificationCodeEntity> id = await mediator.Send(query);
 

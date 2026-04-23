@@ -15,7 +15,7 @@ public class HasRoleAsyncTest
     private Mock<IUserRepository> _userRepositoryMock;
     private Mock<IActionLogRepository> _actionLogRepositoryMock;
     private Mock<ILogger<IPrivilegeService>> _loggerMock;
-    
+
     private PrivilegeService _service;
 
     [SetUp]
@@ -74,7 +74,7 @@ public class HasRoleAsyncTest
         // Given: Repository returns failure (user not found)
         const string userId = "unknown-id";
         const string errorMessage = "User not found";
-        
+
         _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, CancellationToken.None))
             .ReturnsAsync(Result.Failure<UserEntity>(errorMessage));
 
@@ -85,6 +85,6 @@ public class HasRoleAsyncTest
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(errorMessage));
         _userRepositoryMock.Verify(x => x.GetByIdAsync(userId, CancellationToken.None), Times.Once);
-        
+
     }
 }

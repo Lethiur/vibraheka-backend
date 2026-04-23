@@ -15,7 +15,7 @@ public class FromEntityTest
     {
         _converter = new EnumStringConverter<UserRole>();
     }
-    
+
     [Test]
     [DisplayName("Should convert valid string entry back to enum")]
     public void ShouldConvertValidStringEntryBackToEnum()

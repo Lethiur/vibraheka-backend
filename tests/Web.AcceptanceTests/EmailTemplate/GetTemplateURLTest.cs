@@ -32,15 +32,15 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
         AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        
+
         // And: A template created WITH a file (not a skeleton)
         string templateName = $"FullTemplate-{TheFaker.Random.AlphaNumeric(8)}";
         using MultipartFormDataContent form = new();
         form.Add(new StringContent(templateName), "TemplateName");
         form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("<html>Sample</html>"))), "File", "sample.html");
-        
+
         await Client.PutAsync("/api/v1/email-templates/create", form);
-        
+
         // We need to get the ID. We can get all templates to find it.
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
         ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();

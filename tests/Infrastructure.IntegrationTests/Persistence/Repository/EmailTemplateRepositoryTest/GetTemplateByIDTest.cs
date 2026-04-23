@@ -20,7 +20,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
         // Given: A template already exists in DynamoDB
         string templateId = Guid.NewGuid().ToString();
         string expectedPath = $"templates/{_faker.System.FileName("html")}";
-        
+
         await SeedTemplate(templateId, expectedPath);
 
         // When: Retrieving the template by ID

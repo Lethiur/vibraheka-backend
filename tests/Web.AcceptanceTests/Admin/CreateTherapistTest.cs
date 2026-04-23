@@ -40,7 +40,8 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturn403IfNotAuthenticated()
     {
         // Given: No authentication token
-
+        Client.DefaultRequestHeaders.Remove("Authorization");
+        
         // When: Calling Create Therapist endpoint
         HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("/api/v1/admin/addTherapist",
             CreateValidDTO());
@@ -158,7 +159,7 @@ public class CreateTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         UserDTO validDTO = CreateValidDTO();
         switch (targetField)
         {
-            case "Email" : validDTO.Email = value!; break;
+            case "Email": validDTO.Email = value!; break;
             case "FirstName": validDTO.FirstName = value!; break;
             case "MiddleName": validDTO.MiddleName = value!; break;
             case "LastName": validDTO.LastName = value!; break;

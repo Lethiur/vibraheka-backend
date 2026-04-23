@@ -30,7 +30,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
         // Then: Should return success with the template
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.ID, Is.EqualTo(template.TemplateID));
-        _contextMock.Verify(x => x.LoadAsync<EmailTemplateDBModel>(templateId, 
+        _contextMock.Verify(x => x.LoadAsync<EmailTemplateDBModel>(templateId,
             It.Is<LoadConfig>(c => c.OverrideTableName == TableName), None), Times.Once);
     }
 

@@ -7,7 +7,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 [TestFixture]
 public class RegisterUserAsync : GenericCognitoServiceTest
 {
-    
+
     [Test]
     [DisplayName("Should successfully register user with valid data")]
     public async Task ShouldRegisterUserSuccessfullyWhenValidDataProvided()
@@ -21,9 +21,12 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success with UserSub
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.Not.Null);
-        Assert.That(result.Value, Is.Not.Empty);
+        Assert.That(result.IsSuccess, Is.True,
+            $"Expected registration to succeed but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
+        Assert.That(result.Value, Is.Not.Null,
+            "Expected a non-null UserSub in the result value");
+        Assert.That(result.Value, Is.Not.Empty,
+            "Expected a non-empty UserSub in the result value");
     }
 
     [Test]
@@ -39,8 +42,10 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.Not.Null);
+        Assert.That(result.IsSuccess, Is.True,
+            $"Expected registration to succeed but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
+        Assert.That(result.Value, Is.Not.Null,
+            "Expected a non-null UserSub in the result value");
     }
 
     [Test]
@@ -56,8 +61,10 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email, password, fullName);
 
         // Then: Should return success
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.Not.Null);
+        Assert.That(result.IsSuccess, Is.True,
+            $"Expected registration to succeed but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
+        Assert.That(result.Value, Is.Not.Null,
+            "Expected a non-null UserSub in the result value");
     }
 
     #region RegisterUserAsync - Failure Cases
@@ -69,13 +76,15 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         // Given: A user that already exists
         string email = _faker.Internet.Email();
         await RegisterUser(email);
-    
+
         // When: Trying to register the same user again
-        Result<string> secondResult = await UserService.RegisterUserAsync(email,"Password123@", "Hello policeman");
+        Result<string> secondResult = await UserService.RegisterUserAsync(email, "Password123@", "Hello policeman");
 
         // Then: Should fail with UserAlreadyExist error
-        Assert.That(secondResult.IsFailure, Is.True);
-        Assert.That(secondResult.Error, Is.EqualTo(UserErrors.UserAlreadyExist));
+        Assert.That(secondResult.IsFailure, Is.True,
+            "Expected second registration to fail but got success");
+        Assert.That(secondResult.Error, Is.EqualTo(UserErrors.UserAlreadyExist),
+            $"Expected error '{UserErrors.UserAlreadyExist}' but got: '{secondResult.Error}'");
     }
 
     [TestCase("", "ValidPassword123!", "John Doe", TestName = "Empty email")]
@@ -93,11 +102,13 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email!, password!, fullName!);
 
         // Then: Should fail with InvalidForm error (AWS treats empty fields as invalid parameters)
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
+        Assert.That(result.IsFailure, Is.True,
+            "Expected registration to fail with invalid form fields but got success");
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm),
+            $"Expected error '{UserErrors.InvalidForm}' but got: '{result.Error}'");
     }
-    
-    
+
+
     [TestCase("123", TestName = "Too short password")]
     [TestCase("password", TestName = "No uppercase")]
     [TestCase("PASSWORD", TestName = "No lowercase")]
@@ -114,8 +125,10 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email, invalidPassword, fullName);
 
         // Then: Should fail with InvalidPassword error
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPassword));
+        Assert.That(result.IsFailure, Is.True,
+            $"Expected registration to fail for password '{invalidPassword}' but got success");
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidPassword),
+            $"Expected error '{UserErrors.InvalidPassword}' but got: '{result.Error}'");
     }
 
     [TestCase("", "John Doe", TestName = "Empty email")]
@@ -132,8 +145,10 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         Result<string> result = await UserService.RegisterUserAsync(email, password, fullName!);
 
         // Then: Should fail with InvalidForm error
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm));
+        Assert.That(result.IsFailure, Is.True,
+            $"Expected registration to fail for email='{email}', fullName='{fullName}' but got success");
+        Assert.That(result.Error, Is.EqualTo(UserErrors.InvalidForm),
+            $"Expected error '{UserErrors.InvalidForm}' but got: '{result.Error}'");
     }
 
     #endregion
@@ -152,8 +167,22 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         // When: Registering with long name
         Result<string> result = await UserService.RegisterUserAsync(email, password, fullName);
 
-        // Then: Should either succeed or fail gracefully
-        Assert.That(result.Value, Is.Not.Null);
+        // Then: Should either succeed or fail gracefully (no unhandled exception)
+        Assert.That(
+            result.IsSuccess || result.IsFailure,
+            Is.True,
+            "Expected registration with a very long name to return a valid Result (success or failure) without throwing");
+
+        if (result.IsSuccess)
+        {
+            Assert.That(result.Value, Is.Not.Null.And.Not.Empty,
+                "Expected a non-empty UserSub when registration succeeds for long name");
+        }
+        else
+        {
+            Assert.That(result.Error, Is.Not.Null.And.Not.Empty,
+                "Expected a non-empty error code when registration fails for long name");
+        }
     }
 
     [Test]
@@ -179,8 +208,10 @@ public class RegisterUserAsync : GenericCognitoServiceTest
         // Then: All should succeed
         foreach (Result<string> result in results)
         {
-            Assert.That(result.IsSuccess, Is.True, $"Concurrent registration failed");
-            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.IsSuccess, Is.True,
+                $"Expected concurrent registration to succeed but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
+            Assert.That(result.Value, Is.Not.Null.And.Not.Empty,
+                "Expected a non-empty UserSub for each concurrent registration result");
         }
     }
 

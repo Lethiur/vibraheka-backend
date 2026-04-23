@@ -2,8 +2,8 @@ using System.Net;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Web.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -14,6 +14,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given: no authenticated user.
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: requesting subscription details.
         HttpResponseMessage response = await Client.GetAsync("/api/v1/subscriptions");

@@ -17,6 +17,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
     public async Task ShouldReturnUnauthorizedWhenAddAttachmentIsCalledWithoutToken()
     {
         // Given: a valid attachment request without authentication to verify unauthorized access.
+        Client.DefaultRequestHeaders.Remove("Authorization");
         using MultipartFormDataContent form = CreateAttachmentForm(
             templateId: Guid.NewGuid().ToString(),
             attachmentName: "test.png",

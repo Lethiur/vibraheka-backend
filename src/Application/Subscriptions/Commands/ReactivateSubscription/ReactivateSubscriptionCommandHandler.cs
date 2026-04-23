@@ -8,7 +8,7 @@ public class ReactivateSubscriptionCommandHandler(
     ICurrentUserService currentUser,
     ISubscriptionService subscriptionService) : IRequestHandler<ReactivateSubscriptionCommand, Result<Unit>>
 {
-    public  Task<Result<Unit>> Handle(ReactivateSubscriptionCommand request, CancellationToken cancellationToken)
+    public Task<Result<Unit>> Handle(ReactivateSubscriptionCommand request, CancellationToken cancellationToken)
     {
         return subscriptionService.ReactivateSubscription(currentUser.UserId!, cancellationToken).Map(_ => Unit.Value);
     }

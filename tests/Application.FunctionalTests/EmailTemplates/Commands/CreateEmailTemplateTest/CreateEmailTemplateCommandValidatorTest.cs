@@ -42,7 +42,7 @@ public class CreateEmailTemplateCommandValidatorTests
             .SetName("ShouldPassValidationWhenJsonIsValidPrimitiveBoolean");
         yield return new TestCaseData("null")
             .SetName("ShouldPassValidationWhenJsonIsValidPrimitiveNull");
-      
+
     }
     // ----------------------------
     // Tests
@@ -141,7 +141,7 @@ public class CreateEmailTemplateCommandValidatorTests
         Assert.That(result.IsValid, Is.True);
         Assert.That(result.Errors, Is.Empty);
     }
-    
+
     [Test]
     [Description("Given a command with null template name and null file stream, when validating, then it should fail with both errors")]
     public async Task ShouldFailValidationWhenBothFieldsAreInvalid()

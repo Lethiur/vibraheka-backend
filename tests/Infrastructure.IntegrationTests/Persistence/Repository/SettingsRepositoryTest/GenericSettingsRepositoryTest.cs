@@ -38,6 +38,6 @@ public abstract class GenericSettingsRepositoryTest : TestBase
     {
         SSMClient?.Dispose();
     }
-    
+
 }
 

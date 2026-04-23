@@ -3,6 +3,7 @@ using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.S3;
@@ -31,7 +32,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
     {
         if (file is not { Exists: true })
         {
-            return  Result.Failure<string>("File does not exist");
+            return Result.Failure<string>("File does not exist");
         }
 
         await using Stream strean = file.OpenRead();
@@ -70,7 +71,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             return false;
         }
     }
-    
+
     /// <summary>
     /// Retrieves the contents of a file inside the bucket using its file key
     /// </summary>
@@ -103,7 +104,7 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
         {
             stream.Position = 0;
         }
-        
+
         await using (FileStream file = new(
                          filePath,
                          FileMode.Create,
@@ -113,10 +114,10 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             await stream.CopyToAsync(file, cancellationToken);
             await file.FlushAsync(cancellationToken);
         }
-        
+
         return new FileInfo(filePath);
     }
-    
+
     /// <summary>
     /// Generates a pre-signed URL for downloading a file from an S3 bucket.
     /// </summary>
@@ -131,9 +132,43 @@ public abstract class GenericS3Repository(IAmazonS3 client, string bucketName)
             Key = key,
             Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
             Verb = HttpVerb.GET,
-            
+
         };
 
         return await Client.GetPreSignedURLAsync(request);
+    }
+
+    protected async Task<Result<string>> GetUploadPreSignedUrl(string key, int expiresInSeconds)
+    {
+        GetPreSignedUrlRequest request = new()
+        {
+            BucketName = BucketName,
+            Key = key,
+            Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
+            Verb = HttpVerb.PUT,
+
+        };
+
+        return await Client.GetPreSignedURLAsync(request);
+    }
+
+    /// <summary>
+    /// Deletes an object from the S3 bucket by its key.
+    /// </summary>
+    /// <param name="key">The key of the object to delete.</param>
+    /// <param name="cancellationToken">Token used to cancel the task.</param>
+    /// <returns>A success result if deleted; failure with error message otherwise.</returns>
+    protected async Task<Result<Unit>> DeleteObjectAsync(string key, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DeleteObjectRequest request = new() { BucketName = BucketName, Key = key };
+            await Client.DeleteObjectAsync(request, cancellationToken);
+            return Unit.Value;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            return Result.Failure<Unit>(ex.ErrorCode ?? ex.Message);
+        }
     }
 }

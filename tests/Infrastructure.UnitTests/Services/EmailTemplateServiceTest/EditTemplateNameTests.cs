@@ -113,21 +113,21 @@ public class EditTemplateNameTests
             Name = "Old Name",
             Path = "path",
         };
-        
+
         _repositoryMock
             .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(template));
-        
+
         _repositoryMock.Setup(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Database error"));
-        
+
         // When: Service is invoked
-        Result<Unit> result = await _service.EditTemplateName(templateId,"New Name", CancellationToken.None);
+        Result<Unit> result = await _service.EditTemplateName(templateId, "New Name", CancellationToken.None);
 
         // Then: The result should contain the explosion
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo("Database error"));
-        
+
     }
 
     [Test]

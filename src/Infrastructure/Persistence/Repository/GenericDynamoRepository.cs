@@ -145,8 +145,6 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<IEnumerable<T>>> GetAll(CancellationToken cancellationToken)
     {
-        using IDisposable? _ = logger.BeginScope(new Dictionary<string, object?>
-            { ["TraceId"] = AWSXRayRecorder.Instance.GetEntity()?.Id });
         ScanConfig configuration = new() { OverrideTableName = tableConfigKey };
 
         try

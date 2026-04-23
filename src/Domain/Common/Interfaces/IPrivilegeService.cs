@@ -29,4 +29,4 @@ public interface IPrivilegeService
     /// </returns>
     public Task<Result<bool>> CanExecuteAction(string userId, ActionType action, CancellationToken cancellationToken);
 }
-    
+

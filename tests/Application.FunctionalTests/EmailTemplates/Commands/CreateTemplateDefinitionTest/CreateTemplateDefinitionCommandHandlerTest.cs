@@ -40,7 +40,7 @@ public class CreateTemplateDefinitionCommandHandlerTest
         Assert.That(result.Value, Is.EqualTo("template-id"));
 
         Guid a;
-        
+
         _templatesServiceMock.Verify(x => x.SaveEmailTemplate(
             It.Is<EmailEntity>(e =>
                 !string.IsNullOrWhiteSpace(e.ID) &&

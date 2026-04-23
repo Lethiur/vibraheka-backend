@@ -44,13 +44,13 @@ public class AppSettingsEntity
         get { lock (_lock) return _subscriptionReActivatedEmailTemplate; }
         set { lock (_lock) _subscriptionReActivatedEmailTemplate = value; }
     }
-    
+
     public string ForgotPasswordCompletedEmailTemplate
     {
         get { lock (_lock) return _forgotPasswordCompletedEmailTemplate; }
         set { lock (_lock) _forgotPasswordCompletedEmailTemplate = value; }
     }
-    
+
     public string SubscriptionThankYouEmailTemplate
     {
         get { lock (_lock) return _subscriptionThankYouEmailTemplate; }

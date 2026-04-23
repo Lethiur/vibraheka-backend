@@ -37,7 +37,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         string? refreshedAccessToken = responseEntity.GetContentAs<string>();
         Assert.That(responseEntity.Success, Is.True);
         Assert.That(refreshedAccessToken, Is.Not.Null.And.Not.Empty);
-        
+
         // And: The tokens should be different
         Assert.That(refreshedAccessToken, Is.Not.EqualTo(authenticationResult.AccessToken));
     }

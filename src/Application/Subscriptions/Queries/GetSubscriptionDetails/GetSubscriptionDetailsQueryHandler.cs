@@ -5,7 +5,7 @@ using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;
 
-public class GetSubscriptionDetailsQueryHandler(ISubscriptionService subscriptionService, ICurrentUserService currentUserService) : IRequestHandler<GetSubscriptionDetailsQuery, Result<SubscriptionEntity>> 
+public class GetSubscriptionDetailsQueryHandler(ISubscriptionService subscriptionService, ICurrentUserService currentUserService) : IRequestHandler<GetSubscriptionDetailsQuery, Result<SubscriptionEntity>>
 {
     public Task<Result<SubscriptionEntity>> Handle(GetSubscriptionDetailsQuery request, CancellationToken cancellationToken)
     {

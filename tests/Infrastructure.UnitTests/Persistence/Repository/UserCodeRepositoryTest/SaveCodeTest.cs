@@ -6,8 +6,8 @@ using MediatR;
 using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using VibraHeka.Infrastructure.Exceptions;
+using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserCodeRepositoryTest;
 

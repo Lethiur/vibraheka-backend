@@ -6,6 +6,6 @@ namespace VibraHeka.Domain.Common.Interfaces.Codes;
 
 public interface ICodeRepository
 {
-   Task<Result<VerificationCodeEntity>> GetCodeFor(string email);
+    Task<Result<VerificationCodeEntity>> GetCodeFor(string email);
 }
 #endif

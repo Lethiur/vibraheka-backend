@@ -15,10 +15,10 @@ namespace VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
 /// Offers functionality to interact with the storage mechanism for email templates.
 /// </param>
 public class GetEmailTemplateURLQueryHandler(
-    IEmailTemplateStorageService emailTemplateStorageService) : IRequestHandler<GetEmailTemplateURLQuery, Result<string>> 
+    IEmailTemplateStorageService emailTemplateStorageService) : IRequestHandler<GetEmailTemplateURLQuery, Result<string>>
 {
     public Task<Result<string>> Handle(GetEmailTemplateURLQuery request, CancellationToken cancellationToken)
     {
-        return  emailTemplateStorageService.GetTemplateUrlAsync(request.TemplateID, cancellationToken);
+        return emailTemplateStorageService.GetTemplateUrlAsync(request.TemplateID, cancellationToken);
     }
 }

@@ -20,7 +20,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         Faker faker = new();
         string email = faker.Internet.Email();
         await RegisterUser(faker.Person.FullName, email, "Password123@");
-        
+
 
         // When: Resending the confirmation code
         HttpResponseMessage response = await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");

@@ -12,6 +12,7 @@ public class GetSubscriptionPortalDetailsTest : GenericSubscriptionAcceptanceTes
     public async Task ShouldReturnUnauthorizedWhenNotAuthenticated()
     {
         // Given: no authentication token.
+        Client.DefaultRequestHeaders.Remove("Authorization");
 
         // When: requesting billing portal details.
         HttpResponseMessage response = await Client.GetAsync("/api/v1/subscriptions/details");

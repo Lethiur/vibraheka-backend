@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
+using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using Moq;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SubscriptionServiceTest;
 
@@ -61,7 +61,9 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceTest
     {
         SubscriptionEntity entity = new()
         {
-            UserID = "user-1", SubscriptionStatus = SubscriptionStatus.ToBeCancelled, Status = OrderStatus.Cancelled
+            UserID = "user-1",
+            SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
+            Status = OrderStatus.Cancelled
         };
 
         _subscriptionRepositoryMock.Setup(x => x.GetSubscriptionDetailsForUser("user-1", It.IsAny<CancellationToken>()))
