@@ -57,6 +57,13 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         Client = Factory.CreateClient();
     }
 
+    [TearDown]
+    public void Teardown()
+    {
+
+        Client.Dispose();
+    }
+
     [OneTimeTearDown]
     public void TearDown()
     {
