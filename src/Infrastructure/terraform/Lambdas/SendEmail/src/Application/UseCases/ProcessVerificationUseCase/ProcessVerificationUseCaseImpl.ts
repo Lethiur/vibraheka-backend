@@ -25,7 +25,7 @@ export default class ProcessVerificationUseCaseImpl implements  IProcessVerifica
             context.decryptedCode
         ).asyncAndThen(token => {
             return this.SSMClient.getParameter(requireEnv('SSM_PASSWORD_RESET_FRONTEND_URL'))
-                .andThen(url => this.passwordResetTokenService.BuildPasswordResetLink(token, url))
+                .andThen(url => this.passwordResetTokenService.BuildVerificationLink(token, url))
         })
             .andThen(resetLink => this.EmailTemplateService.RenderTemplate(this.EmailTemplateNames.VerificationTemplate, {
                 username: context.username,
