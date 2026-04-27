@@ -48,7 +48,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     public void Setup()
     {
         AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("VH-ACCEPTANCE-TEST"));
-
+        Client = Factory.CreateClient();
     }
 
     [OneTimeSetUp]
