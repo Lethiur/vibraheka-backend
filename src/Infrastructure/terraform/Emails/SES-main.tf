@@ -1,13 +1,13 @@
-﻿
+
 data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
 
 locals {
-  manage_shared_ses    = terraform.workspace == "main"
-  ses_domain_name      = "vibraheka.com"
-  ses_from_email       = "heka@${local.ses_domain_name}" 
-  ses_domain_arn      = "arn:aws:ses:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:identity/heka@${local.ses_domain_name}"
+  manage_shared_ses = terraform.workspace == "main"
+  ses_domain_name   = "vibraheka.com"
+  ses_from_email    = "heka@${local.ses_domain_name}"
+  ses_domain_arn    = "arn:aws:ses:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:identity/heka@${local.ses_domain_name}"
 }
 
 resource "aws_ses_domain_identity" "VibraHeka_ses_domain" {

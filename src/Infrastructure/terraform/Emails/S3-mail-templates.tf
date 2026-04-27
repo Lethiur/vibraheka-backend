@@ -1,14 +1,14 @@
-﻿
+
 resource "aws_s3_bucket" "VH_email_templates" {
-  bucket = "vibraheka-email-templates-${terraform.workspace}"
+  bucket        = "vibraheka-email-templates-${terraform.workspace}"
   force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "VH_email_templates_access" {
   bucket = aws_s3_bucket.VH_email_templates.id
 
-  block_public_acls       = true
-  ignore_public_acls      = true
+  block_public_acls  = true
+  ignore_public_acls = true
 
   # Necesario para permitir una bucket policy pública
   block_public_policy     = false
@@ -28,7 +28,7 @@ resource "aws_s3_bucket_policy" "VH_email_templates_public_read_objects" {
 
   # CRÍTICO: Esperar a que el candado de Public Access se abra
   depends_on = [aws_s3_bucket_public_access_block.VH_email_templates_access]
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -39,7 +39,7 @@ resource "aws_s3_bucket_policy" "VH_email_templates_public_read_objects" {
         Action    = ["s3:GetObject"]
 
         # Lectura pública de TODOS los objetos del bucket
-        Resource  = "${aws_s3_bucket.VH_email_templates.arn}/*"
+        Resource = "${aws_s3_bucket.VH_email_templates.arn}/*"
       }
     ]
   })
