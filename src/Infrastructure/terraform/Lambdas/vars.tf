@@ -7,12 +7,16 @@ variable "kms_users_key_alias_name" {}
 variable "cognito_user_pool_arn" {}
 
 variable "ses_config_name" {}
- 
+
 variable "ses_config_arn" {}
 
 variable "ses_domain_arn" {}
 
 variable "ses_from_email" {}
+
+variable "ses_contact_list_name" {}
+
+variable "ses_contact_list_arn" {}
 
 variable "s3_templates_arn" {}
 

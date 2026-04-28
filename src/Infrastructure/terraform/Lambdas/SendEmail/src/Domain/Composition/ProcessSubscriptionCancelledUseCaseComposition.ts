@@ -16,4 +16,4 @@ export const ProcessSubscriptionCancelledUseCase : IProcessSubscriptionCancelled
         new SSMClientWrapper(),
         new S3ClientWrapper(),
         requireEnv("TEMPLATE_BUCKET")
-    ), new EmailDeliveryService(new SESClientWrapper(), requireEnv("SES_FROM_EMAIL"), requireEnv("SES_CONFIG_SET")), EmailTemplatesInstance);
+    ), new EmailDeliveryService(new SESClientWrapper(), requireEnv("SES_FROM_EMAIL"), requireEnv("SES_CONFIG_SET"), requireEnv("SES_CONTACT_LIST_NAME")), EmailTemplatesInstance);

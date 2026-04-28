@@ -18,6 +18,7 @@ export default class ProcessRegistrationUseCaseImpl implements IProcessRegistrat
         return this.EmailTemplateService.RenderTemplate(this.EmailTemplateNames.UserWelcomeTemplate, {
             username: context.username,
         }).andThen(template => this.EmailDeliveryService.Send(context.recipient, this.EMAIL_SUBJECT, template, []))
+          .andThen(() => this.EmailDeliveryService.AddVerifiedContact(context.recipient))
 
     }
 }

@@ -11,7 +11,8 @@ export default class EmailDeliveryService implements IEmailDeliveryService {
     constructor(
         private readonly sesClient: SESClientWrapper,
         private readonly fromEmail: string,
-        private readonly configurationSetName: string
+        private readonly configurationSetName: string,
+        private readonly contactListName: string
     ) {
     }
 
@@ -39,5 +40,10 @@ export default class EmailDeliveryService implements IEmailDeliveryService {
             this.configurationSetName,
             attachments
         );
+    }
+
+    public AddVerifiedContact(email: string): ResultAsync<void, EmailSenderErrors> {
+        console.log("Registering verified contact in SES contact list", {email, contactListName: this.contactListName});
+        return this.sesClient.createEmailContact(email, this.contactListName);
     }
 }

@@ -18,6 +18,11 @@ resource "aws_iam_role_policy" "VH_ses_send_email_policy" {
           "ses:SendRawEmail"
         ]
         Resource = [var.ses-domain-arn, var.ses_config_set_arn]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["sesv2:CreateContact"]
+        Resource = [var.ses_contact_list_arn]
       }
     ]
   })

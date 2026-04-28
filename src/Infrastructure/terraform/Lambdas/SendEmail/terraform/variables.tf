@@ -47,3 +47,7 @@ variable "kms_alias_name" {
 }
 
 variable "ssm_read_parameter_policy_arn" {}
+
+variable "ses_contact_list_name" {}
+
+variable "ses_contact_list_arn" {}

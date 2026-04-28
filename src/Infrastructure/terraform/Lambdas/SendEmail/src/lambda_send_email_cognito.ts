@@ -43,7 +43,7 @@ export const handler = async (event: CustomEmailSenderTriggerEvent) => {
                 });
                 return ProcessRegistrationUseCase.Execute(context);
             case "PostConfirmation_ConfirmForgotPassword":
-                console.log("Routing to post-confirmation email flow", {
+                console.log("Routing to forgot-password email flow", {
                     recipient: context.recipient,
                     triggerSource: context.triggerSource
                 });

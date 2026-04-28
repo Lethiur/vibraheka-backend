@@ -38,6 +38,7 @@ locals {
     KEY_ARN                                          = var.kms_arn
     KEY_ALIAS                                        = var.kms_alias_name
     AWS_NODEJS_CONNECTION_REUSE_ENABLED              = "1"
+    SES_CONTACT_LIST_NAME                            = var.ses_contact_list_name
   }
 }
 

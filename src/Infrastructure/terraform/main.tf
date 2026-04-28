@@ -27,6 +27,8 @@ module "Lambda" {
   ses_config_arn                                        = module.Emails.ses_config_arn
   ses_config_name                                       = module.Emails.ses_config_name
   ses_from_email                                        = module.Emails.ses_from_email
+  ses_contact_list_name                                 = module.Emails.ses_contact_list_name
+  ses_contact_list_arn                                  = module.Emails.ses_contact_list_arn
   ssm_email_verification_template_id_parameter_name     = module.Config.ssm_email_verification_template_id_parameter_name
   ssm_user_welcome_template_param                       = module.Config.ssm_user_welcome_tempalte_id_parameter_name
   ssm_email_password_reset_template_id_parameter_name   = module.Config.ssm_email_password_reset_template_id_parameter_name
@@ -45,7 +47,7 @@ module "Lambda" {
   stripe_event_bus_arn                                  = var.stripe_event_bus_arn
   stripe_secret_key                                     = var.stripe_api_key
   password_reset_token_secret                           = var.password_reset_token_secret
-  password_reset_frontend_url                           = "${var.ssm_namespace}${terraform.workspace}/frontend/url"
+  password_reset_frontend_url                           = terraform.workspace == "main" ? "${var.ssm_namespace}${terraform.workspace}/frontend/url" :  "${var.ssm_namespace}${terraform.workspace}-test/frontend/url"
   password_reset_token_ttl_minutes                      = var.password_reset_token_ttl_minutes
   dynamodb_subscription_table                           = module.Subscriptions.dynamodb_subscription_table_name
   dynamodb_subscription_table_arn                       = module.Subscriptions.dynamodb_subscription_table_arn

@@ -1,4 +1,4 @@
-import {Attachment, SESv2Client, SendEmailCommand, SendEmailCommandOutput} from "@aws-sdk/client-sesv2";
+import {Attachment, AlreadyExistsException, CreateContactCommand, SESv2Client, SendEmailCommand, SendEmailCommandOutput} from "@aws-sdk/client-sesv2";
 import {NotificationEmailAttachment} from "@Domain/Entities/NotificationEmailEvent";
 import EmailSenderErrors from "@Domain/Errors/EmailSenderErrors";
 import {errAsync, ResultAsync} from "neverthrow";
@@ -82,6 +82,37 @@ export default class SESClientWrapper {
             }
         );
 
+    }
+
+    /**
+     * Registers an email address in a SES contact list for bulk sending.
+     * If the contact already exists, the operation is treated as success.
+     *
+     * @param email Email address to register.
+     * @param contactListName Name of the SES contact list.
+     * @returns Async result with success or domain error.
+     */
+    public createEmailContact(email: string, contactListName: string): ResultAsync<void, EmailSenderErrors> {
+        return ResultAsync.fromPromise(
+            (async () => {
+                try {
+                    await this.sesClient.send(new CreateContactCommand({
+                        ContactListName: contactListName,
+                        EmailAddress: email.trim(),
+                    }));
+                } catch (error) {
+                    if (error instanceof AlreadyExistsException) {
+                        console.log("Contact already exists in SES contact list, skipping", {email, contactListName});
+                        return;
+                    }
+                    throw error;
+                }
+            })(),
+            error => {
+                console.error("Failed to register contact in SES contact list", {email, contactListName, error});
+                return EmailSenderErrors.CONTACT_REGISTRATION_FAILED;
+            }
+        );
     }
 
     private NotificationEmailAttachmentToSesAttachment(attachment: NotificationEmailAttachment): ResultAsync<Attachment, EmailSenderErrors> {

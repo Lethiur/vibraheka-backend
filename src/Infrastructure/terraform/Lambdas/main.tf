@@ -32,6 +32,8 @@ module "SendEmailLambda" {
   kms_arn                                      = var.kms_users_arn
   user_pool_arn                                = var.cognito_user_pool_arn
   ses-domain-arn                               = var.ses_domain_arn
+  ses_contact_list_name                        = var.ses_contact_list_name
+  ses_contact_list_arn                         = var.ses_contact_list_arn
   ssm_read_parameter_policy_arn                = var.ssm_read_parameters_policy_arn
 }
 
