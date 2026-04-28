@@ -33,10 +33,6 @@ resource "aws_ses_configuration_set" "VibraHeka_ses_config" {
   name = "VibraHeka-ses-config-${terraform.workspace}"
 }
 
-resource "aws_sesv2_contact_list" "VibraHeka_contacts" {
-  contact_list_name = "VibraHeka-contacts-${terraform.workspace}"
-}
-
 resource "aws_ses_domain_mail_from" "VibraHeka_ses_tracking" {
   count      = local.manage_shared_ses ? 1 : 0
   depends_on = [time_sleep.wait_for_ses_domain_identity]
@@ -67,12 +63,4 @@ output "ses_domain_identity_name" {
 
 output "ses_domain_identity_verification_record_name" {
   value = "_amazonses.${local.ses_domain_name}"
-}
-
-output "ses_contact_list_name" {
-  value = aws_sesv2_contact_list.VibraHeka_contacts.contact_list_name
-}
-
-output "ses_contact_list_arn" {
-  value = aws_sesv2_contact_list.VibraHeka_contacts.arn
 }

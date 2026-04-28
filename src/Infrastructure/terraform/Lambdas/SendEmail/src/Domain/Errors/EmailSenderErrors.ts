@@ -24,10 +24,7 @@ enum EmailSenderErrors {
     EMAIL_DELIVERY_FAILED = "EMAIL_DELIVERY_FAILED",
     
     /** Error while fetching email attachments */
-    ERROR_FETCHING_ATTACHMENT = "ERROR_FETCHING_ATTACHMENT",
-
-    /** Failed to register the email address in the SES contact list. */
-    CONTACT_REGISTRATION_FAILED = "CONTACT_REGISTRATION_FAILED"
+    ERROR_FETCHING_ATTACHMENT = "ERROR_FETCHING_ATTACHMENT"
 }
 
 export default EmailSenderErrors;

@@ -16,12 +16,4 @@ export default interface IEmailDeliveryService {
      * @returns Async result containing success or a domain error.
      */
     Send(recipient: string, subject: string, htmlBody: string, attachments: NotificationEmailAttachment[]): ResultAsync<void, EmailSenderErrors>;
-
-    /**
-     * Registers an email address in the SES contact list for bulk sending.
-     *
-     * @param email Email address to register.
-     * @returns Async result containing success or a domain error.
-     */
-    AddVerifiedContact(email: string): ResultAsync<void, EmailSenderErrors>;
 }
