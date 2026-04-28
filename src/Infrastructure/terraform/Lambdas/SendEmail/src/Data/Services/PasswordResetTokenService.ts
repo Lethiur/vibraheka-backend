@@ -90,8 +90,9 @@ export default class PasswordResetTokenService implements IPasswordResetTokenSer
         }
         
         try {
-            const separator = frontendVerificationUrl.replace("recover-password","verify").includes("?") ? "&" : "?";
-            return ok(`${frontendVerificationUrl}${separator}token=${encodeURIComponent(token)}`);
+            const verificationUrl = frontendVerificationUrl.replace("recover-password", "verify");
+            const separator = verificationUrl.includes("?") ? "&" : "?";
+            return ok(`${verificationUrl}${separator}token=${encodeURIComponent(token)}`);
         }catch (error) {
             console.error("Failed building verification link", {error});
             return err(EmailSenderErrors.TOKEN_BUILD_FAILED);
