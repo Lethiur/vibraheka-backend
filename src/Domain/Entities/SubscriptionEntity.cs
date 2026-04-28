@@ -27,4 +27,9 @@ public class SubscriptionEntity : BaseAuditableEntity
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
     public SubscriptionStatus SubscriptionStatus { get; set; } = SubscriptionStatus.Created;
+
+    public bool IsActive()
+    {
+        return SubscriptionStatus is SubscriptionStatus.Active or SubscriptionStatus.Trialing or SubscriptionStatus.ToBeCancelled;
+    }
 }

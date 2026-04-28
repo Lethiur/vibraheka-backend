@@ -7,7 +7,18 @@ resource "aws_dynamodb_table" "VH_recordings" {
     name = "Id"
     type = "S"
   }
+  
+  attribute {
+    name = "Tier"
+    type = "S"
+  }
 
+  global_secondary_index {
+    hash_key        = "Tier"
+    name            = "tier-index"
+    projection_type = "ALL"
+  }
+  
   tags = {
     created     = "terraform"
     environment = terraform.workspace
@@ -23,4 +34,8 @@ output "dynamodb_recordings_table_name" {
 
 output "dynamodb_recordings_table_arn" {
   value = aws_dynamodb_table.VH_recordings.arn
+}
+
+output "dynamodb_recordings_table_tier_idx" {
+  value = aws_dynamodb_table.VH_recordings.global_secondary_index[0].name
 }

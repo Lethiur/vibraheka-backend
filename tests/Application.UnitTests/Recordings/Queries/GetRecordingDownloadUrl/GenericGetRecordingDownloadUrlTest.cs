@@ -1,9 +1,11 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Common.Enums;
+using VibraHeka.Domain.Common.Interfaces;
+using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Ports.Out;
@@ -12,8 +14,12 @@ namespace VibraHeka.Application.UnitTests.Recordings.Queries.GetRecordingDownloa
 
 public abstract class GenericGetRecordingDownloadUrlTest
 {
+    protected const string UserId = "test-user-id-42";
+
     protected Mock<IRecordingRegistryPort> RegistryPortMock = default!;
     protected Mock<IRecordingStoragePort> StoragePortMock = default!;
+    protected Mock<ICurrentUserService> CurrentUserServiceMock = default!;
+    protected Mock<ISubscriptionService> SubscriptionServiceMock = default!;
     protected Mock<ILogger<GetRecordingDownloadUrlQueryHandler>> LoggerMock = default!;
     protected GetRecordingDownloadUrlQueryHandler Handler = default!;
 
@@ -22,9 +28,16 @@ public abstract class GenericGetRecordingDownloadUrlTest
     {
         RegistryPortMock = new Mock<IRecordingRegistryPort>();
         StoragePortMock = new Mock<IRecordingStoragePort>();
+        CurrentUserServiceMock = new Mock<ICurrentUserService>();
+        SubscriptionServiceMock = new Mock<ISubscriptionService>();
         LoggerMock = new Mock<ILogger<GetRecordingDownloadUrlQueryHandler>>();
+
+        CurrentUserServiceMock.Setup(s => s.UserId).Returns(UserId);
+
         Handler = new GetRecordingDownloadUrlQueryHandler(
             RegistryPortMock.Object,
+            CurrentUserServiceMock.Object,
+            SubscriptionServiceMock.Object,
             StoragePortMock.Object,
             LoggerMock.Object);
     }
@@ -35,23 +48,47 @@ public abstract class GenericGetRecordingDownloadUrlTest
     protected static GetRecordingDownloadUrlQuery BuildValidQuery(string recordingId) =>
         new(recordingId);
 
-    protected static ValidationResult ValidValidationResult() => new();
-
-    protected static ValidationResult InvalidValidationResult(string errorMessage) =>
-        new(
-            new List<ValidationFailure>
-            {
-                new ValidationFailure(nameof(GetRecordingDownloadUrlQuery.RecordingId), errorMessage),
-            });
-
-    protected static RecordingEntity BuildRecordingEntity(string recordingId) =>
+    protected static RecordingEntity BuildFreeRecordingEntity(string recordingId) =>
         new()
         {
             Id = recordingId,
             Name = "Meditacion matutina",
             Description = "Una sesion de meditacion para empezar el dia",
             Type = RecordingType.Meditacion,
+            Tier = RecordingTier.Free,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
+        };
+
+    protected static RecordingEntity BuildPremiumRecordingEntity(string recordingId) =>
+        new()
+        {
+            Id = recordingId,
+            Name = "Meditacion premium exclusiva",
+            Description = "Sesion premium para suscriptores activos",
+            Type = RecordingType.Meditacion,
+            Tier = RecordingTier.Premium,
+            Created = DateTimeOffset.UtcNow,
+            CreatedBy = "admin-user-id",
+        };
+
+    protected static SubscriptionEntity BuildActiveSubscriptionEntity() =>
+        new()
+        {
+            SubscriptionID = Guid.NewGuid().ToString(),
+            UserID = UserId,
+            SubscriptionStatus = SubscriptionStatus.Active,
+            StartDate = DateTimeOffset.UtcNow.AddDays(-30),
+            EndDate = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+    protected static SubscriptionEntity BuildInactiveSubscriptionEntity() =>
+        new()
+        {
+            SubscriptionID = Guid.NewGuid().ToString(),
+            UserID = UserId,
+            SubscriptionStatus = SubscriptionStatus.Inactive,
+            StartDate = DateTimeOffset.UtcNow.AddDays(-60),
+            EndDate = DateTimeOffset.UtcNow.AddDays(-30),
         };
 }

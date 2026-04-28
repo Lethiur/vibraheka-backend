@@ -12,5 +12,5 @@ public static class RecordingErrors
     // REC-NNN domain errors
     public const string NotFound = "REC-001";
     public const string InvalidRecordingId = "REC-002";
-    public const string InactiveRecording = "REC-003";
+    public const string OnlyForSubscribers = "REC-003";
 }

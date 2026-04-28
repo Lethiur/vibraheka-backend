@@ -71,17 +71,17 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // And: The token is used once 
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         response.EnsureSuccessStatusCode();
-        
+
         // When: The same token is reused
         response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        
+
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenAlreadyUsed));
     }
-    
+
     [Test]
     [DisplayName("Should fail verification with wrong code")]
     public async Task ShouldFailVerificationWithWrongCode()
