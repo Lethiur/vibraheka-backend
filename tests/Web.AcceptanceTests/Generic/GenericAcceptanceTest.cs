@@ -1,6 +1,8 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Strategies;
@@ -21,6 +23,7 @@ using VibraHeka.Application.Users.Queries.GetCode;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -45,13 +48,20 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     public void Setup()
     {
         AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("VH-ACCEPTANCE-TEST"));
-     
+        Client = Factory.CreateClient();
     }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
         Client = Factory.CreateClient();
+    }
+
+    [TearDown]
+    public void Teardown()
+    {
+
+        Client.Dispose();
     }
 
     [OneTimeTearDown]
@@ -118,7 +128,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
+        VerifyUserCommand verificationCommand = new(codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
             await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
@@ -138,7 +148,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
+        VerifyUserCommand verificationCommand = new(codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
             await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
@@ -159,7 +169,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new(email, codeResult.Code);
+        VerifyUserCommand verificationCommand = new(codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
             await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
@@ -230,6 +240,44 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         T obj = scope.ServiceProvider.GetRequiredService<T>();
 
         return obj;
+    }
+
+    /// <summary>
+    /// Creates an encrypted verification token using the same algorithm as <c>PasswordResetTokenService</c>.
+    /// Intended for use in acceptance tests that need to call the verify-account endpoint.
+    /// </summary>
+    /// <param name="email">Email to embed in the token.</param>
+    /// <param name="cognitoCode">Cognito verification code to embed.</param>
+    /// <param name="expiresAt">Optional expiry; defaults to 30 minutes from now.</param>
+    /// <returns>Encrypted token string in the <c>v1.&lt;base64url&gt;</c> format.</returns>
+    protected string CreateEncryptedToken(string email, string cognitoCode, DateTimeOffset? expiresAt = null)
+    {
+        AWSConfig config = GetObjectFromFactory<AWSConfig>();
+        byte[] key = SHA256.HashData(Encoding.UTF8.GetBytes(config.PasswordResetTokenSecret.Trim()));
+
+        byte[] plainText = JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            Email = email,
+            CognitoCode = cognitoCode,
+            TokenId = Guid.NewGuid().ToString(),
+            ExpiresAtUnix = (expiresAt ?? DateTimeOffset.UtcNow.AddMinutes(30)).ToUnixTimeSeconds()
+        });
+
+        byte[] nonce = new byte[12];
+        RandomNumberGenerator.Fill(nonce);
+        byte[] cipherText = new byte[plainText.Length];
+        byte[] tag = new byte[16];
+
+        using AesGcm aes = new(key, 16);
+        aes.Encrypt(nonce, plainText, cipherText, tag);
+
+        byte[] combined = [.. nonce, .. tag, .. cipherText];
+        string base64Url = Convert.ToBase64String(combined)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .TrimEnd('=');
+
+        return $"v1.{base64Url}";
     }
 
     protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,

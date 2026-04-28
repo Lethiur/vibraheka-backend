@@ -1,4 +1,3 @@
-
 resource "aws_s3_bucket" "VH_recordings" {
   bucket        = "vibraheka-recordings-${terraform.workspace}"
   force_destroy = true
@@ -27,6 +26,17 @@ resource "aws_s3_bucket_ownership_controls" "VH_recordings_ownership" {
 
   rule {
     object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "VH_recordings_cors" {
+  bucket = aws_s3_bucket.VH_recordings.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "GET"]
+    allowed_origins = ["*"]
+    expose_headers  = []
   }
 }
 

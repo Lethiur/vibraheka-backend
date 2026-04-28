@@ -82,4 +82,20 @@ export default class PasswordResetTokenService implements IPasswordResetTokenSer
             return err(EmailSenderErrors.TOKEN_BUILD_FAILED);
         }
     }
+    
+    public BuildVerificationLink(token: string, frontendVerificationUrl : string): Result<string, EmailSenderErrors> {
+        if (!frontendVerificationUrl || frontendVerificationUrl.trim().length === 0) {
+            console.log("Frontend verification URL not configured, returning token as fallback payload");
+            return ok(token);
+        }
+        
+        try {
+            const verificationUrl = frontendVerificationUrl.replace("recover-password", "verify");
+            const separator = verificationUrl.includes("?") ? "&" : "?";
+            return ok(`${verificationUrl}${separator}token=${encodeURIComponent(token)}`);
+        }catch (error) {
+            console.error("Failed building verification link", {error});
+            return err(EmailSenderErrors.TOKEN_BUILD_FAILED);
+        }
+    }
 }

@@ -6,8 +6,8 @@
   "scripts": {
     "test": "test",
     "build": "esbuild ./lambda_create.ts --bundle --platform=node --target=node20.11 --outdir=dist",
-    "zip" : "npx zip-cli -i dist -o lambda_create.zip",
-    "zip:windows": "powershell -Command \"Compress-Archive -Path dist\\* -DestinationPath lambda.zip -Force\""
+    "zip": "npx zip-cli -i dist -o lambda_create.zip",
+    "zip:windows": "powershell -Command \"Compress-Archive -Path dist\\* -DestinationPath lambda_create.zip -Force\""
   },
   "author": "Twingers Corporation",
   "license": "ISC",
@@ -23,6 +23,9 @@
     "@aws-crypto/client-node": "^4.1.0",
     "aws-sdk": "^2.1692.0",
     "base64-js": "^1.5.1",
+    "neverthrow": "^8.2.0",
     "source-map-support": "^0.5.21"
   }
 }
+
+

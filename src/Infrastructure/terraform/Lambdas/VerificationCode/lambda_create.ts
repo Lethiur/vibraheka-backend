@@ -6,6 +6,8 @@ import {
 } from '@aws-crypto/client-node';
 import {Handler} from 'aws-lambda';
 import {DocumentClient} from "aws-sdk/clients/dynamodb";
+import PasswordResetTokenService from "./PasswordResetTokenService";
+import {Result} from 'neverthrow'
 
 // Initialize the AWS Encryption SDK client with the required commitment policy
 const {decrypt} = buildClient(
@@ -25,7 +27,7 @@ export const lambda_handler: Handler = async (event) => {
     let plainTextCode: Uint8Array | undefined;
 
     console.log(event);
-    
+    const tokenService = new PasswordResetTokenService(process.env.TOKEN_SECRET!, 15);
     // Check if the event contains a code to decrypt
     if (event.request.code) {
         // Decrypt the provided code using the AWS Encryption SDK
@@ -34,22 +36,33 @@ export const lambda_handler: Handler = async (event) => {
             toByteArray(event.request.code)
         );
         plainTextCode = plaintext;
+        const userAttributes = event.request.userAttributes as Record<string, string> | undefined;
+        const recipient = userAttributes?.["email"] ?? event.userName;
+        const encryptedToken : Result<string,string> = tokenService.BuildPasswordResetToken(recipient, plainTextCode.toString());
 
+        
+        
         const dynamoDB = new DocumentClient({
             region: event.request.region,
         });
         
+        await encryptedToken.asyncMap(async (token) => {
+             
         const item  = {
             TableName: process.env.DYNAMO_TABLE_NAME!, // Replace with your DynamoDB table name
             Item: {
                 username: event.userName,           // Replace with your item key (partition key)
                 timestamp: new Date().getTime(),      // Example attribute
-                verification_code: plainTextCode.toString(),  // Another attribute
+                verification_code: token,  // Another attribute
             }
         };
 
-        let request = await dynamoDB.put(item).promise();
-        console.log('Item added successfully!');
+            let request = await dynamoDB.put(item).promise();
+            console.log('Item added successfully!');
+        });
+
+
+        
     }
 
     // Determine the trigger source and handle accordingly

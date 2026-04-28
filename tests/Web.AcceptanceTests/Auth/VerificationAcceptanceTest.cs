@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Http.Json;
 using Bogus;
@@ -24,13 +24,13 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
 
         await RegisterUser(faker.Person.FullName, email, password);
 
-        // And: The verification code
+        // And: The verification code and its encrypted token
         VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
 
         // When: The user verifies their account
-        HttpResponseMessage verificationMessage = await Client.PatchAsJsonAsync("api/v1/auth/confirm", new VerifyUserCommand(email, verificationCode.Code));
-        verificationMessage.EnsureSuccessStatusCode();
-        ResponseEntity responseEntity = await verificationMessage.GetAsResponseEntity();
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", new VerifyUserCommand(verificationCode.Code));
+        response.EnsureSuccessStatusCode();
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
 
         Assert.That(responseEntity.Success, Is.True, "The user should be verified successfully");
         Assert.That(responseEntity.ErrorCode, Is.Null, "The response should not contain any error code");
@@ -38,125 +38,153 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
 
     [Test]
     [DisplayName("Should fail verification with non-existent user")]
-    [TestCase("user@example.com", "123456")] // Email y código válidos básicos
-    public async Task ShouldFailVerificationWithNonExistentUser(string email, string code)
+    public async Task ShouldFailVerificationWithNonExistentUser()
     {
-        // Given: A valid format command but for non-existent user
-        VerifyUserCommand command = new(email, code);
+        // Given: A valid token pointing to a non-existent user
+        string encryptedToken = CreateEncryptedToken("nonexistent@example.com", "123456");
+        VerifyUserCommand command = new(encryptedToken);
 
-        // When: The client tries to verify
+        // When
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
 
-        // Then: Should return appropriate error (not validation error)
+        // Then: Should return 404 Not Found
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound),
             "Should return 404 Not Found when trying to verify a non-existent user");
-
-        Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
+        Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
+    [DisplayName("Should fail when the token is reused")]
+    public async Task ShouldFailWhenTheTokenIsReused()
+    {
+        // Given: A registered user
+        Faker faker = new();
+        string email = faker.Internet.Email();
+        await RegisterUser(faker.Person.FullName, email, ThePassword);
+        VerificationCodeEntity waitForVerificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
+
+        // And: An encrypted token with a wrong code
+        VerifyUserCommand command = new(waitForVerificationCode.Code);
+
+        // And: The token is used once 
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
+        response.EnsureSuccessStatusCode();
+        
+        // When: The same token is reused
+        response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(responseEntity.Success, Is.False);
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenAlreadyUsed));
+    }
+    
+    [Test]
     [DisplayName("Should fail verification with wrong code")]
     public async Task ShouldFailVerificationWithWrongCode()
     {
-        // Given: Some registered user
+        // Given: A registered user
         Faker faker = new();
         string email = faker.Internet.Email();
-        string password = "Password123@";
-        string fullName = faker.Person.FullName;
-
-        await RegisterUser(fullName, email, password);
-
-        // And: Wait for the verification code to be generated
+        await RegisterUser(faker.Person.FullName, email, "Password123@");
         await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
 
-        // When: The user tries to verify with wrong code
-        VerifyUserCommand command = new(email, "999999"); // Wrong code
+        // And: An encrypted token with a wrong code
+        string encryptedToken = CreateEncryptedToken(email, "999999");
+        VerifyUserCommand command = new(encryptedToken);
+
+        // When
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        // Then: Should fail but not with validation error
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
-            "Should not return BadRequest for valid format but wrong code");
 
-        Assert.That(responseEntity.Success, Is.False, "The user should not be verified successfully");
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
 
-    // === EMAIL TESTS ===
-    [TestCase("", "123456", UserErrors.InvalidEmail)] // Email vacío
-    [TestCase(null, "123456", UserErrors.InvalidEmail)] // Email null
-    [TestCase("   ", "123456", UserErrors.InvalidEmail)] // Email solo espacios
-    [TestCase("invalid-email", "123456", UserErrors.InvalidEmail)] // Email formato inválido
-    [TestCase("@domain.com", "123456", UserErrors.InvalidEmail)] // Email sin parte local
-    [TestCase("user@", "123456", UserErrors.InvalidEmail)] // Email sin dominio
-    [TestCase("user.domain.com", "123456", UserErrors.InvalidEmail)] // Email sin @
-    [TestCase("user@domain", "123456", UserErrors.InvalidEmail)] // Email sin TLD
-    [TestCase("user..test@domain.com", "123456", UserErrors.InvalidEmail)] // Email con doble punto
-
-    // === CODE TESTS ===
-    [TestCase("test@example.com", "", UserErrors.InvalidVerificationCode)] // Code vacío
-    [TestCase("test@example.com", null, UserErrors.InvalidVerificationCode)] // Code null
-    [TestCase("test@example.com", "   ", UserErrors.InvalidVerificationCode)] // Code solo espacios
-    [TestCase("test@example.com", "\t", UserErrors.InvalidVerificationCode)] // Code solo tab
-    [TestCase("test@example.com", "\n", UserErrors.InvalidVerificationCode)] // Code solo salto de línea
-    [TestCase("test@example.com", "\r\n", UserErrors.InvalidVerificationCode)] // Code CRLF
-    [TestCase("test@example.com", "1", UserErrors.InvalidVerificationCode)] // Code 1 char
-    [TestCase("test@example.com", "12", UserErrors.InvalidVerificationCode)] // Code 2 chars
-    [TestCase("test@example.com", "123", UserErrors.InvalidVerificationCode)] // Code 3 chars
-    [TestCase("test@example.com", "1234", UserErrors.InvalidVerificationCode)] // Code 4 chars
-    [TestCase("test@example.com", "12345", UserErrors.InvalidVerificationCode)] // Code 5 chars (límite)
-    [TestCase("test@example.com", "test", UserErrors.InvalidVerificationCode)] // Code 5 chars (límite)
-
-    // === EDGE CASES COMBINADOS ===
-    [TestCase(null, null, $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
-    [TestCase("", "", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
-    [TestCase("   ", "   ", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")]
-    [TestCase("invalid-email", "123", $"{UserErrors.InvalidEmail} | {UserErrors.InvalidVerificationCode}")] // Ambos inválidos
-
-    [DisplayName("Should not allow verification with invalid data")]
-    public async Task ShouldNotAllowVerificationWithInvalidData(string email, string code, string expectedErrorKeyword)
+    [Test]
+    [DisplayName("Should return BadRequest when token was already used")]
+    public async Task ShouldReturnBadRequestWhenTokenWasAlreadyUsed()
     {
-        // Given: A verify command with invalid data
-        VerifyUserCommand command = new(email, code);
+        // Given: A registered user with a valid encrypted token
+        Faker faker = new();
+        string email = faker.Internet.Email();
+        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
+        string encryptedToken = verificationCode.Code;
 
-        // When: The client is invoked
+        // And: The token is used once successfully
+        HttpResponseMessage firstResponse = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", new VerifyUserCommand(encryptedToken));
+        firstResponse.EnsureSuccessStatusCode();
+
+        // When: The same token is reused
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", new VerifyUserCommand(encryptedToken));
+        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+
+        // Then: Replay protection blocks the second attempt
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(responseEntity.Success, Is.False);
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenAlreadyUsed));
+    }
+
+    // === VALIDATION TESTS ===
+    [TestCase("", UserErrors.InvalidPasswordResetToken, TestName = "Empty encrypted code")]
+    [TestCase(null, UserErrors.InvalidPasswordResetToken, TestName = "Null encrypted code")]
+    [TestCase("   ", UserErrors.InvalidPasswordResetToken, TestName = "Whitespace encrypted code")]
+    [DisplayName("Should return BadRequest when encrypted code is empty or null")]
+    public async Task ShouldNotAllowVerificationWithEmptyOrNullEncryptedCode(string encryptedCode, string expectedErrorCode)
+    {
+        // Given
+        VerifyUserCommand command = new(encryptedCode);
+
+        // When
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
 
-        // Then: Should return BadRequest
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "The status code should be BadRequest");
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        ResponseEntity responseObject = await response.GetAsResponseEntity();
+        Assert.That(responseObject.Content, Is.Null);
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorCode));
+    }
 
-        // And: The response should contain the expected error message
+    // === INVALID TOKEN FORMAT TESTS ===
+    [TestCase("not-a-valid-token", TestName = "No v1 prefix")]
+    [TestCase("v1.!!!invalid-base64!!!", TestName = "Invalid base64 payload")]
+    [TestCase("v2.somevalue", TestName = "Wrong version prefix")]
+    [TestCase("justplaintext", TestName = "Plain text without prefix")]
+    [DisplayName("Should return BadRequest when token format is invalid")]
+    public async Task ShouldReturnBadRequestWhenTokenFormatIsInvalid(string encryptedCode)
+    {
+        // Given
+        VerifyUserCommand command = new(encryptedCode);
 
+        // When
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseObject = await response.GetAsResponseEntity();
 
-        Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword),
-            $"The response should contain the error keyword '{expectedErrorKeyword}'. Actual error: {responseObject.ErrorCode}");
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
     [Test]
-    [DisplayName("Should return BadRequest when verification code is numeric but incorrect")]
-    public async Task ShouldReturnBadRequestWhenVerificationCodeIsNumericButIncorrect()
+    [DisplayName("Should return BadRequest when token is expired")]
+    public async Task ShouldReturnBadRequestWhenTokenIsExpired()
     {
-        // Given: A registered user and a command with a numeric but wrong code
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        string password = "Password123@";
-        string fullName = faker.Person.FullName;
+        // Given: An already-expired encrypted token
+        string expiredToken = CreateEncryptedToken("user@test.com", "123456", DateTimeOffset.UtcNow.AddMinutes(-20));
+        VerifyUserCommand command = new(expiredToken);
 
-        await RegisterUser(fullName, email, password);
-        VerifyUserCommand command = new(email, "123456");
-
-        // When: Calling the confirm endpoint
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", command);
-
-        // Then: Should return 400 BadRequest 
-        // El switch en tu controlador capturará el error devuelto por el servicio
+        // When
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
         ResponseEntity responseObject = await response.GetAsResponseEntity();
 
-        Assert.That(responseObject.Content, Is.Null, $"The response content should be null when validation fails");
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode),
-            $"The response should contain the error keyword '{UserErrors.WrongVerificationCode}'. Actual error: {responseObject.ErrorCode}");
+        // Then
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenExpired));
     }
 }

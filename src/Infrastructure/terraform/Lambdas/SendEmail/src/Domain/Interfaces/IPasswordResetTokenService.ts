@@ -22,4 +22,13 @@ export default interface IPasswordResetTokenService {
      * @returns Result containing the link or a domain error.
      */
     BuildPasswordResetLink(token: string, frontendResetUrl : string): Result<string, EmailSenderErrors>;
+
+    /**
+     * Generates a verification link for user email or password reset purposes.
+     *
+     * @param {string} token - The unique token associated with the verification process.
+     * @param {string} frontendResetUrl - The base URL of the frontend application for constructing the full verification link.
+     * @return {Result<string, EmailSenderErrors>} A result object containing either the generated verification link as a string or an error related to email sending.
+     */
+    BuildVerificationLink(token: string, frontendResetUrl : string): Result<string, EmailSenderErrors>;
 }

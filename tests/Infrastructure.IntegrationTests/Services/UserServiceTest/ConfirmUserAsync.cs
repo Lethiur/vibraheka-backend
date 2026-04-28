@@ -20,10 +20,10 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
 
         // When: The user is confirmed
-        Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-
+        string codeResult = await GetAndDecryptCode(email);
+        
         // Then: The user should be confirmed successfully
-        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True, "User confirmation should succeed");
     }
 
@@ -185,9 +185,10 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
         await RegisterUser(email);
 
         // When: The user is confirmed twice
-        Result<VerificationCodeEntity> codeFor = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
-        Result<Unit> secondConfirmResult = await UserService.ConfirmUserAsync(email, codeFor.Value.Code);
+        string codeResult = await GetAndDecryptCode(email);
+        await UserService.ConfirmUserAsync(email, codeResult);
+        Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
+        Result<Unit> secondConfirmResult = await UserService.ConfirmUserAsync(email, codeResult);
 
         // Then: The error should be NotAuthorized (Cognito does not allow confirming already confirmed users)
         Assert.That(secondConfirmResult.IsFailure, Is.True);
