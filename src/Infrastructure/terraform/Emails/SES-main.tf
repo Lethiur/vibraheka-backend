@@ -1,4 +1,11 @@
-
+terraform {
+  required_providers {
+    awscc = {
+      source  = "hashicorp/awscc"
+      version = "1.75.0"
+    }
+  }
+}
 data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
@@ -33,7 +40,7 @@ resource "aws_ses_configuration_set" "VibraHeka_ses_config" {
   name = "VibraHeka-ses-config-${terraform.workspace}"
 }
 
-resource "aws_sesv2_contact_list" "VibraHeka_contacts" {
+resource "awscc_ses_contact_list" "VibraHeka_contacts" {
   contact_list_name = "VibraHeka-contacts-${terraform.workspace}"
 }
 
