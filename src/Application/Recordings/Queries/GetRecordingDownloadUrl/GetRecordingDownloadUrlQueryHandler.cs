@@ -43,7 +43,7 @@ public sealed class GetRecordingDownloadUrlQueryHandler(
                 return Result.Failure<RecordingDownloadUrlDto>(RecordingErrors.OnlyForSubscribers);
             }
         }
-
+        
         return await recordingRecordResult
             .Bind(recording => StoragePort.GetDownloadUrlAsync(recording.Id, cancellationToken))
             .Map(url => new RecordingDownloadUrlDto(url))
