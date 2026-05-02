@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
+using Amazon.SimpleEmailV2;
 using Amazon.SimpleSystemsManagement;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Infrastructure.Emails;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence;
@@ -81,6 +83,7 @@ public static class DependencyInjection
 
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.AddAWSService<IAmazonDynamoDB>();
+        services.AddAWSService<IAmazonSimpleEmailServiceV2>();
         services.AddAWSService<IAmazonSimpleSystemsManagement>();
         services.AddAWSService<IAmazonS3>();
         services.AddAWSService<IAmazonCloudWatchLogs>();
@@ -93,7 +96,7 @@ public static class DependencyInjection
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<AWSLoggingConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<AWSConfig>>().Value);
         services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<StripeConfig>>().Value);
-
+        services.AddSingleton<EmailClient>();
         services.Configure<AppSettingsEntity>(configuration);
         services.Configure<AWSLoggingConfig>(configuration.GetSection("AWSLogging"));
         services.Configure<StripeConfig>(configuration.GetSection("Stripe"));

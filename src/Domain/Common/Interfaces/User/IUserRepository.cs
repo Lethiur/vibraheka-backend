@@ -39,7 +39,18 @@ public interface IUserRepository
     /// The task result contains a <see cref="Result{T}"/> where T is a <see cref="UserEntity"/>
     /// representing the user associated with the specified identifier, if found.
     /// </returns>
-    Task<Result<Entities.UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken);
+    Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Asynchronously retrieves all user entities from the repository.
+    /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result"/> where T is a collection of <see cref="UserEntity"/> instances,
+    /// representing all users in the repository if the operation is successful.
+    /// </returns>
+    Task<Result<IEnumerable<UserEntity>>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Asynchronously retrieves users from the repository with the specified role.

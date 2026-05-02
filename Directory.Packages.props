@@ -12,9 +12,10 @@
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="AWS.Logger.AspNetCore" Version="4.0.2" />
     <PackageVersion Include="AWSSDK.CognitoIdentityProvider" Version="4.0.5.1" />
-    <PackageVersion Include="AWSSDK.Core" Version="4.0.3.14" />
+    <PackageVersion Include="AWSSDK.Core" Version="4.0.6" />
     <PackageVersion Include="AWSSDK.DynamoDBv2" Version="4.0.14" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.18.6" />
+    <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.12.12" />
     <PackageVersion Include="AWSSDK.SimpleSystemsManagement" Version="4.0.6.12" />
     <PackageVersion Include="AWSXRayRecorder.Core" Version="2.16.0" />
     <PackageVersion Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.13.0" />

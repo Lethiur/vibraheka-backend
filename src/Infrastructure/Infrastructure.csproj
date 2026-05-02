@@ -12,6 +12,7 @@
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="AWSSDK.DynamoDBv2" />
     <PackageReference Include="AWSSDK.S3" />
+    <PackageReference Include="AWSSDK.SimpleEmailV2" />
     <PackageReference Include="AWSXRayRecorder.Core" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" />
