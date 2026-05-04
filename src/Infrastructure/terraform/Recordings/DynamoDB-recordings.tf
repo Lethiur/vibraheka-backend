@@ -37,5 +37,8 @@ output "dynamodb_recordings_table_arn" {
 }
 
 output "dynamodb_recordings_table_tier_idx" {
-  value = aws_dynamodb_table.VH_recordings.global_secondary_index[0].name
+  value = one([
+    for gsi in aws_dynamodb_table.VH_recordings.global_secondary_index : gsi.name
+    if gsi.hash_key == "Tier"
+  ])
 }
