@@ -2512,6 +2512,7 @@ export interface IResponseEntity {
 export class UploadRecordingRequest implements IUploadRecordingRequest {
     name?: string;
     description?: string;
+    tier?: RecordingTier;
     type?: RecordingType;
 
     constructor(data?: IUploadRecordingRequest) {
@@ -2527,6 +2528,7 @@ export class UploadRecordingRequest implements IUploadRecordingRequest {
         if (_data) {
             this.name = _data["name"];
             this.description = _data["description"];
+            this.tier = _data["tier"];
             this.type = _data["type"];
         }
     }
@@ -2542,6 +2544,7 @@ export class UploadRecordingRequest implements IUploadRecordingRequest {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["description"] = this.description;
+        data["tier"] = this.tier;
         data["type"] = this.type;
         return data;
     }
@@ -2550,7 +2553,14 @@ export class UploadRecordingRequest implements IUploadRecordingRequest {
 export interface IUploadRecordingRequest {
     name?: string;
     description?: string;
+    tier?: RecordingTier;
     type?: RecordingType;
+}
+
+export enum RecordingTier {
+    Free = 0,
+    Premium = 1,
+    DiscountForMembers = 2,
 }
 
 export enum RecordingType {

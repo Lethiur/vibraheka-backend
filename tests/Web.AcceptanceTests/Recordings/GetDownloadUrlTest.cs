@@ -2,10 +2,13 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using CSharpFunctionalExtensions;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.AcceptanceTests.Generic;
@@ -158,5 +161,178 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
             entity.ErrorCode,
             Does.Contain(RecordingErrors.InvalidRecordingId),
             $"Expected error code to contain '{RecordingErrors.InvalidRecordingId}' but got: '{entity.ErrorCode}'");
+    }
+
+    [Test]
+    [DisplayName("Should return 400 with subscription error when premium recording and user has no subscription")]
+    public async Task ShouldReturn400WhenPremiumRecordingAndUserHasNoSubscription()
+    {
+        // Given: an admin uploads a premium recording
+        string adminEmail = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, adminEmail, ThePassword);
+        AuthenticationResult adminAuth = await AuthenticateUser(adminEmail, ThePassword);
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", adminAuth.AccessToken);
+
+        HttpResponseMessage uploadResponse =
+            await Client.PostAsJsonAsync(UploadEndpoint, BuildPremiumBody());
+        uploadResponse.EnsureSuccessStatusCode();
+        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult? recordingResult = uploadEntity.GetContentAs<AddRecordingResult>();
+        Assert.That(recordingResult, Is.Not.Null,
+            "Expected a non-null recording result after premium upload but got null");
+
+        // Given: a regular user with no subscription authenticates
+        string userEmail = TheFaker.Internet.Email();
+        AuthenticationResult userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userAuth.AccessToken);
+
+        // When: the user without subscription requests the download URL for the premium recording
+        HttpResponseMessage response =
+            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingResult!.RecordingId));
+
+        // Then: the response should be 400 BadRequest, no subscription found error propagated
+        Assert.That(
+            response.StatusCode,
+            Is.EqualTo(HttpStatusCode.BadRequest),
+            $"Expected 400 BadRequest for premium recording without subscription but got {(int)response.StatusCode} {response.StatusCode}");
+
+        ResponseEntity entity = await response.GetAsResponseEntity();
+
+        Assert.That(
+            entity.Success,
+            Is.False,
+            $"Expected ResponseEntity.Success=false when user has no subscription but got true. ErrorCode: '{entity.ErrorCode}'");
+
+        Assert.That(
+            entity.ErrorCode,
+            Is.EqualTo(SubscriptionErrors.NoSubscriptionFound),
+            $"Expected error code '{SubscriptionErrors.NoSubscriptionFound}' (no subscription) but got: '{entity.ErrorCode}'");
+
+        Assert.That(
+            entity.Content,
+            Is.Null,
+            "Expected no DownloadUrl content when access is denied due to missing subscription");
+    }
+
+    [Test]
+    [DisplayName("Should return 400 with REC-003 when premium recording and user subscription is not active")]
+    public async Task ShouldReturn400WhenPremiumRecordingAndSubscriptionIsNotActive()
+    {
+        // Given: an admin uploads a premium recording
+        string adminEmail = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, adminEmail, ThePassword);
+        AuthenticationResult adminAuth = await AuthenticateUser(adminEmail, ThePassword);
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", adminAuth.AccessToken);
+
+        HttpResponseMessage uploadResponse =
+            await Client.PostAsJsonAsync(UploadEndpoint, BuildPremiumBody());
+        uploadResponse.EnsureSuccessStatusCode();
+        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult? recordingResult = uploadEntity.GetContentAs<AddRecordingResult>();
+        Assert.That(recordingResult, Is.Not.Null,
+            "Expected a non-null recording result after premium upload but got null");
+
+        // Given: a regular user registers, logs in and has a cancelled (inactive) subscription
+        string userEmail = TheFaker.Internet.Email();
+        AuthenticationResult userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+
+        Result<SubscriptionEntity> seedResult =
+            await SeedSubscriptionForRecordingTest(userAuth.UserID, SubscriptionStatus.Cancelled, OrderStatus.Cancelled);
+        Assert.That(seedResult.IsSuccess, Is.True,
+            $"Subscription seeding should succeed but got error: '{(seedResult.IsFailure ? seedResult.Error : "N/A")}'");
+
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userAuth.AccessToken);
+
+        // When: the user with an inactive subscription requests the download URL for the premium recording
+        HttpResponseMessage response =
+            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingResult!.RecordingId));
+
+        // Then: the response should be 400 BadRequest with OnlyForSubscribers error
+        Assert.That(
+            response.StatusCode,
+            Is.EqualTo(HttpStatusCode.BadRequest),
+            $"Expected 400 BadRequest for premium recording with inactive subscription but got {(int)response.StatusCode} {response.StatusCode}");
+
+        ResponseEntity entity = await response.GetAsResponseEntity();
+
+        Assert.That(
+            entity.Success,
+            Is.False,
+            $"Expected ResponseEntity.Success=false when subscription is not active but got true. ErrorCode: '{entity.ErrorCode}'");
+
+        Assert.That(
+            entity.ErrorCode,
+            Is.EqualTo(RecordingErrors.OnlyForSubscribers),
+            $"Expected error code '{RecordingErrors.OnlyForSubscribers}' (only for subscribers) but got: '{entity.ErrorCode}'");
+
+        Assert.That(
+            entity.Content,
+            Is.Null,
+            "Expected no DownloadUrl content when access is denied due to inactive subscription");
+    }
+
+    [Test]
+    [DisplayName("Should return 200 with non-empty URL when premium recording and user has active subscription")]
+    public async Task ShouldReturn200WhenPremiumRecordingAndSubscriptionIsActive()
+    {
+        // Given: an admin uploads a premium recording
+        string adminEmail = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, adminEmail, ThePassword);
+        AuthenticationResult adminAuth = await AuthenticateUser(adminEmail, ThePassword);
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", adminAuth.AccessToken);
+
+        HttpResponseMessage uploadResponse =
+            await Client.PostAsJsonAsync(UploadEndpoint, BuildPremiumBody());
+        uploadResponse.EnsureSuccessStatusCode();
+        ResponseEntity uploadEntity = await uploadResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult? recordingResult = uploadEntity.GetContentAs<AddRecordingResult>();
+        Assert.That(recordingResult, Is.Not.Null,
+            "Expected a non-null recording result after premium upload but got null");
+
+        // Given: a regular user registers, logs in and has an active subscription
+        string userEmail = TheFaker.Internet.Email();
+        AuthenticationResult userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+
+        Result<SubscriptionEntity> seedResult =
+            await SeedSubscriptionForRecordingTest(userAuth.UserID, SubscriptionStatus.Active, OrderStatus.InvoicePayed);
+        Assert.That(seedResult.IsSuccess, Is.True,
+            $"Subscription seeding should succeed but got error: '{(seedResult.IsFailure ? seedResult.Error : "N/A")}'");
+
+        Client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userAuth.AccessToken);
+
+        // When: the user with an active subscription requests the download URL for the premium recording
+        HttpResponseMessage response =
+            await Client.GetAsync(BuildDownloadUrlEndpoint(recordingResult!.RecordingId));
+
+        // Then: the response should be 200 OK with a non-empty download URL
+        Assert.That(
+            response.StatusCode,
+            Is.EqualTo(HttpStatusCode.OK),
+            $"Expected 200 OK for premium recording with active subscription but got {(int)response.StatusCode} {response.StatusCode}");
+
+        ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<RecordingDownloadUrlDto>();
+
+        Assert.That(
+            entity.Success,
+            Is.True,
+            $"Expected ResponseEntity.Success=true for active subscriber but got false. ErrorCode: '{entity.ErrorCode}'");
+
+        RecordingDownloadUrlDto? dto = entity.GetContentAs<RecordingDownloadUrlDto>();
+
+        Assert.That(
+            dto,
+            Is.Not.Null,
+            "Expected a non-null RecordingDownloadUrlDto in the response content but got null");
+
+        Assert.That(
+            dto!.DownloadUrl,
+            Is.Not.Null.And.Not.Empty,
+            $"Expected a non-empty DownloadUrl for active subscriber but got: '{dto.DownloadUrl}'");
     }
 }

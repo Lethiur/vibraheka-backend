@@ -19,6 +19,11 @@ public sealed class UploadRecordingRequest
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
+    /// Specifies the tier of the recording, indicating its access level and pricing model.
+    /// </summary>
+    public RecordingTier Tier { get; set; }
+
+    /// <summary>
     /// The type of recording: Meditacion, Masterclass or Taller.
     /// </summary>
     public RecordingType Type { get; set; }

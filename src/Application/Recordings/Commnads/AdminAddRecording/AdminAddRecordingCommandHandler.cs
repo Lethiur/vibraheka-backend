@@ -21,8 +21,8 @@ public sealed class AdminAddRecordingCommandHandler(
         string recordingId = Guid.NewGuid().ToString();
 
         Logger.LogInformation(
-            "Creating recording entry {RecordingId} with name {Name} and type {Type}",
-            recordingId, request.Name, request.Type);
+            "Creating recording entry {RecordingId} with name {Name}, tier {Tier} and type {Type}",
+            recordingId, request.Name, request.Tier, request.Type);
 
         RecordingEntity entity = new()
         {
@@ -30,6 +30,7 @@ public sealed class AdminAddRecordingCommandHandler(
             Name = request.Name,
             Description = request.Description,
             Type = request.Type,
+            Tier = request.Tier,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = CurrentUserService.UserId,
             LastModified = DateTimeOffset.UtcNow,

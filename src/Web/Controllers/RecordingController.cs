@@ -38,6 +38,7 @@ public class RecordingController(IMediator mediator)
         AdminAddRecordingCommand command = new(
             Name: request.Name,
             Description: request.Description,
+            Tier: request.Tier,
             Type: request.Type);
 
         Result<AddRecordingResult> result = await mediator.Send(command, ct);

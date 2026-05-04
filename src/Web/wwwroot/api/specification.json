@@ -1292,10 +1292,27 @@
           "description": {
             "type": "string"
           },
+          "tier": {
+            "$ref": "#/components/schemas/RecordingTier"
+          },
           "type": {
             "$ref": "#/components/schemas/RecordingType"
           }
         }
+      },
+      "RecordingTier": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Free",
+          "Premium",
+          "DiscountForMembers"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
       "RecordingType": {
         "type": "integer",

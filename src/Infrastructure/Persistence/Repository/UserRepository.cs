@@ -81,12 +81,12 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     public async Task<Result<IEnumerable<UserEntity>>> GetAllAsync(CancellationToken cancellationToken)
     {
         List<UserEntity> users = new();
-     
+
         var operationConfig = new DynamoDBOperationConfig()
         {
             OverrideTableName = config.UsersTable,
         };
-        
+
         var scanOperationConfig = new ScanOperationConfig() { Filter = new ScanFilter() };
 
         IAsyncSearch<UserDBModel> fromScanAsync = context.FromScanAsync<UserDBModel>(scanOperationConfig, operationConfig);
@@ -98,7 +98,8 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
                 List<UserDBModel> nextSetAsync = await fromScanAsync.GetNextSetAsync(cancellationToken);
                 users.AddRange(nextSetAsync.Select(m => m.ToDomain()));
             }
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             return Result.Failure<IEnumerable<UserEntity>>(ex.Message);
         }
