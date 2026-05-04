@@ -3,7 +3,10 @@ using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnads.AdminAddRecording;
+using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Errors;
+using static VibraHeka.Domain.Recordings.Enums.RecordingTier;
+using static VibraHeka.Domain.Recordings.Enums.RecordingType;
 
 namespace VibraHeka.Application.UnitTests.Recordings.Commands.AdminAddRecording;
 
@@ -30,8 +33,9 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         // Given: a command with an empty or whitespace name
         AdminAddRecordingCommand command = new(
             Name: name,
+            Tier: Free,
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
+            Type: Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -48,8 +52,9 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         // Given: a command with a name longer than 200 characters
         AdminAddRecordingCommand command = new(
             Name: new string('A', 201),
+            Tier: Free,
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
+            Type: Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -72,7 +77,8 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
             Description: description,
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
+            Tier: Free,
+            Type: Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -89,8 +95,9 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         // Given: a command with a description longer than 2000 characters
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
+            Tier: Free,
             Description: new string('D', 2001),
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
+            Type: Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);
@@ -111,6 +118,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         // Given: a command with an invalid enum value for Type
         AdminAddRecordingCommand command = new(
             Name: "Nombre valido",
+            Tier: (RecordingTier)999,
             Description: "Descripcion valida",
             Type: (Domain.Recordings.Enums.RecordingType)999);
 
@@ -152,7 +160,8 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
         AdminAddRecordingCommand command = new(
             Name: "",
             Description: "Descripcion valida",
-            Type: Domain.Recordings.Enums.RecordingType.Meditacion);
+            Tier: Free,
+            Type: Meditacion);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);

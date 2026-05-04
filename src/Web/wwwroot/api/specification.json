@@ -640,35 +640,16 @@
         ],
         "operationId": "Recording_UploadRecording",
         "requestBody": {
+          "x-name": "request",
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Name": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "Description": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "Type": {
-                    "$ref": "#/components/schemas/RecordingType"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  },
-                  "FileName": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
+                "$ref": "#/components/schemas/UploadRecordingRequest"
               }
             }
-          }
+          },
+          "required": true,
+          "x-position": 1
         },
         "responses": {
           "200": {
@@ -759,6 +740,60 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings/{recordingId}": {
+      "delete": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_DeleteRecording",
+        "parameters": [
+          {
+            "name": "recordingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
           },
           "400": {
             "description": "",
@@ -1151,10 +1186,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "email": {
-            "type": "string"
-          },
-          "code": {
+          "encryptedCode": {
             "type": "string"
           }
         }
@@ -1249,6 +1281,38 @@
             "nullable": true
           }
         }
+      },
+      "UploadRecordingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RecordingTier"
+          },
+          "type": {
+            "$ref": "#/components/schemas/RecordingType"
+          }
+        }
+      },
+      "RecordingTier": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Free",
+          "Premium",
+          "DiscountForMembers"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
       "RecordingType": {
         "type": "integer",

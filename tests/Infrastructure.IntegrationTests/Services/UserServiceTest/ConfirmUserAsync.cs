@@ -21,7 +21,7 @@ public class CognitoServiceConfirmUserTests : GenericCognitoServiceTest
 
         // When: The user is confirmed
         string codeResult = await GetAndDecryptCode(email);
-        
+
         // Then: The user should be confirmed successfully
         Result<Unit> confirmResult = await UserService.ConfirmUserAsync(email, codeResult);
         Assert.That(confirmResult.IsSuccess, Is.True, "User confirmation should succeed");

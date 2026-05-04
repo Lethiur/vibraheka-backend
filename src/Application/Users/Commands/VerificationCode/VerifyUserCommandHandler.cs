@@ -37,7 +37,7 @@ public class VerifyUserCommandHandler(
                 .TapError(error => logger.LogWarning("Cognito password recovery failed with error {Error}", error));
             return confirmationResult;
         }
-        
+
         Result<Unit> replayMarkerResult = await userCodeService.MarkPasswordResetTokenAsUsedAsync(
                 tokenValidationResult.Value.Email,
                 tokenValidationResult.Value.TokenId,
@@ -50,7 +50,7 @@ public class VerifyUserCommandHandler(
         return confirmationResult;
     }
 
-    private  Task<bool> EnsureTokenNotUsedAsync(
+    private Task<bool> EnsureTokenNotUsedAsync(
         PasswordResetTokenData token,
         CancellationToken cancellationToken)
     {

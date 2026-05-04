@@ -11,9 +11,9 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 public class AuthenticateUserTests : GenericCognitoServiceTest
 {
     private const string DefaultPassword = "ValidPassword123!";
-    
+
     #region AuthenticateUserAsync - Success Cases
-    
+
     [Test]
     [DisplayName("Should successfully authenticate a confirmed user")]
     public async Task ShouldAuthenticateUserSuccessfullyWhenCredentialsAreValid()

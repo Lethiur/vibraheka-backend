@@ -12,5 +12,6 @@ public static class AdminAddRecordingCommandBuilder
         new(
             Name: "Sesion de meditacion",
             Description: "Descripcion de la sesion de meditacion guiada",
+            Tier: RecordingTier.Free,
             Type: RecordingType.Meditacion);
 }

@@ -101,3 +101,7 @@ output "recordings_bucket_name" {
 output "recordings_bucket_arn" {
   value = module.Recordings.s3_recordings_bucket_arn
 }
+
+output "dynamodb_recordings_tier_idx" {
+  value = module.Recordings.dynamodb_recordings_table_tier_idx
+}

@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
@@ -69,6 +70,41 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
         {
             return Result.Failure<UserEntity>(e.Message);
         }
+    }
+
+    /// <summary>
+    /// Retrieves all user entities from the DynamoDB users table asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result containing a collection of user entities if the operation is successful, or an error otherwise.</returns>
+    /// <exception cref="NotImplementedException">Thrown when the method is not implemented.</exception>
+    public async Task<Result<IEnumerable<UserEntity>>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        List<UserEntity> users = new();
+
+        var operationConfig = new DynamoDBOperationConfig()
+        {
+            OverrideTableName = config.UsersTable,
+        };
+
+        var scanOperationConfig = new ScanOperationConfig() { Filter = new ScanFilter() };
+
+        IAsyncSearch<UserDBModel> fromScanAsync = context.FromScanAsync<UserDBModel>(scanOperationConfig, operationConfig);
+
+        try
+        {
+            while (!fromScanAsync.IsDone)
+            {
+                List<UserDBModel> nextSetAsync = await fromScanAsync.GetNextSetAsync(cancellationToken);
+                users.AddRange(nextSetAsync.Select(m => m.ToDomain()));
+            }
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<IEnumerable<UserEntity>>(ex.Message);
+        }
+
+        return users;
     }
 
     /// <summary>

@@ -31,6 +31,7 @@ resource "aws_ses_domain_dkim" "VibraHeka_ses_dkim" {
 
 resource "aws_ses_configuration_set" "VibraHeka_ses_config" {
   name = "VibraHeka-ses-config-${terraform.workspace}"
+  reputation_metrics_enabled = true
 }
 
 resource "aws_ses_domain_mail_from" "VibraHeka_ses_tracking" {

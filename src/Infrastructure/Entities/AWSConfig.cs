@@ -104,6 +104,9 @@ public class AWSConfig
     public string SubscriptionUserIdIndex { get; set; } = string.Empty;
 
     [Required]
+    public string RecordingsTierIndex { get; set; } = string.Empty;
+
+    [Required]
     public string SettingsNameSpace { get; set; } = string.Empty;
 
     /// <summary>

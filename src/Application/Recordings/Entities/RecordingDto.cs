@@ -8,9 +8,9 @@ public record RecordingDto(
     string Name,
     string Description,
     RecordingType Type,
+    RecordingTier Tier,
     DateTimeOffset Created)
 {
     public static RecordingDto FromDomain(RecordingEntity entity) =>
-        new(entity.Id, entity.Name, entity.Description, entity.Type, entity.Created);
+        new(entity.Id, entity.Name, entity.Description, entity.Type, entity.Tier, entity.Created);
 }
-

@@ -17,9 +17,12 @@ public class RecordingDBModel : BaseAuditableDBModel
     [DynamoDBProperty]
     public string Description { get; set; } = string.Empty;
 
+    [DynamoDBProperty(typeof(EnumStringConverter<RecordingTier>))]
+    public RecordingTier Tier { get; set; }
+
     [DynamoDBProperty(typeof(EnumStringConverter<RecordingType>))]
     public RecordingType Type { get; set; }
-    
+
     [DynamoDBProperty(typeof(EnumStringConverter<RecordingState>))]
-    public RecordingState State { get; set; } = RecordingState.Active; 
+    public RecordingState State { get; set; } = RecordingState.Active;
 }
