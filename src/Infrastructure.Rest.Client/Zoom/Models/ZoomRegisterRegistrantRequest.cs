@@ -6,7 +6,7 @@ public sealed class ZoomRegisterRegistrantRequest
 {
     [JsonIgnore]
     public long MeetingID { get; set; }
-    
+
     [JsonPropertyName("email")]
     public string Email { get; set; } = string.Empty;
 

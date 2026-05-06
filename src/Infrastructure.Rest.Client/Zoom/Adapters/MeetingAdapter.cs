@@ -30,14 +30,16 @@ public class MeetingAdapter(
         Result<string> token = await zoomAuthService.GetAuthTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
+            Logger.LogError("Failed to get Zoom auth token: {Error}", token.Error);
             return Result.Failure<CreateEventResult>(token.Error);
         }
         string authToken = token.Value;
         ZoomCreateMeetingRequest request = Mapper.ToZoomRequest(model);
         Result<ZoomCreateMeetingResponse> meetingAsync = await Client.CreateMeetingAsync(authToken, Config.Value.HostEmail, request, cancellationToken);
-        
+
         if (meetingAsync.IsFailure)
         {
+            Logger.LogError("Failed to create Zoom meeting: {Error}", meetingAsync.Error);
             return Result.Failure<CreateEventResult>(meetingAsync.Error);
         }
         return Mapper.CreateMeetingResponseToDomain(meetingAsync.Value);
@@ -54,6 +56,7 @@ public class MeetingAdapter(
         (_, bool isFailure, string? authToken, string? error) = await zoomAuthService.GetAuthTokenAsync(cancellationToken);
         if (isFailure)
         {
+            Logger.LogError("Failed to get Zoom auth token: {Error}", error);
             return Result.Failure<Unit>(error);
         }
 
@@ -69,12 +72,13 @@ public class MeetingAdapter(
     public async Task<Result<RegisterAttendeeResult>> RegisterAttendeeAsync(RegisterAttendeeModel model,
         CancellationToken cancellationToken)
     {
-        (_, bool isFailure, string? authToken, string? error) = await zoomAuthService.GetAuthTokenAsync(cancellationToken);
+        (_, bool isFailure, string authToken, string error) = await zoomAuthService.GetAuthTokenAsync(cancellationToken);
         if (isFailure)
         {
+            Logger.LogError("Failed to get Zoom auth token: {Error}", error);
             return Result.Failure<RegisterAttendeeResult>(error);
         }
-        
+
         ZoomRegisterRegistrantRequest zoomRequest = Mapper.ToZoomRequest(model);
         Result<ZoomCreateRegistrantResposne> registerParticipantAsync = await Client.RegisterParticipantAsync(authToken, zoomRequest, cancellationToken);
         return registerParticipantAsync.Map(Mapper.ZoomRegisterRegistrantResponseToDomain);
@@ -92,6 +96,7 @@ public class MeetingAdapter(
         (_, bool isFailure, string? authToken, string? error) = await zoomAuthService.GetAuthTokenAsync(cancellationToken);
         if (isFailure)
         {
+            Logger.LogError("Failed to get Zoom auth token: {Error}", error);
             return Result.Failure<Unit>(error);
         }
 

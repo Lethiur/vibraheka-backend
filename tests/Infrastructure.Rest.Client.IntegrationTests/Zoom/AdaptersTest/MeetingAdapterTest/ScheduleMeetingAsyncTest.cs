@@ -1,41 +1,35 @@
-﻿using CSharpFunctionalExtensions;
-using Infrastructure.Rest.Client.Zoom;
-using Infrastructure.Rest.Client.Zoom.Adapters;
-using Infrastructure.Rest.Client.Zoom.Mappers;
-using Infrastructure.Rest.Client.Zoom.Services;
-using Microsoft.Extensions.Options;
+﻿using System.ComponentModel;
+using System.Net;
+using CSharpFunctionalExtensions;
+using Infrastructure.Rest.Client.Zoom.Errors;
 using VibraHeka.Domain.Events.Models;
 
 namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
 
 [TestFixture]
-public class ScheduleMeetingAsyncTest : TestBase
+public sealed class ScheduleMeetingAsyncTest : GenericMeetingAdapterTest
 {
     [Test]
-    public async Task ShouldCreateMeeting()
+    [DisplayName("Should return success with join URL and meeting ID when auth and Zoom create-meeting both succeed")]
+    public async Task ShouldReturnSuccessWhenAuthAndMeetingCreationSucceed()
     {
-        // Given: A meeting adapter
-        ZoomApiClient client = new(CreateTestLogger<ZoomApiClient>(), new HttpClient());
-        MeetingAdapter adapter = new MeetingAdapter(new ZoomAuthService(client, Options.Create(ZoomConfig)),
-            client,
-            Options.Create(ZoomConfig),
-            new ZoomMeetingMapper(),
-            CreateTestLogger<MeetingAdapter>());
-        
-        // When: A meeting is scheduled
-        CreateEventModel createEventModel = new()
+        // When: ScheduleMeetingAsync is called
+        Result<CreateEventResult> result = await Adapter.ScheduleMeetingAsync(new CreateEventModel
         {
-            Duration = 65,
-            StartDate = DateTime.UtcNow.AddMinutes(10),
-            Name = "Test Meeting",
-            EventTimezone = "Europe/Madrid",
-            EventPassword = "NoVeASlOKO"
-        };
-        Result<CreateEventResult> scheduleMeetingAsync = await adapter.ScheduleMeetingAsync(createEventModel, CancellationToken.None);
+            Duration = 60,
+            EventTimezone = "Europe/London",
+            StartDate = DateTime.UtcNow.AddHours(1),
+            Name = "Test Meeting for DeleteMetingAsyncTest",
+            EventPassword = "Test1234"
+        }, CancellationToken.None);
         
-        // Then: There should be valid data
-        Assert.That(scheduleMeetingAsync.IsSuccess, Is.True);
-        CreateEventResult result = scheduleMeetingAsync.Value;
-        Assert.That(result.JoinURL, Is.Not.Null);
+        // Then: result is success with valid meeting data mapped from the stub response
+        Assert.That(result.IsSuccess, Is.True,
+            $"Expected success but got failure with error: '{(result.IsFailure ? result.Error : "N/A")}'");
+        Assert.That(result.Value.JoinURL, Is.Not.Null.And.Not.Empty,
+            "Expected a non-empty join URL from the stub response");
+        
+        // And: Delete meeting  
+        await Adapter.DeleteMetingAsync(result.Value.EventID, CancellationToken.None);
     }
 }

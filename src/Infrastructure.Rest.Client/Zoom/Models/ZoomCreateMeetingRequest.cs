@@ -32,7 +32,7 @@ public class ZoomCreateMeetingRequest
     [JsonIgnore]
     public bool SendZoomEmail { get; set; } = true;
 
-    
+
     [JsonPropertyName("settings")]
     public ZoomMeetingSettings Settings =>
         new ZoomMeetingSettings

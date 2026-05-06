@@ -11,7 +11,7 @@ namespace Infrastructure.Rest.Client;
 public static class DependencyInjection
 {
     private const string ZoomConfigKey = "Zoom";
-    
+
     public static void AddRestClientServices(this IHostApplicationBuilder builder, IConfiguration config)
     {
         builder.Services.AttachConfiguration(config);

@@ -19,7 +19,7 @@ public partial class ZoomMeetingMapper
     [MapValue(nameof(ZoomCreateMeetingRequest.SendZoomEmail), true)]
     public partial ZoomCreateMeetingRequest ToZoomRequest(CreateEventModel model);
 
-    
+
     [MapProperty(nameof(ZoomCreateMeetingResponse.Id), nameof(CreateEventResult.EventID))]
     [MapProperty(nameof(ZoomCreateMeetingResponse.JoinUrl), nameof(CreateEventResult.JoinURL))]
     [MapProperty(nameof(ZoomCreateMeetingResponse.StartUrl), nameof(CreateEventResult.StartUrl))]
@@ -40,18 +40,18 @@ public partial class ZoomMeetingMapper
     [MapperIgnoreSource(nameof(ZoomCreateMeetingResponse.CreatedAtUtc))]
     [MapperIgnoreSource(nameof(ZoomCreateMeetingResponse.PstnPassword))]
     public partial CreateEventResult CreateMeetingResponseToDomain(ZoomCreateMeetingResponse response);
-    
+
     [MapProperty(nameof(UnRegisterAttendeeModel.MeetingID), nameof(ZoomUnRegisterRegistrantRequest.MeetingID))]
     [MapProperty(nameof(UnRegisterAttendeeModel.RegistrantID), nameof(ZoomUnRegisterRegistrantRequest.RegistrantID))]
-    public partial  ZoomUnRegisterRegistrantRequest ToZoomUnRegisterRegistrantRequest(UnRegisterAttendeeModel model);
-    
+    public partial ZoomUnRegisterRegistrantRequest ToZoomUnRegisterRegistrantRequest(UnRegisterAttendeeModel model);
+
     [MapProperty(nameof(RegisterAttendeeModel.EventID), nameof(ZoomRegisterRegistrantRequest.MeetingID))]
     [MapProperty(nameof(RegisterAttendeeModel.RegistrantEmail), nameof(ZoomRegisterRegistrantRequest.Email))]
     [MapProperty(nameof(RegisterAttendeeModel.RegistrantName), nameof(ZoomRegisterRegistrantRequest.FirstName))]
     [MapProperty(nameof(RegisterAttendeeModel.RegistrantLastName), nameof(ZoomRegisterRegistrantRequest.LastName))]
     [MapValue(nameof(ZoomRegisterRegistrantRequest.AutoApprove), true)]
     public partial ZoomRegisterRegistrantRequest ToZoomRequest(RegisterAttendeeModel model);
-    
+
     [MapProperty(nameof(ZoomCreateRegistrantResposne.MeetingId), nameof(RegisterAttendeeResult.EventID))]
     [MapProperty(nameof(ZoomCreateRegistrantResposne.RegistrantId), nameof(RegisterAttendeeResult.RegistrantID))]
     [MapProperty(nameof(ZoomCreateRegistrantResposne.JoinUrl), nameof(RegisterAttendeeResult.JoinURL))]

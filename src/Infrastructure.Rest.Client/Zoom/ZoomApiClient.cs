@@ -37,19 +37,28 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         HttpResponseMessage response = await Client.PostAsync(url, null, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
+            Logger.LogError("Failed to retrieve Zoom auth token: {StatusCode}", response.StatusCode);
             return Result.Failure<ZoomAuthTokenResponse>(ZoomErrors.FailedToRetrieveToken);
         }
 
         string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        ZoomAuthTokenResponse? tokenResponse = JsonSerializer.Deserialize<ZoomAuthTokenResponse>(responseBody);
-        if (tokenResponse == null)
+        try
         {
-            Logger.LogError("Failed to deserialize Zoom auth token response: {Response}", responseBody);
+            ZoomAuthTokenResponse? tokenResponse = JsonSerializer.Deserialize<ZoomAuthTokenResponse>(responseBody);
+            if (tokenResponse == null)
+            {
+                Logger.LogError("Failed to deserialize Zoom auth token response: {Response}", responseBody);
+                return Result.Failure<ZoomAuthTokenResponse>(ZoomErrors.FailedToRetrieveToken);
+            }
+
+            return tokenResponse;    
+        } catch (Exception e)
+        {
+            Logger.LogError(e, "Failed to deserialize Zoom auth token response: {Response}", responseBody);
             return Result.Failure<ZoomAuthTokenResponse>(ZoomErrors.FailedToRetrieveToken);
         }
-
-        return tokenResponse;
+        
     }
 
     /// <summary>
@@ -67,7 +76,7 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         string endpoint = string.Format(ZoomCreateMeetingUrl, Uri.EscapeDataString(hostEmail));
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
         HttpResponseMessage response = await Client.PostAsJsonAsync(endpoint, request, cancellationToken);
-        if (response.StatusCode != HttpStatusCode.Created || response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
         {
             return Result.Failure<ZoomCreateMeetingResponse>(ZoomErrors.FailedToCreateMeeting);
         }
@@ -99,6 +108,7 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         HttpResponseMessage response = await Client.DeleteAsync(url, cancellationToken);
         if (response.StatusCode != HttpStatusCode.NoContent)
         {
+            Logger.LogError("Failed to delete Zoom meeting: {StatusCode}", response.StatusCode);
             return Result.Failure<Unit>(ZoomErrors.FailedToDeleteMeeting);
         }
 
@@ -118,8 +128,9 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         string url = string.Format(ZoomRegistrantUrl, request.MeetingID);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
         HttpResponseMessage response = await Client.PostAsJsonAsync(url, request, cancellationToken);
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode != HttpStatusCode.Created)
         {
+            Logger.LogError("Failed to register Zoom participant: {StatusCode}", response.StatusCode);
             return Result.Failure<ZoomCreateRegistrantResposne>(ZoomErrors.FailedToRegisterParticipant);
         }
 
@@ -128,6 +139,7 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
                 cancellationToken: cancellationToken);
         if (registrant == null)
         {
+            Logger.LogError("Failed to deserialize Zoom registrant response: {Response}", await response.Content.ReadAsStringAsync(cancellationToken));
             return Result.Failure<ZoomCreateRegistrantResposne>(ZoomErrors.FailedToRegisterParticipant);
         }
 
@@ -150,6 +162,7 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         HttpResponseMessage response = await Client.DeleteAsync(url, cancellationToken);
         if (response.StatusCode != HttpStatusCode.NoContent)
         {
+            Logger.LogError("Failed to unregister Zoom participant: {StatusCode}", response.StatusCode);
             return Result.Failure<Unit>(ZoomErrors.FailedToUnregisterParticipant);
         }
 
