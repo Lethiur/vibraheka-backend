@@ -20,7 +20,7 @@ public class GetUserIDTests : GenericCognitoServiceTest
 
         // Then: It should return the same Cognito sub
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.Not.Null.Or.Empty);
+        Assert.That(result.Value, Is.Not.Null.And.Not.Empty);
         Assert.That(result.Value, Is.EqualTo(registeredUserId));
     }
 

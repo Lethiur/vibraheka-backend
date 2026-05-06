@@ -29,9 +29,9 @@ public class AuthenticateUserTests : GenericCognitoServiceTest
 
         // Then: Authentication should succeed and return tokens
         Assert.That(authResult.IsSuccess, Is.True);
-        Assert.That(authResult.Value.UserID, Is.Not.Null.Or.Empty);
-        Assert.That(authResult.Value.AccessToken, Is.Not.Null.Or.Empty);
-        Assert.That(authResult.Value.RefreshToken, Is.Not.Null.Or.Empty);
+        Assert.That(authResult.Value.UserID, Is.Not.Null.And.Not.Empty);
+        Assert.That(authResult.Value.AccessToken, Is.Not.Null.And.Not.Empty);
+        Assert.That(authResult.Value.RefreshToken, Is.Not.Null.And.Not.Empty);
     }
 
     #endregion

@@ -55,7 +55,7 @@ public abstract class TestBase
         return _loggerFactory.CreateLogger<T>();
     }
 
-    protected IConfigurationRoot CreateTestConfiguration()
+    private IConfigurationRoot CreateTestConfiguration()
     {
         return new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)

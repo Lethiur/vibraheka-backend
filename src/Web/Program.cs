@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Infrastructure.Rest.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +30,7 @@ public class VibraHekaProgram
                         .AllowCredentials();
                 });
         });
-
+        builder.AddRestClientServices(builder.Configuration);
         builder.AddApplicationServices();
         builder.AddWebServices();
         builder.Services.AddControllers().AddJsonOptions(options =>

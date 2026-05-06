@@ -42,7 +42,7 @@ public class ChangePasswordAsyncIntegrationTest : GenericCognitoServiceTest
 
         Result<AuthenticationResult> newPasswordAuthResult = await UserService.AuthenticateUserAsync(email, newPassword);
         Assert.That(newPasswordAuthResult.IsSuccess, Is.True);
-        Assert.That(newPasswordAuthResult.Value.AccessToken, Is.Not.Null.Or.Empty);
+        Assert.That(newPasswordAuthResult.Value.AccessToken, Is.Not.Null.And.Not.Empty);
     }
 
     [Test]
