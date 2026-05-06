@@ -11,6 +11,7 @@
     <!--#endif-->
     <Project Path="src/Application/Application.csproj" />
     <Project Path="src/Domain/Domain.csproj" />
+    <Project Path="src/Infrastructure.Persistence/Infrastructure.Persistence.csproj" />
     <Project Path="src/Infrastructure.Rest.Client/Infrastructure.Rest.Client.csproj" />
     <Project Path="src/Infrastructure/Infrastructure.csproj" />
     <Project Path="src/Web/Web.csproj" />
