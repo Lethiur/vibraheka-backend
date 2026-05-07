@@ -23,6 +23,8 @@
     <PackageVersion Include="AWSXRayRecorder.Handlers.System.Net" Version="2.13.0" />
     <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
     <PackageVersion Include="Bogus" Version="35.6.5" />
+    <PackageVersion Include="BuilderPatternGenerator" Version="1.0.15" />
+    <PackageVersion Include="BuilderPatternGenerator.Abstractions" Version="1.0.15" />
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />
     <PackageVersion Include="CSharpFunctionalExtensions" Version="3.7.0" />
     <PackageVersion Include="DataAnnotationsValidator" Version="2.3.0" />

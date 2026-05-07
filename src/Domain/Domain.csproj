@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BuilderPatternGenerator" />
+    <PackageReference Include="BuilderPatternGenerator.Abstractions" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
@@ -14,6 +16,8 @@
 
   <ItemGroup>
     <Folder Include="Models\DTO\" />
+    <Folder Include="Orders\Entities\" />
+    <Folder Include="Orders\Models\" />
   </ItemGroup>
 
 </Project>
