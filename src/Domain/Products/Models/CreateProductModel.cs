@@ -1,9 +1,7 @@
-﻿using Bnaya.CodeGeneration.BuilderPatternGeneration;
-
+﻿
 namespace VibraHeka.Domain.Products.Models;
 
-[GenerateBuilderPattern]
-public partial class CreateProductModel
+public class CreateProductModel
 {
     public string ProductName { get; set; } = string.Empty;
     public string ProductDescription { get; set; } = string.Empty;

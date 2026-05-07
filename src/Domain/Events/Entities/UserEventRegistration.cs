@@ -1,10 +1,6 @@
-﻿using Bnaya.CodeGeneration.BuilderPatternGeneration;
+﻿namespace VibraHeka.Domain.Events.Entities;
 
-namespace VibraHeka.Domain.Events.Entities;
-
-
-[GenerateBuilderPattern]
-public partial class UserEventRegistration
+public partial record UserEventRegistration  : BaseAuditableEntity
 {
     public String RegistrantID { get; set; } = string.Empty;
     public String EventID { get; set; } = string.Empty;

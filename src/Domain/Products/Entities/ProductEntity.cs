@@ -1,10 +1,8 @@
-﻿using Bnaya.CodeGeneration.BuilderPatternGeneration;
-using VibraHeka.Domain.Products.Enums;
+﻿using VibraHeka.Domain.Products.Enums;
 
 namespace VibraHeka.Domain.Products.Entities;
 
-[GenerateBuilderPattern]
-public partial class ProductEntity
+public record ProductEntity : BaseAuditableEntity
 {
     public string ProductID { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;

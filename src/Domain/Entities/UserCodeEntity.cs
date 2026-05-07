@@ -5,7 +5,7 @@ namespace VibraHeka.Domain.Entities;
 /// <summary>
 /// Represents a persisted code/token marker associated with a user action.
 /// </summary>
-public class UserCodeEntity : BaseAuditableEntity
+public record UserCodeEntity : BaseAuditableEntity
 {
     /// <summary>
     /// Gets or sets the email associated with the token.

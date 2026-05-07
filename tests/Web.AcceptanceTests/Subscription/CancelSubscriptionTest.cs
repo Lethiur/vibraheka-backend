@@ -2,6 +2,8 @@ using System.Net;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -48,7 +50,7 @@ public class CancelSubscriptionTest : GenericSubscriptionAcceptanceTest
         var saveResult = await SeedSubscriptionForUser(
             authResult.UserID,
             Domain.Common.Enums.SubscriptionStatus.Active,
-            Domain.Common.Enums.OrderStatus.Pending);
+            OrderStatus.Pending);
         Assert.That(saveResult.IsSuccess, Is.True);
 
         // When: requesting cancellation for that subscription.

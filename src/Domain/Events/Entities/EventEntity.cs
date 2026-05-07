@@ -1,10 +1,8 @@
-﻿using Bnaya.CodeGeneration.BuilderPatternGeneration;
-using VibraHeka.Domain.Events.Enums;
+﻿using VibraHeka.Domain.Events.Enums;
 
 namespace VibraHeka.Domain.Events.Entities;
 
-[GenerateBuilderPattern]
-public partial class EventEntity
+public partial record EventEntity  : BaseAuditableEntity
 {
     public String EventID { get; set; } = string.Empty;
     public String EventName { get; set; } = string.Empty;
@@ -15,4 +13,5 @@ public partial class EventEntity
     public String EventTimezone { get; set; } = string.Empty;
     public List<EventAttendee> Attendees { get; set; } = [];
     public EventStatus Status { get; set; } = EventStatus.MissingLink;
+    
 }

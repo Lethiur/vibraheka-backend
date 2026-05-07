@@ -1,10 +1,12 @@
 ﻿using Infrastructure.Rest.Client.Zoom;
+using Infrastructure.Rest.Client.Zoom.Adapters;
 using Infrastructure.Rest.Client.Zoom.Config;
 using Infrastructure.Rest.Client.Zoom.Mappers;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VibraHeka.Domain.Events.Ports.Out;
 
 namespace Infrastructure.Rest.Client;
 
@@ -31,5 +33,6 @@ public static class DependencyInjection
         services.AddHttpClient<ZoomApiClient>();
         services.AddScoped<ZoomAuthService>();
         services.AddSingleton<ZoomMeetingMapper>();
+        services.AddScoped<IEventMeetingPort, MeetingAdapter>();
     }
 }

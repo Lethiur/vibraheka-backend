@@ -2,6 +2,8 @@
 using MediatR;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Domain.Common.Interfaces.Orders;
 
