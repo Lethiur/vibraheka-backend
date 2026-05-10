@@ -9,4 +9,5 @@ public enum OrderStatus
     OrderDelayed,
     PaymentFailed,
     Cancelled,
+    Created
 }

@@ -1,6 +1,6 @@
 ﻿namespace VibraHeka.Domain.Common;
 
-public abstract record BaseAuditableEntity
+public abstract class BaseAuditableEntity
 {
     public DateTimeOffset Created { get; set; }
 

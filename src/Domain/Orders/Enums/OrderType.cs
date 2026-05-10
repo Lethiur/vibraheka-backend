@@ -5,5 +5,6 @@ public enum OrderType
     Subscription,
     Event,
     Recording,
-    Bundle
+    Bundle,
+    Therapy
 }

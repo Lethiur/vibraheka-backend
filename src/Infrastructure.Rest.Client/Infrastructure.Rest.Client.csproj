@@ -14,9 +14,11 @@
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
     <PackageReference Include="Riok.Mapperly" />
+    <PackageReference Include="Stripe.net" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Stripe\Mappers\" />
       <Folder Include="Zoom\Entities\" />
       <Folder Include="Zoom\Mappers\" />
     </ItemGroup>

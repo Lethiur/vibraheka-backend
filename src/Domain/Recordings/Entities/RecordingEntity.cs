@@ -2,7 +2,7 @@ using VibraHeka.Domain.Recordings.Enums;
 
 namespace VibraHeka.Domain.Recordings.Entities;
 
-public record RecordingEntity : BaseAuditableEntity
+public class RecordingEntity : BaseAuditableEntity
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

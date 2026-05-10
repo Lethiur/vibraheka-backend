@@ -2,7 +2,7 @@
 
 namespace VibraHeka.Domain.Products.Entities;
 
-public record ProductEntity : BaseAuditableEntity
+public class ProductEntity : BaseAuditableEntity
 {
     public string ProductID { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;

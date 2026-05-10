@@ -4,7 +4,7 @@ using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Domain.Entities;
 
-public record SubscriptionEntity : BaseAuditableEntity
+public class SubscriptionEntity : BaseAuditableEntity
 {
     public string SubscriptionID { get; set; } = string.Empty;
 

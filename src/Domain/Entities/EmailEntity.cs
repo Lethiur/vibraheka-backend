@@ -4,7 +4,7 @@
 /// Represents an email entity with identification and path properties.
 /// Includes auditing information inherited from <see cref="BaseAuditableEntity"/>.
 /// </summary>
-public record EmailEntity : BaseAuditableEntity
+public class EmailEntity : BaseAuditableEntity
 {
     public string ID { get; set; } = string.Empty;
 

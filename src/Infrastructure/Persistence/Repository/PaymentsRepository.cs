@@ -69,9 +69,9 @@ public class PaymentsRepository(
                 PaymentMethodCollection = "always",
                 ExpiresAt = expirationDate,
             };
-
+            
             SessionService sessionService = new();
-            Stripe.Checkout.Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
+            Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
 
             if (session != null)
             {

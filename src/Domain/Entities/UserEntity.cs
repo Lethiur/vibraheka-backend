@@ -1,6 +1,6 @@
 ﻿namespace VibraHeka.Domain.Entities;
 
-public record UserEntity : BaseAuditableEntity
+public class UserEntity : BaseAuditableEntity
 {
     public string Id { get; set; } = string.Empty;
     public string CustomerID { get; set; } = string.Empty;

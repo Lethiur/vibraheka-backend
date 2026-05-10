@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Domain.Events.Ports.Out;
+using VibraHeka.Infrastructure.Entities;
 
 namespace Infrastructure.Rest.Client;
 
@@ -24,6 +25,10 @@ public static class DependencyInjection
     private static void AttachConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<ZoomConfig>().Bind(configuration.GetSection(ZoomConfigKey))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<StripeConfig>().Bind(configuration.GetSection(ZoomConfigKey))
             .ValidateDataAnnotations()
             .ValidateOnStart();
     }

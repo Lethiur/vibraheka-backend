@@ -2,13 +2,14 @@
 
 namespace VibraHeka.Domain.Orders.Entities;
 
-public record OrderEntity : BaseAuditableEntity
+public class OrderEntity : BaseAuditableEntity
 {
-    public required String OrderID { get; set; } = string.Empty;
-    public required String ExternalOrderID { get; set; } = string.Empty;
-    public required String CustomerID { get; set; } = string.Empty;
-    public required String PaymentGatewayUrl { get; set; } = string.Empty;
-    public required String ProductID { get; set; } = string.Empty;
-    public required OrderType OrderType { get; set; } = OrderType.Event;
-    public required OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
+    public String OrderID { get; set; } = string.Empty;
+    public String ExternalOrderID { get; set; } = string.Empty;
+    public String CustomerID { get; set; } = string.Empty;
+    public String PaymentGatewayUrl { get; set; } = string.Empty;
+    public String ProductID { get; set; } = string.Empty;
+    public String UserID { get; set; } = string.Empty;
+    public OrderType OrderType { get; set; } = OrderType.Event;
+    public OrderStatus OrderStatus { get; set; } = OrderStatus.Created;
 }

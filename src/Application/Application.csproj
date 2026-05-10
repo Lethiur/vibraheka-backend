@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Common\Extensions\Commands\" />
+    <Folder Include="Orders\Commands\" />
     <Folder Include="Recordings\Commnads\AdminAddRecording\" />
   </ItemGroup>
 

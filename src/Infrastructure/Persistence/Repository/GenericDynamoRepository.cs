@@ -66,16 +66,15 @@ public abstract class GenericDynamoRepository<T>(
     }
 
     /// <summary>
-    /// Retrieves a single entity of type T from the DynamoDB table using a specified index name and index value.
+    /// Retrieves a list of entities of type T from the DynamoDB table based on the specified index name and index value.
     /// </summary>
-    /// <param name="indexName">The name of the index used to query the table.</param>
-    /// <param name="indexValue">The value of the index key to be used for the query.</param>
-    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <param name="indexName">The name of the index to query against.</param>
+    /// <param name="indexValue">The value of the index to match in the query.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
-    /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
-    /// or an error result if no records are found or an error occurs during the operation.
+    /// A <see cref="Result{List{T}}"/> containing a list of entities if found, or a failure result if no records are found or an error occurs.
     /// </returns>
-    protected async Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+    protected async Task<Result<List<T>>> FindAllByIndexAsync(string indexName, string indexValue,
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
@@ -85,16 +84,31 @@ public abstract class GenericDynamoRepository<T>(
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
             List<T>? models = await search.GetRemainingAsync(cancellationToken);
-
+            
             return Maybe.From(models)
                 .ToResult(GenericPersistenceErrors.NoRecordsFound)
-                .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound)
-                .Map(list => list[0]);
+                .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound);
         }
         catch (Exception e)
         {
-            return Result.Failure<T>(HandleError(e));
+            return Result.Failure<List<T>>(HandleError(e));
         }
+    }
+
+    /// <summary>
+    /// Retrieves a single entity of type T from the DynamoDB table using a specified index name and index value.
+    /// </summary>
+    /// <param name="indexName">The name of the index used to query the table.</param>
+    /// <param name="indexValue">The value of the index key to be used for the query.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
+    /// or an error result if no records are found or an error occurs during the operation.
+    /// </returns>
+    protected  Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+        CancellationToken cancellationToken)
+    {
+        return FindAllByIndexAsync(indexName, indexValue, cancellationToken).Map(models => models.First());
     }
 
     /// <summary>
@@ -121,6 +135,14 @@ public abstract class GenericDynamoRepository<T>(
         }
     }
 
+    /// <summary>
+    /// Deletes an entity of type T from the associated DynamoDB table.
+    /// </summary>
+    /// <param name="entity">The entity to be deleted from the DynamoDB table.</param>
+    /// <param name="token">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>
+    /// A <see cref="Result{Unit}"/> indicating the success or failure of the operation.
+    /// </returns>
     protected async Task<Result<Unit>> Delete(T entity, CancellationToken token)
     {
         DeleteConfig deleteConfig = new() { OverrideTableName = tableConfigKey };

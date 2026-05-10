@@ -2,7 +2,7 @@
 
 namespace VibraHeka.Domain.Events.Entities;
 
-public partial record EventEntity  : BaseAuditableEntity
+public class EventEntity  : BaseAuditableEntity
 {
     public String EventID { get; set; } = string.Empty;
     public String EventName { get; set; } = string.Empty;
