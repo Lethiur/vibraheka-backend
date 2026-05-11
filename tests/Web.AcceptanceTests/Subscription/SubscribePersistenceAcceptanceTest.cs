@@ -5,6 +5,8 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;

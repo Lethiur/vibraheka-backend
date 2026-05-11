@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
@@ -68,7 +69,7 @@ public class HasRoleAsyncTest : GenericPrivilegeServiceTest
 
         // Then: Should return failure (bubbled up from Repository.GetByIdAsync)
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(InfrastructureUserErrors.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     #endregion

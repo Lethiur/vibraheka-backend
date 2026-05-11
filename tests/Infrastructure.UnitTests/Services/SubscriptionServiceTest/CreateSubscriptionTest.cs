@@ -3,6 +3,8 @@ using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SubscriptionServiceTest;
 

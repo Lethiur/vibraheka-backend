@@ -20,9 +20,8 @@ public class CreateClientTest : TestBase
     {
         base.OneTimeSetUp();
         _context = CreateDynamoDBContext();
-        _userRepositoryMock = new UserRepository(_context, _configuration);
+        _userRepositoryMock = new UserRepository(_context, _client, _configuration, CreateTestLogger<UserRepository>());
         _loggerMock = new NullLogger<UserService>();
-        _userRepositoryMock = new UserRepository(CreateDynamoDBContext(), _configuration);
     }
 
     [OneTimeTearDown]
@@ -30,11 +29,7 @@ public class CreateClientTest : TestBase
     {
         _context?.Dispose();
     }
-
-    [SetUp]
-    public void SetUp()
-    {
-    }
+    
 
     [Test]
     [DisplayName("Should throw DataException when AWS profile is missing in configuration")]

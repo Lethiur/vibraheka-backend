@@ -19,6 +19,10 @@ module "Dev" {
   source = "./Dev"
 }
 
+module "Orders" {
+  source = "./Orders"
+}
+
 module "Lambda" {
   source                                                = "./Lambdas"
   s3_templates_arn                                      = module.Emails.s3_email_templates_bucket_arn

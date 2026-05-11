@@ -98,6 +98,7 @@ public class PaymentService(IPaymentRepository PaymentRepository, IUserRepositor
             {
                 return error switch
                 {
+                    GenericPersistenceErrors.NoRecordsFound => UserErrors.UserNotFound,
                     InfrastructureUserErrors.UserNotFound => UserErrors.UserNotFound,
                     _ => error
                 };

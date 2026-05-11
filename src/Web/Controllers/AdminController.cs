@@ -57,7 +57,7 @@ public class AdminController(IMediator mediator)
     [Produces("application/json")]
     public async Task<IActionResult> GetTherapists()
     {
-        Result<IEnumerable<UserEntity>> result = await mediator.Send(new GetAllTherapistsQuery());
+        Result<List<UserEntity>> result = await mediator.Send(new GetAllTherapistsQuery());
 
         if (result.IsFailure)
         {

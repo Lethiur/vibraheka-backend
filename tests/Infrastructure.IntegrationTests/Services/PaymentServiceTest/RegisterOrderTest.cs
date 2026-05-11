@@ -1,8 +1,7 @@
-﻿using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Logging;
+﻿using Amazon.DynamoDBv2;
+using CSharpFunctionalExtensions;
 using Stripe.Checkout;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
@@ -16,7 +15,6 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.PaymentServiceTest;
 [TestFixture]
 public class RegisterOrderTest : TestBase
 {
-
     private IPaymentService _paymentService;
 
     private IPaymentRepository _paymentRepository;
@@ -25,21 +23,30 @@ public class RegisterOrderTest : TestBase
 
     private IUserRepository _userRepository;
 
+    private IAmazonDynamoDB _dynamoDbClient;
+
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
         base.OneTimeSetUp();
-        // LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<GenericDynamoRepository<TestEntity>>()
-        _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
+        _dynamoDbClient = CreateDynamoDBClient();
+        _userRepository = new UserRepository(CreateDynamoDBContext(), _dynamoDbClient, _configuration,
+            CreateTestLogger<UserRepository>());
         _paymentRepository = new PaymentsRepository(
             _stripeConfig,
             _configuration,
             CreateSystemsManagementClient(),
             CreateTestLogger<PaymentsRepository>());
-        _subscriptionRepository = new SubscriptionRepository(_configuration, CreateDynamoDBContext(), new SubscriptionEntityMapper(), CreateTestLogger<SubscriptionRepository>());
+        _subscriptionRepository = new SubscriptionRepository(_configuration, _dynamoDbClient, CreateDynamoDBContext(),
+            new SubscriptionEntityMapper(), CreateTestLogger<SubscriptionRepository>());
         _paymentService = new PaymentService(_paymentRepository, _userRepository);
     }
 
+    [OneTimeTearDown]
+    public void OneTimeTearDownChild()
+    {
+        _dynamoDbClient?.Dispose();
+    }
 
     [Test]
     public async Task ShouldGenerateCheckoutUrlProperly()
@@ -49,7 +56,8 @@ public class RegisterOrderTest : TestBase
         await _userRepository.AddAsync(userEntity);
 
         // When: Subscribing the user
-        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result =
+            await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
 
         // Then: The url should be there.
         if (result.IsFailure)
@@ -75,13 +83,15 @@ public class RegisterOrderTest : TestBase
         // Given: An User
         UserEntity userEntity = CreateValidUser();
 
-        Result<string> registerCustomerAsync = await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
+        Result<string> registerCustomerAsync =
+            await _paymentRepository.RegisterCustomerAsync(userEntity, CancellationToken.None);
         userEntity.CustomerID = registerCustomerAsync.Value;
 
         await _userRepository.AddAsync(userEntity);
 
         // When: Subscribing the user
-        Result<SubscriptionCheckoutSessionEntity> result = await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> result =
+            await _paymentService.RegisterSubscriptionAsync(userEntity.Id, CancellationToken.None);
 
         // Then: The url should be there.
         if (result.IsFailure)
@@ -109,7 +119,8 @@ public class RegisterOrderTest : TestBase
     public async Task ShouldReturnErrorWhenUserIDIsInvalid(string? invalidUserId)
     {
         // When: Service is invoked with invalid user id
-        Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync = await _paymentService.RegisterSubscriptionAsync(invalidUserId!, CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync =
+            await _paymentService.RegisterSubscriptionAsync(invalidUserId!, CancellationToken.None);
 
         // Then: The result should be in a failure state
         Assert.That(registerSubscriptionAsync.IsFailure, Is.True);
@@ -123,7 +134,8 @@ public class RegisterOrderTest : TestBase
     public async Task ShouldReturnErrorWhenTheUserDoesNotExist()
     {
         // When: Service is invoked with invalid user id
-        Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync = await _paymentService.RegisterSubscriptionAsync(Guid.NewGuid().ToString(), CancellationToken.None);
+        Result<SubscriptionCheckoutSessionEntity> registerSubscriptionAsync =
+            await _paymentService.RegisterSubscriptionAsync(Guid.NewGuid().ToString(), CancellationToken.None);
 
         // Then: The result should be in a failure state
         Assert.That(registerSubscriptionAsync.IsFailure, Is.True);
@@ -153,21 +165,17 @@ public class RegisterOrderTest : TestBase
     private void AssertSessionBasedOnUrl(string url, UserEntity userEntity)
     {
         SessionService service = new();
-        Session? session = service.Get(ExtractSessionId(url), new SessionGetOptions
-        {
-            Expand = new List<string>
+        Session? session = service.Get(ExtractSessionId(url),
+            new SessionGetOptions
             {
-                "customer",
-                "line_items",
-                "payment_intent",
-                "subscription"
-            }
-        });
+                Expand = new List<string> { "customer", "line_items", "payment_intent", "subscription" }
+            });
         using (Assert.EnterMultipleScope())
         {
             Assert.That(session.Url, Is.EqualTo(url));
             Assert.That(session.Customer.Email, Is.EqualTo(userEntity.Email));
-            Assert.That(session.Customer.Name, Is.EqualTo(userEntity.FirstName + " " + userEntity.MiddleName + " " + userEntity.LastName));
+            Assert.That(session.Customer.Name,
+                Is.EqualTo(userEntity.FirstName + " " + userEntity.MiddleName + " " + userEntity.LastName));
             Assert.That(session.Customer.Phone, Is.EqualTo(userEntity.PhoneNumber));
             Assert.That(session.Mode, Is.EqualTo("subscription"));
             // Assert.That(session.SuccessUrl, Is.EqualTo(_stripeConfig.PaymentSuccessUrl));
@@ -178,4 +186,3 @@ public class RegisterOrderTest : TestBase
         }
     }
 }
-

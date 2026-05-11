@@ -25,7 +25,7 @@ public class RefreshTokenTest : GenericCognitoServiceTest
 
         Result<AuthenticationResult> authenticationResult = await UserService.AuthenticateUserAsync(email, DefaultPassword);
         Assert.That(authenticationResult.IsSuccess, Is.True);
-        Assert.That(authenticationResult.Value.RefreshToken, Is.Not.Null.Or.Empty);
+        Assert.That(authenticationResult.Value.RefreshToken, Is.Not.Null.And.Not.Empty);
 
         // When: requesting a new access token using the refresh token.
         Result<string> refreshResult = await UserService.RefreshToken(
@@ -35,7 +35,7 @@ public class RefreshTokenTest : GenericCognitoServiceTest
 
         // Then: the refresh operation should succeed and return an access token.
         Assert.That(refreshResult.IsSuccess, Is.True);
-        Assert.That(refreshResult.Value, Is.Not.Null.Or.Empty);
+        Assert.That(refreshResult.Value, Is.Not.Null.And.Not.Empty);
 
         // And: the access token should be different from the original one.
         Assert.That(refreshResult.Value, Is.Not.EqualTo(authenticationResult.Value.AccessToken));

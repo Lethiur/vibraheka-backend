@@ -21,6 +21,7 @@ public abstract class GenericUserCodeServiceIntegrationTest : TestBase
         _userCodeRepository = new UserCodeRepository(
             _configuration,
             _dynamoDbContext,
+            _client,
             new UsersCodeMapper(),
             CreateTestLogger<GenericDynamoRepository<UserCodeDBModel>>());
         _userCodeService = new UserCodeService(_userCodeRepository, CreateTestLogger<UserCodeService>());

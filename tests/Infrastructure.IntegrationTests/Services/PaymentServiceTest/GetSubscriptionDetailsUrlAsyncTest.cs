@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2;
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.Payments;
@@ -12,21 +13,29 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.PaymentServiceTest;
 [TestFixture]
 public class GetSubscriptionDetailsUrlAsyncTest : TestBase
 {
-    private IPaymentService _paymentService;
+    private PaymentService _paymentService;
     private IPaymentRepository _paymentRepository;
     private IUserRepository _userRepository;
+    private IAmazonDynamoDB _dynamoDbClient;
 
     [OneTimeSetUp]
     public void OneTimeSetUpChild()
     {
         base.OneTimeSetUp();
-        _userRepository = new UserRepository(CreateDynamoDBContext(), _configuration);
+        _dynamoDbClient = CreateDynamoDBClient();
+        _userRepository = new UserRepository(CreateDynamoDBContext(), _dynamoDbClient, _configuration, CreateTestLogger<UserRepository>());
         _paymentRepository = new PaymentsRepository(
             _stripeConfig,
             _configuration,
             CreateSystemsManagementClient(),
             CreateTestLogger<PaymentsRepository>());
         _paymentService = new PaymentService(_paymentRepository, _userRepository);
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDownChild()
+    {
+        _dynamoDbClient?.Dispose();
     }
 
     [Test]

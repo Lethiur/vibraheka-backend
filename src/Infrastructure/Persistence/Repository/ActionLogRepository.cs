@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Enums;
@@ -20,8 +21,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// and retrieves the table configuration from <see cref="AWSConfig.ActionLogTable"/>.
 /// It implements <see cref="IActionLogRepository"/> for retrieving user-specific action logs based on action types.
 /// </remarks>
-public class ActionLogRepository(IDynamoDBContext context, AWSConfig config, ILogger<ActionLogRepository> logger)
-    : GenericDynamoRepository<ActionLogDBModel>(context, config.ActionLogTable, logger), IActionLogRepository
+public class ActionLogRepository(IDynamoDBContext context, IAmazonDynamoDB client,  AWSConfig config, ILogger<ActionLogRepository> logger)
+    : GenericDynamoRepository<ActionLogDBModel>(context, client, config.ActionLogTable, logger), IActionLogRepository
 {
     /// <summary>
     /// Retrieves the action log for a specific user and action type from the DynamoDB repository.

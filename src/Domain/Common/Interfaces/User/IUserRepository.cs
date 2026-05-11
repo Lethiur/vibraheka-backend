@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using MediatR;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Domain.Common.Interfaces.User;
@@ -61,5 +62,17 @@ public interface IUserRepository
     /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="UserEntity"/> objects
     /// corresponding to the specified role.
     /// </returns>
-    Task<Result<IEnumerable<UserEntity>>> GetByRoleAsync(UserRole role);
+    Task<Result<List<UserEntity>>> GetByRoleAsync(UserRole role);
+
+    /// <summary>
+    /// Asynchronously updates the customer ID for a specified user in the repository.
+    /// </summary>
+    /// <param name="customerId">The new customer ID to assign to the user.</param>
+    /// <param name="userId">The unique identifier of the user to update.</param>
+    /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="Result{Unit}"/> indicating the success or failure of the operation.
+    /// </returns>
+    Task<Result<Unit>> UpdateCustomerIDAsync(string customerId, string userId, CancellationToken cancellationToken);
 }

@@ -26,7 +26,7 @@ public class GetTemplateUrlAsyncTest : GenericEmailTemplateStorageServiceIntegra
 
         // Then
         Assert.That(urlResult.IsSuccess, Is.True);
-        Assert.That(urlResult.Value, Is.Not.Null.Or.Empty);
+        Assert.That(urlResult.Value, Is.Not.Null.And.Not.Empty);
 
         Uri uri = new(urlResult.Value, UriKind.Absolute);
         Assert.That(uri.Scheme, Is.EqualTo(Uri.UriSchemeHttps));

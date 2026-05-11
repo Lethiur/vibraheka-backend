@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
@@ -14,10 +15,11 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 
 public class RecordingRepository(
     IDynamoDBContext context,
+    IAmazonDynamoDB client,
     AWSConfig config,
     RecordingEntityMapper mapper,
     ILogger<RecordingRepository> logger)
-    : GenericDynamoRepository<RecordingDBModel>(context, config.RecordingsTable, logger),
+    : GenericDynamoRepository<RecordingDBModel>(context, client, config.RecordingsTable, logger),
         IRecordingRegistryPort
 {
     public Task<Result<string>> SaveRecording(RecordingEntity recording, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
@@ -11,6 +12,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserCodeRepo
 public abstract class GenericUserCodeRepositoryTest
 {
     protected Mock<IDynamoDBContext> ContextMock;
+    protected Mock<IAmazonDynamoDB> ClientMock;
     protected AWSConfig ConfigMock;
     protected UserCodeRepository Repository;
 
@@ -18,6 +20,7 @@ public abstract class GenericUserCodeRepositoryTest
     public void SetUp()
     {
         ContextMock = new Mock<IDynamoDBContext>();
+        ClientMock = new Mock<IAmazonDynamoDB>();
         ConfigMock = new AWSConfig
         {
             UserCodesTable = "UserCodesTable"
@@ -26,6 +29,7 @@ public abstract class GenericUserCodeRepositoryTest
         Repository = new UserCodeRepository(
             ConfigMock,
             ContextMock.Object,
+            ClientMock.Object,
             new UsersCodeMapper(),
             new Mock<ILogger<GenericDynamoRepository<UserCodeDBModel>>>().Object);
     }

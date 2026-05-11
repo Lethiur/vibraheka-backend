@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.XRay.Recorder.Core;
 using CSharpFunctionalExtensions;
@@ -10,6 +11,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 
 public abstract class GenericDynamoRepository<T>(
     IDynamoDBContext context,
+    IAmazonDynamoDB client,
     string tableConfigKey,
     ILogger<GenericDynamoRepository<T>> logger)
 {
@@ -66,16 +68,15 @@ public abstract class GenericDynamoRepository<T>(
     }
 
     /// <summary>
-    /// Retrieves a single entity of type T from the DynamoDB table using a specified index name and index value.
+    /// Retrieves a list of entities of type T from the DynamoDB table based on the specified index name and index value.
     /// </summary>
-    /// <param name="indexName">The name of the index used to query the table.</param>
-    /// <param name="indexValue">The value of the index key to be used for the query.</param>
-    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <param name="indexName">The name of the index to query against.</param>
+    /// <param name="indexValue">The value of the index to match in the query.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
-    /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
-    /// or an error result if no records are found or an error occurs during the operation.
+    /// A <see cref="Result{List{T}}"/> containing a list of entities if found, or a failure result if no records are found or an error occurs.
     /// </returns>
-    protected async Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+    protected async Task<Result<List<T>>> FindAllByIndexAsync(string indexName, string indexValue,
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
@@ -85,16 +86,31 @@ public abstract class GenericDynamoRepository<T>(
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
             List<T>? models = await search.GetRemainingAsync(cancellationToken);
-
+            
             return Maybe.From(models)
                 .ToResult(GenericPersistenceErrors.NoRecordsFound)
-                .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound)
-                .Map(list => list[0]);
+                .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound);
         }
         catch (Exception e)
         {
-            return Result.Failure<T>(HandleError(e));
+            return Result.Failure<List<T>>(HandleError(e));
         }
+    }
+
+    /// <summary>
+    /// Retrieves a single entity of type T from the DynamoDB table using a specified index name and index value.
+    /// </summary>
+    /// <param name="indexName">The name of the index used to query the table.</param>
+    /// <param name="indexValue">The value of the index key to be used for the query.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
+    /// or an error result if no records are found or an error occurs during the operation.
+    /// </returns>
+    protected Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+        CancellationToken cancellationToken)
+    {
+        return FindAllByIndexAsync(indexName, indexValue, cancellationToken).Map(models => models.First());
     }
 
     /// <summary>
@@ -121,6 +137,14 @@ public abstract class GenericDynamoRepository<T>(
         }
     }
 
+    /// <summary>
+    /// Deletes an entity of type T from the associated DynamoDB table.
+    /// </summary>
+    /// <param name="entity">The entity to be deleted from the DynamoDB table.</param>
+    /// <param name="token">A cancellation token that can be used to cancel the delete operation.</param>
+    /// <returns>
+    /// A <see cref="Result{Unit}"/> indicating the success or failure of the operation.
+    /// </returns>
     protected async Task<Result<Unit>> Delete(T entity, CancellationToken token)
     {
         DeleteConfig deleteConfig = new() { OverrideTableName = tableConfigKey };
@@ -134,6 +158,48 @@ public abstract class GenericDynamoRepository<T>(
         {
             return Result.Failure<Unit>(HandleError(e));
         }
+    }
+
+    /// <summary>
+    /// Updates an existing item in the DynamoDB table using the specified key, update expression, and optional condition expression.
+    /// </summary>
+    /// <param name="key">A dictionary representing the primary key of the item to update.</param>
+    /// <param name="update">A <see cref="DynamoExpression"/> representing the update expression and its associated attributes.</param>
+    /// <param name="condition">An optional <see cref="DynamoExpression"/> representing the condition that must be met for the update to proceed.</param>
+    /// <param name="token">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> indicating the success or failure of the update operation with <see cref="Unit"/> as the result type.
+    /// </returns>
+    protected async Task<Result<Unit>> UpdateAsync(
+        Dictionary<string, AttributeValue> key,
+        DynamoExpression update,
+        DynamoExpression? condition = null,
+        CancellationToken token = default)
+    {
+        UpdateItemRequest request = new UpdateItemRequest
+        {
+            TableName = tableConfigKey,
+            Key = key,
+            
+            UpdateExpression = update.Expression,
+            ConditionExpression = condition?.Expression,
+
+            ExpressionAttributeNames = update.AttributeNames,
+            ExpressionAttributeValues = update.AttributeValues,
+        };
+        
+        if (condition != null)
+        {
+            foreach (var kv in condition.AttributeNames)
+                request.ExpressionAttributeNames[kv.Key] = kv.Value;
+
+            foreach (var kv in condition.AttributeValues)
+                request.ExpressionAttributeValues[kv.Key] = kv.Value;
+        }
+
+        UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
+
+        return Result.Success(Unit.Value);
     }
 
     /// <summary>

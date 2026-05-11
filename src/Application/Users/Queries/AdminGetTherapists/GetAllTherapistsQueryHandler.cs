@@ -25,9 +25,9 @@ namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
 /// holding a list of <see cref="UserEntity"/> entities or an error if the operation fails.
 /// </returns>
 public class GetAllTherapistsQueryHandler(
-    IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<IEnumerable<UserEntity>>>
+    IUserRepository Repository) : IRequestHandler<GetAllTherapistsQuery, Result<List<UserEntity>>>
 {
-    public async Task<Result<IEnumerable<UserEntity>>> Handle(GetAllTherapistsQuery request,
+    public async Task<Result<List<UserEntity>>> Handle(GetAllTherapistsQuery request,
         CancellationToken cancellationToken)
     {
         return await Repository.GetByRoleAsync(UserRole.Therapist);

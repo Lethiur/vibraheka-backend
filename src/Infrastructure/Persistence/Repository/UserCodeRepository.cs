@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,9 +20,10 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 public class UserCodeRepository(
     AWSConfig config,
     IDynamoDBContext context,
+    IAmazonDynamoDB client,
     UsersCodeMapper mapper,
     ILogger<GenericDynamoRepository<UserCodeDBModel>> logger)
-    : GenericDynamoRepository<UserCodeDBModel>(context, config.UserCodesTable, logger), IUserCodeRepository
+    : GenericDynamoRepository<UserCodeDBModel>(context, client, config.UserCodesTable, logger), IUserCodeRepository
 {
     /// <summary>
     /// Saves a user code marker.

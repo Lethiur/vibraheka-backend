@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Common.Behaviours;
+using VibraHeka.Application.Orders.UseCases;
 using VibraHeka.Application.Users.Commands.RegisterUser;
+using VibraHeka.Domain.Orders.Ports.In;
 
 namespace VibraHeka.Application;
 
@@ -27,6 +29,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssemblyContaining<RegisterUserCommand>();
+        services.AddScoped<ICreateOrderPort, CreateOrderUseCase>();
         return services;
     }
 }

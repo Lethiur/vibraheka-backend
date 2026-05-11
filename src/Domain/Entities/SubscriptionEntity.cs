@@ -1,4 +1,6 @@
 ﻿using VibraHeka.Domain.Common.Enums;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Domain.Entities;
 

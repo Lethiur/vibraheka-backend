@@ -6726,21 +6726,21 @@ var require_reporter = __commonJS({
       return now;
     };
     Reporter.prototype.error = function error2(msg) {
-      let err2;
+      let err3;
       const state2 = this._reporterState;
       const inherited = msg instanceof ReporterError;
       if (inherited) {
-        err2 = msg;
+        err3 = msg;
       } else {
-        err2 = new ReporterError(state2.path.map(function(elem) {
+        err3 = new ReporterError(state2.path.map(function(elem) {
           return "[" + JSON.stringify(elem) + "]";
         }).join(""), msg.message || msg, msg.stack);
       }
       if (!state2.options.partial)
-        throw err2;
+        throw err3;
       if (!inherited)
-        state2.errors.push(err2);
-      return err2;
+        state2.errors.push(err3);
+      return err3;
     };
     Reporter.prototype.wrapResult = function wrapResult(result) {
       const state2 = this._reporterState;
@@ -8577,7 +8577,7 @@ function v35(name, version2, hashfunc) {
   }
   try {
     generateUUID.name = name;
-  } catch (err2) {
+  } catch (err3) {
   }
   generateUUID.DNS = DNS;
   generateUUID.URL = URL2;
@@ -11207,19 +11207,19 @@ var require_buffer_list = __commonJS({
 var require_destroy = __commonJS({
   "node_modules/.pnpm/readable-stream@3.6.2/node_modules/readable-stream/lib/internal/streams/destroy.js"(exports2, module2) {
     "use strict";
-    function destroy(err2, cb) {
+    function destroy(err3, cb) {
       var _this = this;
       var readableDestroyed = this._readableState && this._readableState.destroyed;
       var writableDestroyed = this._writableState && this._writableState.destroyed;
       if (readableDestroyed || writableDestroyed) {
         if (cb) {
-          cb(err2);
-        } else if (err2) {
+          cb(err3);
+        } else if (err3) {
           if (!this._writableState) {
-            process.nextTick(emitErrorNT, this, err2);
+            process.nextTick(emitErrorNT, this, err3);
           } else if (!this._writableState.errorEmitted) {
             this._writableState.errorEmitted = true;
-            process.nextTick(emitErrorNT, this, err2);
+            process.nextTick(emitErrorNT, this, err3);
           }
         }
         return this;
@@ -11230,27 +11230,27 @@ var require_destroy = __commonJS({
       if (this._writableState) {
         this._writableState.destroyed = true;
       }
-      this._destroy(err2 || null, function(err3) {
-        if (!cb && err3) {
+      this._destroy(err3 || null, function(err4) {
+        if (!cb && err4) {
           if (!_this._writableState) {
-            process.nextTick(emitErrorAndCloseNT, _this, err3);
+            process.nextTick(emitErrorAndCloseNT, _this, err4);
           } else if (!_this._writableState.errorEmitted) {
             _this._writableState.errorEmitted = true;
-            process.nextTick(emitErrorAndCloseNT, _this, err3);
+            process.nextTick(emitErrorAndCloseNT, _this, err4);
           } else {
             process.nextTick(emitCloseNT, _this);
           }
         } else if (cb) {
           process.nextTick(emitCloseNT, _this);
-          cb(err3);
+          cb(err4);
         } else {
           process.nextTick(emitCloseNT, _this);
         }
       });
       return this;
     }
-    function emitErrorAndCloseNT(self2, err2) {
-      emitErrorNT(self2, err2);
+    function emitErrorAndCloseNT(self2, err3) {
+      emitErrorNT(self2, err3);
       emitCloseNT(self2);
     }
     function emitCloseNT(self2) {
@@ -11275,14 +11275,14 @@ var require_destroy = __commonJS({
         this._writableState.errorEmitted = false;
       }
     }
-    function emitErrorNT(self2, err2) {
-      self2.emit("error", err2);
+    function emitErrorNT(self2, err3) {
+      self2.emit("error", err3);
     }
-    function errorOrDestroy(stream, err2) {
+    function errorOrDestroy(stream, err3) {
       var rState = stream._readableState;
       var wState = stream._writableState;
-      if (rState && rState.autoDestroy || wState && wState.autoDestroy) stream.destroy(err2);
-      else stream.emit("error", err2);
+      if (rState && rState.autoDestroy || wState && wState.autoDestroy) stream.destroy(err3);
+      else stream.emit("error", err3);
     }
     module2.exports = {
       destroy,
@@ -11809,10 +11809,10 @@ var require_stream_writable = __commonJS({
       return state2.ending && state2.length === 0 && state2.bufferedRequest === null && !state2.finished && !state2.writing;
     }
     function callFinal(stream, state2) {
-      stream._final(function(err2) {
+      stream._final(function(err3) {
         state2.pendingcb--;
-        if (err2) {
-          errorOrDestroy(stream, err2);
+        if (err3) {
+          errorOrDestroy(stream, err3);
         }
         state2.prefinished = true;
         stream.emit("prefinish");
@@ -11858,13 +11858,13 @@ var require_stream_writable = __commonJS({
       state2.ended = true;
       stream.writable = false;
     }
-    function onCorkedFinish(corkReq, state2, err2) {
+    function onCorkedFinish(corkReq, state2, err3) {
       var entry = corkReq.entry;
       corkReq.entry = null;
       while (entry) {
         var cb = entry.callback;
         state2.pendingcb--;
-        cb(err2);
+        cb(err3);
         entry = entry.next;
       }
       state2.corkedRequestsFree.next = corkReq;
@@ -11889,8 +11889,8 @@ var require_stream_writable = __commonJS({
     });
     Writable.prototype.destroy = destroyImpl.destroy;
     Writable.prototype._undestroy = destroyImpl.undestroy;
-    Writable.prototype._destroy = function(err2, cb) {
-      cb(err2);
+    Writable.prototype._destroy = function(err3, cb) {
+      cb(err3);
     };
   }
 });
@@ -12326,18 +12326,18 @@ var require_end_of_stream = __commonJS({
         readableEnded = true;
         if (!writable) callback.call(stream);
       };
-      var onerror = function onerror2(err2) {
-        callback.call(stream, err2);
+      var onerror = function onerror2(err3) {
+        callback.call(stream, err3);
       };
       var onclose = function onclose2() {
-        var err2;
+        var err3;
         if (readable && !readableEnded) {
-          if (!stream._readableState || !stream._readableState.ended) err2 = new ERR_STREAM_PREMATURE_CLOSE();
-          return callback.call(stream, err2);
+          if (!stream._readableState || !stream._readableState.ended) err3 = new ERR_STREAM_PREMATURE_CLOSE();
+          return callback.call(stream, err3);
         }
         if (writable && !writableEnded) {
-          if (!stream._writableState || !stream._writableState.ended) err2 = new ERR_STREAM_PREMATURE_CLOSE();
-          return callback.call(stream, err2);
+          if (!stream._writableState || !stream._writableState.ended) err3 = new ERR_STREAM_PREMATURE_CLOSE();
+          return callback.call(stream, err3);
         }
       };
       var onrequest = function onrequest2() {
@@ -12486,9 +12486,9 @@ var require_async_iterator = __commonJS({
     }), _defineProperty(_Object$setPrototypeO, "return", function _return() {
       var _this2 = this;
       return new Promise(function(resolve, reject) {
-        _this2[kStream].destroy(null, function(err2) {
-          if (err2) {
-            reject(err2);
+        _this2[kStream].destroy(null, function(err3) {
+          if (err3) {
+            reject(err3);
             return;
           }
           resolve(createIterResult(void 0, true));
@@ -12528,16 +12528,16 @@ var require_async_iterator = __commonJS({
         writable: true
       }), _Object$create));
       iterator[kLastPromise] = null;
-      finished(stream, function(err2) {
-        if (err2 && err2.code !== "ERR_STREAM_PREMATURE_CLOSE") {
+      finished(stream, function(err3) {
+        if (err3 && err3.code !== "ERR_STREAM_PREMATURE_CLOSE") {
           var reject = iterator[kLastReject];
           if (reject !== null) {
             iterator[kLastPromise] = null;
             iterator[kLastResolve] = null;
             iterator[kLastReject] = null;
-            reject(err2);
+            reject(err3);
           }
-          iterator[kError] = err2;
+          iterator[kError] = err3;
           return;
         }
         var resolve = iterator[kLastResolve];
@@ -12582,8 +12582,8 @@ var require_from = __commonJS({
           function _next(value) {
             asyncGeneratorStep(gen, resolve, reject, _next, _throw2, "next", value);
           }
-          function _throw2(err2) {
-            asyncGeneratorStep(gen, resolve, reject, _next, _throw2, "throw", err2);
+          function _throw2(err3) {
+            asyncGeneratorStep(gen, resolve, reject, _next, _throw2, "throw", err3);
           }
           _next(void 0);
         });
@@ -12665,8 +12665,8 @@ var require_from = __commonJS({
             } else {
               reading = false;
             }
-          } catch (err2) {
-            readable.destroy(err2);
+          } catch (err3) {
+            readable.destroy(err3);
           }
         });
         return _next2.apply(this, arguments);
@@ -12794,8 +12794,8 @@ var require_stream_readable = __commonJS({
     });
     Readable.prototype.destroy = destroyImpl.destroy;
     Readable.prototype._undestroy = destroyImpl.undestroy;
-    Readable.prototype._destroy = function(err2, cb) {
-      cb(err2);
+    Readable.prototype._destroy = function(err3, cb) {
+      cb(err3);
     };
     Readable.prototype.push = function(chunk, encoding) {
       var state2 = this._readableState;
@@ -13495,8 +13495,8 @@ var require_stream_transform = __commonJS({
         ts.needTransform = true;
       }
     };
-    Transform.prototype._destroy = function(err2, cb) {
-      Duplex.prototype._destroy.call(this, err2, function(err22) {
+    Transform.prototype._destroy = function(err3, cb) {
+      Duplex.prototype._destroy.call(this, err3, function(err22) {
         cb(err22);
       });
     };
@@ -13544,8 +13544,8 @@ var require_pipeline = __commonJS({
     var _require$codes = require_errors2().codes;
     var ERR_MISSING_ARGS = _require$codes.ERR_MISSING_ARGS;
     var ERR_STREAM_DESTROYED = _require$codes.ERR_STREAM_DESTROYED;
-    function noop(err2) {
-      if (err2) throw err2;
+    function noop(err3) {
+      if (err3) throw err3;
     }
     function isRequest(stream) {
       return stream.setHeader && typeof stream.abort === "function";
@@ -13560,19 +13560,19 @@ var require_pipeline = __commonJS({
       eos(stream, {
         readable: reading,
         writable: writing
-      }, function(err2) {
-        if (err2) return callback(err2);
+      }, function(err3) {
+        if (err3) return callback(err3);
         closed = true;
         callback();
       });
       var destroyed = false;
-      return function(err2) {
+      return function(err3) {
         if (closed) return;
         if (destroyed) return;
         destroyed = true;
         if (isRequest(stream)) return stream.abort();
         if (typeof stream.destroy === "function") return stream.destroy();
-        callback(err2 || new ERR_STREAM_DESTROYED("pipe"));
+        callback(err3 || new ERR_STREAM_DESTROYED("pipe"));
       };
     }
     function call(fn) {
@@ -13599,9 +13599,9 @@ var require_pipeline = __commonJS({
       var destroys = streams.map(function(stream, i4) {
         var reading = i4 < streams.length - 1;
         var writing = i4 > 0;
-        return destroyer(stream, reading, writing, function(err2) {
-          if (!error2) error2 = err2;
-          if (err2) destroys.forEach(call);
+        return destroyer(stream, reading, writing, function(err3) {
+          if (!error2) error2 = err3;
+          if (err3) destroys.forEach(call);
           if (reading) return;
           destroys.forEach(call);
           callback(error2);
@@ -13900,8 +13900,8 @@ var require_end_of_stream2 = __commonJS({
       var onexit = function(exitCode) {
         callback.call(stream, exitCode ? new Error("exited with error code: " + exitCode) : null);
       };
-      var onerror = function(err2) {
-        callback.call(stream, err2);
+      var onerror = function(err3) {
+        callback.call(stream, err3);
       };
       var onclose = function() {
         qnt(onclosenexttick);
@@ -13982,12 +13982,12 @@ var require_duplexify = __commonJS({
       if (self2._corked) self2.once("uncork", fn);
       else fn();
     };
-    var autoDestroy = function(self2, err2) {
-      if (self2._autoDestroy) self2.destroy(err2);
+    var autoDestroy = function(self2, err3) {
+      if (self2._autoDestroy) self2.destroy(err3);
     };
     var destroyer = function(self2, end2) {
-      return function(err2) {
-        if (err2) autoDestroy(self2, err2.message === "premature close" ? null : err2);
+      return function(err3) {
+        if (err3) autoDestroy(self2, err3.message === "premature close" ? null : err3);
         else if (end2 && !self2._ended) self2.end();
       };
     };
@@ -14109,22 +14109,22 @@ var require_duplexify = __commonJS({
       }
       this._forwarding = false;
     };
-    Duplexify.prototype.destroy = function(err2, cb) {
+    Duplexify.prototype.destroy = function(err3, cb) {
       if (!cb) cb = noop;
       if (this.destroyed) return cb(null);
       this.destroyed = true;
       var self2 = this;
       process.nextTick(function() {
-        self2._destroy(err2);
+        self2._destroy(err3);
         cb(null);
       });
     };
-    Duplexify.prototype._destroy = function(err2) {
-      if (err2) {
+    Duplexify.prototype._destroy = function(err3) {
+      if (err3) {
         var ondrain = this._ondrain;
         this._ondrain = null;
-        if (ondrain) ondrain(err2);
-        else this.emit("error", err2);
+        if (ondrain) ondrain(err3);
+        else this.emit("error", err3);
       }
       if (this._forwardDestroy) {
         if (this._readable && this._readable.destroy) this._readable.destroy();
@@ -14206,7 +14206,7 @@ var require_encrypt_stream = __commonJS({
         wrappingStream.setReadable(signatureStream);
         rawHeader.forEach((buff) => signatureStream.write(buff));
         wrappingStream.setWritable(encryptStream);
-      }).catch((err2) => wrappingStream.emit("error", err2));
+      }).catch((err3) => wrappingStream.emit("error", err3));
       return wrappingStream;
     }
     exports2._encryptStream = _encryptStream;
@@ -14290,7 +14290,7 @@ var require_encrypt = __commonJS({
     exports2._encrypt = _encrypt;
     async function finishedAsync(stream) {
       return new Promise((resolve, reject) => {
-        (0, readable_stream_1.finished)(stream, (err2) => err2 ? reject(err2) : resolve());
+        (0, readable_stream_1.finished)(stream, (err3) => err3 ? reject(err3) : resolve());
       });
     }
   }
@@ -14440,7 +14440,7 @@ var require_parse_header_stream = __commonJS({
               }
             };
             return setImmediate(() => this._transform(tail, encoding, callback));
-          }).catch((err2) => callback(err2));
+          }).catch((err3) => callback(err3));
         } catch (ex) {
           this.emit("error", ex);
         }
@@ -14733,9 +14733,9 @@ var require_decrypt_stream = __commonJS({
       const verifyStream = new verify_stream_1.VerifyStream({ maxBodySize });
       const decipherStream = (0, decipher_stream_1.getDecipherStream)();
       const stream = new duplexify_1.default(parseHeaderStream, decipherStream);
-      (0, readable_stream_1.pipeline)(parseHeaderStream, verifyStream, decipherStream, new readable_stream_1.PassThrough(), (err2) => {
-        if (err2)
-          stream.emit("error", err2);
+      (0, readable_stream_1.pipeline)(parseHeaderStream, verifyStream, decipherStream, new readable_stream_1.PassThrough(), (err3) => {
+        if (err3)
+          stream.emit("error", err3);
       });
       parseHeaderStream.once("MessageHeader", (header) => stream.emit("MessageHeader", header));
       return stream;
@@ -14781,7 +14781,7 @@ var require_decrypt = __commonJS({
     exports2._decrypt = _decrypt;
     async function finishedAsync(stream) {
       return new Promise((resolve, reject) => {
-        (0, readable_stream_1.finished)(stream, (err2) => err2 ? reject(err2) : resolve());
+        (0, readable_stream_1.finished)(stream, (err3) => err3 ? reject(err3) : resolve());
       });
     }
   }
@@ -18218,9 +18218,9 @@ var require_headStream = __commonJS({
         const collector = new Collector();
         collector.limit = bytes;
         stream.pipe(collector);
-        stream.on("error", (err2) => {
+        stream.on("error", (err3) => {
           collector.end();
-          reject(err2);
+          reject(err3);
         });
         collector.on("error", reject);
         collector.on("finish", function() {
@@ -18610,11 +18610,11 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             });
             resolve({ response: httpResponse });
           });
-          req.on("error", (err2) => {
-            if (NODEJS_TIMEOUT_ERROR_CODES.includes(err2.code)) {
-              reject(Object.assign(err2, { name: "TimeoutError" }));
+          req.on("error", (err3) => {
+            if (NODEJS_TIMEOUT_ERROR_CODES.includes(err3.code)) {
+              reject(Object.assign(err3, { name: "TimeoutError" }));
             } else {
-              reject(err2);
+              reject(err3);
             }
           });
           if (abortSignal) {
@@ -18714,8 +18714,8 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
         }
         const session = http2.connect(url);
         if (this.config.maxConcurrency) {
-          session.settings({ maxConcurrentStreams: this.config.maxConcurrency }, (err2) => {
-            if (err2) {
+          session.settings({ maxConcurrentStreams: this.config.maxConcurrency }, (err3) => {
+            if (err3) {
               throw new Error("Fail to set maxConcurrentStreams to " + this.config.maxConcurrency + "when creating new session for " + requestContext.destination.toString());
             }
           });
@@ -18842,12 +18842,12 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
             requestTimeout: this.config?.sessionTimeout,
             disableConcurrentStreams: disableConcurrentStreams || false
           });
-          const rejectWithDestroy = (err2) => {
+          const rejectWithDestroy = (err3) => {
             if (disableConcurrentStreams) {
               this.destroySession(session);
             }
             fulfilled = true;
-            reject(err2);
+            reject(err3);
           };
           const queryString = querystringBuilder.buildQueryString(query || {});
           let path = request.path;
@@ -18950,9 +18950,9 @@ or increase socketAcquisitionWarningTimeout=(millis) in the NodeHttpHandler conf
       return new Promise((resolve, reject) => {
         const collector = new Collector();
         stream2.pipe(collector);
-        stream2.on("error", (err2) => {
+        stream2.on("error", (err3) => {
           collector.end();
-          reject(err2);
+          reject(err3);
         });
         collector.on("error", reject);
         collector.on("finish", function() {
@@ -21237,11 +21237,11 @@ var require_randomUUID = __commonJS({
 var require_dist_cjs18 = __commonJS({
   "node_modules/.pnpm/@smithy+uuid@1.1.0/node_modules/@smithy/uuid/dist-cjs/index.js"(exports2) {
     "use strict";
-    var randomUUID = require_randomUUID();
+    var randomUUID2 = require_randomUUID();
     var decimalToHex = Array.from({ length: 256 }, (_, i4) => i4.toString(16).padStart(2, "0"));
     var v42 = () => {
-      if (randomUUID.randomUUID) {
-        return randomUUID.randomUUID();
+      if (randomUUID2.randomUUID) {
+        return randomUUID2.randomUUID();
       }
       const rnds = new Uint8Array(16);
       crypto.getRandomValues(rnds);
@@ -24177,12 +24177,12 @@ var require_dist_cjs23 = __commonJS({
         try {
           const credentials = await provider();
           return credentials;
-        } catch (err2) {
-          lastProviderError = err2;
-          if (err2?.tryNextLink) {
+        } catch (err3) {
+          lastProviderError = err3;
+          if (err3?.tryNextLink) {
             continue;
           }
-          throw err2;
+          throw err3;
         }
       }
       throw lastProviderError;
@@ -26257,7 +26257,7 @@ var require_dist_cjs26 = __commonJS({
           handler = command.resolveMiddleware(this.middlewareStack, this.config, options);
         }
         if (callback) {
-          handler(command).then((result) => callback(null, result.output), (err2) => callback(err2)).catch(() => {
+          handler(command).then((result) => callback(null, result.output), (err3) => callback(err3)).catch(() => {
           });
         } else {
           return handler(command).then((result) => result.output);
@@ -31170,23 +31170,23 @@ var require_dist_cjs37 = __commonJS({
             output.$metadata.totalRetryDelay = totalDelay;
             return { response, output };
           } catch (e4) {
-            const err2 = asSdkError(e4);
+            const err3 = asSdkError(e4);
             attempts++;
-            if (this.shouldRetry(err2, attempts, maxAttempts)) {
-              retryTokenAmount = this.retryQuota.retrieveRetryTokens(err2);
-              const delayFromDecider = this.delayDecider(serviceErrorClassification.isThrottlingError(err2) ? utilRetry.THROTTLING_RETRY_DELAY_BASE : utilRetry.DEFAULT_RETRY_DELAY_BASE, attempts);
-              const delayFromResponse = getDelayFromRetryAfterHeader(err2.$response);
+            if (this.shouldRetry(err3, attempts, maxAttempts)) {
+              retryTokenAmount = this.retryQuota.retrieveRetryTokens(err3);
+              const delayFromDecider = this.delayDecider(serviceErrorClassification.isThrottlingError(err3) ? utilRetry.THROTTLING_RETRY_DELAY_BASE : utilRetry.DEFAULT_RETRY_DELAY_BASE, attempts);
+              const delayFromResponse = getDelayFromRetryAfterHeader(err3.$response);
               const delay = Math.max(delayFromResponse || 0, delayFromDecider);
               totalDelay += delay;
               await new Promise((resolve) => setTimeout(resolve, delay));
               continue;
             }
-            if (!err2.$metadata) {
-              err2.$metadata = {};
+            if (!err3.$metadata) {
+              err3.$metadata = {};
             }
-            err2.$metadata.attempts = attempts;
-            err2.$metadata.totalRetryDelay = totalDelay;
-            throw err2;
+            err3.$metadata.attempts = attempts;
+            err3.$metadata.totalRetryDelay = totalDelay;
+            throw err3;
           }
         }
       }
@@ -31631,8 +31631,8 @@ var require_dist_cjs39 = __commonJS({
           ...options,
           hostname: options.hostname?.replace(/^\[(.+)\]$/, "$1")
         });
-        req.on("error", (err2) => {
-          reject(Object.assign(new propertyProvider.ProviderError("Unable to connect to instance metadata service"), err2));
+        req.on("error", (err3) => {
+          reject(Object.assign(new propertyProvider.ProviderError("Unable to connect to instance metadata service"), err3));
           req.destroy();
         });
         req.on("timeout", () => {
@@ -31875,11 +31875,11 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
           let profile2;
           try {
             profile2 = await getProfile(options);
-          } catch (err2) {
-            if (err2.statusCode === 401) {
+          } catch (err3) {
+            if (err3.statusCode === 401) {
               disableFetchToken = false;
             }
-            throw err2;
+            throw err3;
           }
           return profile2;
         }, maxRetries2)).trim();
@@ -31887,11 +31887,11 @@ For more information, please visit: ` + STATIC_STABILITY_DOC_URL);
           let creds;
           try {
             creds = await getCredentialsFromProfile(imdsProfile, options, init);
-          } catch (err2) {
-            if (err2.statusCode === 401) {
+          } catch (err3) {
+            if (err3.statusCode === 401) {
               disableFetchToken = false;
             }
-            throw err2;
+            throw err3;
           }
           return creds;
         }, maxRetries2);
@@ -37019,12 +37019,12 @@ var require_dist_cjs53 = __commonJS({
       for (const provider of providers) {
         try {
           return await provider(awsIdentityProperties);
-        } catch (err2) {
-          lastProviderError = err2;
-          if (err2?.tryNextLink) {
+        } catch (err3) {
+          lastProviderError = err3;
+          if (err3?.tryNextLink) {
             continue;
           }
-          throw err2;
+          throw err3;
         }
       }
       throw lastProviderError;
@@ -41861,9 +41861,9 @@ var require_package3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js
+// node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.9_472619de6737c5b08445ad034d1011d9/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js
 var require_dist_cjs57 = __commonJS({
-  "node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js"(exports2) {
+  "node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.9_472619de6737c5b08445ad034d1011d9/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js"(exports2) {
     "use strict";
     var protocols = (init_protocols2(), __toCommonJS(protocols_exports2));
     var schema = (init_schema(), __toCommonJS(schema_exports));
@@ -46824,7 +46824,7 @@ var require_v35 = __commonJS({
       };
       try {
         generateUUID.name = name;
-      } catch (err2) {
+      } catch (err3) {
       }
       generateUUID.DNS = DNS2;
       generateUUID.URL = URL3;
@@ -46997,9 +46997,9 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@aws-sdk+util-dynamodb@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js
+// node_modules/.pnpm/@aws-sdk+util-dynamodb@3.94_49d242376f2a4488405e0a19a9e6fb81/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js
 var require_dist_cjs60 = __commonJS({
-  "node_modules/.pnpm/@aws-sdk+util-dynamodb@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js"(exports2) {
+  "node_modules/.pnpm/@aws-sdk+util-dynamodb@3.94_49d242376f2a4488405e0a19a9e6fb81/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js"(exports2) {
     "use strict";
     var NumberValue = class _NumberValue {
       value;
@@ -47977,7 +47977,7 @@ var require_raw_keyring_decorators = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2._onDecrypt = exports2._onEncrypt = void 0;
     var material_management_1 = require_src();
-    function _onEncrypt(randomBytes) {
+    function _onEncrypt(randomBytes2) {
       return async function _onEncrypt2(material) {
         if (!material.hasUnencryptedDataKey) {
           const trace = {
@@ -47985,7 +47985,7 @@ var require_raw_keyring_decorators = __commonJS({
             keyNamespace: this.keyNamespace,
             flags: material_management_1.KeyringTraceFlag.WRAPPING_KEY_GENERATED_DATA_KEY
           };
-          const udk = await randomBytes(material.suite.keyLengthBytes);
+          const udk = await randomBytes2(material.suite.keyLengthBytes);
           material.setUnencryptedDataKey(udk, trace);
         }
         return this._wrapKey(material);
@@ -48121,9 +48121,9 @@ var require_raw_aes_keyring_node = __commonJS({
     }
     async function randomBytesAsync(size) {
       return new Promise((resolve, reject) => {
-        (0, crypto_1.randomBytes)(size, (err2, buffer) => {
-          if (err2)
-            return reject(err2);
+        (0, crypto_1.randomBytes)(size, (err3, buffer) => {
+          if (err3)
+            return reject(err3);
           resolve(buffer);
         });
       });
@@ -48255,9 +48255,9 @@ var require_raw_rsa_keyring_node = __commonJS({
     (0, material_management_node_1.immutableClass)(RawRsaKeyringNode);
     async function randomBytesAsync(size) {
       return new Promise((resolve, reject) => {
-        (0, crypto_1.randomBytes)(size, (err2, buffer) => {
-          if (err2)
-            return reject(err2);
+        (0, crypto_1.randomBytes)(size, (err3, buffer) => {
+          if (err3)
+            return reject(err3);
           resolve(buffer);
         });
       });
@@ -51599,9 +51599,9 @@ var require_sequential_executor = __commonJS({
       callListeners: function callListeners(listeners, args, doneCallback, prevError) {
         var self2 = this;
         var error2 = prevError || null;
-        function callNextListener(err2) {
-          if (err2) {
-            error2 = AWS.util.error(error2 || new Error(), err2);
+        function callNextListener(err3) {
+          if (err3) {
+            error2 = AWS.util.error(error2 || new Error(), err3);
             if (self2._haltHandlersOnError) {
               return doneCallback.call(self2, error2);
             }
@@ -51616,8 +51616,8 @@ var require_sequential_executor = __commonJS({
           } else {
             try {
               listener.apply(self2, args);
-            } catch (err2) {
-              error2 = AWS.util.error(error2 || new Error(), err2);
+            } catch (err3) {
+              error2 = AWS.util.error(error2 || new Error(), err3);
             }
             if (error2 && self2._haltHandlersOnError) {
               doneCallback.call(self2, error2);
@@ -52658,8 +52658,8 @@ var require_service = __commonJS({
       /**
        * @api private
        */
-      retryDelays: function retryDelays(retryCount, err2) {
-        return AWS.util.calculateRetryDelay(retryCount, this.config.retryDelayOptions, err2);
+      retryDelays: function retryDelays(retryCount, err3) {
+        return AWS.util.calculateRetryDelay(retryCount, this.config.retryDelayOptions, err3);
       },
       /**
        * @api private
@@ -52877,8 +52877,8 @@ var require_service = __commonJS({
           } else {
             try {
               setApi(AWS.apiLoader(superclass.serviceIdentifier, version2));
-            } catch (err2) {
-              throw AWS.util.error(err2, {
+            } catch (err3) {
+              throw AWS.util.error(err3, {
                 message: "Could not find API configuration " + superclass.serviceIdentifier + "-" + version2
               });
             }
@@ -53006,9 +53006,9 @@ var require_credentials = __commonJS({
       get: function get2(callback) {
         var self2 = this;
         if (this.needsRefresh()) {
-          this.refresh(function(err2) {
-            if (!err2) self2.expired = false;
-            if (callback) callback(err2);
+          this.refresh(function(err3) {
+            if (!err3) self2.expired = false;
+            if (callback) callback(err3);
           });
         } else if (callback) {
           callback();
@@ -53085,13 +53085,13 @@ var require_credentials = __commonJS({
       coalesceRefresh: function coalesceRefresh(callback, sync) {
         var self2 = this;
         if (self2.refreshCallbacks.push(callback) === 1) {
-          self2.load(function onLoad(err2) {
+          self2.load(function onLoad(err3) {
             AWS.util.arrayEach(self2.refreshCallbacks, function(callback2) {
               if (sync) {
-                callback2(err2);
+                callback2(err3);
               } else {
                 AWS.util.defer(function() {
-                  callback2(err2);
+                  callback2(err3);
                 });
               }
             });
@@ -53179,10 +53179,10 @@ var require_credential_provider_chain = __commonJS({
           return self2;
         }
         if (self2.resolveCallbacks.push(callback) === 1) {
-          let resolveNext2 = function(err2, creds) {
-            if (!err2 && creds || index === providers.length) {
+          let resolveNext2 = function(err3, creds) {
+            if (!err3 && creds || index === providers.length) {
               AWS.util.arrayEach(self2.resolveCallbacks, function(callback2) {
-                callback2(err2, creds);
+                callback2(err3, creds);
               });
               self2.resolveCallbacks.length = 0;
               return;
@@ -53421,31 +53421,31 @@ var require_config = __commonJS({
        */
       getCredentials: function getCredentials(callback) {
         var self2 = this;
-        function finish(err2) {
-          callback(err2, err2 ? null : self2.credentials);
+        function finish(err3) {
+          callback(err3, err3 ? null : self2.credentials);
         }
-        function credError(msg, err2) {
-          return new AWS.util.error(err2 || new Error(), {
+        function credError(msg, err3) {
+          return new AWS.util.error(err3 || new Error(), {
             code: "CredentialsError",
             message: msg,
             name: "CredentialsError"
           });
         }
         function getAsyncCredentials() {
-          self2.credentials.get(function(err2) {
-            if (err2) {
+          self2.credentials.get(function(err3) {
+            if (err3) {
               var msg = "Could not load credentials from " + self2.credentials.constructor.name;
-              err2 = credError(msg, err2);
+              err3 = credError(msg, err3);
             }
-            finish(err2);
+            finish(err3);
           });
         }
         function getStaticCredentials() {
-          var err2 = null;
+          var err3 = null;
           if (!self2.credentials.accessKeyId || !self2.credentials.secretAccessKey) {
-            err2 = credError("Missing credentials");
+            err3 = credError("Missing credentials");
           }
-          finish(err2);
+          finish(err3);
         }
         if (self2.credentials) {
           if (typeof self2.credentials.get === "function") {
@@ -53454,12 +53454,12 @@ var require_config = __commonJS({
             getStaticCredentials();
           }
         } else if (self2.credentialProvider) {
-          self2.credentialProvider.resolve(function(err2, creds) {
-            if (err2) {
-              err2 = credError("Could not load credentials from any providers", err2);
+          self2.credentialProvider.resolve(function(err3, creds) {
+            if (err3) {
+              err3 = credError("Could not load credentials from any providers", err3);
             }
             self2.credentials = creds;
-            finish(err2);
+            finish(err3);
           });
         } else {
           finish(credError("No credentials to load"));
@@ -53490,31 +53490,31 @@ var require_config = __commonJS({
        */
       getToken: function getToken(callback) {
         var self2 = this;
-        function finish(err2) {
-          callback(err2, err2 ? null : self2.token);
+        function finish(err3) {
+          callback(err3, err3 ? null : self2.token);
         }
-        function tokenError(msg, err2) {
-          return new AWS.util.error(err2 || new Error(), {
+        function tokenError(msg, err3) {
+          return new AWS.util.error(err3 || new Error(), {
             code: "TokenError",
             message: msg,
             name: "TokenError"
           });
         }
         function getAsyncToken() {
-          self2.token.get(function(err2) {
-            if (err2) {
+          self2.token.get(function(err3) {
+            if (err3) {
               var msg = "Could not load token from " + self2.token.constructor.name;
-              err2 = tokenError(msg, err2);
+              err3 = tokenError(msg, err3);
             }
-            finish(err2);
+            finish(err3);
           });
         }
         function getStaticToken() {
-          var err2 = null;
+          var err3 = null;
           if (!self2.token.token) {
-            err2 = tokenError("Missing token");
+            err3 = tokenError("Missing token");
           }
-          finish(err2);
+          finish(err3);
         }
         if (self2.token) {
           if (typeof self2.token.get === "function") {
@@ -53523,12 +53523,12 @@ var require_config = __commonJS({
             getStaticToken();
           }
         } else if (self2.tokenProvider) {
-          self2.tokenProvider.resolve(function(err2, token) {
-            if (err2) {
-              err2 = tokenError("Could not load token from any providers", err2);
+          self2.tokenProvider.resolve(function(err3, token) {
+            if (err3) {
+              err3 = tokenError("Could not load token from any providers", err3);
             }
             self2.token = token;
-            finish(err2);
+            finish(err3);
           });
         } else {
           finish(tokenError("No token to load"));
@@ -53572,8 +53572,8 @@ var require_config = __commonJS({
         var fileSystemCreds = new AWS.FileSystemCredentials(path);
         var chain = new AWS.CredentialProviderChain();
         chain.providers.unshift(fileSystemCreds);
-        chain.resolve(function(err2, creds) {
-          if (err2) throw err2;
+        chain.resolve(function(err3, creds) {
+          if (err3) throw err3;
           else options.credentials = creds;
         });
         this.constructor(options);
@@ -53920,10 +53920,10 @@ var require_discover_endpoint = __commonJS({
           Address: "",
           CachePeriodInMinutes: 1
         }]);
-        endpointRequest.send(function(err2, data2) {
+        endpointRequest.send(function(err3, data2) {
           if (data2 && data2.Endpoints) {
             AWS.endpointCache.put(cacheKey, data2.Endpoints);
-          } else if (err2) {
+          } else if (err3) {
             AWS.endpointCache.put(cacheKey, [{
               Address: "",
               CachePeriodInMinutes: 1
@@ -53966,14 +53966,14 @@ var require_discover_endpoint = __commonJS({
           CachePeriodInMinutes: 60
           //long-live cache
         }]);
-        endpointRequest.send(function(err2, data2) {
-          if (err2) {
-            request.response.error = util.error(err2, { retryable: false });
+        endpointRequest.send(function(err3, data2) {
+          if (err3) {
+            request.response.error = util.error(err3, { retryable: false });
             AWS.endpointCache.remove(cacheKey);
             if (requestQueue[cacheKeyStr]) {
               var pendingRequests = requestQueue[cacheKeyStr];
               util.arrayEach(pendingRequests, function(requestContext) {
-                requestContext.request.response.error = util.error(err2, { retryable: false });
+                requestContext.request.response.error = util.error(err3, { retryable: false });
                 requestContext.callback();
               });
               delete requestQueue[cacheKeyStr];
@@ -54206,18 +54206,18 @@ var require_event_listeners = __commonJS({
             if (!req.service.api.signatureVersion && !req.service.config.signatureVersion) return done();
             var identityType = getIdentityType(req);
             if (identityType === "bearer") {
-              req.service.config.getToken(function(err2) {
-                if (err2) {
-                  req.response.error = AWS.util.error(err2, { code: "TokenError" });
+              req.service.config.getToken(function(err3) {
+                if (err3) {
+                  req.response.error = AWS.util.error(err3, { code: "TokenError" });
                 }
                 done();
               });
               return;
             }
-            req.service.config.getCredentials(function(err2) {
-              if (err2) {
+            req.service.config.getCredentials(function(err3) {
+              if (err3) {
                 req.response.error = AWS.util.error(
-                  err2,
+                  err3,
                   {
                     code: "CredentialsError",
                     message: "Missing credentials in config, if using AWS_CONFIG_FILE, set AWS_SDK_LOAD_CONFIG=1"
@@ -54302,9 +54302,9 @@ var require_event_listeners = __commonJS({
               req.httpRequest.headers["X-Amz-Content-Sha256"] = "UNSIGNED-PAYLOAD";
               return done();
             }
-            AWS.util.computeSha256(body, function(err2, sha) {
-              if (err2) {
-                done(err2);
+            AWS.util.computeSha256(body, function(err3, sha) {
+              if (err3) {
+                done(err3);
               } else {
                 req.httpRequest.headers["X-Amz-Content-Sha256"] = sha;
                 done();
@@ -54321,18 +54321,18 @@ var require_event_listeners = __commonJS({
             try {
               var length = AWS.util.string.byteLength(req.httpRequest.body);
               req.httpRequest.headers["Content-Length"] = length;
-            } catch (err2) {
+            } catch (err3) {
               if (payloadMember && payloadMember.isStreaming) {
                 if (payloadMember.requiresLength) {
-                  throw err2;
+                  throw err3;
                 } else if (authtype.indexOf("unsigned-body") >= 0) {
                   req.httpRequest.headers["Transfer-Encoding"] = "chunked";
                   return;
                 } else {
-                  throw err2;
+                  throw err3;
                 }
               }
-              throw err2;
+              throw err3;
             }
           }
         });
@@ -54352,8 +54352,8 @@ var require_event_listeners = __commonJS({
           }
         });
         add("RESTART", "restart", function RESTART() {
-          var err2 = this.response.error;
-          if (!err2 || !err2.retryable) return;
+          var err3 = this.response.error;
+          if (!err3 || !err3.retryable) return;
           this.httpRequest = new AWS.HttpRequest(
             this.service.endpoint,
             this.service.region
@@ -54371,9 +54371,9 @@ var require_event_listeners = __commonJS({
           var identityType = getIdentityType(req);
           if (!identityType || identityType.length === 0) return done();
           if (identityType === "bearer") {
-            service.config.getToken(function(err2, token) {
-              if (err2) {
-                req.response.error = err2;
+            service.config.getToken(function(err3, token) {
+              if (err3) {
+                req.response.error = err3;
                 return done();
               }
               try {
@@ -54386,9 +54386,9 @@ var require_event_listeners = __commonJS({
               done();
             });
           } else {
-            service.config.getCredentials(function(err2, credentials) {
-              if (err2) {
-                req.response.error = err2;
+            service.config.getCredentials(function(err3, credentials) {
+              if (err3) {
+                req.response.error = err3;
                 return done();
               }
               try {
@@ -54430,7 +54430,7 @@ var require_event_listeners = __commonJS({
             );
           }
         });
-        add("ERROR", "error", function ERROR(err2, resp) {
+        add("ERROR", "error", function ERROR(err3, resp) {
           var awsQueryCompatible = resp.request.service.api.awsQueryCompatible;
           if (awsQueryCompatible) {
             var headers = resp.httpResponse.headers;
@@ -54494,17 +54494,17 @@ var require_event_listeners = __commonJS({
               resp.request.emit("httpDownloadProgress", [value, resp]);
             });
           }
-          function error2(err2) {
-            if (err2.code !== "RequestAbortedError") {
-              var errCode = err2.code === "TimeoutError" ? err2.code : "NetworkingError";
-              err2 = AWS.util.error(err2, {
+          function error2(err3) {
+            if (err3.code !== "RequestAbortedError") {
+              var errCode = err3.code === "TimeoutError" ? err3.code : "NetworkingError";
+              err3 = AWS.util.error(err3, {
                 code: errCode,
                 region: resp.request.httpRequest.region,
                 hostname: resp.request.httpRequest.endpoint.hostname,
                 retryable: true
               });
             }
-            resp.error = err2;
+            resp.error = err3;
             resp.request.emit("httpError", [resp.error, resp], function() {
               done();
             });
@@ -54520,14 +54520,14 @@ var require_event_listeners = __commonJS({
                 error2
               );
               progress(stream);
-            } catch (err2) {
-              error2(err2);
+            } catch (err3) {
+              error2(err3);
             }
           }
           var timeDiff = (resp.request.service.getSkewCorrectedDate() - this.signedAt) / 1e3;
           if (timeDiff >= 60 * 10) {
-            this.emit("sign", [this], function(err2) {
-              if (err2) done(err2);
+            this.emit("sign", [this], function(err3) {
+              if (err3) done(err3);
               else executeSend();
             });
           } else {
@@ -54593,10 +54593,10 @@ var require_event_listeners = __commonJS({
           }
         });
         add("EXPIRED_SIGNATURE", "retry", function EXPIRED_SIGNATURE(resp) {
-          var err2 = resp.error;
-          if (!err2) return;
-          if (typeof err2.code === "string" && typeof err2.message === "string") {
-            if (err2.code.match(/Signature/) && err2.message.match(/expired/)) {
+          var err3 = resp.error;
+          if (!err3) return;
+          if (typeof err3.code === "string" && typeof err3.message === "string") {
+            if (err3.code.match(/Signature/) && err3.message.match(/expired/)) {
               resp.error.retryable = true;
             }
           }
@@ -54648,18 +54648,18 @@ var require_event_listeners = __commonJS({
       CorePost: new SequentialExecutor().addNamedListeners(function(add) {
         add("EXTRACT_REQUEST_ID", "extractData", AWS.util.extractRequestId);
         add("EXTRACT_REQUEST_ID", "extractError", AWS.util.extractRequestId);
-        add("ENOTFOUND_ERROR", "httpError", function ENOTFOUND_ERROR(err2) {
-          function isDNSError(err3) {
-            return err3.errno === "ENOTFOUND" || typeof err3.errno === "number" && typeof AWS.util.getSystemErrorName === "function" && ["EAI_NONAME", "EAI_NODATA"].indexOf(AWS.util.getSystemErrorName(err3.errno) >= 0);
+        add("ENOTFOUND_ERROR", "httpError", function ENOTFOUND_ERROR(err3) {
+          function isDNSError(err4) {
+            return err4.errno === "ENOTFOUND" || typeof err4.errno === "number" && typeof AWS.util.getSystemErrorName === "function" && ["EAI_NONAME", "EAI_NODATA"].indexOf(AWS.util.getSystemErrorName(err4.errno) >= 0);
           }
-          if (err2.code === "NetworkingError" && isDNSError(err2)) {
-            var message = "Inaccessible host: `" + err2.hostname + "' at port `" + err2.port + "'. This service may not be available in the `" + err2.region + "' region.";
+          if (err3.code === "NetworkingError" && isDNSError(err3)) {
+            var message = "Inaccessible host: `" + err3.hostname + "' at port `" + err3.port + "'. This service may not be available in the `" + err3.region + "' region.";
             this.response.error = AWS.util.error(new Error(message), {
               code: "UnknownEndpoint",
-              region: err2.region,
-              hostname: err2.hostname,
+              region: err3.region,
+              hostname: err3.hostname,
               retryable: true,
-              originalError: err2
+              originalError: err3
             });
           }
         });
@@ -54783,18 +54783,18 @@ var require_state_machine = __commonJS({
       }
       var self2 = this;
       var state2 = self2.states[self2.currentState];
-      state2.fn.call(bindObject || self2, inputError, function(err2) {
-        if (err2) {
+      state2.fn.call(bindObject || self2, inputError, function(err3) {
+        if (err3) {
           if (state2.fail) self2.currentState = state2.fail;
-          else return done ? done.call(bindObject, err2) : null;
+          else return done ? done.call(bindObject, err3) : null;
         } else {
           if (state2.accept) self2.currentState = state2.accept;
           else return done ? done.call(bindObject) : null;
         }
         if (self2.currentState === finalState) {
-          return done ? done.call(bindObject, err2) : null;
+          return done ? done.call(bindObject, err3) : null;
         }
-        self2.runTo(finalState, done, bindObject, err2);
+        self2.runTo(finalState, done, bindObject, err3);
       });
     };
     AcceptorStateMachine.prototype.addState = function addState(name, acceptState, failState, fn) {
@@ -56340,20 +56340,20 @@ var require_request = __commonJS({
       var transition = function(_, done) {
         var self2 = this;
         self2._haltHandlersOnError = false;
-        self2.emit(self2._asm.currentState, function(err2) {
-          if (err2) {
+        self2.emit(self2._asm.currentState, function(err3) {
+          if (err3) {
             if (isTerminalState(self2)) {
               if (domain && self2.domain instanceof domain.Domain) {
-                err2.domainEmitter = self2;
-                err2.domain = self2.domain;
-                err2.domainThrown = false;
-                self2.domain.emit("error", err2);
+                err3.domainEmitter = self2;
+                err3.domain = self2.domain;
+                err3.domainThrown = false;
+                self2.domain.emit("error", err3);
               } else {
-                throw err2;
+                throw err3;
               }
             } else {
-              self2.response.error = err2;
-              done(err2);
+              self2.response.error = err3;
+              done(err3);
             }
           } else {
             done(self2.response.error);
@@ -56577,8 +56577,8 @@ var require_request = __commonJS({
        */
       eachItem: function eachItem(callback) {
         var self2 = this;
-        function wrappedCallback(err2, data2) {
-          if (err2) return callback(err2, null);
+        function wrappedCallback(err3, data2) {
+          if (err3) return callback(err3, null);
           if (data2 === null) return callback(null, null);
           var config = self2.service.paginationConfig(self2.operation);
           var resultKey = config.resultKey;
@@ -56643,8 +56643,8 @@ var require_request = __commonJS({
             }
           });
         }
-        this.on("error", function(err2) {
-          stream.emit("error", err2);
+        this.on("error", function(err3) {
+          stream.emit("error", err3);
         });
         this.on("httpHeaders", function streamHeaders(statusCode, headers, resp) {
           if (statusCode < 300) {
@@ -56686,7 +56686,7 @@ var require_request = __commonJS({
                   return streams.PassThrough.prototype._write.apply(this, arguments);
                 };
                 lengthAccumulator.on("end", checkContentLengthAndEmit);
-                stream.on("error", function(err2) {
+                stream.on("error", function(err3) {
                   shouldCheckContentLength = false;
                   httpStream.unpipe(lengthAccumulator);
                   lengthAccumulator.emit("end");
@@ -56709,9 +56709,9 @@ var require_request = __commonJS({
               });
               httpStream.on("end", checkContentLengthAndEmit);
             }
-            httpStream.on("error", function(err2) {
+            httpStream.on("error", function(err3) {
               shouldCheckContentLength = false;
-              stream.emit("error", err2);
+              stream.emit("error", err3);
             });
           }
         });
@@ -56731,9 +56731,9 @@ var require_request = __commonJS({
         };
         if (!args) args = this.eventParameters(eventName, this.response);
         var origEmit = AWS.SequentialExecutor.prototype.emit;
-        origEmit.call(this, eventName, args, function(err2) {
-          if (err2) this.response.error = err2;
-          done.call(this, err2);
+        origEmit.call(this, eventName, args, function(err3) {
+          if (err3) this.response.error = err3;
+          done.call(this, err3);
         });
       },
       /**
@@ -56986,7 +56986,7 @@ var require_resource_waiter2 = __commonJS({
         path: function(resp, expected, argument) {
           try {
             var result = jmespath.search(resp.data, argument);
-          } catch (err2) {
+          } catch (err3) {
             return false;
           }
           return jmespath.strictDeepEqual(result, expected);
@@ -56994,7 +56994,7 @@ var require_resource_waiter2 = __commonJS({
         pathAll: function(resp, expected, argument) {
           try {
             var results = jmespath.search(resp.data, argument);
-          } catch (err2) {
+          } catch (err3) {
             return false;
           }
           if (!Array.isArray(results)) results = [results];
@@ -57010,7 +57010,7 @@ var require_resource_waiter2 = __commonJS({
         pathAny: function(resp, expected, argument) {
           try {
             var results = jmespath.search(resp.data, argument);
-          } catch (err2) {
+          } catch (err3) {
             return false;
           }
           if (!Array.isArray(results)) results = [results];
@@ -58324,8 +58324,8 @@ var require_util = __commonJS({
       fn: {
         noop: function() {
         },
-        callback: function(err2) {
-          if (err2) throw err2;
+        callback: function(err3) {
+          if (err3) throw err3;
         },
         /**
          * Turn a synchronous function into as "async" function by making it call
@@ -58734,8 +58734,8 @@ var require_util = __commonJS({
             data2.on("data", function(chunk) {
               hash.update(chunk);
             });
-            data2.on("error", function(err2) {
-              callback(err2);
+            data2.on("error", function(err3) {
+              callback(err3);
             });
             data2.on("end", function() {
               callback(null, hash.digest(digest));
@@ -58778,7 +58778,7 @@ var require_util = __commonJS({
           }
           return out.join("");
         },
-        createHash: function createHash(algorithm) {
+        createHash: function createHash2(algorithm) {
           return util.crypto.lib.createHash(algorithm);
         }
       },
@@ -58840,34 +58840,34 @@ var require_util = __commonJS({
         var match = str.match(/^\s*function (.+)\(/);
         return match ? match[1] : str;
       },
-      error: function error2(err2, options) {
+      error: function error2(err3, options) {
         var originalError = null;
-        if (typeof err2.message === "string" && err2.message !== "") {
+        if (typeof err3.message === "string" && err3.message !== "") {
           if (typeof options === "string" || options && options.message) {
-            originalError = util.copy(err2);
-            originalError.message = err2.message;
+            originalError = util.copy(err3);
+            originalError.message = err3.message;
           }
         }
-        err2.message = err2.message || null;
+        err3.message = err3.message || null;
         if (typeof options === "string") {
-          err2.message = options;
+          err3.message = options;
         } else if (typeof options === "object" && options !== null) {
-          util.update(err2, options);
+          util.update(err3, options);
           if (options.message)
-            err2.message = options.message;
+            err3.message = options.message;
           if (options.code || options.name)
-            err2.code = options.code || options.name;
+            err3.code = options.code || options.name;
           if (options.stack)
-            err2.stack = options.stack;
+            err3.stack = options.stack;
         }
         if (typeof Object.defineProperty === "function") {
-          Object.defineProperty(err2, "name", { writable: true, enumerable: false });
-          Object.defineProperty(err2, "message", { enumerable: true });
+          Object.defineProperty(err3, "name", { writable: true, enumerable: false });
+          Object.defineProperty(err3, "message", { enumerable: true });
         }
-        err2.name = String(options && options.name || err2.name || err2.code || "Error");
-        err2.time = /* @__PURE__ */ new Date();
+        err3.name = String(options && options.name || err3.name || err3.code || "Error");
+        err3.time = /* @__PURE__ */ new Date();
         if (originalError) {
-          err2.originalError = originalError;
+          err3.originalError = originalError;
         }
         for (var key in options || {}) {
           if (key[0] === "[" && key[key.length - 1] === "]") {
@@ -58875,15 +58875,15 @@ var require_util = __commonJS({
             if (key === "code" || key === "message") {
               continue;
             }
-            err2["[" + key + "]"] = "See error." + key + " for details.";
-            Object.defineProperty(err2, key, {
-              value: err2[key] || options && options[key] || originalError && originalError[key],
+            err3["[" + key + "]"] = "See error." + key + " for details.";
+            Object.defineProperty(err3, key, {
+              value: err3[key] || options && options[key] || originalError && originalError[key],
               enumerable: false,
               writable: true
             });
           }
         }
-        return err2;
+        return err3;
       },
       /**
        * @api private
@@ -59014,8 +59014,8 @@ var require_util = __commonJS({
             }
           }
         }
-        util.crypto.sha256(body, "hex", function(err2, sha) {
-          if (err2) done(err2);
+        util.crypto.sha256(body, "hex", function(err3, sha) {
+          if (err3) done(err3);
           else done(null, sha);
         });
       },
@@ -59089,9 +59089,9 @@ var require_util = __commonJS({
           var self2 = this;
           var args = Array.prototype.slice.call(arguments);
           return new PromiseDependency(function(resolve, reject) {
-            args.push(function(err2, data2) {
-              if (err2) {
-                reject(err2);
+            args.push(function(err3, data2) {
+              if (err3) {
+                reject(err3);
               } else {
                 resolve(data2);
               }
@@ -59113,11 +59113,11 @@ var require_util = __commonJS({
       /**
        * @api private
        */
-      calculateRetryDelay: function calculateRetryDelay(retryCount, retryDelayOptions, err2) {
+      calculateRetryDelay: function calculateRetryDelay(retryCount, retryDelayOptions, err3) {
         if (!retryDelayOptions) retryDelayOptions = {};
         var customBackoff = retryDelayOptions.customBackoff || null;
         if (typeof customBackoff === "function") {
-          return customBackoff(retryCount, err2);
+          return customBackoff(retryCount, err3);
         }
         var base = typeof retryDelayOptions.base === "number" ? retryDelayOptions.base : 100;
         var delay = Math.random() * (Math.pow(2, retryCount) * base);
@@ -59131,18 +59131,18 @@ var require_util = __commonJS({
         var http = AWS.HttpClient.getInstance();
         var httpOptions = options.httpOptions || {};
         var retryCount = 0;
-        var errCallback = function(err2) {
+        var errCallback = function(err3) {
           var maxRetries = options.maxRetries || 0;
-          if (err2 && err2.code === "TimeoutError") err2.retryable = true;
-          if (err2 && err2.retryable && retryCount < maxRetries) {
-            var delay = util.calculateRetryDelay(retryCount, options.retryDelayOptions, err2);
+          if (err3 && err3.code === "TimeoutError") err3.retryable = true;
+          if (err3 && err3.retryable && retryCount < maxRetries) {
+            var delay = util.calculateRetryDelay(retryCount, options.retryDelayOptions, err3);
             if (delay >= 0) {
               retryCount++;
-              setTimeout(sendRequest, delay + (err2.retryAfter || 0));
+              setTimeout(sendRequest, delay + (err3.retryAfter || 0));
               return;
             }
           }
-          cb(err2);
+          cb(err3);
         };
         var sendRequest = function() {
           var data2 = "";
@@ -59156,15 +59156,15 @@ var require_util = __commonJS({
                 cb(null, data2);
               } else {
                 var retryAfter = parseInt(httpResponse.headers["retry-after"], 10) * 1e3 || 0;
-                var err2 = util.error(
+                var err3 = util.error(
                   new Error(),
                   {
                     statusCode,
                     retryable: statusCode >= 500 || statusCode === 429
                   }
                 );
-                if (retryAfter && err2.retryable) err2.retryAfter = retryAfter;
-                errCallback(err2);
+                if (retryAfter && err3.retryable) err3.retryAfter = retryAfter;
+                errCallback(err3);
               }
             });
           }, errCallback);
@@ -59674,8 +59674,8 @@ var require_event_message_unmarshaller_stream = __commonJS({
         var event = parseEvent(this.parser, chunk, this.eventStreamModel);
         this.push(event);
         return callback();
-      } catch (err2) {
-        callback(err2);
+      } catch (err3) {
+        callback(err3);
       }
     };
     module2.exports = {
@@ -59698,11 +59698,11 @@ var require_streaming_create_event_stream = __commonJS({
       stream.pipe(
         eventMessageChunker
       ).pipe(eventStream);
-      stream.on("error", function(err2) {
-        eventMessageChunker.emit("error", err2);
+      stream.on("error", function(err3) {
+        eventMessageChunker.emit("error", err3);
       });
-      eventMessageChunker.on("error", function(err2) {
-        eventStream.emit("error", err2);
+      eventMessageChunker.on("error", function(err3) {
+        eventStream.emit("error", err3);
       });
       return eventStream;
     }
@@ -59820,7 +59820,7 @@ var require_publisher = __commonJS({
       var self2 = this;
       var client = this.getClient();
       this.messagesInFlight++;
-      this.client.send(message, 0, message.length, this.port, this.address, function(err2, bytes) {
+      this.client.send(message, 0, message.length, this.port, this.address, function(err3, bytes) {
         if (--self2.messagesInFlight <= 0) {
           self2.destroyClient();
         }
@@ -59873,7 +59873,7 @@ var require_configuration = __commonJS({
           filename: process.env[AWS.util.sharedConfigFileEnv]
         });
         var sharedFileConfig = configFile[process.env.AWS_PROFILE || AWS.util.defaultProfile];
-      } catch (err2) {
+      } catch (err3) {
         return false;
       }
       if (!sharedFileConfig) return config;
@@ -60596,11 +60596,11 @@ var require_temporary_credentials = __commonJS({
         self2.masterCredentials.get(function() {
           self2.service.config.credentials = self2.masterCredentials;
           var operation2 = self2.params.RoleArn ? self2.service.assumeRole : self2.service.getSessionToken;
-          operation2.call(self2.service, function(err2, data2) {
-            if (!err2) {
+          operation2.call(self2.service, function(err3, data2) {
+            if (!err3) {
               self2.service.credentialsFrom(data2, self2);
             }
-            callback(err2);
+            callback(err3);
           });
         });
       },
@@ -60712,20 +60712,20 @@ var require_chainable_temporary_credentials = __commonJS({
       load: function load(callback) {
         var self2 = this;
         var operation2 = self2.service.config.params.RoleArn ? "assumeRole" : "getSessionToken";
-        this.getTokenCode(function(err2, tokenCode) {
+        this.getTokenCode(function(err3, tokenCode) {
           var params = {};
-          if (err2) {
-            callback(err2);
+          if (err3) {
+            callback(err3);
             return;
           }
           if (tokenCode) {
             params.TokenCode = tokenCode;
           }
-          self2.service[operation2](params, function(err3, data2) {
-            if (!err3) {
+          self2.service[operation2](params, function(err4, data2) {
+            if (!err4) {
               self2.service.credentialsFrom(data2, self2);
             }
-            callback(err3);
+            callback(err4);
           });
         });
       },
@@ -60735,11 +60735,11 @@ var require_chainable_temporary_credentials = __commonJS({
       getTokenCode: function getTokenCode(callback) {
         var self2 = this;
         if (this.tokenCodeFn) {
-          this.tokenCodeFn(this.service.config.params.SerialNumber, function(err2, token) {
-            if (err2) {
-              var message = err2;
-              if (err2 instanceof Error) {
-                message = err2.message;
+          this.tokenCodeFn(this.service.config.params.SerialNumber, function(err3, token) {
+            if (err3) {
+              var message = err3;
+              if (err3 instanceof Error) {
+                message = err3.message;
               }
               callback(
                 AWS.util.error(
@@ -60813,13 +60813,13 @@ var require_web_identity_credentials = __commonJS({
       load: function load(callback) {
         var self2 = this;
         self2.createClients();
-        self2.service.assumeRoleWithWebIdentity(function(err2, data2) {
+        self2.service.assumeRoleWithWebIdentity(function(err3, data2) {
           self2.data = null;
-          if (!err2) {
+          if (!err3) {
             self2.data = data2;
             self2.service.credentialsFrom(data2, self2);
           }
-          callback(err2);
+          callback(err3);
         });
       },
       /**
@@ -61695,16 +61695,16 @@ var require_cognito_identity_credentials = __commonJS({
         self2.createClients();
         self2.data = null;
         self2._identityId = null;
-        self2.getId(function(err2) {
-          if (!err2) {
+        self2.getId(function(err3) {
+          if (!err3) {
             if (!self2.params.RoleArn) {
               self2.getCredentialsForIdentity(callback);
             } else {
               self2.getCredentialsFromSTS(callback);
             }
           } else {
-            self2.clearIdOnNotAuthorized(err2);
-            callback(err2);
+            self2.clearIdOnNotAuthorized(err3);
+            callback(err3);
           }
         });
       },
@@ -61724,9 +61724,9 @@ var require_cognito_identity_credentials = __commonJS({
       /**
        * @api private
        */
-      clearIdOnNotAuthorized: function clearIdOnNotAuthorized(err2) {
+      clearIdOnNotAuthorized: function clearIdOnNotAuthorized(err3) {
         var self2 = this;
-        if (err2.code == "NotAuthorizedException") {
+        if (err3.code == "NotAuthorizedException") {
           self2.clearCachedId();
         }
       },
@@ -61748,12 +61748,12 @@ var require_cognito_identity_credentials = __commonJS({
         if (typeof self2.params.IdentityId === "string") {
           return callback(null, self2.params.IdentityId);
         }
-        self2.cognito.getId(function(err2, data2) {
-          if (!err2 && data2.IdentityId) {
+        self2.cognito.getId(function(err3, data2) {
+          if (!err3 && data2.IdentityId) {
             self2.params.IdentityId = data2.IdentityId;
             callback(null, data2.IdentityId);
           } else {
-            callback(err2);
+            callback(err3);
           }
         });
       },
@@ -61773,15 +61773,15 @@ var require_cognito_identity_credentials = __commonJS({
        */
       getCredentialsForIdentity: function getCredentialsForIdentity(callback) {
         var self2 = this;
-        self2.cognito.getCredentialsForIdentity(function(err2, data2) {
-          if (!err2) {
+        self2.cognito.getCredentialsForIdentity(function(err3, data2) {
+          if (!err3) {
             self2.cacheId(data2);
             self2.data = data2;
             self2.loadCredentials(self2.data, self2);
           } else {
-            self2.clearIdOnNotAuthorized(err2);
+            self2.clearIdOnNotAuthorized(err3);
           }
-          callback(err2);
+          callback(err3);
         });
       },
       /**
@@ -61789,8 +61789,8 @@ var require_cognito_identity_credentials = __commonJS({
        */
       getCredentialsFromSTS: function getCredentialsFromSTS(callback) {
         var self2 = this;
-        self2.cognito.getOpenIdToken(function(err2, data2) {
-          if (!err2) {
+        self2.cognito.getOpenIdToken(function(err3, data2) {
+          if (!err3) {
             self2.cacheId(data2);
             self2.params.WebIdentityToken = data2.Token;
             self2.webIdentityCredentials.refresh(function(webErr) {
@@ -61801,8 +61801,8 @@ var require_cognito_identity_credentials = __commonJS({
               callback(webErr);
             });
           } else {
-            self2.clearIdOnNotAuthorized(err2);
-            callback(err2);
+            self2.clearIdOnNotAuthorized(err3);
+            callback(err3);
           }
         });
       },
@@ -61927,11 +61927,11 @@ var require_saml_credentials = __commonJS({
       load: function load(callback) {
         var self2 = this;
         self2.createClients();
-        self2.service.assumeRoleWithSAML(function(err2, data2) {
-          if (!err2) {
+        self2.service.assumeRoleWithSAML(function(err3, data2) {
+          if (!err3) {
             self2.service.credentialsFrom(data2, self2);
           }
-          callback(err2);
+          callback(err3);
         });
       },
       /**
@@ -61986,9 +61986,9 @@ var require_process_credentials = __commonJS({
             );
           }
           if (profile["credential_process"]) {
-            this.loadViaCredentialProcess(profile, function(err2, data2) {
-              if (err2) {
-                callback(err2, null);
+            this.loadViaCredentialProcess(profile, function(err3, data2) {
+              if (err3) {
+                callback(err3, null);
               } else {
                 self2.expired = false;
                 self2.accessKeyId = data2.AccessKeyId;
@@ -62006,8 +62006,8 @@ var require_process_credentials = __commonJS({
               { code: "ProcessCredentialsProviderFailure" }
             );
           }
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
         }
       },
       /**
@@ -62018,8 +62018,8 @@ var require_process_credentials = __commonJS({
       * @throws ProcessCredentialsProviderFailure
       */
       loadViaCredentialProcess: function loadViaCredentialProcess(profile, callback) {
-        proc.exec(profile["credential_process"], { env: process.env }, function(err2, stdOut, stdErr) {
-          if (err2) {
+        proc.exec(profile["credential_process"], { env: process.env }, function(err3, stdOut, stdErr) {
+          if (err3) {
             callback(AWS.util.error(
               new Error("credential_process returned error"),
               { code: "ProcessCredentialsProviderFailure" }
@@ -62038,9 +62038,9 @@ var require_process_credentials = __commonJS({
                 throw Error("credential_process does not return Version == 1");
               }
               callback(null, credData);
-            } catch (err3) {
+            } catch (err4) {
               callback(AWS.util.error(
-                new Error(err3.message),
+                new Error(err4.message),
                 { code: "ProcessCredentialsProviderFailure" }
               ), null);
             }
@@ -67605,7 +67605,7 @@ var require_parser2 = __commonJS({
           this.reset();
         }
         Parser.prototype.processAsync = function() {
-          var chunk, err2;
+          var chunk, err3;
           try {
             if (this.remaining.length <= this.options.chunkSize) {
               chunk = this.remaining;
@@ -67619,10 +67619,10 @@ var require_parser2 = __commonJS({
               return setImmediate2(this.processAsync);
             }
           } catch (error1) {
-            err2 = error1;
+            err3 = error1;
             if (!this.saxParser.errThrown) {
               this.saxParser.errThrown = true;
-              return this.emit(err2);
+              return this.emit(err3);
             }
           }
         };
@@ -67749,12 +67749,12 @@ var require_parser2 = __commonJS({
                   return results;
                 })().concat(nodeName).join("/");
                 (function() {
-                  var err2;
+                  var err3;
                   try {
                     return obj = _this.options.validator(xpath, s4 && s4[nodeName], obj);
                   } catch (error1) {
-                    err2 = error1;
-                    return _this.emit("error", err2);
+                    err3 = error1;
+                    return _this.emit("error", err3);
                   }
                 })();
               }
@@ -67834,15 +67834,15 @@ var require_parser2 = __commonJS({
           })(this);
         };
         Parser.prototype.parseString = function(str, cb) {
-          var err2;
+          var err3;
           if (cb != null && typeof cb === "function") {
             this.on("end", function(result) {
               this.reset();
               return cb(null, result);
             });
-            this.on("error", function(err3) {
+            this.on("error", function(err4) {
               this.reset();
-              return cb(err3);
+              return cb(err4);
             });
           }
           try {
@@ -67859,21 +67859,21 @@ var require_parser2 = __commonJS({
             }
             return this.saxParser.write(str).close();
           } catch (error1) {
-            err2 = error1;
+            err3 = error1;
             if (!(this.saxParser.errThrown || this.saxParser.ended)) {
-              this.emit("error", err2);
+              this.emit("error", err3);
               return this.saxParser.errThrown = true;
             } else if (this.saxParser.ended) {
-              throw err2;
+              throw err3;
             }
           }
         };
         Parser.prototype.parseStringPromise = function(str) {
           return new Promise(/* @__PURE__ */ (function(_this) {
             return function(resolve, reject) {
-              return _this.parseString(str, function(err2, value) {
-                if (err2) {
-                  return reject(err2);
+              return _this.parseString(str, function(err3, value) {
+                if (err3) {
+                  return reject(err3);
                 } else {
                   return resolve(value);
                 }
@@ -68180,17 +68180,17 @@ var require_node3 = __commonJS({
           errCallback(AWS.util.error(new Error(msg), { code: "TimeoutError" }));
           stream.abort();
         });
-        stream.on("error", function(err2) {
+        stream.on("error", function(err3) {
           if (connectTimeoutId) {
             clearTimeout(connectTimeoutId);
             connectTimeoutId = null;
           }
           if (stream.didCallback) return;
           stream.didCallback = true;
-          if ("ECONNRESET" === err2.code || "EPIPE" === err2.code || "ETIMEDOUT" === err2.code) {
-            errCallback(AWS.util.error(err2, { code: "TimeoutError" }));
+          if ("ECONNRESET" === err3.code || "EPIPE" === err3.code || "ETIMEDOUT" === err3.code) {
+            errCallback(AWS.util.error(err3, { code: "TimeoutError" }));
           } else {
-            errCallback(err2);
+            errCallback(err3);
           }
         });
         var expect = httpRequest.headers.Expect || httpRequest.headers.expect;
@@ -68383,10 +68383,10 @@ var require_token_file_web_identity_credentials = __commonJS({
               RoleArn: params.roleArn,
               RoleSessionName: params.roleSessionName || "token-file-web-identity"
             },
-            function(err2, data2) {
+            function(err3, data2) {
               self2.data = null;
-              if (err2) {
-                callback(err2);
+              if (err3) {
+                callback(err3);
               } else {
                 self2.data = data2;
                 self2.assumeRoleChaining(paramsArray, callback);
@@ -68417,10 +68417,10 @@ var require_token_file_web_identity_credentials = __commonJS({
                 RoleArn: params.roleArn,
                 RoleSessionName: params.roleSessionName || "token-file-web-identity"
               },
-              function(err2, data2) {
+              function(err3, data2) {
                 self2.data = null;
-                if (err2) {
-                  callback(err2);
+                if (err3) {
+                  callback(err3);
                 } else {
                   self2.data = data2;
                   self2.assumeRoleChaining(paramsArray, callback);
@@ -68428,8 +68428,8 @@ var require_token_file_web_identity_credentials = __commonJS({
               }
             );
           }
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
         }
       },
       /**
@@ -68695,11 +68695,11 @@ var require_metadata_service = __commonJS({
             ));
           }
         }
-        self2.request(basePath, options, function(err2, roleName) {
-          if (err2) {
-            self2.disableFetchToken = !(err2.statusCode === 401);
+        self2.request(basePath, options, function(err3, roleName) {
+          if (err3) {
+            self2.disableFetchToken = !(err3.statusCode === 401);
             cb(AWS.util.error(
-              err2,
+              err3,
               {
                 message: "EC2 Metadata roleName request returned error"
               }
@@ -68743,10 +68743,10 @@ var require_metadata_service = __commonJS({
         if (self2.loadCredentialsCallbacks.length > 1) {
           return;
         }
-        function callbacks(err2, creds) {
+        function callbacks(err3, creds) {
           var cb;
           while ((cb = self2.loadCredentialsCallbacks.shift()) !== void 0) {
-            cb(err2, creds);
+            cb(err3, creds);
           }
         }
         if (self2.disableFetchToken) {
@@ -68851,13 +68851,13 @@ var require_ec2_metadata_credentials = __commonJS({
        */
       load: function load(callback) {
         var self2 = this;
-        self2.metadataService.loadCredentials(function(err2, creds) {
-          if (err2) {
+        self2.metadataService.loadCredentials(function(err3, creds) {
+          if (err3) {
             if (self2.hasLoadedCredentials()) {
               self2.extendExpirationIfExpired();
               callback();
             } else {
-              callback(err2);
+              callback(err3);
             }
           } else {
             self2.setCredentials(creds);
@@ -69056,12 +69056,12 @@ var require_remote_credentials = __commonJS({
         var fullUri;
         try {
           fullUri = this.getECSFullUri();
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
           return;
         }
-        this.request(fullUri, function(err2, data2) {
-          if (!err2) {
+        this.request(fullUri, function(err3, data2) {
+          if (!err3) {
             try {
               data2 = JSON.parse(data2);
               var creds = self2.formatCreds(data2);
@@ -69073,10 +69073,10 @@ var require_remote_credentials = __commonJS({
               }
               AWS.util.update(self2, creds);
             } catch (dataError) {
-              err2 = dataError;
+              err3 = dataError;
             }
           }
-          callback(err2, creds);
+          callback(err3, creds);
         });
       }
     });
@@ -69200,8 +69200,8 @@ var require_file_system_credentials = __commonJS({
           }
           this.expired = false;
           callback();
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
         }
       }
     });
@@ -69284,9 +69284,9 @@ var require_shared_ini_file_credentials = __commonJS({
             this.preferStaticCredentials && profile["aws_access_key_id"] && profile["aws_secret_access_key"]
           );
           if (profile["role_arn"] && !preferStaticCredentialsToRoleArn) {
-            this.loadRoleProfile(profiles, profile, function(err2, data2) {
-              if (err2) {
-                callback(err2);
+            this.loadRoleProfile(profiles, profile, function(err3, data2) {
+              if (err3) {
+                callback(err3);
               } else {
                 self2.expired = false;
                 self2.accessKeyId = data2.Credentials.AccessKeyId;
@@ -69309,8 +69309,8 @@ var require_shared_ini_file_credentials = __commonJS({
           }
           this.expired = false;
           callback(null);
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
         }
       },
       /**
@@ -69384,13 +69384,13 @@ var require_shared_ini_file_credentials = __commonJS({
         }
         if (mfaSerial && self2.tokenCodeFn) {
           roleParams.SerialNumber = mfaSerial;
-          self2.tokenCodeFn(mfaSerial, function(err2, token) {
-            if (err2) {
+          self2.tokenCodeFn(mfaSerial, function(err3, token) {
+            if (err3) {
               var message;
-              if (err2 instanceof Error) {
-                message = err2.message;
+              if (err3 instanceof Error) {
+                message = err3.message;
               } else {
-                message = err2;
+                message = err3;
               }
               callback(
                 AWS.util.error(
@@ -69472,9 +69472,9 @@ var require_sso_credentials = __commonJS({
               );
             }
           }
-          this.getToken(this.profile, profile, function(err2, token) {
-            if (err2) {
-              return callback(err2);
+          this.getToken(this.profile, profile, function(err3, token) {
+            if (err3) {
+              return callback(err3);
             }
             var request = {
               accessToken: token,
@@ -69487,10 +69487,10 @@ var require_sso_credentials = __commonJS({
                 httpOptions: self2.httpOptions
               });
             }
-            self2.service.getRoleCredentials(request, function(err3, data2) {
-              if (err3 || !data2 || !data2.roleCredentials) {
+            self2.service.getRoleCredentials(request, function(err4, data2) {
+              if (err4 || !data2 || !data2.roleCredentials) {
                 callback(AWS.util.error(
-                  err3 || new Error('Please log in using "aws sso login"'),
+                  err4 || new Error('Please log in using "aws sso login"'),
                   { code: self2.errorCode }
                 ), null);
               } else if (!data2.roleCredentials.accessKeyId || !data2.roleCredentials.secretAccessKey || !data2.roleCredentials.sessionToken || !data2.roleCredentials.expiration) {
@@ -69507,8 +69507,8 @@ var require_sso_credentials = __commonJS({
               }
             });
           });
-        } catch (err2) {
-          callback(err2);
+        } catch (err3) {
+          callback(err3);
         }
       },
       /**
@@ -69532,9 +69532,9 @@ var require_sso_credentials = __commonJS({
           var ssoTokenProvider = new AWS.SSOTokenProvider({
             profile: profileName
           });
-          ssoTokenProvider.get(function(err2) {
-            if (err2) {
-              return callback(err2);
+          ssoTokenProvider.get(function(err3) {
+            if (err3) {
+              return callback(err3);
             }
             return callback(null, ssoTokenProvider.token);
           });
@@ -69573,8 +69573,8 @@ var require_sso_credentials = __commonJS({
             ));
           }
           return callback(null, cacheContent.accessToken);
-        } catch (err2) {
-          return callback(err2, null);
+        } catch (err3) {
+          return callback(err3, null);
         }
       },
       /**
@@ -69652,9 +69652,9 @@ var require_token = __commonJS({
       get: function get2(callback) {
         var self2 = this;
         if (this.needsRefresh()) {
-          this.refresh(function(err2) {
-            if (!err2) self2.expired = false;
-            if (callback) callback(err2);
+          this.refresh(function(err3) {
+            if (!err3) self2.expired = false;
+            if (callback) callback(err3);
           });
         } else if (callback) {
           callback();
@@ -69729,13 +69729,13 @@ var require_token = __commonJS({
       coalesceRefresh: function coalesceRefresh(callback, sync) {
         var self2 = this;
         if (self2.refreshCallbacks.push(callback) === 1) {
-          self2.load(function onLoad(err2) {
+          self2.load(function onLoad(err3) {
             AWS.util.arrayEach(self2.refreshCallbacks, function(callback2) {
               if (sync) {
-                callback2(err2);
+                callback2(err3);
               } else {
                 AWS.util.defer(function() {
-                  callback2(err2);
+                  callback2(err3);
                 });
               }
             });
@@ -69818,10 +69818,10 @@ var require_token_provider_chain = __commonJS({
           return self2;
         }
         if (self2.resolveCallbacks.push(callback) === 1) {
-          let resolveNext2 = function(err2, token) {
-            if (!err2 && token || index === providers.length) {
+          let resolveNext2 = function(err3, token) {
+            if (!err3 && token || index === providers.length) {
               AWS.util.arrayEach(self2.resolveCallbacks, function(callback2) {
-                callback2(err2, token);
+                callback2(err3, token);
               });
               self2.resolveCallbacks.length = 0;
               return;
@@ -69992,8 +69992,8 @@ var require_sso_token_provider = __commonJS({
           grantType: "refresh_token"
         };
         lastRefreshAttemptTime = AWS.util.date.getDate().getTime();
-        self2.service.createToken(params, function(err2, data2) {
-          if (err2 || !data2) {
+        self2.service.createToken(params, function(err3, data2) {
+          if (err3 || !data2) {
             refreshUnsuccessful(currentTime, tokenExpireTime, callback);
           } else {
             try {
@@ -70155,8 +70155,8 @@ var require_node_loader = __commonJS({
           var fileInfo = toCheck.shift();
           try {
             configFile = iniLoader.loadFrom(fileInfo);
-          } catch (err2) {
-            if (fileInfo.isConfig) throw err2;
+          } catch (err3) {
+            if (fileInfo.isConfig) throw err3;
           }
           var profile = configFile[env.AWS_PROFILE || AWS.util.defaultProfile];
           region = profile && profile.region;
@@ -70198,8 +70198,8 @@ var require_node_loader = __commonJS({
           function() {
             return new AWS.SharedIniFileCredentials({ disableAssumeRole: true });
           }
-        ]).resolve(function(err2, creds) {
-          if (!err2) credentials = creds;
+        ]).resolve(function(err3, creds) {
+          if (!err3) credentials = creds;
         });
         return credentials;
       },
@@ -71293,12 +71293,12 @@ var require_dynamodb = __commonJS({
       /**
        * @api private
        */
-      retryDelays: function retryDelays(retryCount, err2) {
+      retryDelays: function retryDelays(retryCount, err3) {
         var retryDelayOptions = AWS.util.copy(this.config.retryDelayOptions);
         if (typeof retryDelayOptions.base !== "number") {
           retryDelayOptions.base = 50;
         }
-        var delay = AWS.util.calculateRetryDelay(retryCount, retryDelayOptions, err2);
+        var delay = AWS.util.calculateRetryDelay(retryCount, retryDelayOptions, err3);
         return delay;
       }
     });
@@ -75524,6 +75524,509 @@ var require_dynamodb2 = __commonJS({
   }
 });
 
+// node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js
+var require_index_cjs = __commonJS({
+  "node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js"(exports2) {
+    "use strict";
+    var defaultErrorConfig = {
+      withStackTrace: false
+    };
+    var createNeverThrowError = (message, result, config = defaultErrorConfig) => {
+      const data2 = result.isOk() ? { type: "Ok", value: result.value } : { type: "Err", value: result.error };
+      const maybeStack = config.withStackTrace ? new Error().stack : void 0;
+      return {
+        data: data2,
+        message,
+        stack: maybeStack
+      };
+    };
+    function __awaiter2(thisArg, _arguments, P, generator) {
+      function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve) {
+          resolve(value);
+        });
+      }
+      return new (P || (P = Promise))(function(resolve, reject) {
+        function fulfilled(value) {
+          try {
+            step(generator.next(value));
+          } catch (e4) {
+            reject(e4);
+          }
+        }
+        function rejected(value) {
+          try {
+            step(generator["throw"](value));
+          } catch (e4) {
+            reject(e4);
+          }
+        }
+        function step(result) {
+          result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+    }
+    function __values2(o4) {
+      var s4 = typeof Symbol === "function" && Symbol.iterator, m4 = s4 && o4[s4], i4 = 0;
+      if (m4) return m4.call(o4);
+      if (o4 && typeof o4.length === "number") return {
+        next: function() {
+          if (o4 && i4 >= o4.length) o4 = void 0;
+          return { value: o4 && o4[i4++], done: !o4 };
+        }
+      };
+      throw new TypeError(s4 ? "Object is not iterable." : "Symbol.iterator is not defined.");
+    }
+    function __await2(v9) {
+      return this instanceof __await2 ? (this.v = v9, this) : new __await2(v9);
+    }
+    function __asyncGenerator2(thisArg, _arguments, generator) {
+      if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+      var g4 = generator.apply(thisArg, _arguments || []), i4, q4 = [];
+      return i4 = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i4[Symbol.asyncIterator] = function() {
+        return this;
+      }, i4;
+      function awaitReturn(f4) {
+        return function(v9) {
+          return Promise.resolve(v9).then(f4, reject);
+        };
+      }
+      function verb(n4, f4) {
+        if (g4[n4]) {
+          i4[n4] = function(v9) {
+            return new Promise(function(a4, b4) {
+              q4.push([n4, v9, a4, b4]) > 1 || resume(n4, v9);
+            });
+          };
+          if (f4) i4[n4] = f4(i4[n4]);
+        }
+      }
+      function resume(n4, v9) {
+        try {
+          step(g4[n4](v9));
+        } catch (e4) {
+          settle(q4[0][3], e4);
+        }
+      }
+      function step(r4) {
+        r4.value instanceof __await2 ? Promise.resolve(r4.value.v).then(fulfill, reject) : settle(q4[0][2], r4);
+      }
+      function fulfill(value) {
+        resume("next", value);
+      }
+      function reject(value) {
+        resume("throw", value);
+      }
+      function settle(f4, v9) {
+        if (f4(v9), q4.shift(), q4.length) resume(q4[0][0], q4[0][1]);
+      }
+    }
+    function __asyncDelegator2(o4) {
+      var i4, p4;
+      return i4 = {}, verb("next"), verb("throw", function(e4) {
+        throw e4;
+      }), verb("return"), i4[Symbol.iterator] = function() {
+        return this;
+      }, i4;
+      function verb(n4, f4) {
+        i4[n4] = o4[n4] ? function(v9) {
+          return (p4 = !p4) ? { value: __await2(o4[n4](v9)), done: false } : f4 ? f4(v9) : v9;
+        } : f4;
+      }
+    }
+    function __asyncValues2(o4) {
+      if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+      var m4 = o4[Symbol.asyncIterator], i4;
+      return m4 ? m4.call(o4) : (o4 = typeof __values2 === "function" ? __values2(o4) : o4[Symbol.iterator](), i4 = {}, verb("next"), verb("throw"), verb("return"), i4[Symbol.asyncIterator] = function() {
+        return this;
+      }, i4);
+      function verb(n4) {
+        i4[n4] = o4[n4] && function(v9) {
+          return new Promise(function(resolve, reject) {
+            v9 = o4[n4](v9), settle(resolve, reject, v9.done, v9.value);
+          });
+        };
+      }
+      function settle(resolve, reject, d4, v9) {
+        Promise.resolve(v9).then(function(v10) {
+          resolve({ value: v10, done: d4 });
+        }, reject);
+      }
+    }
+    var ResultAsync = class _ResultAsync {
+      constructor(res) {
+        this._promise = res;
+      }
+      static fromSafePromise(promise) {
+        const newPromise = promise.then((value) => new Ok(value));
+        return new _ResultAsync(newPromise);
+      }
+      static fromPromise(promise, errorFn) {
+        const newPromise = promise.then((value) => new Ok(value)).catch((e4) => new Err(errorFn(e4)));
+        return new _ResultAsync(newPromise);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      static fromThrowable(fn, errorFn) {
+        return (...args) => {
+          return new _ResultAsync((() => __awaiter2(this, void 0, void 0, function* () {
+            try {
+              return new Ok(yield fn(...args));
+            } catch (error2) {
+              return new Err(errorFn ? errorFn(error2) : error2);
+            }
+          }))());
+        };
+      }
+      static combine(asyncResultList) {
+        return combineResultAsyncList(asyncResultList);
+      }
+      static combineWithAllErrors(asyncResultList) {
+        return combineResultAsyncListWithAllErrors(asyncResultList);
+      }
+      map(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isErr()) {
+            return new Err(res.error);
+          }
+          return new Ok(yield f4(res.value));
+        })));
+      }
+      andThrough(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isErr()) {
+            return new Err(res.error);
+          }
+          const newRes = yield f4(res.value);
+          if (newRes.isErr()) {
+            return new Err(newRes.error);
+          }
+          return new Ok(res.value);
+        })));
+      }
+      andTee(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isErr()) {
+            return new Err(res.error);
+          }
+          try {
+            yield f4(res.value);
+          } catch (e4) {
+          }
+          return new Ok(res.value);
+        })));
+      }
+      orTee(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isOk()) {
+            return new Ok(res.value);
+          }
+          try {
+            yield f4(res.error);
+          } catch (e4) {
+          }
+          return new Err(res.error);
+        })));
+      }
+      mapErr(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isOk()) {
+            return new Ok(res.value);
+          }
+          return new Err(yield f4(res.error));
+        })));
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      andThen(f4) {
+        return new _ResultAsync(this._promise.then((res) => {
+          if (res.isErr()) {
+            return new Err(res.error);
+          }
+          const newValue = f4(res.value);
+          return newValue instanceof _ResultAsync ? newValue._promise : newValue;
+        }));
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      orElse(f4) {
+        return new _ResultAsync(this._promise.then((res) => __awaiter2(this, void 0, void 0, function* () {
+          if (res.isErr()) {
+            return f4(res.error);
+          }
+          return new Ok(res.value);
+        })));
+      }
+      match(ok3, _err) {
+        return this._promise.then((res) => res.match(ok3, _err));
+      }
+      unwrapOr(t4) {
+        return this._promise.then((res) => res.unwrapOr(t4));
+      }
+      /**
+       * @deprecated will be removed in 9.0.0.
+       *
+       * You can use `safeTry` without this method.
+       * @example
+       * ```typescript
+       * safeTry(async function* () {
+       *   const okValue = yield* yourResult
+       * })
+       * ```
+       * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
+       */
+      safeUnwrap() {
+        return __asyncGenerator2(this, arguments, function* safeUnwrap_1() {
+          return yield __await2(yield __await2(yield* __asyncDelegator2(__asyncValues2(yield __await2(this._promise.then((res) => res.safeUnwrap()))))));
+        });
+      }
+      // Makes ResultAsync implement PromiseLike<Result>
+      then(successCallback, failureCallback) {
+        return this._promise.then(successCallback, failureCallback);
+      }
+      [Symbol.asyncIterator]() {
+        return __asyncGenerator2(this, arguments, function* _a2() {
+          const result = yield __await2(this._promise);
+          if (result.isErr()) {
+            yield yield __await2(errAsync(result.error));
+          }
+          return yield __await2(result.value);
+        });
+      }
+    };
+    function okAsync(value) {
+      return new ResultAsync(Promise.resolve(new Ok(value)));
+    }
+    function errAsync(err4) {
+      return new ResultAsync(Promise.resolve(new Err(err4)));
+    }
+    var fromPromise = ResultAsync.fromPromise;
+    var fromSafePromise = ResultAsync.fromSafePromise;
+    var fromAsyncThrowable = ResultAsync.fromThrowable;
+    var combineResultList = (resultList) => {
+      let acc = ok2([]);
+      for (const result of resultList) {
+        if (result.isErr()) {
+          acc = err3(result.error);
+          break;
+        } else {
+          acc.map((list2) => list2.push(result.value));
+        }
+      }
+      return acc;
+    };
+    var combineResultAsyncList = (asyncResultList) => ResultAsync.fromSafePromise(Promise.all(asyncResultList)).andThen(combineResultList);
+    var combineResultListWithAllErrors = (resultList) => {
+      let acc = ok2([]);
+      for (const result of resultList) {
+        if (result.isErr() && acc.isErr()) {
+          acc.error.push(result.error);
+        } else if (result.isErr() && acc.isOk()) {
+          acc = err3([result.error]);
+        } else if (result.isOk() && acc.isOk()) {
+          acc.value.push(result.value);
+        }
+      }
+      return acc;
+    };
+    var combineResultAsyncListWithAllErrors = (asyncResultList) => ResultAsync.fromSafePromise(Promise.all(asyncResultList)).andThen(combineResultListWithAllErrors);
+    exports2.Result = void 0;
+    (function(Result2) {
+      function fromThrowable2(fn, errorFn) {
+        return (...args) => {
+          try {
+            const result = fn(...args);
+            return ok2(result);
+          } catch (e4) {
+            return err3(errorFn ? errorFn(e4) : e4);
+          }
+        };
+      }
+      Result2.fromThrowable = fromThrowable2;
+      function combine(resultList) {
+        return combineResultList(resultList);
+      }
+      Result2.combine = combine;
+      function combineWithAllErrors(resultList) {
+        return combineResultListWithAllErrors(resultList);
+      }
+      Result2.combineWithAllErrors = combineWithAllErrors;
+    })(exports2.Result || (exports2.Result = {}));
+    function ok2(value) {
+      return new Ok(value);
+    }
+    function err3(err4) {
+      return new Err(err4);
+    }
+    function safeTry(body) {
+      const n4 = body().next();
+      if (n4 instanceof Promise) {
+        return new ResultAsync(n4.then((r4) => r4.value));
+      }
+      return n4.value;
+    }
+    var Ok = class {
+      constructor(value) {
+        this.value = value;
+      }
+      isOk() {
+        return true;
+      }
+      isErr() {
+        return !this.isOk();
+      }
+      map(f4) {
+        return ok2(f4(this.value));
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      mapErr(_f) {
+        return ok2(this.value);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      andThen(f4) {
+        return f4(this.value);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      andThrough(f4) {
+        return f4(this.value).map((_value) => this.value);
+      }
+      andTee(f4) {
+        try {
+          f4(this.value);
+        } catch (e4) {
+        }
+        return ok2(this.value);
+      }
+      orTee(_f) {
+        return ok2(this.value);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      orElse(_f) {
+        return ok2(this.value);
+      }
+      asyncAndThen(f4) {
+        return f4(this.value);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      asyncAndThrough(f4) {
+        return f4(this.value).map(() => this.value);
+      }
+      asyncMap(f4) {
+        return ResultAsync.fromSafePromise(f4(this.value));
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      unwrapOr(_v) {
+        return this.value;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      match(ok3, _err) {
+        return ok3(this.value);
+      }
+      safeUnwrap() {
+        const value = this.value;
+        return (function* () {
+          return value;
+        })();
+      }
+      _unsafeUnwrap(_) {
+        return this.value;
+      }
+      _unsafeUnwrapErr(config) {
+        throw createNeverThrowError("Called `_unsafeUnwrapErr` on an Ok", this, config);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-this-alias, require-yield
+      *[Symbol.iterator]() {
+        return this.value;
+      }
+    };
+    var Err = class {
+      constructor(error2) {
+        this.error = error2;
+      }
+      isOk() {
+        return false;
+      }
+      isErr() {
+        return !this.isOk();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      map(_f) {
+        return err3(this.error);
+      }
+      mapErr(f4) {
+        return err3(f4(this.error));
+      }
+      andThrough(_f) {
+        return err3(this.error);
+      }
+      andTee(_f) {
+        return err3(this.error);
+      }
+      orTee(f4) {
+        try {
+          f4(this.error);
+        } catch (e4) {
+        }
+        return err3(this.error);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      andThen(_f) {
+        return err3(this.error);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+      orElse(f4) {
+        return f4(this.error);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      asyncAndThen(_f) {
+        return errAsync(this.error);
+      }
+      asyncAndThrough(_f) {
+        return errAsync(this.error);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      asyncMap(_f) {
+        return errAsync(this.error);
+      }
+      unwrapOr(v9) {
+        return v9;
+      }
+      match(_ok, err4) {
+        return err4(this.error);
+      }
+      safeUnwrap() {
+        const error2 = this.error;
+        return (function* () {
+          yield err3(error2);
+          throw new Error("Do not use this generator out of `safeTry`");
+        })();
+      }
+      _unsafeUnwrap(config) {
+        throw createNeverThrowError("Called `_unsafeUnwrap` on an Err", this, config);
+      }
+      _unsafeUnwrapErr(_) {
+        return this.error;
+      }
+      *[Symbol.iterator]() {
+        const self2 = this;
+        yield self2;
+        return self2;
+      }
+    };
+    var fromThrowable = exports2.Result.fromThrowable;
+    exports2.Err = Err;
+    exports2.Ok = Ok;
+    exports2.ResultAsync = ResultAsync;
+    exports2.err = err3;
+    exports2.errAsync = errAsync;
+    exports2.fromAsyncThrowable = fromAsyncThrowable;
+    exports2.fromPromise = fromPromise;
+    exports2.fromSafePromise = fromSafePromise;
+    exports2.fromThrowable = fromThrowable;
+    exports2.ok = ok2;
+    exports2.okAsync = okAsync;
+    exports2.safeTry = safeTry;
+  }
+});
+
 // lambda_create.ts
 var lambda_create_exports = {};
 __export(lambda_create_exports, {
@@ -75533,6 +76036,56 @@ module.exports = __toCommonJS(lambda_create_exports);
 var import_base64_js = __toESM(require_base64_js());
 var import_client_node = __toESM(require_src16());
 var import_dynamodb = __toESM(require_dynamodb2());
+
+// PasswordResetTokenService.ts
+var import_crypto = require("crypto");
+var import_neverthrow = __toESM(require_index_cjs());
+var TOKEN_PREFIX = "v1";
+var NONCE_BYTES = 12;
+var TAG_BYTES = 16;
+var PasswordResetTokenService = class {
+  constructor(tokenSecret, tokenTtlMinutes) {
+    this.tokenTtlMinutes = tokenTtlMinutes;
+    const normalizedSecret = tokenSecret.trim();
+    this.encryptionKey = (0, import_crypto.createHash)("sha256").update(normalizedSecret, "utf-8").digest();
+    this.secretFingerprint = this.encryptionKey.toString("hex").slice(0, 12);
+    console.log("Password reset token service initialized", {
+      secretFingerprint: this.secretFingerprint
+    });
+  }
+  /**
+   * Builds an encrypted token payload for reset confirmation.
+   *
+   * @param email User email.
+   * @param cognitoCode Plain Cognito forgot-password code.
+   * @returns Result with encoded token or domain error.
+   */
+  BuildPasswordResetToken(email, cognitoCode) {
+    try {
+      console.log("Building password reset token payload", { email });
+      const expiresAtUnix = Math.floor(Date.now() / 1e3) + this.tokenTtlMinutes * 60;
+      const payload2 = {
+        Email: email,
+        CognitoCode: cognitoCode,
+        TokenId: (0, import_crypto.randomUUID)(),
+        ExpiresAtUnix: expiresAtUnix
+      };
+      const plainBytes = Buffer.from(JSON.stringify(payload2), "utf-8");
+      const nonce = (0, import_crypto.randomBytes)(NONCE_BYTES);
+      const cipher = (0, import_crypto.createCipheriv)("aes-256-gcm", this.encryptionKey, nonce, { authTagLength: TAG_BYTES });
+      const encrypted = Buffer.concat([cipher.update(plainBytes), cipher.final()]);
+      const tag2 = cipher.getAuthTag();
+      const payloadBytes = Buffer.concat([nonce, tag2, encrypted]);
+      const encoded = payloadBytes.toString("base64url");
+      return (0, import_neverthrow.ok)(`${TOKEN_PREFIX}.${encoded}`);
+    } catch (error2) {
+      console.error("Failed building password reset token", { email, error: error2 });
+      return (0, import_neverthrow.err)("an error occurred while building the password reset token");
+    }
+  }
+};
+
+// lambda_create.ts
 var { decrypt } = (0, import_client_node.buildClient)(
   import_client_node.CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
 );
@@ -75542,29 +76095,35 @@ var keyring = new import_client_node.KmsKeyringNode({ generatorKeyId, keyIds });
 var lambda_handler = async (event) => {
   let plainTextCode;
   console.log(event);
+  const tokenService = new PasswordResetTokenService(process.env.TOKEN_SECRET, 15);
   if (event.request.code) {
     const { plaintext } = await decrypt(
       keyring,
       (0, import_base64_js.toByteArray)(event.request.code)
     );
     plainTextCode = plaintext;
+    const userAttributes = event.request.userAttributes;
+    const recipient = userAttributes?.["email"] ?? event.userName;
+    const encryptedToken = tokenService.BuildPasswordResetToken(recipient, plainTextCode.toString());
     const dynamoDB = new import_dynamodb.DocumentClient({
       region: event.request.region
     });
-    const item = {
-      TableName: process.env.DYNAMO_TABLE_NAME,
-      // Replace with your DynamoDB table name
-      Item: {
-        username: event.userName,
-        // Replace with your item key (partition key)
-        timestamp: (/* @__PURE__ */ new Date()).getTime(),
-        // Example attribute
-        verification_code: plainTextCode.toString()
-        // Another attribute
-      }
-    };
-    let request = await dynamoDB.put(item).promise();
-    console.log("Item added successfully!");
+    await encryptedToken.asyncMap(async (token) => {
+      const item = {
+        TableName: process.env.DYNAMO_TABLE_NAME,
+        // Replace with your DynamoDB table name
+        Item: {
+          username: event.userName,
+          // Replace with your item key (partition key)
+          timestamp: (/* @__PURE__ */ new Date()).getTime(),
+          // Example attribute
+          verification_code: token
+          // Another attribute
+        }
+      };
+      let request = await dynamoDB.put(item).promise();
+      console.log("Item added successfully!");
+    });
   }
   switch (event.triggerSource) {
     case "CustomEmailSender_SignUp":

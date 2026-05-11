@@ -2,7 +2,9 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;
@@ -24,19 +26,19 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         ];
 
         Mock<IAsyncSearch<UserDBModel>> searchMock = new();
-        searchMock.Setup(s => s.GetRemainingAsync(default)).ReturnsAsync(models);
+        searchMock.Setup(s => s.GetRemainingAsync(CancellationToken.None)).ReturnsAsync(models);
 
-        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(role, It.IsAny<QueryConfig>()))
+        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(role.ToString(), It.IsAny<QueryConfig>()))
             .Returns(searchMock.Object);
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(role);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(role);
 
         // Then: Should return success with 2 users
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Count(), Is.EqualTo(2));
-        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(role, It.IsAny<QueryConfig>()), Times.Once);
-        searchMock.Verify(s => s.GetRemainingAsync(default), Times.Once);
+        Assert.That(result.Value.Count, Is.EqualTo(2));
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(role.ToString(), It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -45,19 +47,19 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     {
         // Given: A role with no users
         Mock<IAsyncSearch<UserDBModel>> searchMock = new();
-        searchMock.Setup(s => s.GetRemainingAsync(default)).ReturnsAsync(new List<UserDBModel>());
+        searchMock.Setup(s => s.GetRemainingAsync(CancellationToken.None)).ReturnsAsync([]);
 
-        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()))
+        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(nameof(UserRole.Admin), It.IsAny<QueryConfig>()))
             .Returns(searchMock.Object);
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Admin);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Admin);
 
         // Then: Should return success with empty collection
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.Empty);
-        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()), Times.Once);
-        searchMock.Verify(s => s.GetRemainingAsync(default), Times.Once);
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>("Admin", It.IsAny<QueryConfig>()), Times.Once);
+        searchMock.Verify(s => s.GetRemainingAsync(CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -65,16 +67,16 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
     public async Task ShouldReturnFailureWhenQueryAsyncThrows()
     {
         // Given: An exception
-        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()))
+        ContextMock.Setup(x => x.QueryAsync<UserDBModel>(It.IsAny<string>(), It.IsAny<QueryConfig>()))
             .Throws(new Exception("Query Error"));
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Therapist);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Therapist);
 
         // Then: Should fail and contain the message
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("Query Error"));
-        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(It.IsAny<UserRole>(), It.IsAny<QueryConfig>()), Times.Once);
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
+        ContextMock.Verify(x => x.QueryAsync<UserDBModel>(nameof(UserRole.Therapist), It.IsAny<QueryConfig>()), Times.Once);
     }
 
 }

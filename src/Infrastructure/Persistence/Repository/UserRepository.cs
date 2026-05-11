@@ -1,6 +1,10 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
@@ -12,7 +16,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// <summary>
 /// Represents a repository for managing user persistence operations utilizing Amazon DynamoDB.
 /// </summary>
-public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserRepository
+public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AWSConfig config, ILogger<UserRepository> logger)
+    : GenericDynamoRepository<UserDBModel>(context, client, config.UsersTable, logger), IUserRepository
 {
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.
@@ -21,13 +26,8 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <returns>A result containing the user's ID if the operation is successful, or an error otherwise.</returns>
     public async Task<Result<string>> AddAsync(UserEntity userEntity)
     {
-        SaveConfig saveConfig = new()
-        {
-            OverrideTableName = config.UsersTable,
-        };
-
-        await context.SaveAsync(UserDBModel.FromDomain(userEntity), saveConfig);
-        return userEntity.Id;
+        Result<Unit> result = await Save(UserDBModel.FromDomain(userEntity), CancellationToken.None);
+        return result.Map(_ => userEntity.Id);
     }
 
     /// <summary>
@@ -37,14 +37,12 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <returns>A result containing a boolean value indicating whether the user exists or an error if the operation fails.</returns>
     public async Task<Result<bool>> ExistsByEmailAsync(string email)
     {
-        QueryConfig queryConfig = new()
+        Result<UserDBModel> findOneByIndex = await FindOneByIndex("EmailIndex", email, CancellationToken.None);
+        if (findOneByIndex is { IsFailure: true, Error: GenericPersistenceErrors.NoRecordsFound })
         {
-            IndexName = "EmailIndex",
-            OverrideTableName = config.UsersTable
-        };
-
-        List<UserDBModel>? results = await context.QueryAsync<UserDBModel>(email, queryConfig).GetRemainingAsync();
-        return results?.Count > 0;
+            return false;
+        }
+        return findOneByIndex.Map(_ => true);
     }
 
     /// <summary>
@@ -54,22 +52,16 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <param name="cancellationToken">The token used to halt the operation</param>
     /// <returns>A result containing the user entity if the operation is successful, or an error otherwise.</returns>
     /// <exception cref="NotImplementedException">Thrown if the method is not implemented.</exception>
-    public async Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
+    public Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
-        LoadConfig configuration = new()
-        {
-            OverrideTableName = config.UsersTable,
-        };
-
-        try
-        {
-            UserDBModel? model = await context.LoadAsync<UserDBModel>(id, configuration, cancellationToken);
-            return model != null ? Result.Success(model.ToDomain()) : Result.Failure<UserEntity>(InfrastructureUserErrors.UserNotFound);
-        }
-        catch (Exception e)
-        {
-            return Result.Failure<UserEntity>(e.Message);
-        }
+        return FindByID(id, cancellationToken).Map(m => m.ToDomain())
+            .MapError(e =>
+            {
+                return e switch
+                {
+                    _ => UserErrors.UserNotFound
+                };
+            });
     }
 
     /// <summary>
@@ -78,33 +70,9 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A result containing a collection of user entities if the operation is successful, or an error otherwise.</returns>
     /// <exception cref="NotImplementedException">Thrown when the method is not implemented.</exception>
-    public async Task<Result<IEnumerable<UserEntity>>> GetAllAsync(CancellationToken cancellationToken)
+    public Task<Result<IEnumerable<UserEntity>>> GetAllAsync(CancellationToken cancellationToken)
     {
-        List<UserEntity> users = new();
-
-        var operationConfig = new DynamoDBOperationConfig()
-        {
-            OverrideTableName = config.UsersTable,
-        };
-
-        var scanOperationConfig = new ScanOperationConfig() { Filter = new ScanFilter() };
-
-        IAsyncSearch<UserDBModel> fromScanAsync = context.FromScanAsync<UserDBModel>(scanOperationConfig, operationConfig);
-
-        try
-        {
-            while (!fromScanAsync.IsDone)
-            {
-                List<UserDBModel> nextSetAsync = await fromScanAsync.GetNextSetAsync(cancellationToken);
-                users.AddRange(nextSetAsync.Select(m => m.ToDomain()));
-            }
-        }
-        catch (Exception ex)
-        {
-            return Result.Failure<IEnumerable<UserEntity>>(ex.Message);
-        }
-
-        return users;
+        return GetAll(cancellationToken).Map(models => models.Select(m => m.ToDomain()));
     }
 
     /// <summary>
@@ -116,29 +84,35 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config) : IUserR
     /// The task result contains a <see cref="Result{T}"/> where T is an array of <see cref="UserEntity"/> objects
     /// corresponding to the specified role.
     /// </returns>
-    public async Task<Result<IEnumerable<UserEntity>>> GetByRoleAsync(UserRole role)
+    public Task<Result<List<UserEntity>>> GetByRoleAsync(UserRole role)
     {
-        QueryConfig queryConfig = new()
+        return FindAllByIndexAsync("Role-Index", role.ToString(), CancellationToken.None)
+            .Map(models => models.Select(m => m.ToDomain()).ToList())
+            .MapError(e => UserErrors.UserNotFound);
+    }
+
+    /// <summary>
+    /// Updates the customer ID for a specific user in the database asynchronously.
+    /// </summary>
+    /// <param name="customerId">The new customer ID to be assigned to the user.</param>
+    /// <param name="userId">The ID of the user whose customer ID is to be updated.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result indicating success or failure of the operation.</returns>
+    public Task<Result<Unit>> UpdateCustomerIDAsync(string customerId, string userId,
+        CancellationToken cancellationToken)
+    {
+        Dictionary<string, AttributeValue> key = new()
         {
-            IndexName = "Role-Index",
-            OverrideTableName = config.UsersTable
+            { nameof(UserEntity.Id), new AttributeValue { S = userId } }
         };
 
-        try
+        DynamoExpression update = new()
         {
-            IAsyncSearch<UserDBModel>? search = context.QueryAsync<UserDBModel>(role, queryConfig);
-            List<UserDBModel>? models = await search.GetRemainingAsync();
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "CustomerID" },
+            AttributeValues = { { ":status", new AttributeValue { S = customerId } } }
+        };
 
-            if (models == null || models.Count == 0)
-            {
-                return Result.Success(Enumerable.Empty<UserEntity>());
-            }
-
-            return Result.Success(models.Select(m => m.ToDomain()));
-        }
-        catch (Exception e)
-        {
-            return Result.Failure<IEnumerable<UserEntity>>($"Error querying users by role: {e.Message}");
-        }
+        return UpdateAsync(key, update, null, cancellationToken);
     }
 }

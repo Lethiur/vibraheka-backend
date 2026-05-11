@@ -16,7 +16,7 @@ public abstract class GenericUserRepositoryTest : TestBase
     {
         base.OneTimeSetUp();
         _dynamoContext = CreateDynamoDBContext();
-        _userRepository = new UserRepository(_dynamoContext, _configuration);
+        _userRepository = new UserRepository(_dynamoContext, _client, _configuration, CreateTestLogger<UserRepository>());
         _faker = new Faker();
     }
 

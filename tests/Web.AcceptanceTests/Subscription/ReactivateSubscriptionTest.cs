@@ -3,6 +3,8 @@ using NUnit.Framework;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Domain.Orders.Enums;
+using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Generic;
 

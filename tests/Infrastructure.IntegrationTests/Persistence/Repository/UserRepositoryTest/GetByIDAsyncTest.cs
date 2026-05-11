@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
@@ -41,7 +42,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
 
         // Then: It should return a failure with UserNotFound error
         Assert.That(result.IsFailure, Is.True, "The operation should fail for a non-existent ID");
-        Assert.That(result.Error, Is.EqualTo(InfrastructureUserErrors.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]

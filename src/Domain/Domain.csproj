@@ -3,17 +3,22 @@
   <PropertyGroup>
     <RootNamespace>VibraHeka.Domain</RootNamespace>
     <AssemblyName>VibraHeka.Domain</AssemblyName>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BuilderPatternGenerator" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Riok.Mapperly" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\DTO\" />
+    <Folder Include="Users\Entities\" />
   </ItemGroup>
 
 </Project>
