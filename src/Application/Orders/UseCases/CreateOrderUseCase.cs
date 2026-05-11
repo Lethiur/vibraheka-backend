@@ -42,7 +42,7 @@ public class CreateOrderUseCase(
 
         OrderEntityMapper mapper = new();
         OrderEntity orderToCreate =
-            mapper.FromModel(model, DateTimeOffset.UtcNow, Guid.NewGuid().ToString(), user.CustomerID);
+            mapper.FromModel(model, DateTimeOffset.UtcNow, Guid.NewGuid().ToString());
 
         await OrderPort.CreateOrderAsync(orderToCreate, token);
 

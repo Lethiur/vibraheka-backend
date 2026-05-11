@@ -29,7 +29,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssemblyContaining<RegisterUserCommand>();
-        services.AddSingleton<ICreateOrderPort, CreateOrderUseCase>();
+        services.AddScoped<ICreateOrderPort, CreateOrderUseCase>();
         return services;
     }
 }

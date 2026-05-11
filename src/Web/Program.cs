@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using VibraHeka.Application;
+using VibraHeka.Domain;
 using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Middlewares;
 using VibraHeka.Web.Middleware;
@@ -32,6 +33,7 @@ public class VibraHekaProgram
                 });
         });
         builder.AddRestClientServices(builder.Configuration);
+        builder.AddDomainServices();
         builder.AddPersistenceServices();
         builder.AddApplicationServices();
         builder.AddWebServices();

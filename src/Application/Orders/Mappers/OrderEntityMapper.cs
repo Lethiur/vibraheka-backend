@@ -17,16 +17,14 @@ public partial class OrderEntityMapper
     [MapperIgnoreTarget(nameof(OrderEntity.PaymentGatewayUrl))]
     private partial OrderEntity FromModelCore(
         ExecuteOrderModel model,
-        string OrderID,
-        string CustomerID);
+        string OrderID);
 
     public OrderEntity FromModel(
         ExecuteOrderModel model,
         DateTimeOffset dateCreated,
-        string orderID,
-        string customerID)
+        string orderID)
     {
-        var entity = FromModelCore(model, orderID, customerID);
+        var entity = FromModelCore(model, orderID);
 
         entity.Created = dateCreated;
         entity.LastModified = dateCreated;
