@@ -18,7 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Stripe\Mappers\" />
       <Folder Include="Zoom\Entities\" />
       <Folder Include="Zoom\Mappers\" />
     </ItemGroup>

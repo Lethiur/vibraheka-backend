@@ -83,6 +83,7 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryIn
 
         SubscriptionRepository invalidRepository = new(
             invalidConfig,
+            _client,
             _dynamoDbContext,
             new SubscriptionEntityMapper(),
             CreateTestLogger<SubscriptionRepository>());

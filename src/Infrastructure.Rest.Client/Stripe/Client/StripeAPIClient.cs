@@ -9,6 +9,12 @@ namespace Infrastructure.Rest.Client.Stripe.Client;
 
 public class StripeAPIClient(ILogger<StripeAPIClient> logger)
 {
+    /// <summary>
+    /// Registers a new customer in the Stripe system and returns the created customer ID.
+    /// </summary>
+    /// <param name="request">The customer details required for registration, including email, name, phone number, and user ID.</param>
+    /// <param name="token">A token to observe cancellation requests.</param>
+    /// <returns>A result object containing the Stripe customer ID if the registration is successful; otherwise, an error message.</returns>
     public async Task<Result<string>> RegisterCustomerAsync(RegisterCustomerRequest request, CancellationToken token)
     {
         try
@@ -39,10 +45,10 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         }
     }
 
-    public Task<Result<CheckoutResult>> CheckoutSubscription(StartSubscriptionOrder order, CancellationToken token)
+    public Task<Result<CheckoutResult>> CheckoutSubscriptionAsync(StartSubscriptionOrderRequest orderRequest, CancellationToken token)
     {
-        SessionCreateOptions options = CreateCheckoutSubscriptionOptions(order);
-        return PerformCheckout(options, token);
+        SessionCreateOptions options = CreateCheckoutSubscriptionOptions(orderRequest);
+        return PerformCheckoutAsync(options, token);
     }
 
     /// <summary>
@@ -51,10 +57,10 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     /// <param name="order"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    public Task<Result<CheckoutResult>> CheckoutProduct(StartOrderRequest order, CancellationToken token)
+    public Task<Result<CheckoutResult>> CheckoutProductAsync(StartOrderRequest order, CancellationToken token)
     {
         SessionCreateOptions options = CreateCheckoutProductOptions(order);
-        return PerformCheckout(options, token);
+        return PerformCheckoutAsync(options, token);
     }
 
     /// <summary>
@@ -63,7 +69,7 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     /// <param name="options"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    private async Task<Result<CheckoutResult>> PerformCheckout(SessionCreateOptions options, CancellationToken token)
+    private async Task<Result<CheckoutResult>> PerformCheckoutAsync(SessionCreateOptions options, CancellationToken token)
     {
         try
         {
@@ -100,10 +106,10 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     }
 
     /// <summary>
-    /// 
+    /// Creates session options for a Stripe Checkout process for a product order.
     /// </summary>
-    /// <param name="order"></param>
-    /// <returns></returns>
+    /// <param name="order">The details of the product order, including customer information, payment methods, and callback URLs.</param>
+    /// <returns>A <see cref="SessionCreateOptions"/> object populated with the details required for initiating a Stripe Checkout session.</returns>
     private static SessionCreateOptions CreateCheckoutProductOptions(StartOrderRequest order)
     {
         return new SessionCreateOptions
@@ -113,7 +119,7 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
             PaymentMethodTypes = order.PaymentMethodsAccepted,
             LineItems =
             [
-                new SessionLineItemOptions { Price = order.ProductRef, Quantity = order.OrderQuantity }
+                new SessionLineItemOptions { Price = order.PriceRef, Quantity = order.OrderQuantity }
             ],
             SuccessUrl = order.SuccessCallbackUrl,
             CancelUrl = order.FailureCallbackUrl,
@@ -122,10 +128,14 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         };
     }
 
-
-    private static SessionCreateOptions CreateCheckoutSubscriptionOptions(StartSubscriptionOrder order)
+    /// <summary>
+    /// Creates session options for a Stripe Checkout process for a subscription order.
+    /// </summary>
+    /// <param name="orderRequest">The details of the subscription order, including customer information, payment methods, trial settings, and callback URLs.</param>
+    /// <returns>A <see cref="SessionCreateOptions"/> object populated with the necessary details for initiating a Stripe Checkout session for a subscription.</returns>
+    private static SessionCreateOptions CreateCheckoutSubscriptionOptions(StartSubscriptionOrderRequest orderRequest)
     {
-        SessionCreateOptions options = CreateCheckoutProductOptions(order);
+        SessionCreateOptions options = CreateCheckoutProductOptions(orderRequest);
         options.Mode = "subscription";
         options.PaymentMethodCollection = "always";
         options.SubscriptionData = new SessionSubscriptionDataOptions()
@@ -137,7 +147,7 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
                     MissingPaymentMethod = "cancel"
                 }
             },
-            TrialPeriodDays = order.TrialPeriodDays,
+            TrialPeriodDays = orderRequest.TrialPeriodDays,
         };
         return options;
     }

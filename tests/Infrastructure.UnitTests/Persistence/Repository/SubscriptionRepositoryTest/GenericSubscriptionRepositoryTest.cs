@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Infrastructure.Entities;
@@ -10,6 +11,7 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.Subscription
 public abstract class GenericSubscriptionRepositoryTest
 {
     protected Mock<IDynamoDBContext> ContextMock;
+    protected Mock<IAmazonDynamoDB> ClientMock;
     protected AWSConfig ConfigMock;
     protected SubscriptionRepository Repository;
 
@@ -17,6 +19,7 @@ public abstract class GenericSubscriptionRepositoryTest
     public void SetUp()
     {
         ContextMock = new Mock<IDynamoDBContext>();
+        ClientMock = new Mock<IAmazonDynamoDB>();
         ConfigMock = new AWSConfig
         {
             SubscriptionTable = "SubscriptionsTable",
@@ -25,6 +28,7 @@ public abstract class GenericSubscriptionRepositoryTest
 
         Repository = new SubscriptionRepository(
             ConfigMock,
+            ClientMock.Object,
             ContextMock.Object,
             new SubscriptionEntityMapper(),
             new Mock<ILogger<SubscriptionRepository>>().Object);

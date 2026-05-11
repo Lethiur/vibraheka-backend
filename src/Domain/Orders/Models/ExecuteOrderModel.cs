@@ -6,9 +6,5 @@ public class ExecuteOrderModel
 {
     public String ProductID { get; set; } = string.Empty;
     public String UserID { get; set; } = string.Empty;
-    
-    public OrderType OrderType { get; set; }
-    
     public int Quantity { get; set; } = 1;
-    
 }

@@ -10,7 +10,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeServiceTes
 public abstract class GenericPrivilegeServiceTest : TestBase
 {
     protected IPrivilegeService PrivilegeService;
-
+    
     protected ILogger<IPrivilegeService> _logger;
 
     protected IUserRepository _userRepository;
@@ -23,8 +23,8 @@ public abstract class GenericPrivilegeServiceTest : TestBase
         base.OneTimeSetUp();
         _logger = NullLogger<IPrivilegeService>.Instance;
         IDynamoDBContext dynamoDbContext = CreateDynamoDBContext();
-        _userRepository = new UserRepository(dynamoDbContext, _configuration);
-        _actionLogRepository = new ActionLogRepository(dynamoDbContext, _configuration, CreateTestLogger<ActionLogRepository>());
+        _userRepository = new UserRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<UserRepository>());
+        _actionLogRepository = new ActionLogRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<ActionLogRepository>());
         PrivilegeService = new Infrastructure.Services.PrivilegeService(_userRepository, _actionLogRepository, _logger);
     }
 }

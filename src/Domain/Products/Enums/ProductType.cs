@@ -4,4 +4,7 @@ public enum ProductType
 {
     Event,
     Recording,
+    Therapy,
+    Subscription,
+    Bundle
 }

@@ -23,6 +23,7 @@ public abstract class TestBase
     protected AWSConfig _configuration;
     protected Faker _faker;
     protected StripeConfig _stripeConfig;
+    protected IAmazonDynamoDB _client;
     private IConfigurationRoot _config;
     private ILoggerFactory? _loggerFactory;
 
@@ -32,6 +33,7 @@ public abstract class TestBase
         _config = CreateTestConfiguration();
         _configuration = CreateAWSConfig();
         _stripeConfig = CreateStripeConfig();
+        _client = CreateDynamoDBClient();
         _faker = new Faker();
         Segment segment = new("VH-TEST");
         AWSXRayRecorder.Instance.TraceContext.SetEntity(segment);
@@ -45,6 +47,7 @@ public abstract class TestBase
     public void DisposeTestLoggerFactory()
     {
         _loggerFactory?.Dispose();
+        _client?.Dispose();
     }
 
     protected ILogger<T> CreateTestLogger<T>()
@@ -93,6 +96,12 @@ public abstract class TestBase
             .Build();
 
         return dynamoDbContext;
+    }
+
+    protected IAmazonDynamoDB CreateDynamoDBClient()
+    {
+        AmazonDynamoDBClient client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) });
+        return client;
     }
 
     protected IAmazonSimpleSystemsManagement CreateSystemsManagementClient()

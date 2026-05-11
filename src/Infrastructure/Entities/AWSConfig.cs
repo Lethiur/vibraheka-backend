@@ -120,4 +120,7 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string RecordingsTable { get; set; } = string.Empty;
+    
+    [Required]
+    public string OrdersTable { get; set; } = string.Empty;
 }

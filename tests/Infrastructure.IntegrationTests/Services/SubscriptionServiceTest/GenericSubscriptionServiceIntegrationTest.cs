@@ -52,6 +52,7 @@ public abstract class GenericSubscriptionServiceIntegrationTest : TestBase
         _dynamoDbContext = CreateDynamoDBContext();
         _subscriptionRepository = new SubscriptionRepository(
             _configuration,
+            _client,
             _dynamoDbContext,
             new SubscriptionEntityMapper(),
             CreateTestLogger<SubscriptionRepository>());

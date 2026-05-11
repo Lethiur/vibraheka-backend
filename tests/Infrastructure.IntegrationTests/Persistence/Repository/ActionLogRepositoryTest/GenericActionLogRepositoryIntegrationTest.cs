@@ -17,6 +17,7 @@ public abstract class GenericActionLogRepositoryIntegrationTest : TestBase
         _dynamoDbContext = CreateDynamoDBContext();
         _repository = new ActionLogRepository(
             _dynamoDbContext,
+            CreateDynamoDBClient(),
             _configuration,
             CreateTestLogger<ActionLogRepository>());
     }

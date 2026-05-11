@@ -30,7 +30,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
             .Returns(searchMock.Object);
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(role);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(role);
 
         // Then: Should return success with 2 users
         Assert.That(result.IsSuccess, Is.True);
@@ -51,7 +51,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
             .Returns(searchMock.Object);
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Admin);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Admin);
 
         // Then: Should return success with empty collection
         Assert.That(result.IsSuccess, Is.True);
@@ -69,7 +69,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
             .Throws(new Exception("Query Error"));
 
         // When: Getting by role
-        Result<IEnumerable<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Therapist);
+        Result<List<UserEntity>> result = await Repository.GetByRoleAsync(UserRole.Therapist);
 
         // Then: Should fail and contain the message
         Assert.That(result.IsFailure, Is.True);

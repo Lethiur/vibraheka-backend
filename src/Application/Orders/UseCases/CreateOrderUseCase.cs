@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Orders.Mappers;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
@@ -16,7 +17,6 @@ namespace VibraHeka.Application.Orders.UseCases;
 
 public class CreateOrderUseCase(
     IOrderPort OrderPort,
-    IUserRepository UserRepository,
     IProductPort ProductPort,
     CustomerService CustomerService,
     IPaymentsPort PaymentRepository
@@ -24,7 +24,7 @@ public class CreateOrderUseCase(
 {
     public async Task<Result<OrderEntity>> ExecuteOrderAsync(ExecuteOrderModel model, CancellationToken token)
     {
-        (bool _, bool isFailure, ProductEntity? product, string? error) =
+        (bool _, bool isFailure, ProductEntity product, string error) =
             await ProductPort.GetProductByIdAsync(model.ProductID, token);
 
         if (isFailure)
@@ -32,37 +32,39 @@ public class CreateOrderUseCase(
             return Result.Failure<OrderEntity>(error);
         }
 
-        (bool _, bool userFailure, UserEntity? user, string? s) = await CustomerService.GetCustomerByUserIDAsync(model.UserID, token);
+        (bool _, bool userFailure, UserEntity user, string s) =
+            await CustomerService.GetCustomerByUserIDAsync(model.UserID, token);
 
         if (userFailure)
         {
             return Result.Failure<OrderEntity>(error);
         }
-        
-        OrderEntity orderToCreate = new()
-        {
-            ProductID = model.ProductID,
-            CustomerID = user.CustomerID,
-            CreatedBy = model.UserID,
-            Created = DateTime.UtcNow,
-            LastModified = DateTime.UtcNow,
-            LastModifiedBy = model.UserID,
-            UserID = model.UserID,
-            OrderType = model.OrderType,
-            OrderID = Guid.NewGuid().ToString()
-        };
+
+        OrderEntityMapper mapper = new();
+        OrderEntity orderToCreate =
+            mapper.FromModel(model, DateTimeOffset.UtcNow, Guid.NewGuid().ToString(), user.CustomerID);
 
         await OrderPort.CreateOrderAsync(orderToCreate, token);
 
-
         CheckoutProductModel checkoutModel = new()
         {
-            OrderType = model.OrderType, ProductRef = product.ExternalProductID, CustomerID = user.CustomerID,
+            ProductRef = product.ExternalProductID,
+            CustomerID = user.CustomerID,
             FailureCallbackUrl = OrderConstants.FailureCallbackUrl,
             SuccessCallbackUrl = OrderConstants.SuccessCallbackUrl,
             OrderID = orderToCreate.OrderID,
             Quantity = model.Quantity
         };
 
+        (bool _, bool isCheckoutError, CheckoutSessionCompletedModel checkoutSessionCompletedModel, string checkoutError) =
+            await PaymentRepository.CreateCheckoutSessionAsync(checkoutModel, token);
+
+        if(isCheckoutError)
+        {
+            return Result.Failure<OrderEntity>(checkoutError);
+        } 
+        
+
+        return await OrderPort.UpdatePaymentInfoAsync(orderToCreate, checkoutSessionCompletedModel, token);
     }
 }

@@ -8,6 +8,29 @@ namespace VibraHeka.Application.Orders.Mappers;
 public partial class OrderEntityMapper
 {
     
-    [MapValue(nameof(OrderEntity.OrderID), Guid.NewGuid().ToString())]
-    public partial OrderEntity FromModel(ExecuteOrderModel model)
+    [MapProperty(nameof(ExecuteOrderModel.UserID), nameof(OrderEntity.CreatedBy))]
+    [MapProperty(nameof(ExecuteOrderModel.UserID), nameof(OrderEntity.LastModifiedBy))]
+    [MapperIgnoreTarget(nameof(OrderEntity.Created))]
+    [MapperIgnoreTarget(nameof(OrderEntity.LastModified))]
+    [MapperIgnoreTarget(nameof(OrderEntity.ExternalOrderID))]
+    [MapperIgnoreTarget(nameof(OrderEntity.OrderStatus))]
+    [MapperIgnoreTarget(nameof(OrderEntity.PaymentGatewayUrl))]
+    private partial OrderEntity FromModelCore(
+        ExecuteOrderModel model,
+        string OrderID,
+        string CustomerID);
+
+    public OrderEntity FromModel(
+        ExecuteOrderModel model,
+        DateTimeOffset dateCreated,
+        string orderID,
+        string customerID)
+    {
+        var entity = FromModelCore(model, orderID, customerID);
+
+        entity.Created = dateCreated;
+        entity.LastModified = dateCreated;
+
+        return entity;
+    }
 }

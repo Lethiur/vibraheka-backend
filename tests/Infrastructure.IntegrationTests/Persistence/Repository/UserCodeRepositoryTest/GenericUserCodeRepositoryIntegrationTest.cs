@@ -19,6 +19,7 @@ public abstract class GenericUserCodeRepositoryIntegrationTest : TestBase
         _repository = new UserCodeRepository(
             _configuration,
             _dynamoDbContext,
+            _client,
             new UsersCodeMapper(),
             CreateTestLogger<GenericDynamoRepository<UserCodeDBModel>>());
     }

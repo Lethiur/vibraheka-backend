@@ -34,9 +34,9 @@ public abstract class GenericCognitoServiceTest : TestBase
             new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
         _verificationCodeRepository =
             new VerificationCodesRepository(dynamoDbContext, _configuration, new VerificationCodeEntityMapper());
-        UserRepository = new UserRepository(dynamoDbContext, _configuration);
+        UserRepository = new UserRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<UserRepository>());
         UserService = new UserService(_configuration, Logger, UserRepository);
-        PasswordResetTokenService = new(
+        PasswordResetTokenService = new PasswordResetTokenService(
             _configuration,
             CreateTestLogger<PasswordResetTokenService>()
         );

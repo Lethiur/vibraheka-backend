@@ -16,7 +16,7 @@ public abstract class GenericEmailTemplateRepositoryIntegrationTest : TestBase
     {
         base.OneTimeSetUp();
         DynamoContext = CreateDynamoDBContext();
-        Repository = new EmailTemplateRepository(DynamoContext, _configuration, CreateTestLogger<EmailTemplateRepository>());
+        Repository = new EmailTemplateRepository(DynamoContext, _client, _configuration, CreateTestLogger<EmailTemplateRepository>());
         _faker = new Faker();
     }
 

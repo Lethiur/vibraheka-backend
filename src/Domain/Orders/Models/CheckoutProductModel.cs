@@ -10,5 +10,5 @@ public class CheckoutProductModel
     public string CustomerID { get; set; } = string.Empty;
     public string SuccessCallbackUrl { get; set; } = string.Empty;
     public string FailureCallbackUrl { get; set; } = string.Empty;
-    public OrderType OrderType { get; set; }
+    
 }

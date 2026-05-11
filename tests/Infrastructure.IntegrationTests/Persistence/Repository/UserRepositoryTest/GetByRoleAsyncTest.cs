@@ -24,7 +24,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         await _userRepository.AddAsync(user2);
 
         // When: se consultan usuarios por rol.
-        Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(role);
+        Result<List<UserEntity>> result = await _userRepository.GetByRoleAsync(role);
 
         // Then: debe devolverse una lista que incluya ambos usuarios.
         Assert.That(result.IsSuccess, Is.True);
@@ -47,7 +47,7 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         await _userRepository.AddAsync(userEntity);
 
         // When: se consulta por rol.
-        Result<IEnumerable<UserEntity>> result = await _userRepository.GetByRoleAsync(UserRole.Therapist);
+        Result<List<UserEntity>> result = await _userRepository.GetByRoleAsync(UserRole.Therapist);
 
         // Then: las propiedades mapeadas deben coincidir.
         UserEntity retrievedUserEntity = result.Value.First(u => u.Id == userEntity.Id);
@@ -82,10 +82,10 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
             SubscriptionUserIdIndex = _configuration.SubscriptionUserIdIndex,
             SettingsNameSpace = _configuration.SettingsNameSpace
         };
-        UserRepository invalidRepository = new(_dynamoContext, invalidConfig);
+        UserRepository invalidRepository = new(_dynamoContext, _client, invalidConfig, CreateTestLogger<UserRepository>());
 
         // When: se consulta por rol contra la tabla inexistente.
-        Result<IEnumerable<UserEntity>> result = await invalidRepository.GetByRoleAsync(UserRole.Therapist);
+        Result<List<UserEntity>> result = await invalidRepository.GetByRoleAsync(UserRole.Therapist);
 
         // Then: debe devolverse failure con mensaje de query.
         Assert.That(result.IsFailure, Is.True);
