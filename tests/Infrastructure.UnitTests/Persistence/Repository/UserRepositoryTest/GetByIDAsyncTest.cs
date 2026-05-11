@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -53,7 +54,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
 
         // Then: Result should be failure with UserNotFound error
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(InfrastructureUserErrors.UserNotFound));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
@@ -62,7 +63,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
     {
         // Given: A database error
         const string userId = "any-id";
-        const string errorMessage = "DynamoDB Connection Error";
+        const string errorMessage = UserErrors.UserNotFound;
         ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
             .ThrowsAsync(new Exception(errorMessage));
 

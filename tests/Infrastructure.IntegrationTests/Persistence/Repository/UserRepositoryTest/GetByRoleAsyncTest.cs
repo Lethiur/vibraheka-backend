@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
@@ -89,6 +91,6 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
 
         // Then: debe devolverse failure con mensaje de query.
         Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Does.Contain("Error querying users by role"));
+        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 }

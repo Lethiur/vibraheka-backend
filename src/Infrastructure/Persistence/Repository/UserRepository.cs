@@ -4,9 +4,11 @@ using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.Repository;
@@ -15,7 +17,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Represents a repository for managing user persistence operations utilizing Amazon DynamoDB.
 /// </summary>
 public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AWSConfig config, ILogger<UserRepository> logger)
-    : GenericDynamoRepository<UserDBModel>(context, client, config.UserCodesTable, logger), IUserRepository
+    : GenericDynamoRepository<UserDBModel>(context, client, config.UsersTable, logger), IUserRepository
 {
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.
@@ -36,6 +38,10 @@ public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AW
     public async Task<Result<bool>> ExistsByEmailAsync(string email)
     {
         Result<UserDBModel> findOneByIndex = await FindOneByIndex("EmailIndex", email, CancellationToken.None);
+        if (findOneByIndex is { IsFailure: true, Error: GenericPersistenceErrors.NoRecordsFound })
+        {
+            return false;
+        }
         return findOneByIndex.Map(_ => true);
     }
 
@@ -48,7 +54,14 @@ public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AW
     /// <exception cref="NotImplementedException">Thrown if the method is not implemented.</exception>
     public Task<Result<UserEntity>> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
-        return FindByID(id, cancellationToken).Map(m => m.ToDomain());
+        return FindByID(id, cancellationToken).Map(m => m.ToDomain())
+            .MapError(e =>
+            {
+                return e switch
+                {
+                    _ => UserErrors.UserNotFound
+                };
+            });
     }
 
     /// <summary>
@@ -74,7 +87,8 @@ public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AW
     public Task<Result<List<UserEntity>>> GetByRoleAsync(UserRole role)
     {
         return FindAllByIndexAsync("Role-Index", role.ToString(), CancellationToken.None)
-            .Map(models => models.Select(m => m.ToDomain()).ToList());
+            .Map(models => models.Select(m => m.ToDomain()).ToList())
+            .MapError(e => UserErrors.UserNotFound);
     }
 
     /// <summary>

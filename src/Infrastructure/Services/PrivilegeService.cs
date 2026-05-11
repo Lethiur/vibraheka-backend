@@ -39,8 +39,6 @@ public class PrivilegeService(
             Logger.LogError($"User with ID {userId} not found.");
         }
 
-        ;
-
         return user.Map(userDB => userDB.Role == role);
     }
 

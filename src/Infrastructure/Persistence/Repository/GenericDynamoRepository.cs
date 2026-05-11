@@ -107,7 +107,7 @@ public abstract class GenericDynamoRepository<T>(
     /// A <see cref="Result{T}"/> containing the first entity that matches the specified index value,
     /// or an error result if no records are found or an error occurs during the operation.
     /// </returns>
-    protected  Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
+    protected Task<Result<T>> FindOneByIndex(string indexName, string indexValue,
         CancellationToken cancellationToken)
     {
         return FindAllByIndexAsync(indexName, indexValue, cancellationToken).Map(models => models.First());
