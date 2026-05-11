@@ -9,10 +9,15 @@ WORKDIR /src
 ENV NUGET_PACKAGES=/root/.nuget/packages
 
 # Copy project files first for better Docker layer caching.
+# All .csproj files in the transitive closure of Web.csproj must be present
+# before `dotnet restore` so that no project is skipped and every
+# project.assets.json is generated (required by --no-restore in publish).
 COPY Directory.Build.props Directory.Packages.props global.json nuget.config ./
-COPY src/Application/Application.csproj src/Application/
 COPY src/Domain/Domain.csproj src/Domain/
+COPY src/Application/Application.csproj src/Application/
 COPY src/Infrastructure/Infrastructure.csproj src/Infrastructure/
+COPY src/Infrastructure.Persistence/Infrastructure.Persistence.csproj src/Infrastructure.Persistence/
+COPY src/Infrastructure.Rest.Client/Infrastructure.Rest.Client.csproj src/Infrastructure.Rest.Client/
 COPY src/Web/Web.csproj src/Web/
 
 RUN --mount=type=cache,id=nuget-packages,target=/root/.nuget/packages,sharing=locked \
