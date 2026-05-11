@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,13 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Implements ISubscriptionRepository for domain-specific functionality and inherits
 /// from GenericDynamoRepository for common data access operations.
 /// </summary>
-public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, SubscriptionEntityMapper mapper, ILogger<SubscriptionRepository> logger) : GenericDynamoRepository<SubscriptionDBModel>(context, config.SubscriptionTable, logger), ISubscriptionRepository
+public class SubscriptionRepository(
+    AWSConfig config,
+    IAmazonDynamoDB client,
+    IDynamoDBContext context,
+    SubscriptionEntityMapper mapper,
+    ILogger<SubscriptionRepository> logger)
+    : GenericDynamoRepository<SubscriptionDBModel>(context, client, config.SubscriptionTable, logger), ISubscriptionRepository
 {
     /// <summary>
     /// Retrieves the order status for a specific user based on their user ID.
@@ -27,7 +34,8 @@ public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, 
     /// <param name="userId">The unique identifier of the user whose order status is being queried.</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation, containing a <see cref="Result"/> object with the <see cref="SubscriptionStatus"/> of the user's order.</returns>
-    public Task<Result<SubscriptionEntity>> GetSubscriptionDetailsForUser(string userId, CancellationToken cancellationToken)
+    public Task<Result<SubscriptionEntity>> GetSubscriptionDetailsForUser(string userId,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation($"Retrieving subscription details for user {userId}");
         return FindOneByIndex(config.SubscriptionUserIdIndex, userId, cancellationToken)
@@ -57,7 +65,8 @@ public class SubscriptionRepository(AWSConfig config, IDynamoDBContext context, 
             .Map(_ => subscriptionEntity);
     }
 
-    public Task<Result<Unit>> DeleteSubscriptionForUser(SubscriptionEntity subscriptionEntity, CancellationToken cancellationToken)
+    public Task<Result<Unit>> DeleteSubscriptionForUser(SubscriptionEntity subscriptionEntity,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation("Deleting subscription details for user {}", subscriptionEntity.UserID);
         return Delete(mapper.ToInternal(subscriptionEntity), cancellationToken);

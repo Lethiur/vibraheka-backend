@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.XRay.Recorder.Core;
 using CSharpFunctionalExtensions;
@@ -10,6 +11,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 
 public abstract class GenericDynamoRepository<T>(
     IDynamoDBContext context,
+    IAmazonDynamoDB client,
     string tableConfigKey,
     ILogger<GenericDynamoRepository<T>> logger)
 {
@@ -156,6 +158,48 @@ public abstract class GenericDynamoRepository<T>(
         {
             return Result.Failure<Unit>(HandleError(e));
         }
+    }
+
+    /// <summary>
+    /// Updates an existing item in the DynamoDB table using the specified key, update expression, and optional condition expression.
+    /// </summary>
+    /// <param name="key">A dictionary representing the primary key of the item to update.</param>
+    /// <param name="update">A <see cref="DynamoExpression"/> representing the update expression and its associated attributes.</param>
+    /// <param name="condition">An optional <see cref="DynamoExpression"/> representing the condition that must be met for the update to proceed.</param>
+    /// <param name="token">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> indicating the success or failure of the update operation with <see cref="Unit"/> as the result type.
+    /// </returns>
+    protected async Task<Result<Unit>> UpdateAsync(
+        Dictionary<string, AttributeValue> key,
+        DynamoExpression update,
+        DynamoExpression? condition = null,
+        CancellationToken token = default)
+    {
+        UpdateItemRequest request = new UpdateItemRequest
+        {
+            TableName = tableConfigKey,
+            Key = key,
+            
+            UpdateExpression = update.Expression,
+            ConditionExpression = condition?.Expression,
+
+            ExpressionAttributeNames = update.AttributeNames,
+            ExpressionAttributeValues = update.AttributeValues,
+        };
+        
+        if (condition != null)
+        {
+            foreach (var kv in condition.AttributeNames)
+                request.ExpressionAttributeNames[kv.Key] = kv.Value;
+
+            foreach (var kv in condition.AttributeValues)
+                request.ExpressionAttributeValues[kv.Key] = kv.Value;
+        }
+
+        UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
+
+        return Result.Success(Unit.Value);
     }
 
     /// <summary>

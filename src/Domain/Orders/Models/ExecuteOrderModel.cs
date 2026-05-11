@@ -9,4 +9,6 @@ public class ExecuteOrderModel
     
     public OrderType OrderType { get; set; }
     
+    public int Quantity { get; set; } = 1;
+    
 }

@@ -1,4 +1,6 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -12,8 +14,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// <summary>
 /// Represents a repository for managing user persistence operations utilizing Amazon DynamoDB.
 /// </summary>
-public class UserRepository(IDynamoDBContext context, AWSConfig config, ILogger<UserRepository> logger)
-    : GenericDynamoRepository<UserDBModel>(context, config.UserCodesTable, logger), IUserRepository
+public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AWSConfig config, ILogger<UserRepository> logger)
+    : GenericDynamoRepository<UserDBModel>(context, client, config.UserCodesTable, logger), IUserRepository
 {
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.
@@ -85,6 +87,18 @@ public class UserRepository(IDynamoDBContext context, AWSConfig config, ILogger<
     public Task<Result<Unit>> UpdateCustomerIDAsync(string customerId, string userId,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        Dictionary<string, AttributeValue> key = new()
+        {
+            { nameof(UserEntity.Id), new AttributeValue { S = userId } }
+        };
+
+        DynamoExpression update = new()
+        {
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "CustomerID" },
+            AttributeValues = { { ":status", new AttributeValue { S = customerId } } }
+        };
+
+        return UpdateAsync(key, update, null, cancellationToken);
     }
 }

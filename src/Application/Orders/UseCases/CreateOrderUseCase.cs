@@ -2,11 +2,13 @@ using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Orders.Constants;
 using VibraHeka.Domain.Orders.Entities;
 using VibraHeka.Domain.Orders.Enums;
 using VibraHeka.Domain.Orders.Models;
 using VibraHeka.Domain.Orders.Ports.In;
 using VibraHeka.Domain.Orders.Ports.Out;
+using VibraHeka.Domain.Orders.Services;
 using VibraHeka.Domain.Products.Entities;
 using VibraHeka.Domain.Products.Ports.Out;
 
@@ -16,6 +18,7 @@ public class CreateOrderUseCase(
     IOrderPort OrderPort,
     IUserRepository UserRepository,
     IProductPort ProductPort,
+    CustomerService CustomerService,
     IPaymentsPort PaymentRepository
 ) : ICreateOrderPort
 {
@@ -29,7 +32,7 @@ public class CreateOrderUseCase(
             return Result.Failure<OrderEntity>(error);
         }
 
-        (bool _, bool userFailure, UserEntity? user, string? s) = await UserRepository.GetByIdAsync(model.UserID, token);
+        (bool _, bool userFailure, UserEntity? user, string? s) = await CustomerService.GetCustomerByUserIDAsync(model.UserID, token);
 
         if (userFailure)
         {
@@ -50,14 +53,16 @@ public class CreateOrderUseCase(
         };
 
         await OrderPort.CreateOrderAsync(orderToCreate, token);
-        
-        
+
+
         CheckoutProductModel checkoutModel = new()
         {
-            OrderType = model.OrderType,
-            ProductRef =product.ExternalProductID,
-            CustomerID = user.CustomerID
-        }
-        
+            OrderType = model.OrderType, ProductRef = product.ExternalProductID, CustomerID = user.CustomerID,
+            FailureCallbackUrl = OrderConstants.FailureCallbackUrl,
+            SuccessCallbackUrl = OrderConstants.SuccessCallbackUrl,
+            OrderID = orderToCreate.OrderID,
+            Quantity = model.Quantity
+        };
+
     }
 }
