@@ -1,6 +1,5 @@
-﻿using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
+﻿using VibraHeka.Domain.Commerce.Enums;
+using VibraHeka.Domain.Common.Enums;
 
 namespace VibraHeka.Domain.Entities;
 
@@ -24,9 +23,7 @@ public class SubscriptionEntity : BaseAuditableEntity
 
     public DateTimeOffset CheckoutSessionExpiresAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public OrderType OrderType { get; set; } = OrderType.Subscription;
-
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
     public SubscriptionStatus SubscriptionStatus { get; set; } = SubscriptionStatus.Created;
 

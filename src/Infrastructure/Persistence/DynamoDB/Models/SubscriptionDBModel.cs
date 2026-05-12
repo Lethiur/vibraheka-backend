@@ -1,7 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -36,11 +35,8 @@ public class SubscriptionDBModel : BaseAuditableDBModel
     [DynamoDBProperty(typeof(DateTimeOffsetConverter))]
     public DateTimeOffset CheckoutSessionExpiresAt { get; set; } = DateTimeOffset.UtcNow;
 
-    [DynamoDBProperty(typeof(EnumStringConverter<OrderType>))]
-    public OrderType OrderType { get; set; } = OrderType.Subscription;
-
     [DynamoDBProperty(typeof(EnumStringConverter<OrderStatus>))]
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; set; } = OrderStatus.Draft;
 
     [DynamoDBProperty(typeof(EnumStringConverter<SubscriptionStatus>))]
     public SubscriptionStatus SubscriptionStatus { get; set; } = SubscriptionStatus.Created;

@@ -1,15 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Common.Extensions.Results;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.Services;
@@ -43,7 +41,7 @@ public class SubscriptionService(
             {
                 logger.LogWarning("Subscription already exists for user {userId}. It is cancelled, Resetting to pending", preparation.UserID);
                 entity.SubscriptionStatus = SubscriptionStatus.Created;
-                entity.Status = OrderStatus.Pending;
+                entity.Status = OrderStatus.Draft;
                 entity.StartDate = DateTime.UtcNow;
                 entity.CheckoutSessionUrl = preparation.CheckoutSession.Url;
                 entity.CheckoutSessionExpiresAt = preparation.CheckoutSession.ExpiresAt;
@@ -134,14 +132,14 @@ public class SubscriptionService(
         return GetSubscriptionForUser(userID, cancellationToken)
             .Ensure(entity => entity.SubscriptionStatus == SubscriptionStatus.ToBeCancelled,
                 SubscriptionErrors.SubscriptionIsActive)
-            .Ensure(entity => entity.Status != OrderStatus.Cancelled && entity.Status != OrderStatus.PaymentFailed, SubscriptionErrors.SubscriptionIsCancelled)
+            .Ensure(entity => entity.Status != OrderStatus.Cancelled && entity.Status != OrderStatus.Failed, SubscriptionErrors.SubscriptionIsCancelled)
             .BindTry(subscriptionEntity =>
                 paymentRepository.ReactivateSubscriptionForUser(subscriptionEntity, cancellationToken)
                     .Map(_ => subscriptionEntity))
             .BindTry(subscriptionEntity =>
             {
                 logger.LogInformation($"Reactivating subscription for user {subscriptionEntity.UserID} date {subscriptionEntity.StartDate}");
-                if (subscriptionEntity.Status == OrderStatus.OrderDelayed && subscriptionEntity.StartDate > DateTime.UtcNow)
+                if (subscriptionEntity.Status == OrderStatus.Draft && subscriptionEntity.StartDate > DateTime.UtcNow)
                 {
                     logger.LogInformation($"Subscription for user {subscriptionEntity.UserID} is delayed. Restoring trialing");
                     subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Trialing;

@@ -1,6 +1,5 @@
-﻿using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
+﻿using VibraHeka.Domain.Commerce.Enums;
+using VibraHeka.Domain.Common.Enums;
 
 namespace VibraHeka.Web.Entities;
 
@@ -8,7 +7,7 @@ public class SubscriptionDetailsDTO
 {
     public DateTimeOffset StartDate { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset EndDate { get; set; } = DateTimeOffset.UtcNow;
-    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; set; } = OrderStatus.Draft;
     public SubscriptionStatus SubscriptionStatus { get; set; } = SubscriptionStatus.Created;
 
     public string CheckoutSessionUrl { get; set; } = string.Empty;

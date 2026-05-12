@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Domain.Events.Ports.Out;
-using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace Infrastructure.Rest.Client;
 
@@ -51,6 +50,6 @@ public static class DependencyInjection
     
     private static void AttachStripeServices(this IServiceCollection services)
     {
-        services.AddScoped<IPaymentsPort, PaymentsAdapter>();
+
     }
 }

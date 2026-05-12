@@ -123,4 +123,7 @@ public class AWSConfig
     
     [Required]
     public string OrdersTable { get; set; } = string.Empty;
+
+    [Required]
+    public string OrderLineTable { get; set; } = string.Empty;
 }
