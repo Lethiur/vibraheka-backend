@@ -18,3 +18,7 @@ resource "aws_dynamodb_table" "VibraHeka_Catalog_SellableItemPrice" {
     projection_type = "ALL"
   }
 }
+
+output "DynamoDB_SellableItemPrice_TableName" {
+  value = aws_dynamodb_table.VibraHeka_Catalog_SellableItemPrice.name
+}

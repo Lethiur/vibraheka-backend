@@ -20,7 +20,7 @@ resource "aws_dynamodb_table" "VibraHeka_Catalog_SellableItems" {
   }
 }
 
-output "SellableItemsTable" {
+output "DynamoDB_Catalog_SellableItem_TableName" {
   value = aws_dynamodb_table.VibraHeka_Catalog_SellableItems.name
   description = "The name of the DynamoDB table for Catalog Sellable Items"
 }

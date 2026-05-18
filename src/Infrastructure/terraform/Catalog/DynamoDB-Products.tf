@@ -9,7 +9,7 @@ resource "aws_dynamodb_table" "VibraHeka_Catalog_Products" {
   }
 }
 
-output "DynamoDB_Catalog_Products_Name" {
+output "DynamoDB_Catalog_Product_TableName" {
   value = aws_dynamodb_table.VibraHeka_Catalog_Products.name
   description = "The name of the DynamoDB table for Catalog Products"
 }

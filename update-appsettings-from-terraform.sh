@@ -82,7 +82,11 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     (if ($prs != "") then .AWS.PasswordResetTokenSecret = $prs else . end) |
     (if ($ssk != "") then .Stripe.SecretKey = $ssk else . end) |
     (if ($tf.recordings_table_name.value? != null) then .AWS.RecordingsTable = $tf.recordings_table_name.value else . end) |
-    (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end)
+    (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
+    (if ($tf.dynamodb_catalog_sellable_item_price_table_name.value? != null) then .AWS.SellableItemPricesTable = $tf.dynamodb_catalog_sellable_item_price_table_name.value else . end) |
+    (if ($tf.dynamodb_catalog_sellable_item_table_name.value? != null) then .AWS.SellableItemsTable = $tf.dynamodb_catalog_sellable_item_table_name.value else . end) |
+    (if ($tf.dynamodb_catalog_products_table_name.value? != null) then .AWS.ProductTable = $tf.dynamodb_catalog_products_table_name.value else . end)
+  
   ' "$appsettings_path" > "$tmp_file"
 
   mv "$tmp_file" "$appsettings_path"
