@@ -33,6 +33,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Infrastructure.Persistence\Infrastructure.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

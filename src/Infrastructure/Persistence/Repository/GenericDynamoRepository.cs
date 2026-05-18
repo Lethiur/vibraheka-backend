@@ -86,7 +86,7 @@ public abstract class GenericDynamoRepository<T>(
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
             List<T>? models = await search.GetRemainingAsync(cancellationToken);
-            
+
             return Maybe.From(models)
                 .ToResult(GenericPersistenceErrors.NoRecordsFound)
                 .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound);
@@ -205,14 +205,14 @@ public abstract class GenericDynamoRepository<T>(
         {
             TableName = tableConfigKey,
             Key = key,
-            
+
             UpdateExpression = update.Expression,
             ConditionExpression = condition?.Expression,
 
             ExpressionAttributeNames = update.AttributeNames,
             ExpressionAttributeValues = update.AttributeValues,
         };
-        
+
         if (condition != null)
         {
             foreach (var kv in condition.AttributeNames)

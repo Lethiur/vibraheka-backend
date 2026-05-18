@@ -6,12 +6,11 @@ using CSharpFunctionalExtensions;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -301,7 +300,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
         AuthenticationResult userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
 
         Result<SubscriptionEntity> seedResult =
-            await SeedSubscriptionForRecordingTest(userAuth.UserID, SubscriptionStatus.Active, OrderStatus.InvoicePayed);
+            await SeedSubscriptionForRecordingTest(userAuth.UserID, SubscriptionStatus.Active, OrderStatus.Paid);
         Assert.That(seedResult.IsSuccess, Is.True,
             $"Subscription seeding should succeed but got error: '{(seedResult.IsFailure ? seedResult.Error : "N/A")}'");
 

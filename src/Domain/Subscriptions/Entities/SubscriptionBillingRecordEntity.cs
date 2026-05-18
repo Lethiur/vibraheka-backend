@@ -4,7 +4,7 @@ namespace VibraHeka.Domain.Subscriptions.Entities;
 
 public class SubscriptionBillingRecordEntity : BaseAuditableEntity
 {
-    public string SubscriptionBillingRecordID { get; private set; } = string.Empty; 
+    public string SubscriptionBillingRecordID { get; private set; } = string.Empty;
 
     public string SubscriptionID { get; private set; } = string.Empty;
     public string UserID { get; private set; } = string.Empty;

@@ -14,7 +14,7 @@ public class OrderLineEntity : BaseAuditableEntity
     public string SellablePriceID { get; set; } = string.Empty;
 
     public string NameSnapshot { get; set; } = string.Empty;
-    
+
     public string PaymentGatewayPriceIDSnapshot { get; set; } = string.Empty!;
     public string PaymentGatewayProductIDSnapshot { get; set; } = string.Empty;
 

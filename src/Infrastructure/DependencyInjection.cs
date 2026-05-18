@@ -44,25 +44,21 @@ public static class DependencyInjection
         builder.Services.AddInfrastructureServices(config);
     }
 
-    private static IConfigurationBuilder AddInfrastructureConfiguration(
+    private static void AddInfrastructureConfiguration(
         this IConfigurationBuilder configurationBuilder,
         IConfiguration configuration)
     {
         AWSConfig? awsConfig = configuration.GetSection("AWS").Get<AWSConfig>();
 
-        if (string.IsNullOrWhiteSpace(awsConfig?.SettingsNameSpace))
+        if (!string.IsNullOrWhiteSpace(awsConfig?.SettingsNameSpace))
         {
-            return configurationBuilder;
+            configurationBuilder.AddSystemsManager(options =>
+            {
+                options.Path = $"/{awsConfig.SettingsNameSpace}/";
+                options.ReloadAfter = TimeSpan.FromSeconds(2);
+                options.Optional = true;
+            });
         }
-
-        configurationBuilder.AddSystemsManager(options =>
-        {
-            options.Path = $"/{awsConfig.SettingsNameSpace}/";
-            options.ReloadAfter = TimeSpan.FromSeconds(2);
-            options.Optional = true;
-        });
-
-        return configurationBuilder;
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
@@ -117,47 +113,47 @@ public static class DependencyInjection
         services.AddSingleton<VerificationCodeEntityMapper>();
         services.AddSingleton<UsersCodeMapper>();
 #if DEBUG
-        services.AddScoped<ICodeRepository, VerificationCodesRepository>();
+        services.AddSingleton<ICodeRepository, VerificationCodesRepository>();
 #endif
-        services.AddScoped<IUserCodeRepository, UserCodeRepository>();
-        services.AddScoped<IDynamoDBContext, DynamoDBContext>();
-        services.AddScoped<ApplicationDynamoContext>();
+        services.AddSingleton<IUserCodeRepository, UserCodeRepository>();
+        services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
+        services.AddSingleton<ApplicationDynamoContext>();
 
-        services.AddScoped<IActionLogRepository, ActionLogRepository>();
+        services.AddSingleton<IActionLogRepository, ActionLogRepository>();
 
         // Settings
-        services.AddScoped<ISettingsService, SettingsService>();
-        services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ISettingsRepository, SettingsRepository>();
 
         // Payments
-        services.AddScoped<IPaymentService, PaymentService>();
-        services.AddScoped<IPaymentRepository, PaymentsRepository>();
+        services.AddSingleton<IPaymentService, PaymentService>();
+        services.AddSingleton<IPaymentRepository, PaymentsRepository>();
 
         // Subscription
-        services.AddScoped<ISubscriptionService, SubscriptionService>();
-        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddSingleton<ISubscriptionService, SubscriptionService>();
+        services.AddSingleton<ISubscriptionRepository, SubscriptionRepository>();
 
         // Email Templates
-        services.AddScoped<IEmailTemplatesRepository, EmailTemplateRepository>();
-        services.AddScoped<IEmailTemplatesService, EmailTemplateService>();
+        services.AddSingleton<IEmailTemplatesRepository, EmailTemplateRepository>();
+        services.AddSingleton<IEmailTemplatesService, EmailTemplateService>();
 
         // Email template storage
-        services.AddScoped<IEmailTemplateStorageService, EmailTemplateStorageService>();
-        services.AddScoped<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
+        services.AddSingleton<IEmailTemplateStorageService, EmailTemplateStorageService>();
+        services.AddSingleton<IEmailTemplateStorageRepository, EmailTemplateStorageRepository>();
 
         // Privileges
-        services.AddScoped<IPrivilegeService, PrivilegeService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<IPrivilegeService, PrivilegeService>();
+        services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
         // Users
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IUserCodeService, UserCodeService>();
-        services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+        services.AddSingleton<IUserRepository, UserRepository>();
+        services.AddSingleton<IUserService, UserService>();
+        services.AddSingleton<IUserCodeService, UserCodeService>();
+        services.AddSingleton<IPasswordResetTokenService, PasswordResetTokenService>();
 
         // Recordings
-        services.AddScoped<IRecordingRegistryPort, RecordingRepository>();
-        services.AddScoped<IRecordingStoragePort, RecordingStorageRepository>();
+        services.AddSingleton<IRecordingRegistryPort, RecordingRepository>();
+        services.AddSingleton<IRecordingStoragePort, RecordingStorageRepository>();
 
         services.AddSingleton(TimeProvider.System);
 

@@ -42,11 +42,11 @@ public class OrderAdapter(
     public Task<Result<IReadOnlyCollection<OrderLineEntity>>> CreateOrderLinesAsync(
         IReadOnlyCollection<OrderLineEntity> orderLines, CancellationToken cancellationToken)
     {
-       return Maybe.From(orderLines)
-            .ToResult(CommerceErrors.InvalidOrderLines)
-            .BindTry(validLines => orderLineRepository.SaveOrderLinesAsync(validLines, cancellationToken),
-                HandleOrderLineException)
-            .Map(_ => orderLines);
+        return Maybe.From(orderLines)
+             .ToResult(CommerceErrors.InvalidOrderLines)
+             .BindTry(validLines => orderLineRepository.SaveOrderLinesAsync(validLines, cancellationToken),
+                 HandleOrderLineException)
+             .Map(_ => orderLines);
     }
 
 
@@ -74,5 +74,5 @@ public class OrderAdapter(
         logger.LogError(ex, "An error occured while operating with the order lines");
         return CommerceErrors.FailedToOperateWithOrderLines;
     }
-    
+
 }

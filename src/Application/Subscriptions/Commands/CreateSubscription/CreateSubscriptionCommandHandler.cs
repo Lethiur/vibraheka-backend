@@ -86,5 +86,7 @@ public class CreateSubscriptionCommandHandler(
             CreatedBy = currentUserService.UserId!,
             LastModifiedBy = currentUserService.UserId!,
         };
+
+        throw new NotImplementedException();
     }
 }

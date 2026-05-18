@@ -3,6 +3,7 @@ using Infrastructure.Rest.Client.Stripe.Client;
 using Infrastructure.Rest.Client.Stripe.Mappers;
 using Infrastructure.Rest.Client.Stripe.Models;
 using VibraHeka.Domain.Commerce.Entities;
+using VibraHeka.Domain.Commerce.Models;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Payments.Entities;
 using VibraHeka.Domain.Payments.Ports.Out;

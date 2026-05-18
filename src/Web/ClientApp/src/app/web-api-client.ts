@@ -620,6 +620,90 @@ export class AuthClient implements IAuthClient {
     }
 }
 
+export interface ICatalogClient {
+    catalog_CreateProduct(request: CreateProductRequest): Observable<ResponseEntity>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class CatalogClient implements ICatalogClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    catalog_CreateProduct(request: CreateProductRequest): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCatalog_CreateProduct(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCatalog_CreateProduct(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processCatalog_CreateProduct(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ResponseEntity.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IEmailTemplateClient {
     emailTemplate_GetTemplates(): Observable<FileResponse>;
     emailTemplate_CreateNewEmailTemplate(templateName: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
@@ -2425,46 +2509,6 @@ export interface IChangeAuthenticatedPasswordCommand {
     newPasswordConfirmation?: string;
 }
 
-export class EditTemplateNameRequest implements IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
-
-    constructor(data?: IEditTemplateNameRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.templateID = _data["templateID"];
-            this.newTemplateName = _data["newTemplateName"];
-        }
-    }
-
-    static fromJS(data: any): EditTemplateNameRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new EditTemplateNameRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["templateID"] = this.templateID;
-        data["newTemplateName"] = this.newTemplateName;
-        return data;
-    }
-}
-
-export interface IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
-}
-
 export class ResponseEntity implements IResponseEntity {
     success?: boolean;
     errorCode?: string | undefined;
@@ -2507,6 +2551,289 @@ export interface IResponseEntity {
     success?: boolean;
     errorCode?: string | undefined;
     content?: any | undefined;
+}
+
+export class CreateProductRequest implements ICreateProductRequest {
+    name?: string;
+    description?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+
+    constructor(data?: ICreateProductRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.currencyCode = _data["currencyCode"];
+        }
+    }
+
+    static fromJS(data: any): CreateProductRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProductRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["currencyCode"] = this.currencyCode;
+        return data;
+    }
+}
+
+export interface ICreateProductRequest {
+    name?: string;
+    description?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+}
+
+/** Currency codes as stated by the ISO 4217 standard */
+export enum CurrencyIsoCode {
+    ALL = 8,
+    DZD = 12,
+    ARS = 32,
+    AUD = 36,
+    BSD = 44,
+    BHD = 48,
+    BDT = 50,
+    AMD = 51,
+    BBD = 52,
+    BMD = 60,
+    BTN = 64,
+    BOB = 68,
+    BWP = 72,
+    BZD = 84,
+    SBD = 90,
+    BND = 96,
+    MMK = 104,
+    BIF = 108,
+    KHR = 116,
+    CAD = 124,
+    CVE = 132,
+    KYD = 136,
+    LKR = 144,
+    CLP = 152,
+    CNY = 156,
+    COP = 170,
+    KMF = 174,
+    CRC = 188,
+    HRK = 191,
+    CUP = 192,
+    CZK = 203,
+    DKK = 208,
+    DOP = 214,
+    SVC = 222,
+    ETB = 230,
+    ERN = 232,
+    EEK = 233,
+    FKP = 238,
+    FJD = 242,
+    DJF = 262,
+    GMD = 270,
+    GIP = 292,
+    GTQ = 320,
+    GNF = 324,
+    GYD = 328,
+    HTG = 332,
+    HNL = 340,
+    HKD = 344,
+    HUF = 348,
+    ISK = 352,
+    INR = 356,
+    IDR = 360,
+    IRR = 364,
+    IQD = 368,
+    ILS = 376,
+    JMD = 388,
+    JPY = 392,
+    KZT = 398,
+    JOD = 400,
+    KES = 404,
+    KPW = 408,
+    KRW = 410,
+    KWD = 414,
+    KGS = 417,
+    LAK = 418,
+    LBP = 422,
+    LSL = 426,
+    LVL = 428,
+    LRD = 430,
+    LYD = 434,
+    LTL = 440,
+    MOP = 446,
+    MWK = 454,
+    MYR = 458,
+    MVR = 462,
+    MRO = 478,
+    MUR = 480,
+    MXN = 484,
+    MNT = 496,
+    MDL = 498,
+    MAD = 504,
+    OMR = 512,
+    NAD = 516,
+    NPR = 524,
+    ANG = 532,
+    AWG = 533,
+    VUV = 548,
+    NZD = 554,
+    NIO = 558,
+    NGN = 566,
+    NOK = 578,
+    PKR = 586,
+    PAB = 590,
+    PGK = 598,
+    PYG = 600,
+    PEN = 604,
+    PHP = 608,
+    QAR = 634,
+    RUB = 643,
+    RWF = 646,
+    SHP = 654,
+    STD = 678,
+    SAR = 682,
+    SCR = 690,
+    SLL = 694,
+    SGD = 702,
+    VND = 704,
+    SOS = 706,
+    ZAR = 710,
+    SSP = 728,
+    SZL = 748,
+    SEK = 752,
+    CHF = 756,
+    SYP = 760,
+    THB = 764,
+    TOP = 776,
+    TTD = 780,
+    AED = 784,
+    TND = 788,
+    UGX = 800,
+    MKD = 807,
+    EGP = 818,
+    GBP = 826,
+    TZS = 834,
+    USD = 840,
+    UYU = 858,
+    UZS = 860,
+    WST = 882,
+    YER = 886,
+    ZMK = 894,
+    TWD = 901,
+    ZWG = 924,
+    SLE = 925,
+    VED = 926,
+    UYW = 927,
+    VES = 928,
+    MRU = 929,
+    STN = 930,
+    CUC = 931,
+    ZWL = 932,
+    BYN = 933,
+    TMT = 934,
+    GHS = 936,
+    VEF = 937,
+    SDG = 938,
+    UYI = 940,
+    RSD = 941,
+    MZN = 943,
+    AZN = 944,
+    RON = 946,
+    CHE = 947,
+    CHW = 948,
+    TRY = 949,
+    XAF = 950,
+    XCD = 951,
+    XOF = 952,
+    XPF = 953,
+    XBA = 955,
+    XBB = 956,
+    XBC = 957,
+    XBD = 958,
+    XAU = 959,
+    XDR = 960,
+    XAG = 961,
+    XPT = 962,
+    XTS = 963,
+    XPD = 964,
+    XUA = 965,
+    ZMW = 967,
+    SRD = 968,
+    MGA = 969,
+    COU = 970,
+    AFN = 971,
+    TJS = 972,
+    AOA = 973,
+    BYR = 974,
+    BGN = 975,
+    CDF = 976,
+    BAM = 977,
+    EUR = 978,
+    MXV = 979,
+    UAH = 980,
+    GEL = 981,
+    BOV = 984,
+    PLN = 985,
+    BRL = 986,
+    CLF = 990,
+    XSU = 994,
+    USN = 997,
+    USS = 998,
+    XXX = 999,
+}
+
+export class EditTemplateNameRequest implements IEditTemplateNameRequest {
+    templateID?: string;
+    newTemplateName?: string;
+
+    constructor(data?: IEditTemplateNameRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.templateID = _data["templateID"];
+            this.newTemplateName = _data["newTemplateName"];
+        }
+    }
+
+    static fromJS(data: any): EditTemplateNameRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditTemplateNameRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["templateID"] = this.templateID;
+        data["newTemplateName"] = this.newTemplateName;
+        return data;
+    }
+}
+
+export interface IEditTemplateNameRequest {
+    templateID?: string;
+    newTemplateName?: string;
 }
 
 export class UploadRecordingRequest implements IUploadRecordingRequest {

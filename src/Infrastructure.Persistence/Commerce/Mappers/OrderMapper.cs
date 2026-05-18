@@ -9,7 +9,7 @@ public partial class OrderMapper
 {
     [MapperIgnoreSource(nameof(OrderEntity.Lines))]
     public partial OrderDBModel FromDomain(OrderEntity entity);
-    
+
     [MapperIgnoreTarget(nameof(OrderEntity.Lines))]
     public partial OrderEntity ToDomain(OrderDBModel entity);
 }

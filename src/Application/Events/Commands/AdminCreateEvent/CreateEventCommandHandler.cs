@@ -4,7 +4,6 @@ using VibraHeka.Domain.Common;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Events.Entities;
 using VibraHeka.Domain.Events.Ports.Out;
-using VibraHeka.Domain.Products.Ports.Out;
 
 namespace VibraHeka.Application.Events.Commands.AdminCreateEvent;
 
@@ -17,9 +16,9 @@ public class CreateEventCommandHandler(
     public Task<Result<EventDto>> Handle(CreateEventCommand request, CancellationToken cancellationToken)
     {
         // Building Event
-       // EventEntity.
-        
-        
+        // EventEntity.
+
+
         throw new NotImplementedException();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace VibraHeka.Domain.Events.Entities;
 
-public class UserEventRegistration  : BaseAuditableEntity
+public class UserEventRegistration : BaseAuditableEntity
 {
     public String RegistrantID { get; set; } = string.Empty;
     public String EventID { get; set; } = string.Empty;

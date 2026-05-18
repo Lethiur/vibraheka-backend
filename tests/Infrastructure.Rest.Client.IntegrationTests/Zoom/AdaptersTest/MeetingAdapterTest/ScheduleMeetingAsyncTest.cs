@@ -22,13 +22,13 @@ public sealed class ScheduleMeetingAsyncTest : GenericMeetingAdapterTest
             Name = "Test Meeting for DeleteMetingAsyncTest",
             EventPassword = "Test1234"
         }, CancellationToken.None);
-        
+
         // Then: result is success with valid meeting data mapped from the stub response
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsFailure ? result.Error : "N/A")}'");
         Assert.That(result.Value.JoinURL, Is.Not.Null.And.Not.Empty,
             "Expected a non-empty join URL from the stub response");
-        
+
         // And: Delete meeting  
         await Adapter.DeleteMetingAsync(result.Value.EventID, CancellationToken.None);
     }

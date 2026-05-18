@@ -1,6 +1,6 @@
 namespace VibraHeka.Domain.Catalog.Enums;
 
-public enum ProductType 
+public enum ProductType
 {
     DigitalRecording,
     Therapy,

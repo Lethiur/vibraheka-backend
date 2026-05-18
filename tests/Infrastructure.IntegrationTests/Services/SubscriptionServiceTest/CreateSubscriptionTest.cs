@@ -1,8 +1,7 @@
 using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionServiceTest;
 
@@ -76,7 +75,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         // Then: debe reutilizarse y resetearse a Created/Pending con datos de checkout nuevos.
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
-        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Pending));
+        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Draft));
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(checkoutSession.Url));
         Assert.That(result.Value.CheckoutSessionExpiresAt, Is.EqualTo(checkoutSession.ExpiresAt));
         Assert.That(result.Value.ExternalCustomerID, Is.EqualTo(user.CustomerID));
@@ -95,7 +94,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.Active,
-            Status = OrderStatus.OrderPayed,
+            Status = OrderStatus.Paid,
             CheckoutSessionUrl = "https://checkout.integration.previous.test",
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
@@ -121,7 +120,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceIntegrationTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.SubscriptionID, Is.EqualTo(existingSubscription.SubscriptionID));
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Active));
-        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.OrderPayed));
+        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Paid));
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo(existingSubscription.CheckoutSessionUrl));
     }
 }

@@ -9,7 +9,7 @@ public class EntitlementEntity : BaseAuditableEntity
     public string UserID { get; private set; } = string.Empty;
 
     public string ProductID { get; private set; } = string.Empty;
-    
+
     public EntitlementSourceType SourceType { get; private set; }
     public string SourceID { get; private set; } = string.Empty;
 

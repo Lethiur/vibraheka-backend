@@ -42,7 +42,7 @@ public class CustomerService(IUserRepository userRepository, IPaymentsPort payme
             logger.LogError("Failed to register user with ID {UserID} customer: {Error}", user.Id, error);
             return Result.Failure<UserEntity>(error);
         }
-        
+
         user.CustomerID = value;
 
         Result<Unit> updateCustomerIdAsync = await userRepository.UpdateCustomerIDAsync(user.Id, user.CustomerID, token);

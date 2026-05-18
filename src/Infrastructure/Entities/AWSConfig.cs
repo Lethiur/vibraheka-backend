@@ -120,10 +120,22 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string RecordingsTable { get; set; } = string.Empty;
-    
+
     [Required]
     public string OrdersTable { get; set; } = string.Empty;
 
     [Required]
     public string OrderLineTable { get; set; } = string.Empty;
+
+    [Required]
+    public string ProductTable { get; set; } = string.Empty;
+
+    [Required]
+    public string SellableItemsTable { get; set; } = string.Empty;
+
+    [Required]
+    public string SellableItemPricesTable { get; set; } = string.Empty;
+
+    [Required]
+    public string SubscriptionPlansTable { get; set; } = string.Empty;
 }

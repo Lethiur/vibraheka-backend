@@ -23,7 +23,7 @@ public sealed class UnRegisterAttendeeAsyncTest : GenericMeetingAdapterTest
             Name = "Test Meeting for DeleteMetingAsyncTest",
             EventPassword = "Test1234"
         }, CancellationToken.None);
-        
+
         // And: Some model
         RegisterAttendeeModel model = new()
         {
@@ -46,7 +46,7 @@ public sealed class UnRegisterAttendeeAsyncTest : GenericMeetingAdapterTest
         // Then: result is success
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsFailure ? result.Error : "N/A")}'");
-        
+
         // And: Delete meeting  
         await Adapter.DeleteMetingAsync(scheduleMeetingAsync.Value.EventID, CancellationToken.None);
     }

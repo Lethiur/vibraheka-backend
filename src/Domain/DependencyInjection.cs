@@ -9,7 +9,7 @@ public static class DependencyInjection
 {
     public static void AddDomainServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<CustomerService>();
-        builder.Services.AddScoped<SellableItemService>();
+        builder.Services.AddSingleton<CustomerService>();
+        builder.Services.AddSingleton<SellableItemService>();
     }
 }

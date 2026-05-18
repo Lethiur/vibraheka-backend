@@ -1,9 +1,8 @@
 using CSharpFunctionalExtensions;
 using MediatR;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SubscriptionRepositoryTest;
@@ -23,7 +22,7 @@ public class DeleteSubscriptionForUserTest : GenericSubscriptionRepositoryIntegr
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.Created,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.Draft,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         };
@@ -50,7 +49,7 @@ public class DeleteSubscriptionForUserTest : GenericSubscriptionRepositoryIntegr
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.Created,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.Draft,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         };

@@ -12,7 +12,7 @@ public class OrderLineDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]
     public string OrderLineID { get; set; } = string.Empty;
-    
+
     [DynamoDBGlobalSecondaryIndexHashKey]
     public string OrderId { get; set; } = string.Empty;
 
@@ -21,16 +21,16 @@ public class OrderLineDBModel : BaseAuditableDBModel
 
     [DynamoDBProperty]
     public string SellableItemID { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string SellablePriceID { get; set; } = string.Empty;
 
     [DynamoDBProperty]
     public string NameSnapshot { get; set; } = string.Empty;
-    
+
     [DynamoDBProperty]
     public string PaymentGatewayPriceIDSnapshot { get; set; } = string.Empty!;
-    
+
     [DynamoDBProperty]
     public string PaymentGatewayProductIDSnapshot { get; set; } = string.Empty;
 
@@ -39,13 +39,13 @@ public class OrderLineDBModel : BaseAuditableDBModel
 
     [DynamoDBProperty(typeof(MoneyConverter))]
     public Money UnitPrice { get; set; }
-    
+
     [DynamoDBProperty(typeof(MoneyConverter))]
     public Money Subtotal { get; set; }
-    
+
     [DynamoDBProperty(typeof(MoneyConverter))]
     public Money DiscountAmount { get; set; }
-    
+
     [DynamoDBProperty(typeof(MoneyConverter))]
     public Money TaxAmount { get; set; }
 

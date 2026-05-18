@@ -10,7 +10,7 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Services.PrivilegeServiceTes
 public abstract class GenericPrivilegeServiceTest : TestBase
 {
     protected IPrivilegeService PrivilegeService;
-    
+
     protected ILogger<IPrivilegeService> _logger;
 
     protected IUserRepository _userRepository;

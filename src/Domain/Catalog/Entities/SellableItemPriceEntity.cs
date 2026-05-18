@@ -5,22 +5,20 @@ namespace VibraHeka.Domain.Catalog.Entities;
 
 public class SellableItemPriceEntity : BaseAuditableEntity
 {
-    public string SellableItemPriceID { get; private set; } = string.Empty;
+    public string SellableItemPriceID { get; set; } = string.Empty;
 
-    public string SellableItemID { get; private set; } = string.Empty;
+    public string SellableItemID { get; set; } = string.Empty;
 
-    public Money Amount { get; private set; }
+    public Money Amount { get; set; }
 
-    public PriceKind Kind { get; private set; }
+    public PriceKind Kind { get; set; }
     // OneTime o Recurring
 
-    public BillingInterval? BillingInterval { get; private set; }
+    public BillingInterval? BillingInterval { get; set; }
     // Month, Year. Solo para suscripciones.
 
-    public string ExternalProductID { get; private set; } = string.Empty;
-    public string ExternalPriceID { get; private set; } = string.Empty;
+    public string ExternalProductID { get; set; } = string.Empty;
+    public string ExternalPriceID { get; set; } = string.Empty;
 
     public bool IsActive { get; private set; }
-
-    public DateTimeOffset CreatedAt { get; private set; }
 }

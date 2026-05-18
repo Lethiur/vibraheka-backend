@@ -15,6 +15,11 @@
       <PackageReference Include="AWSSDK.DynamoDBv2" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
       <PackageReference Include="NMoneys" />
+      <PackageReference Include="Riok.Mapperly" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Catalog\Repositories\" />
     </ItemGroup>
 
 </Project>

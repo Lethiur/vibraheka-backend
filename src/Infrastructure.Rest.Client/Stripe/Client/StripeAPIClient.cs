@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Infrastructure.Rest.Client.Stripe.Enums;
 using Infrastructure.Rest.Client.Stripe.Errors;
 using Infrastructure.Rest.Client.Stripe.Models;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,70 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         }
     }
 
-    public Task<Result<CheckoutResult>> CheckoutSubscriptionAsync(StartSubscriptionOrderRequest orderRequest, CancellationToken token)
+    public async Task<Result<CreateProductAndPriceResponse>> CreateProductAndPriceAsync(
+        CreateProductAndPriceRequest request,
+        CancellationToken token)
+    {
+        try
+        {
+            ProductService productService = new();
+            PriceService priceService = new();
+            ProductCreateOptions productCreateOptions = new ProductCreateOptions()
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Metadata = request.Metadata
+            };
+
+            Product product = await productService.CreateAsync(productCreateOptions, cancellationToken: token);
+
+            PriceCreateOptions priceCreateOptions = new PriceCreateOptions()
+            {
+                Currency = request.Currency,
+                Metadata = request.Metadata,
+                Active = true,
+                UnitAmount = request.PriceInCents,
+                Product = product.Id
+            };
+
+            if (request.PaymentRecurringOptions != null)
+            {
+                priceCreateOptions.Recurring = new PriceRecurringOptions()
+                {
+                    Interval = request.PaymentRecurringOptions switch
+                    {
+                        PaymentRecurringOptions.Monthly => "month",
+                        PaymentRecurringOptions.Yearly => "year",
+                        _ => throw new ArgumentOutOfRangeException()
+                    }
+                };
+            }
+
+
+            Price price = await priceService.CreateAsync(priceCreateOptions, cancellationToken: token);
+
+            return new CreateProductAndPriceResponse() { ProductID = product.Id, PriceID = price.Id };
+        }
+        catch (StripeException stripeEx)
+        {
+            logger.LogError(stripeEx, "Stripe error while creating product and price");
+            return Result.Failure<CreateProductAndPriceResponse>(StripeErrors.FailedToCreateProductAndPrice);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error while creating product and price");
+            return Result.Failure<CreateProductAndPriceResponse>(StripeErrors.FailedToCreateProductAndPrice);
+        }
+    }
+
+    /// <summary>
+    /// Initiates a Stripe Checkout session for a subscription order and returns the result containing the session's details.
+    /// </summary>
+    /// <param name="orderRequest">The subscription order details, including customer information, trial period settings, payment method collection preferences, and behavior when no payment method is provided.</param>
+    /// <param name="token">A token that allows the operation to be canceled.</param>
+    /// <returns>A result object containing the details of the created Stripe Checkout session if the process is successful; otherwise, an error message.</returns>
+    public Task<Result<CheckoutResult>> CheckoutSubscriptionAsync(StartSubscriptionOrderRequest orderRequest,
+        CancellationToken token)
     {
         SessionCreateOptions options = CreateCheckoutSubscriptionOptions(orderRequest);
         return PerformCheckoutAsync(options, token);
@@ -69,7 +133,8 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     /// <param name="options"></param>
     /// <param name="token"></param>
     /// <returns></returns>
-    private async Task<Result<CheckoutResult>> PerformCheckoutAsync(SessionCreateOptions options, CancellationToken token)
+    private async Task<Result<CheckoutResult>> PerformCheckoutAsync(SessionCreateOptions options,
+        CancellationToken token)
     {
         try
         {

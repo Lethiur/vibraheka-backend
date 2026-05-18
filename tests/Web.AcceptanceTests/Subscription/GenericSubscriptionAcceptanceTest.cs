@@ -1,11 +1,10 @@
 using System.Net.Http.Headers;
 using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
 

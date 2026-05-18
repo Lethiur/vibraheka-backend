@@ -1,6 +1,7 @@
 namespace VibraHeka.Domain.Catalog.Enums;
 
-public enum BillingInterval { 
+public enum BillingInterval
+{
     Monthly,
     Yearly
-} 
+}
