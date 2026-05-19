@@ -1,4 +1,5 @@
 using NMoneys;
+using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Payments.Enums;
 
 namespace VibraHeka.Domain.Payments.Entities;
@@ -14,14 +15,28 @@ public class PaymentAttemptEntity : BaseAuditableEntity
     public PaymentsStatus Status { get; set; }
 
     public Money Amount { get; set; }
-
+    
     public string PaymentGatewayCheckoutSessionID { get; set; } = string.Empty;
     public string PaymentGatewayCheckoutURL { get; set; } = string.Empty;
     public string PaymentGatewayIntentID { get; set; } = string.Empty;
     public string PaymentGatewayInvoiceID { get; set; } = string.Empty;
     public string PaymentGatewaySubscriptionID { get; set; } = string.Empty;
-
+    
     public bool IsExpired { get; private set; }
     public DateTimeOffset SucceededAt { get; private set; }
-    public DateTimeOffset ExpiresAt { get; private set; } = DateTimeOffset.UtcNow.AddHours(23);
+    public DateTimeOffset ExpiresAt { get; set; } = DateTimeOffset.UtcNow.AddHours(23);
+
+
+    public void LinkOrder(OrderEntity orderEntity)
+    {
+        Amount = orderEntity.Total;
+        OrderId = orderEntity.OrderID;
+        Status = PaymentsStatus.Pending;
+        UserId = orderEntity.UserId;
+        Created = DateTimeOffset.UtcNow;
+        LastModified = DateTimeOffset.UtcNow;
+        CreatedBy = orderEntity.UserId;
+        LastModifiedBy = orderEntity.UserId;
+        PaymentAttemptID = Guid.NewGuid().ToString();
+    }
 }

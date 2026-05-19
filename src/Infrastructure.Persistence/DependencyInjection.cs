@@ -5,10 +5,14 @@ using Infrastructure.Persistence.Commerce.Adapters;
 using Infrastructure.Persistence.Commerce.Mappers;
 using Infrastructure.Persistence.Commerce.Repositories;
 using Infrastructure.Persistence.Events.Adapters;
+using Infrastructure.Persistence.Payments.Adapters;
+using Infrastructure.Persistence.Payments.Mappers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Catalog.Ports.Out;
+using VibraHeka.Application.Commerce.Ports.Out;
+using VibraHeka.Application.Payments.Ports.Out;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
@@ -28,6 +32,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<OrderMapper>();
         services.AddSingleton<OrderLineMapper>();
+        services.AddSingleton<PaymentAttemptMapper>();
         services.AddSingleton<ProductEntityMapper>();
         services.AddSingleton<SellableItemEntityMapper>();
         services.AddSingleton<SellableItemPriceEntityMapper>();
@@ -46,6 +51,9 @@ public static class DependencyInjection
         services.AddSingleton<ISubscriptionPlanWritePort, SubscriptionPlanWriteAdapter>();
         services.AddSingleton<ISellableItemPort, SellableItemAdapter>();
         services.AddSingleton<ISellableItemPricePort, SellableItemPriceAdapter>();
+        services.AddSingleton<IOrderWritePort, OrderWriteAdapter>();
+        services.AddSingleton<IOrderLineWritePort, OrderLineWriteAdapter>();
+        services.AddSingleton<IPaymentAttemptWritePort, PaymentAttemptWriteAdapter>();
     }
 
     private static void AttachRepositories(this IServiceCollection services)

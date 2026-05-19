@@ -7,6 +7,11 @@ namespace Infrastructure.Persistence.Catalog.Adapters;
 
 public class SellableItemAdapter(SellableItemRepository repository) : ISellableItemPort
 {
+    public Task<Result<SellableItemEntity>> GetSellableItemByIdAsync(string sellableItemId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Result<SellableItemEntity>> GetSellableItemByReferenceAsync(
         string referenceID, CancellationToken cancellationToken)
     {

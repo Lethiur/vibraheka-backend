@@ -19,6 +19,10 @@ module "Catalog" {
   source                      = "./Catalog"
 }
 
+module "Payments" {
+  source                      = "./Payments"
+}
+
 module "Dev" {
   source = "./Dev"
 }

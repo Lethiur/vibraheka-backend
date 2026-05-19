@@ -19,4 +19,14 @@ public class OrderEntity : BaseAuditableEntity
     public DateTimeOffset PaidAt { get; set; }
 
     public List<OrderLineEntity> Lines { get; set; } = [];
+    
+    
+    public void AddLine(OrderLineEntity orderLineEntity)
+    {
+        Total += orderLineEntity.Total;
+        Subtotal += orderLineEntity.Subtotal;
+        TaxTotal += orderLineEntity.TaxAmount;
+        DiscountTotal += orderLineEntity.DiscountAmount;
+        Lines.Add(orderLineEntity);
+    }
 }

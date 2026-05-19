@@ -117,3 +117,7 @@ output "dynamodb_catalog_sellable_item_table_name" {
 output "dynamodb_catalog_sellable_item_price_table_name" {
   value = module.Catalog.DynamoDB_SellableItemPrice_TableName
 }
+
+output "dynamodb_payment_attempts_table_name" {
+  value = module.Payments.DynamoDB_Catalog_Product_TableName
+}

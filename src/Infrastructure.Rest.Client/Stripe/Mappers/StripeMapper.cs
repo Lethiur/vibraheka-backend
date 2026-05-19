@@ -1,6 +1,5 @@
 ﻿using Infrastructure.Rest.Client.Stripe.Models;
 using Riok.Mapperly.Abstractions;
-using VibraHeka.Domain.Commerce.Models;
 using VibraHeka.Domain.Entities;
 
 namespace Infrastructure.Rest.Client.Stripe.Mappers;
@@ -19,15 +18,5 @@ public partial class StripeMapper
     [MapperIgnoreSource(nameof(UserEntity.LastModified))]
     [MapperIgnoreSource(nameof(UserEntity.LastModifiedBy))]
     public partial RegisterCustomerRequest FromUserEntityToRegisterCustomerRequest(UserEntity entity);
-
-    [MapProperty(nameof(model.Quantity), nameof(StartOrderRequest.OrderQuantity))]
-    [MapProperty(nameof(model.ProductPriceGatewayID), nameof(StartOrderRequest.PriceRef))]
-    [MapperIgnoreSource(nameof(CheckoutProductModel.ProductGatewayID))]
-    public partial StartOrderRequest FromDomainToStartOrderRequest(CheckoutProductModel model, List<string> PaymentMethodsAccepted);
-
-    [MapProperty(nameof(checkoutResult.Url), nameof(CheckoutSessionCompletedModel.CheckoutUrl))]
-    [MapProperty(nameof(checkoutResult.InternalPaymentID), nameof(CheckoutSessionCompletedModel.PaymentIntentID))]
-    [MapperIgnoreSource(nameof(CheckoutResult.ExpiresAt))]
-    [MapperIgnoreSource(nameof(CheckoutResult.PaymentSessionID))]
-    public partial CheckoutSessionCompletedModel FromCheckoutResultToCheckoutSessionCompletedModel(CheckoutResult checkoutResult);
+    
 }

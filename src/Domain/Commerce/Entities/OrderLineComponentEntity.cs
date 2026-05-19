@@ -5,13 +5,14 @@ namespace VibraHeka.Domain.Commerce.Entities;
 
 public class OrderLineComponentEntity : BaseAuditableEntity
 {
-    public Guid OrderLineComponentID { get; private set; }
+    public string OrderLineComponentID { get; private set; } = string.Empty;
 
-    public Guid OrderLineID { get; private set; }
+    public string OrderLineID { get; private set; } = string.Empty;
 
-    public Guid ProductID { get; private set; }
+    public string ReferenceID { get; private set; } = string.Empty;
 
-    public string ProductNameSnapshot { get; private set; } = default!;
+    public string ProductNameSnapshot { get; private set; } = string.Empty;
+    
     public ProductType ProductTypeSnapshot { get; private set; }
 
     public int Quantity { get; private set; }

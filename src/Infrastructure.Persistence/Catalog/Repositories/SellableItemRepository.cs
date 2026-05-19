@@ -27,4 +27,10 @@ public class SellableItemRepository(
                 : CatalogErrors.FailedToQuerySellableItem)
             .Map(mapper.ToDomain);
     }
+
+    public Task<Result<SellableItemEntity>> FindByIDAsync(string sellableItemID,
+        CancellationToken cancellationToken)
+    {
+        return FindByID(sellableItemID, cancellationToken).Map(mapper.ToDomain);
+    }
 }
