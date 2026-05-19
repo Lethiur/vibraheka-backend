@@ -1,0 +1,30 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Catalog.Mappers;
+using Infrastructure.Persistence.Catalog.Models;
+using Microsoft.Extensions.Logging;
+using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Errors;
+using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Infrastructure.Exceptions;
+using VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.Persistence.Catalog.Repositories;
+
+public class SellableItemRepository(
+    IAmazonDynamoDB client,
+    IDynamoDBContext context,
+    AWSConfig config,
+    SellableItemEntityMapper mapper,
+    ILogger<SellableItemRepository> logger)
+    : GenericDynamoRepository<SellableItemDBModel>(context, client, config.SellableItemsTable, logger)
+{
+    public async Task<Result<SellableItemEntity>> GetByReferenceIdAsync(string referenceId, CancellationToken ct)
+    {
+        return (await FindOneByIndex("ReferenceID-Index", referenceId, ct))
+            .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
+                ? CatalogErrors.SellableItemNotFound
+                : CatalogErrors.FailedToQuerySellableItem)
+            .Map(mapper.ToDomain);
+    }
+}

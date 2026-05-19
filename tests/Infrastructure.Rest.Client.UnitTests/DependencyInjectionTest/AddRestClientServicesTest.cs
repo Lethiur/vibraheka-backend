@@ -21,7 +21,7 @@ public sealed class AddRestClientServicesTest : GenericDependencyInjectionTest
         DependencyInjection.AddRestClientServices(BuilderMock.Object, config);
 
         // Then: ZoomAuthService is registered as scoped
-        bool isRegistered = IsRegisteredWithLifetime(typeof(ZoomAuthService), ServiceLifetime.Scoped);
+        bool isRegistered = IsRegisteredWithLifetime(typeof(ZoomAuthService), ServiceLifetime.Singleton);
         Assert.That(isRegistered, Is.True,
             "Expected ZoomAuthService to be registered as Scoped in the service collection");
         BuilderMock.VerifyGet(b => b.Services, Moq.Times.AtLeastOnce(),
@@ -40,7 +40,7 @@ public sealed class AddRestClientServicesTest : GenericDependencyInjectionTest
         DependencyInjection.AddRestClientServices(BuilderMock.Object, config);
 
         // Then: ZoomMeetingMapper is registered as singleton
-        bool isRegistered = IsRegisteredWithLifetime(typeof(ZoomMeetingMapper), ServiceLifetime.Scoped);
+        bool isRegistered = IsRegisteredWithLifetime(typeof(ZoomMeetingMapper), ServiceLifetime.Singleton);
         Assert.That(isRegistered, Is.True,
             "Expected ZoomMeetingMapper to be registered as Scoped in the service collection");
         BuilderMock.VerifyGet(b => b.Services, Moq.Times.AtLeastOnce(),

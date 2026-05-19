@@ -29,7 +29,7 @@ public class CreateClientTest : TestBase
     {
         _context?.Dispose();
     }
-    
+
 
     [Test]
     [DisplayName("Should throw DataException when AWS profile is missing in configuration")]

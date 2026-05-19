@@ -9,8 +9,9 @@ using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VibraHeka.Application.Catalog.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
-using VibraHeka.Domain.Orders.Ports.Out;
+using VibraHeka.Domain.Payments.Ports.Out;
 
 namespace Infrastructure.Rest.Client;
 
@@ -22,6 +23,7 @@ public static class DependencyInjection
     {
         builder.Services.AttachConfiguration(config);
         builder.Services.AttachMappers();
+        builder.Services.AttachAdapters();
         builder.Services.AttachZoomServices();
         builder.Services.AttachStripeServices();
     }
@@ -32,25 +34,29 @@ public static class DependencyInjection
         services.AddOptions<ZoomConfig>().Bind(configuration.GetSection(ZoomConfigKey))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+    }
+
+    private static void AttachAdapters(this IServiceCollection services)
+    {
+        services.AddSingleton<IProductCreationWritePort, CatalogAdapter>();
+        services.AddSingleton<IEventMeetingPort, MeetingAdapter>();
+        services.AddSingleton<IPaymentsPort, PaymentsAdapter>();
     }
 
     private static void AttachMappers(this IServiceCollection services)
     {
-        services.AddScoped<ZoomMeetingMapper>();
-        services.AddScoped<StripeMapper>();
+        services.AddSingleton<ZoomMeetingMapper>();
+        services.AddSingleton<StripeMapper>();
     }
 
     private static void AttachZoomServices(this IServiceCollection services)
     {
         services.AddHttpClient<ZoomApiClient>();
-        services.AddScoped<StripeAPIClient>();
-        services.AddScoped<ZoomAuthService>();
-        services.AddScoped<IEventMeetingPort, MeetingAdapter>();
+        services.AddSingleton<ZoomAuthService>();
     }
-    
+
     private static void AttachStripeServices(this IServiceCollection services)
     {
-        services.AddScoped<IPaymentsPort, PaymentsAdapter>();
+        services.AddSingleton<StripeAPIClient>();
     }
 }

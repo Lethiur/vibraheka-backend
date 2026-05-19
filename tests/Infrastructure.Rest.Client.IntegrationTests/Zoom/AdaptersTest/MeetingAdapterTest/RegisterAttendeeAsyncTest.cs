@@ -22,7 +22,7 @@ public sealed class RegisterAttendeeAsyncTest : GenericMeetingAdapterTest
             Name = "Test Meeting for DeleteMetingAsyncTest",
             EventPassword = "Test1234"
         }, CancellationToken.None);
-        
+
         // And: Some model
         RegisterAttendeeModel model = new()
         {
@@ -40,7 +40,7 @@ public sealed class RegisterAttendeeAsyncTest : GenericMeetingAdapterTest
             $"Expected success but got failure with error: '{(result.IsFailure ? result.Error : "N/A")}'");
         Assert.That(result.Value.JoinURL, Is.Not.Null.And.Not.Empty,
             "Expected a non-empty join URL from the stub response");
-        
+
         // And: Delete meeting  
         await Adapter.DeleteMetingAsync(scheduleMeetingAsync.Value.EventID, CancellationToken.None);
     }

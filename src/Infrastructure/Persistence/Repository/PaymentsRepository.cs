@@ -69,7 +69,7 @@ public class PaymentsRepository(
                 PaymentMethodCollection = "always",
                 ExpiresAt = expirationDate,
             };
-            
+
             SessionService sessionService = new();
             Session? session = await sessionService.CreateAsync(options, cancellationToken: cancellationToken);
 

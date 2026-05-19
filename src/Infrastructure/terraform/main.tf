@@ -15,6 +15,10 @@ module "Users" {
   prod_deployment                   = var.prod_deployment
 }
 
+module "Catalog" {
+  source                      = "./Catalog"
+}
+
 module "Dev" {
   source = "./Dev"
 }

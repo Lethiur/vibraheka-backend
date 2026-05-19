@@ -1,10 +1,9 @@
 using CSharpFunctionalExtensions;
 using MediatR;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionServiceTest;
 
@@ -24,7 +23,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.Draft,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         });
@@ -52,7 +51,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.Active,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.Draft,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         });
@@ -78,7 +77,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
-            Status = OrderStatus.PaymentFailed,
+            Status = OrderStatus.Failed,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         });
@@ -104,7 +103,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
-            Status = OrderStatus.OrderDelayed,
+            Status = OrderStatus.Draft,
             StartDate = DateTimeOffset.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"

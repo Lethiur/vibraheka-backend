@@ -52,13 +52,14 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
                 return Result.Failure<ZoomAuthTokenResponse>(ZoomErrors.FailedToRetrieveToken);
             }
 
-            return tokenResponse;    
-        } catch (Exception e)
+            return tokenResponse;
+        }
+        catch (Exception e)
         {
             Logger.LogError(e, "Failed to deserialize Zoom auth token response: {Response}", responseBody);
             return Result.Failure<ZoomAuthTokenResponse>(ZoomErrors.FailedToRetrieveToken);
         }
-        
+
     }
 
     /// <summary>

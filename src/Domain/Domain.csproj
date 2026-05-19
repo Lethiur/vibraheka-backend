@@ -13,10 +13,12 @@
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="NMoneys" />
     <PackageReference Include="Riok.Mapperly" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Catalog\Ports\In\" />
     <Folder Include="Models\DTO\" />
     <Folder Include="Users\Entities\" />
   </ItemGroup>

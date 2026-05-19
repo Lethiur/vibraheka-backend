@@ -1,9 +1,8 @@
 using CSharpFunctionalExtensions;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.SubscriptionServiceTest;
 
@@ -22,7 +21,7 @@ public class GetSubscriptionForUserTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.Created,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.Draft,
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"
         }, CancellationToken.None);

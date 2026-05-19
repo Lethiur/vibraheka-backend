@@ -1,10 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using Moq;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 
 namespace VibraHeka.Infrastructure.UnitTests.Services.SubscriptionServiceTest;
 
@@ -39,7 +38,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(cancelled.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
-        Assert.That(cancelled.Status, Is.EqualTo(OrderStatus.Pending));
+        Assert.That(cancelled.Status, Is.EqualTo(OrderStatus.Draft));
         _subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(cancelled, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -70,7 +69,7 @@ public class CreateSubscriptionTest : GenericSubscriptionServiceTest
         Assert.That(result.Value.CheckoutSessionUrl, Is.EqualTo("https://checkout.test"));
         Assert.That(result.Value.CheckoutSessionExpiresAt, Is.EqualTo(checkoutSession.ExpiresAt));
         Assert.That(result.Value.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
-        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Pending));
+        Assert.That(result.Value.Status, Is.EqualTo(OrderStatus.Draft));
     }
 
     [Test]

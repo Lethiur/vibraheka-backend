@@ -1,12 +1,11 @@
 ﻿using System.Net;
 using CSharpFunctionalExtensions;
 using NUnit.Framework;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
@@ -52,7 +51,7 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         Assert.That(subscription.ExternalSubscriptionItemID, Is.EqualTo(stripeConfig.SubscriptionID));
         Assert.That(subscription.ExternalSubscriptionID, Is.Empty);
         Assert.That(subscription.CheckoutSessionUrl, Is.Not.Empty);
-        Assert.That(subscription.Status, Is.EqualTo(OrderStatus.Pending));
+        Assert.That(subscription.Status, Is.EqualTo(OrderStatus.Draft));
         Assert.That(subscription.SubscriptionStatus, Is.EqualTo(SubscriptionStatus.Created));
 
         Assert.That(userBeforeSubscription.CustomerID, Is.Empty);

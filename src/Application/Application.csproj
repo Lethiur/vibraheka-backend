@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="NMoneys" />
     <PackageReference Include="Riok.Mapperly" />
   </ItemGroup>
 
@@ -23,9 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Catalog\Commands\AdminActivateProduct\" />
+    <Folder Include="Catalog\Commands\AdminDeactivateProduct\" />
+    <Folder Include="Catalog\Queries\AdminGetPricesForProduct\" />
+    <Folder Include="Common\Abstractions\" />
     <Folder Include="Common\Extensions\Commands\" />
-    <Folder Include="Orders\Commands\" />
     <Folder Include="Recordings\Commnads\AdminAddRecording\" />
+    <Folder Include="Subscriptions\Ports\Out\" />
   </ItemGroup>
 
 </Project>

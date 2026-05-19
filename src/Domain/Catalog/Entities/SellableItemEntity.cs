@@ -1,0 +1,17 @@
+namespace VibraHeka.Domain.Catalog.Entities;
+
+public class SellableItemEntity : BaseAuditableEntity
+{
+    public string SellableItemID { get; set; } = string.Empty;
+
+    public SellableItemType Type { get; set; }
+
+    public string ReferenceID { get; set; } = string.Empty;
+    // ProductId, BundleId o SubscriptionPlanId
+
+    public string Name { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
+
+    public List<SellableItemPriceEntity> Prices { get; private set; } = [];
+}

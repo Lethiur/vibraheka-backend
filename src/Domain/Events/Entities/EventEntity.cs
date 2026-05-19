@@ -2,7 +2,7 @@
 
 namespace VibraHeka.Domain.Events.Entities;
 
-public class EventEntity  : BaseAuditableEntity
+public class EventEntity : BaseAuditableEntity
 {
     public String EventID { get; set; } = string.Empty;
     public String EventName { get; set; } = string.Empty;
@@ -13,5 +13,5 @@ public class EventEntity  : BaseAuditableEntity
     public String EventTimezone { get; set; } = string.Empty;
     public List<EventAttendee> Attendees { get; set; } = [];
     public EventStatus Status { get; set; } = EventStatus.MissingLink;
-    
+
 }

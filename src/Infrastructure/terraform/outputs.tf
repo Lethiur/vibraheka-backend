@@ -105,3 +105,15 @@ output "recordings_bucket_arn" {
 output "dynamodb_recordings_tier_idx" {
   value = module.Recordings.dynamodb_recordings_table_tier_idx
 }
+
+output "dynamodb_catalog_products_table_name" {
+  value = module.Catalog.DynamoDB_Catalog_Product_TableName
+}
+
+output "dynamodb_catalog_sellable_item_table_name" {
+  value = module.Catalog.DynamoDB_Catalog_SellableItem_TableName
+}
+
+output "dynamodb_catalog_sellable_item_price_table_name" {
+  value = module.Catalog.DynamoDB_SellableItemPrice_TableName
+}

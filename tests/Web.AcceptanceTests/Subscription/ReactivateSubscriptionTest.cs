@@ -1,10 +1,9 @@
 using System.Net;
 using NUnit.Framework;
+using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Orders.Enums;
-using VibraHeka.Domain.Orders.Ports.Out;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -48,7 +47,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     {
         // Given: an authenticated user with a subscription already active (first ensure branch).
         Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.Active, OrderStatus.Pending);
+        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.Active, OrderStatus.Draft);
         Assert.That(seedResult.IsSuccess, Is.True);
 
         // When: requesting reactivation.
@@ -67,7 +66,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
         // Given: an authenticated user with ToBeCancelled + PaymentFailed (second ensure branch).
         Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
         var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.ToBeCancelled,
-            OrderStatus.PaymentFailed);
+            OrderStatus.Failed);
         Assert.That(seedResult.IsSuccess, Is.True);
 
         // When: requesting reactivation.
@@ -105,7 +104,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
         // Given: a subscription that passes ensure checks but has fake external id that Stripe will reject.
         Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
         var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.ToBeCancelled,
-            OrderStatus.Pending);
+            OrderStatus.Draft);
         Assert.That(seedResult.IsSuccess, Is.True);
 
         // When: attempting to reactivate subscription.

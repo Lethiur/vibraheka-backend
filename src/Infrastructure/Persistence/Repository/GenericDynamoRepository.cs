@@ -86,7 +86,7 @@ public abstract class GenericDynamoRepository<T>(
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
             List<T>? models = await search.GetRemainingAsync(cancellationToken);
-            
+
             return Maybe.From(models)
                 .ToResult(GenericPersistenceErrors.NoRecordsFound)
                 .Ensure(modelsResult => modelsResult.Count > 0, GenericPersistenceErrors.NoRecordsFound);
@@ -138,6 +138,31 @@ public abstract class GenericDynamoRepository<T>(
     }
 
     /// <summary>
+    /// Saves a collection of entities of type T to the DynamoDB table.
+    /// </summary>
+    /// <param name="entities">The collection of entities to be saved.</param>
+    /// <param name="token">The cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>
+    /// A <see cref="Result{Unit}"/> indicating success if all entities are saved successfully,
+    /// or a failure result with an appropriate error message if an error occurs during the operation.
+    /// </returns>
+    protected async Task<Result<Unit>> SaveManyAsync(IReadOnlyCollection<T> entities, CancellationToken token = default)
+    {
+        try
+        {
+            BatchWriteConfig config = new() { OverrideTableName = tableConfigKey };
+            IBatchWrite<T> batchWrite = context.CreateBatchWrite<T>(config);
+            batchWrite.AddPutItems(entities);
+            await batchWrite.ExecuteAsync(token);
+            return Unit.Value;
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<Unit>(HandleError(e));
+        }
+    }
+
+    /// <summary>
     /// Deletes an entity of type T from the associated DynamoDB table.
     /// </summary>
     /// <param name="entity">The entity to be deleted from the DynamoDB table.</param>
@@ -180,14 +205,14 @@ public abstract class GenericDynamoRepository<T>(
         {
             TableName = tableConfigKey,
             Key = key,
-            
+
             UpdateExpression = update.Expression,
             ConditionExpression = condition?.Expression,
 
             ExpressionAttributeNames = update.AttributeNames,
             ExpressionAttributeValues = update.AttributeValues,
         };
-        
+
         if (condition != null)
         {
             foreach (var kv in condition.AttributeNames)

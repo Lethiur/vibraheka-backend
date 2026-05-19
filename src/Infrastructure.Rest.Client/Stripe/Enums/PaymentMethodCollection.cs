@@ -1,6 +1,7 @@
 namespace Infrastructure.Rest.Client.Stripe.Enums;
 
-public enum PaymentMethodCollection { 
+public enum PaymentMethodCollection
+{
     Always,
     IfRequired
- }
+}
