@@ -2081,6 +2081,104 @@ export class VerificationCodeClient implements IVerificationCodeClient {
     }
 }
 
+export interface IOrdersClient {
+    orders_CreateOrder(request: CreateOrderRequest): Observable<ResponseEntity>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class OrdersClient implements IOrdersClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    orders_CreateOrder(request: CreateOrderRequest): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/orders";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrders_CreateOrder(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrders_CreateOrder(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processOrders_CreateOrder(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ResponseEntity.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ResponseEntity.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 409) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ResponseEntity.fromJS(resultData409);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result409);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ResponseEntity.fromJS(resultData500);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export class UserDTO implements IUserDTO {
     id?: string;
     email?: string;
@@ -3108,6 +3206,102 @@ export class GetCodeQuery implements IGetCodeQuery {
 
 export interface IGetCodeQuery {
     userName?: string;
+}
+
+export class CreateOrderRequest implements ICreateOrderRequest {
+    orderLines?: CreateOrderLineRequest[];
+    promotionCode?: string;
+    idempotencyKey?: string;
+
+    constructor(data?: ICreateOrderRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["orderLines"])) {
+                this.orderLines = [] as any;
+                for (let item of _data["orderLines"])
+                    this.orderLines!.push(CreateOrderLineRequest.fromJS(item));
+            }
+            this.promotionCode = _data["promotionCode"];
+            this.idempotencyKey = _data["idempotencyKey"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrderRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrderRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.orderLines)) {
+            data["orderLines"] = [];
+            for (let item of this.orderLines)
+                data["orderLines"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["promotionCode"] = this.promotionCode;
+        data["idempotencyKey"] = this.idempotencyKey;
+        return data;
+    }
+}
+
+export interface ICreateOrderRequest {
+    orderLines?: CreateOrderLineRequest[];
+    promotionCode?: string;
+    idempotencyKey?: string;
+}
+
+export class CreateOrderLineRequest implements ICreateOrderLineRequest {
+    sellableItemID?: string;
+    sellableItemPriceID?: string;
+    quantity?: number;
+
+    constructor(data?: ICreateOrderLineRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sellableItemID = _data["sellableItemID"];
+            this.sellableItemPriceID = _data["sellableItemPriceID"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrderLineRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrderLineRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sellableItemID"] = this.sellableItemID;
+        data["sellableItemPriceID"] = this.sellableItemPriceID;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface ICreateOrderLineRequest {
+    sellableItemID?: string;
+    sellableItemPriceID?: string;
+    quantity?: number;
 }
 
 export interface FileParameter {

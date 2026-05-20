@@ -7,7 +7,6 @@ using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NMoneys;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Entities;
 

@@ -85,7 +85,9 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
     (if ($tf.dynamodb_catalog_sellable_item_price_table_name.value? != null) then .AWS.SellableItemPricesTable = $tf.dynamodb_catalog_sellable_item_price_table_name.value else . end) |
     (if ($tf.dynamodb_catalog_sellable_item_table_name.value? != null) then .AWS.SellableItemsTable = $tf.dynamodb_catalog_sellable_item_table_name.value else . end) |
-    (if ($tf.dynamodb_catalog_products_table_name.value? != null) then .AWS.ProductTable = $tf.dynamodb_catalog_products_table_name.value else . end)
+    (if ($tf.dynamodb_catalog_products_table_name.value? != null) then .AWS.ProductTable = $tf.dynamodb_catalog_products_table_name.value else . end) |
+    (if ($tf.dynamodb_commerce_orders_table_name.value? != null) then .AWS.OrdersTable = $tf.dynamodb_commerce_orders_table_name.value else . end) |
+    (if ($tf.dynamodb_commerce_order_lines_Table_name.value? != null) then .AWS.OrderLineTable = $tf.dynamodb_commerce_orders_table_name.value else . end) |
   
   ' "$appsettings_path" > "$tmp_file"
 

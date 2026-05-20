@@ -12,7 +12,7 @@ public class OrderLineComponentEntity : BaseAuditableEntity
     public string ReferenceID { get; private set; } = string.Empty;
 
     public string ProductNameSnapshot { get; private set; } = string.Empty;
-    
+
     public ProductType ProductTypeSnapshot { get; private set; }
 
     public int Quantity { get; private set; }

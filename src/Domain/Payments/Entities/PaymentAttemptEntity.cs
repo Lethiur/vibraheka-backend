@@ -15,13 +15,13 @@ public class PaymentAttemptEntity : BaseAuditableEntity
     public PaymentsStatus Status { get; set; }
 
     public Money Amount { get; set; }
-    
+
     public string PaymentGatewayCheckoutSessionID { get; set; } = string.Empty;
     public string PaymentGatewayCheckoutURL { get; set; } = string.Empty;
     public string PaymentGatewayIntentID { get; set; } = string.Empty;
     public string PaymentGatewayInvoiceID { get; set; } = string.Empty;
     public string PaymentGatewaySubscriptionID { get; set; } = string.Empty;
-    
+
     public bool IsExpired { get; private set; }
     public DateTimeOffset SucceededAt { get; private set; }
     public DateTimeOffset ExpiresAt { get; set; } = DateTimeOffset.UtcNow.AddHours(23);
@@ -32,11 +32,11 @@ public class PaymentAttemptEntity : BaseAuditableEntity
         Amount = orderEntity.Total;
         OrderId = orderEntity.OrderID;
         Status = PaymentsStatus.Pending;
-        UserId = orderEntity.UserId;
+        UserId = orderEntity.UserID;
         Created = DateTimeOffset.UtcNow;
         LastModified = DateTimeOffset.UtcNow;
-        CreatedBy = orderEntity.UserId;
-        LastModifiedBy = orderEntity.UserId;
+        CreatedBy = orderEntity.UserID;
+        LastModifiedBy = orderEntity.UserID;
         PaymentAttemptID = Guid.NewGuid().ToString();
     }
 }

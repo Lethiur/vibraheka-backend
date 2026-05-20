@@ -3,9 +3,7 @@ using System.Net;
 using System.Text;
 using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Stripe.Errors;
-using Infrastructure.Rest.Client.UnitTests.Helpers;
 using NMoneys;
-using NUnit.Framework;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 

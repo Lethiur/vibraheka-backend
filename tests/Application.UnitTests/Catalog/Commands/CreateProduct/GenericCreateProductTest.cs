@@ -1,4 +1,3 @@
-using CSharpFunctionalExtensions;
 using Moq;
 using NMoneys;
 using NUnit.Framework;

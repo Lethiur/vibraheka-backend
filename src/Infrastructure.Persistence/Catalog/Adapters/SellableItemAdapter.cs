@@ -9,7 +9,7 @@ public class SellableItemAdapter(SellableItemRepository repository) : ISellableI
 {
     public Task<Result<SellableItemEntity>> GetSellableItemByIdAsync(string sellableItemId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return repository.GetByReferenceIdAsync(sellableItemId, cancellationToken);
     }
 
     public Task<Result<SellableItemEntity>> GetSellableItemByReferenceAsync(

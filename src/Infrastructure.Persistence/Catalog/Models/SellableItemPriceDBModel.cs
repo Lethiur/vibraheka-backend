@@ -16,7 +16,7 @@ public class SellableItemPriceDBModel : BaseAuditableDBModel
     public NMoneys.Money Amount { get; set; }
     [DynamoDBProperty(typeof(EnumStringConverter<PriceKind>))]
     public PriceKind Kind { get; set; }
-    
+
     [DynamoDBProperty(typeof(EnumStringConverter<BillingInterval>))]
     public BillingInterval? BillingIntervalValue { get; set; }
     [DynamoDBProperty]

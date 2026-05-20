@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;

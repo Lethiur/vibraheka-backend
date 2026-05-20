@@ -22,7 +22,7 @@ public class OrderRepository(
     AWSConfig config,
     OrderMapper mapper,
     ILogger<OrderRepository> logger)
-    : GenericDynamoRepository<OrderDBModel>(context, client, config.OrderLineTable, logger)
+    : GenericDynamoRepository<OrderDBModel>(context, client, config.OrdersTable, logger)
 {
     /// <summary>
     /// Saves an order asynchronously to the underlying storage.

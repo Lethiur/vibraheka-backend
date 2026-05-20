@@ -1,10 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Domain.Recordings.Ports.Out;

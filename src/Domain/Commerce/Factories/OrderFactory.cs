@@ -20,7 +20,7 @@ public static class OrderFactory
         return new OrderEntity
         {
             OrderID = Guid.NewGuid().ToString(),
-            UserId = userId,
+            UserID = userId,
             Status = OrderStatus.Draft,
             Lines = [],
             Subtotal = Money.Zero(),

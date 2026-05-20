@@ -1,0 +1,56 @@
+using System.ComponentModel;
+using Amazon.DynamoDBv2.DataModel;
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Commerce.Models;
+using Moq;
+using VibraHeka.Application.Abstractions.Transactions;
+using VibraHeka.Domain.Commerce.Entities;
+
+namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderLineWriteAdapterTest;
+
+[TestFixture]
+[NUnit.Framework.Category("Unit")]
+public sealed class CreateOrderLineTest : GenericOrderLineWriteAdapterTest
+{
+    [Test]
+    [DisplayName("Should create transactional write with correct table, add the mapped model once, and return a non-null operation wrapper")]
+    public void ShouldCreateTransactionalWriteOperationWithCorrectTableAndMappedModel()
+    {
+        // Given: a valid OrderLineEntity with known OrderLineID and SellableItemID
+        OrderLineEntity orderLine = BuildDefaultOrderLineEntity();
+
+        // When: CreateOrderLine is called on the adapter
+        ITransactionalWriteOperation result = Adapter.CreateOrderLine(orderLine);
+
+        // Then: context.CreateTransactWrite is called once with the configured order-line table name
+        ContextMock.Verify(
+            x => x.CreateTransactWrite<OrderLineDBModel>(
+                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.OrderLineTable)),
+            Times.Once,
+            $"Expected CreateTransactWrite<OrderLineDBModel> called once with OverrideTableName='{Config.OrderLineTable}'");
+
+        // Then: AddSaveItem is called once with the model produced by the mapper
+        TransactWriteMock.Verify(
+            x => x.AddSaveItem(
+                It.Is<OrderLineDBModel>(m =>
+                    m.OrderLineID == orderLine.OrderLineID &&
+                    m.SellableItemID == orderLine.SellableItemID &&
+                    m.Quantity == orderLine.Quantity)),
+            Times.Once,
+            $"Expected AddSaveItem called once with OrderLineDBModel matching OrderLineID='{orderLine.OrderLineID}'");
+
+        // Then: the returned operation is a non-null DynamoTransactionalWriteOperation
+        Assert.That(result, Is.Not.Null,
+            "Expected a non-null ITransactionalWriteOperation");
+        Assert.That(result, Is.InstanceOf<DynamoTransactionalWriteOperation>(),
+            $"Expected DynamoTransactionalWriteOperation but got '{result.GetType().Name}'");
+
+        DynamoTransactionalWriteOperation dynamoOperation = (DynamoTransactionalWriteOperation)result;
+        Assert.That(dynamoOperation.Item, Is.SameAs(TransactWriteMock.Object),
+            "Expected the wrapped ITransactWrite item to be the mock returned by CreateTransactWrite");
+
+        ContextMock.VerifyNoOtherCalls();
+        TransactWriteMock.VerifyNoOtherCalls();
+    }
+}
+

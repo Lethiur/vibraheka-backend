@@ -8,5 +8,5 @@ public static class CommerceErrors
     public const string FailedToOperateWithOrderLines = "CO-004";
     public const string InvalidOrder = "CO-005";
     public const string InvalidOrderLines = "CO-006";
-    public const string OrderPlacementFailed = "CA-007";
+    public const string OrderPlacementFailed = "CO-007";
 }

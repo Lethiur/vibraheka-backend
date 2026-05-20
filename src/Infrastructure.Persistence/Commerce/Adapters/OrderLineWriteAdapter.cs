@@ -33,7 +33,7 @@ public class OrderLineWriteAdapter(OrderLineMapper Mapper, AWSConfig Config, IDy
         {
             OverrideTableName = Config.OrderLineTable
         });
-        
+
         transactWrite.AddSaveItem(model);
         return new DynamoTransactionalWriteOperation(transactWrite);
     }

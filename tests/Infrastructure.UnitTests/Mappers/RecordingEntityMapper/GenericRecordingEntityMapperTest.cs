@@ -1,5 +1,3 @@
-using NUnit.Framework;
-
 namespace VibraHeka.Infrastructure.UnitTests.Mappers.RecordingEntityMapper;
 
 public abstract class GenericRecordingEntityMapperTest

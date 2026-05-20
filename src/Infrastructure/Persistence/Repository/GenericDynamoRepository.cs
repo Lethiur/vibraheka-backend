@@ -1,7 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
-using Amazon.XRay.Recorder.Core;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -127,6 +126,7 @@ public abstract class GenericDynamoRepository<T>(
         SaveConfig saveConfig = new() { OverrideTableName = tableConfigKey };
         try
         {
+            logger.LogInformation("Saving entity of type {EntityType} on table {TableName}", typeof(T).Name, tableConfigKey);
             await context.SaveAsync(entity, saveConfig, token);
             logger.LogInformation("Successfully saved entity of type {EntityType}", typeof(T).Name);
             return Unit.Value;

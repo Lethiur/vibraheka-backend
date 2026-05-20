@@ -27,8 +27,8 @@ module "Dev" {
   source = "./Dev"
 }
 
-module "Orders" {
-  source = "./Orders"
+module "Commerce" {
+  source = "./Commerce"
 }
 
 module "Lambda" {

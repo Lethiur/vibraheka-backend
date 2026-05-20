@@ -6,7 +6,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Catalog.Commands.CreateProduct;
 using VibraHeka.Application.Catalog.Models;
-using VibraHeka.Application.Catalog.Ports.Out;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Errors;
 

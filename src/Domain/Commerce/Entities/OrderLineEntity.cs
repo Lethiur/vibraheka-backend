@@ -6,7 +6,7 @@ namespace VibraHeka.Domain.Commerce.Entities;
 public class OrderLineEntity : BaseAuditableEntity
 {
     public string OrderLineID { get; set; } = string.Empty;
-    public string OrderId { get; set; } = string.Empty;
+    public string OrderID { get; set; } = string.Empty;
 
     public SellableItemType Type { get; set; }
 

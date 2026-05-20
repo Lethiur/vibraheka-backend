@@ -21,7 +21,7 @@ public class PaymentsAdapter(StripeAPIClient StripeApiClient, StripeMapper strip
     public async Task<Result<PaymentAttemptEntity>> StartPaymentProcessAsync(CheckoutOrderModel checkoutModel,
         CancellationToken token)
     {
-        
+
         List<OrderLine> orderLines = checkoutModel.Order.Lines.Select(line => new OrderLine()
         {
             Quantity = line.Quantity,
@@ -57,8 +57,8 @@ public class PaymentsAdapter(StripeAPIClient StripeApiClient, StripeMapper strip
 
         PaymentAttemptEntity attempt = new PaymentAttemptEntity
         {
-            PaymentGatewayCheckoutURL = value.Url, 
-            ExpiresAt = value.ExpiresAt, 
+            PaymentGatewayCheckoutURL = value.Url,
+            ExpiresAt = value.ExpiresAt,
             PaymentGatewayIntentID = value.InternalPaymentID,
             PaymentGatewayCheckoutSessionID = value.InternalPaymentID,
             Provider = PaymentsProviders.Stripe

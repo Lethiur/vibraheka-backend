@@ -1,11 +1,8 @@
-﻿using System.Net;
-using Infrastructure.Rest.Client.IntegrationTests.Helpers;
-using Infrastructure.Rest.Client.Zoom;
+﻿using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Adapters;
 using Infrastructure.Rest.Client.Zoom.Mappers;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Options;
-using VibraHeka.Domain.Events.Models;
 
 namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
 

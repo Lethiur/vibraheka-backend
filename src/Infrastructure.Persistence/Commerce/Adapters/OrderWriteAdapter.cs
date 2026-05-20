@@ -32,7 +32,7 @@ public class OrderWriteAdapter(OrderMapper Mapper, AWSConfig Config, IDynamoDBCo
         {
             OverrideTableName = Config.OrdersTable
         });
-        
+
         transactWrite.AddSaveItem(model);
         return new DynamoTransactionalWriteOperation(transactWrite);
     }

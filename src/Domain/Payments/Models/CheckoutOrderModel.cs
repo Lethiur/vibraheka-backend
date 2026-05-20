@@ -8,6 +8,6 @@ public class CheckoutOrderModel
     public string CustomerID { get; set; } = string.Empty;
     public string SuccessCallbackUrl { get; set; } = string.Empty;
     public string CancelCallbackUrl { get; set; } = string.Empty;
-    
+
     public List<string> PaymentMethodsAccepted { get; set; } = [];
 }

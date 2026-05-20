@@ -18,5 +18,5 @@ public partial class StripeMapper
     [MapperIgnoreSource(nameof(UserEntity.LastModified))]
     [MapperIgnoreSource(nameof(UserEntity.LastModifiedBy))]
     public partial RegisterCustomerRequest FromUserEntityToRegisterCustomerRequest(UserEntity entity);
-    
+
 }

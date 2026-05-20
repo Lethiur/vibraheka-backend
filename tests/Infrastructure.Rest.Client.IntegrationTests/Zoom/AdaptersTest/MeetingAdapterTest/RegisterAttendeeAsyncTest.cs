@@ -1,7 +1,5 @@
 using System.ComponentModel;
-using System.Net;
 using CSharpFunctionalExtensions;
-using Infrastructure.Rest.Client.Zoom.Errors;
 using VibraHeka.Domain.Events.Models;
 
 namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;

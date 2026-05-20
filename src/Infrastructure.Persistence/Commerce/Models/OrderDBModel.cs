@@ -14,7 +14,7 @@ public class OrderDBModel : BaseAuditableDBModel
     [DynamoDBHashKey] public string OrderID { get; set; } = string.Empty;
 
     [DynamoDBGlobalSecondaryIndexHashKey("User-Index")]
-    public string UserId { get; set; } = string.Empty;
+    public string UserID { get; set; } = string.Empty;
 
     [DynamoDBProperty(typeof(EnumStringConverter<OrderStatus>))]
     public OrderStatus Status { get; set; }

@@ -13,8 +13,9 @@ public class OrderLineDBModel : BaseAuditableDBModel
     [DynamoDBHashKey]
     public string OrderLineID { get; set; } = string.Empty;
 
-    [DynamoDBGlobalSecondaryIndexHashKey]
-    public string OrderId { get; set; } = string.Empty;
+    [DynamoDBGlobalSecondaryIndexHashKey("OrderID-Index")]
+    [DynamoDBProperty]
+    public string OrderID { get; set; } = string.Empty;
 
     [DynamoDBProperty(typeof(EnumStringConverter<SellableItemType>))]
     public SellableItemType Type { get; set; }

@@ -6,7 +6,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnads.DeleteRecording;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
-using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace VibraHeka.Application.UnitTests.Recordings.Commands.DeleteRecording;
 

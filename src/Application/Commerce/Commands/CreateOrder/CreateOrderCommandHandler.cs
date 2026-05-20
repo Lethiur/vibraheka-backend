@@ -1,28 +1,23 @@
-using System.Runtime.InteropServices.ComTypes;
 using CSharpFunctionalExtensions;
-using NMoneys;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Commerce.Factories;
 using VibraHeka.Application.Commerce.Models;
 using VibraHeka.Application.Commerce.Ports.Out;
 using VibraHeka.Application.Payments.Models;
 using VibraHeka.Application.Payments.Ports.Out;
-using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Entities;
-using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Commerce.Errors;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
+using VibraHeka.Domain.Orders.Services;
 using VibraHeka.Domain.Payments.Entities;
-using VibraHeka.Domain.Payments.Enums;
 using VibraHeka.Domain.Payments.Ports.Out;
 
 namespace VibraHeka.Application.Commerce.Commands.CreateOrder;
 
 public class CreateOrderCommandHandler(
-    IUserRepository repository,
+    CustomerService customerService,
     IAtomicWriteStore transactionStore,
     ISellableItemPricePort sellableItemPricePort,
     ISellableItemPort sellableItemPort,
@@ -41,7 +36,7 @@ public class CreateOrderCommandHandler(
         }
 
         (bool _, bool userRetrievalFailure, UserEntity userEntity) =
-            await repository.GetByIdAsync(currentUserService.UserId!, cancellationToken);
+            await customerService.GetCustomerByUserIDAsync(currentUserService.UserId!, cancellationToken);
 
         if (userRetrievalFailure)
         {
@@ -59,7 +54,7 @@ public class CreateOrderCommandHandler(
             {
                 return Result.Failure<CreateOrderResponse>(CommerceErrors.FailedToOperateWithOrderLines);
             }
-
+            orderLineEntity.Quantity = orderLine.Quantity;
             orderEntity.AddLine(orderLineEntity);
         }
 
@@ -71,7 +66,7 @@ public class CreateOrderCommandHandler(
             CancelCallbackUrl = "https://vibraheka.com/profile/me",
             PaymentMethodsAccepted = ["card", "paypal", "klarna"]
         };
-        
+
         (bool _, bool paymentFailed, PaymentAttemptEntity? value) =
             await paymentsPort.StartPaymentProcessAsync(checkoutOrderModel, cancellationToken);
 
@@ -89,10 +84,11 @@ public class CreateOrderCommandHandler(
 
         return await transactionStore.CommitAsync(batch, cancellationToken).Map(_ => new CreateOrderResponse()
         {
-            CheckoutURL = value.PaymentGatewayCheckoutURL, ExpiresAtUTC = value.ExpiresAt
+            CheckoutURL = value.PaymentGatewayCheckoutURL,
+            ExpiresAtUTC = value.ExpiresAt
         });
     }
-    
+
     /// <summary>
     /// Asynchronously retrieves and creates an <see cref="OrderLineEntity"/> based on the provided order line data,
     /// user identifier, and cancellation token.

@@ -2,9 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Settings;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
