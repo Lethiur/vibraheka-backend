@@ -6,7 +6,6 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemAdapterTest;

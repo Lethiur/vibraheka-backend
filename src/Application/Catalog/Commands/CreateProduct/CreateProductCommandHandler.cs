@@ -1,4 +1,3 @@
-using System.Transactions;
 using CSharpFunctionalExtensions;
 using NMoneys;
 using VibraHeka.Application.Abstractions.Transactions;

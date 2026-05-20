@@ -3,7 +3,6 @@ using Infrastructure.Persistence.Catalog.Adapters;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Infrastructure.Entities;
 

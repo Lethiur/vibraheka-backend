@@ -3,7 +3,6 @@ using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
-using NUnit.Framework;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Catalog.Entities;
 

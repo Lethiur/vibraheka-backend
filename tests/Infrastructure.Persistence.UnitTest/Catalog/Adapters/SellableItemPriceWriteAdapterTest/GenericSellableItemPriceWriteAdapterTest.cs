@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using NMoneys;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Entities;

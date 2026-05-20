@@ -177,19 +177,24 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     /// <returns>A <see cref="SessionCreateOptions"/> object populated with the details required for initiating a Stripe Checkout session.</returns>
     private static SessionCreateOptions CreateCheckoutProductOptions(StartOrderRequest order)
     {
+        List<SessionLineItemOptions> sessionLineItemListOptions = order.OrderLines.Select(line => new SessionLineItemOptions()
+        {
+            Price = line.PriceRef,
+            Quantity = line.Quantity,
+            Metadata = line.Metadata
+        }).ToList();
+
         return new SessionCreateOptions
         {
             Mode = "payment",
             Customer = order.CustomerID,
             PaymentMethodTypes = order.PaymentMethodsAccepted,
-            LineItems =
-            [
-                new SessionLineItemOptions { Price = order.PriceRef, Quantity = order.OrderQuantity }
-            ],
+            LineItems = sessionLineItemListOptions,
             SuccessUrl = order.SuccessCallbackUrl,
             CancelUrl = order.FailureCallbackUrl,
             ClientReferenceId = order.OrderID,
-            ExpiresAt = DateTime.UtcNow.AddHours(23)
+            ExpiresAt = DateTime.UtcNow.AddHours(23),
+            Metadata = order.Metadata
         };
     }
 

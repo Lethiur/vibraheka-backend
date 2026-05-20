@@ -11,6 +11,7 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton<SubscriptionMapper>();
         builder.Services.AddSingleton<CreateSubscriptionMapper>();
+        builder.Services.AddSingleton<OrderRequestMapper>();
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);

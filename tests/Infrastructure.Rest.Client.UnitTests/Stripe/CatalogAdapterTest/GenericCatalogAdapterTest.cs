@@ -2,7 +2,6 @@ using Infrastructure.Rest.Client.Stripe.Adapter;
 using Infrastructure.Rest.Client.Stripe.Client;
 using Infrastructure.Rest.Client.UnitTests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
-using NUnit.Framework;
 using Stripe;
 
 namespace Infrastructure.Rest.Client.UnitTests.Stripe.CatalogAdapterTest;

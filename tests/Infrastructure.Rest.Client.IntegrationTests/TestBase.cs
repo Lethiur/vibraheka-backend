@@ -2,7 +2,6 @@
 using Infrastructure.Rest.Client.Zoom.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using static System.ComponentModel.DataAnnotations.Validator;
 
 

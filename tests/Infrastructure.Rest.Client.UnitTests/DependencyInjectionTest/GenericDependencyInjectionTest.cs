@@ -1,8 +1,4 @@
-﻿using Infrastructure.Rest.Client.Zoom;
-using Infrastructure.Rest.Client.Zoom.Config;
-using Infrastructure.Rest.Client.Zoom.Mappers;
-using Infrastructure.Rest.Client.Zoom.Services;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;

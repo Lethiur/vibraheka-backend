@@ -7,7 +7,7 @@ public class OrderEntity : BaseAuditableEntity
 {
     public string OrderID { get; set; } = string.Empty;
 
-    public string UserId { get; set; } = string.Empty;
+    public string UserID { get; set; } = string.Empty;
 
     public OrderStatus Status { get; set; }
 
@@ -19,4 +19,24 @@ public class OrderEntity : BaseAuditableEntity
     public DateTimeOffset PaidAt { get; set; }
 
     public List<OrderLineEntity> Lines { get; set; } = [];
+
+
+    public void AddLine(OrderLineEntity orderLineEntity)
+    {
+        if (Lines.Count == 0)
+        {
+            Total = orderLineEntity.Total;
+            Subtotal = orderLineEntity.Subtotal;
+            TaxTotal = orderLineEntity.TaxAmount;
+            DiscountTotal = orderLineEntity.DiscountAmount;
+        }
+        else
+        {
+            Total += orderLineEntity.Total;
+            Subtotal += orderLineEntity.Subtotal;
+            TaxTotal += orderLineEntity.TaxAmount;
+            DiscountTotal += orderLineEntity.DiscountAmount;
+        }
+        Lines.Add(orderLineEntity);
+    }
 }

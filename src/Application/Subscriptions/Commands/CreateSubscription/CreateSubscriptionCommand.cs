@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Catalog.Services;
 
 namespace VibraHeka.Application.Subscriptions.Commands.CreateSubscription;
 

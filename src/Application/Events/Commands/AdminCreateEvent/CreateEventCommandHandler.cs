@@ -1,8 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Events.Models;
-using VibraHeka.Domain.Common;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Events.Entities;
 using VibraHeka.Domain.Events.Ports.Out;
 
 namespace VibraHeka.Application.Events.Commands.AdminCreateEvent;

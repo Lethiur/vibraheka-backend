@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;

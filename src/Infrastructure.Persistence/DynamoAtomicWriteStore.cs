@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Common.Errors;
-using static System.Net.HttpStatusCode;
 
 namespace Infrastructure.Persistence;
 

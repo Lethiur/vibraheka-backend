@@ -27,8 +27,6 @@
     <Folder Include="Catalog\Commands\AdminActivateProduct\" />
     <Folder Include="Catalog\Commands\AdminDeactivateProduct\" />
     <Folder Include="Catalog\Queries\AdminGetPricesForProduct\" />
-    <Folder Include="Common\Abstractions\" />
-    <Folder Include="Common\Extensions\Commands\" />
     <Folder Include="Recordings\Commnads\AdminAddRecording\" />
     <Folder Include="Subscriptions\Ports\Out\" />
   </ItemGroup>

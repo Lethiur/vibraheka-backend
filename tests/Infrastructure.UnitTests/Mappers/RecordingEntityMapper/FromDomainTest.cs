@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using NUnit.Framework;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;

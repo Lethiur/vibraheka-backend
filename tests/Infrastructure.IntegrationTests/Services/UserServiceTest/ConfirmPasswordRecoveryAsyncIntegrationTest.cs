@@ -2,7 +2,6 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Services.UserServiceTest;
 

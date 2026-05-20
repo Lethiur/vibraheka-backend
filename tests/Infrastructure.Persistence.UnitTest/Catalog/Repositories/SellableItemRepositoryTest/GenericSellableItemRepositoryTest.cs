@@ -5,7 +5,6 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Infrastructure.Entities;
 

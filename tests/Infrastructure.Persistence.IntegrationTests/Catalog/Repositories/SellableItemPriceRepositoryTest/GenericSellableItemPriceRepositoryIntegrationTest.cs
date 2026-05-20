@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using NMoneys;
-using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SellableItemPriceRepositoryTest;

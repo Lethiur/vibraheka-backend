@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.CloudWatchLogs;
+﻿using Amazon.CloudWatchLogs;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Runtime;

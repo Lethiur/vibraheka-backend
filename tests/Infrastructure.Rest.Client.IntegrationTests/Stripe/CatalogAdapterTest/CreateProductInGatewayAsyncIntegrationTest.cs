@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using NMoneys;
-using NUnit.Framework;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 

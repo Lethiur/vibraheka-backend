@@ -37,4 +37,10 @@ public class SellableItemPriceRepository(
                     : Result.Failure<SellableItemPriceEntity>(CatalogErrors.SellableItemPriceNotFound);
             });
     }
+
+    public Task<Result<SellableItemPriceEntity>> GetBySellableItemPriceIdAsync(string sellableItemPriceId,
+        CancellationToken cancellationToken)
+    {
+        return FindByID(sellableItemPriceId, cancellationToken).Map(mapper.ToDomain);
+    }
 }

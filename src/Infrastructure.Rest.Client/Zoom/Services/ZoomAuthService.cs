@@ -1,9 +1,5 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Config;
-using Infrastructure.Rest.Client.Zoom.Errors;
 using Infrastructure.Rest.Client.Zoom.Models;
 using Microsoft.Extensions.Options;
 

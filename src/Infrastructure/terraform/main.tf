@@ -19,12 +19,16 @@ module "Catalog" {
   source                      = "./Catalog"
 }
 
+module "Payments" {
+  source                      = "./Payments"
+}
+
 module "Dev" {
   source = "./Dev"
 }
 
-module "Orders" {
-  source = "./Orders"
+module "Commerce" {
+  source = "./Commerce"
 }
 
 module "Lambda" {

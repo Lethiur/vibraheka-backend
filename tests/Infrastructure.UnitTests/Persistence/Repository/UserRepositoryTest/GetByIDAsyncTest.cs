@@ -4,7 +4,6 @@ using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.UserRepositoryTest;

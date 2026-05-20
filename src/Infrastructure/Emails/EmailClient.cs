@@ -1,7 +1,6 @@
 ﻿using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using CSharpFunctionalExtensions;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace VibraHeka.Infrastructure.Emails;

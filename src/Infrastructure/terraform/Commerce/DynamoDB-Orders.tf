@@ -1,6 +1,6 @@
 ﻿
 resource "aws_dynamodb_table" "VH_orders" {
-  name         = "VibraHeka-Orders-${terraform.workspace}"
+  name         = "VibraHeka-Commerce-Orders-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "OrderID"
 
@@ -10,19 +10,8 @@ resource "aws_dynamodb_table" "VH_orders" {
   }
   
   attribute {
-    name = "ProductID"
-    type = "S"
-  }
-  
-  attribute {
     name = "UserID"
     type = "S"
-  }
-  
-  global_secondary_index {
-    hash_key        = "ProductID"
-    name            = "product-index"
-    projection_type = "ALL"
   }
   
   global_secondary_index {

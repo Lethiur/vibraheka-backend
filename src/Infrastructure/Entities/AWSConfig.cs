@@ -138,4 +138,7 @@ public class AWSConfig
 
     [Required]
     public string SubscriptionPlansTable { get; set; } = string.Empty;
+
+    [Required]
+    public string PaymentAttemptTable { get; set; } = string.Empty;
 }

@@ -1,6 +1,6 @@
 namespace VibraHeka.Domain.Commerce.Errors;
 
-public class CommerceErrors
+public static class CommerceErrors
 {
     public const string FailedToSaveOrder = "CO-001";
     public const string FailedToSaveOrderLines = "CO-002";
@@ -8,4 +8,5 @@ public class CommerceErrors
     public const string FailedToOperateWithOrderLines = "CO-004";
     public const string InvalidOrder = "CO-005";
     public const string InvalidOrderLines = "CO-006";
+    public const string OrderPlacementFailed = "CO-007";
 }
