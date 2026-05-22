@@ -7,11 +7,11 @@ output "cognito_client_id" {
 }
 
 output "users_table_name" {
-  value = module.Users.dynamodb-users-name
+  value = module.Users.dynamodb_users_profile_table_name
 }
 
 output "user_codes_table_name" {
-  value = module.Users.dynamodb-users-codes
+  value = module.Users.dynamodb_users_codes_verification_codes_table_name
 }
 
 output "email_templates_bucket_name" {
@@ -19,27 +19,27 @@ output "email_templates_bucket_name" {
 }
 
 output "email_templates_table_name" {
-  value = module.Emails.email_templates_table_name
+  value = module.Emails.dynamodb_email_templates_table_name
 }
 
 output "verification_codes_table_name" {
-  value = module.Dev.verification_codes_table_name
+  value = module.Dev.dynamodb_verification_codes_table_name
 }
 
 output "action_log_table_name" {
-  value = module.ActionLog.action_log_table_name
+  value = module.ActionLog.dynamodb_action_log_records_table_name
 }
 
 output "subscriptions_table_name" {
-  value = module.Subscriptions.dynamodb_subscription_table_name
+  value = module.Subscriptions.dynamodb_subscription_records_table_name
 }
 
 output "ssm_frontend_url" {
-  value = "/${var.ssm_namespace}/frontend/url"
+  value = "${local.ssm_namespace}frontend/url"
 }
 
 output "subscriptions_table_user_index_name" {
-  value = module.Subscriptions.subscriptions_user_id_index_name
+  value = module.Subscriptions.dynamodb_subscription_records_table_name
 }
 
 output "backend_api_gateway_endpoint" {
@@ -83,15 +83,15 @@ output "backend_ecr_repository_name" {
 }
 
 output "settings_namespace" {
-  value = "${var.ssm_namespace}${terraform.workspace}/"
+  value = local.ssm_namespace
 }
 
 output "recordings_table_name" {
-  value = module.Recordings.dynamodb_recordings_table_name
+  value = module.Recordings.dynamodb_recordings_records_table_name
 }
 
 output "recordings_table_arn" {
-  value = module.Recordings.dynamodb_recordings_table_arn
+  value = module.Recordings.dynamodb_recordings_records_table_arn
 }
 
 output "recordings_bucket_name" {
@@ -100,32 +100,4 @@ output "recordings_bucket_name" {
 
 output "recordings_bucket_arn" {
   value = module.Recordings.s3_recordings_bucket_arn
-}
-
-output "dynamodb_recordings_tier_idx" {
-  value = module.Recordings.dynamodb_recordings_table_tier_idx
-}
-
-output "dynamodb_catalog_products_table_name" {
-  value = module.Catalog.DynamoDB_Catalog_Product_TableName
-}
-
-output "dynamodb_catalog_sellable_item_table_name" {
-  value = module.Catalog.DynamoDB_Catalog_SellableItem_TableName
-}
-
-output "dynamodb_catalog_sellable_item_price_table_name" {
-  value = module.Catalog.DynamoDB_SellableItemPrice_TableName
-}
-
-output "dynamodb_payment_attempts_table_name" {
-  value = module.Payments.DynamoDB_Catalog_Product_TableName
-}
-
-output "dynamodb_commerce_orders_table_name" {
-  value = module.Commerce.orders_table_name
-}
-
-output "dynamodb_commerce_order_lines_Table_name" {
-  value = module.Commerce.order_lines_table_name
 }
