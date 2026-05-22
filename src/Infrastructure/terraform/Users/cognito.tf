@@ -18,13 +18,9 @@ resource "aws_cognito_user_pool" "VibraHeka-main-pool" {
     }
   }
   
-  tags = {
-    created : "terraform",
-    environment : terraform.workspace,
-    system: "VibraHeka",
-    service : "PAM",
-    dev : terraform.workspace != "prod"
-  }
+  tags = merge(local.tags, {
+    Component = "Cognito",
+  })
 
   schema {
     name = "name"

@@ -1,3 +1,21 @@
+variable "context" {
+  type = object({
+    common_tags = map(string)
+    project_name = string
+    workspace = string
+    resource_prefix = string
+  })
+}
+
+locals {
+  module_name = "Infrastructure"
+  module_tags = {
+    Module = local.module_name
+  }
+
+  tags = merge(var.context.common_tags, local.module_tags)
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the private VPC hosting backend resources."
   type        = string

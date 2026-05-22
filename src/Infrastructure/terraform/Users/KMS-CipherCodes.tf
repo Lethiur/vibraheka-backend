@@ -2,18 +2,14 @@ resource "aws_kms_key" "VibraHeka_PAM_cognito_kms" {
   description             = "KMS key for Cognito custom email sender for env ${terraform.workspace}"
   deletion_window_in_days = 7
   enable_key_rotation     = false
-  tags = {
-    created : "terraform",
-    environment : terraform.workspace,
-    system: "VibraHeka",
-    service : "PAM",
-    dev : terraform.workspace != "prod"
-  }
+  tags = merge(local.tags, {
+    "Name" : "${local.table_prefix}KMSKey"
+  })
 }
 
 resource "aws_kms_alias" "PAM_cognito_kms_alias" {
-  name = "alias/vibra-heka-cognito-email-sender-${terraform.workspace}"
-  target_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.key_id  
+  name = "alias/${local.table_prefix}cognito-email-sender"
+  target_key_id = aws_kms_key.VibraHeka_PAM_cognito_kms.key_id
 }
 
 output "kms_users_arn" {

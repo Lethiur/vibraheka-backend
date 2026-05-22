@@ -1,6 +1,6 @@
 
-resource "aws_iam_policy" "VH_ssm_policy" {
-  name        = "Policy_Read_App_Settings_${terraform.workspace}"
+resource "aws_iam_policy" "SSM_Policy" {
+  name        = "${var.context.resource_prefix}-Policy-Read-App-Settings"
   description = "Permite leer CUALQUIER cosa dentro de /mi-app/ sin tocar Terraform"
 
   policy = jsonencode({
@@ -12,131 +12,14 @@ resource "aws_iam_policy" "VH_ssm_policy" {
           "ssm:GetParameter",
           "ssm:GetParameters"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         # Esto es lo que te da la libertad: cualquier cosa que empiece por /mi-app/
         Resource = "arn:aws:ssm:*:*:parameter/${var.ssm_namespace}/*"
       }
     ]
   })
-}
 
-resource "aws_ssm_parameter" "VH_verification_email_template" {
-  name = "/${var.ssm_namespace}/VerificationEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_password_reset_email_template" {
-  name = "/${var.ssm_namespace}/RecoverPasswordEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_password_changed_email_template" {
-  name = "/${var.ssm_namespace}/PasswordChangedEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_user_welcome_email_template" {
-  name = "/${var.ssm_namespace}/UserWelcomeEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_subscription_thank_you_email_template" {
-  name = "/${var.ssm_namespace}/SubscriptionThankYouEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-
-resource "aws_ssm_parameter" "VH_subscription_cancelled_email_template" {
-  name = "/${var.ssm_namespace}/SubscriptionCancelledEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_subscription_reactivated_email_template" {
-  name = "/${var.ssm_namespace}/SubscriptionReactivatedEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "VH_trial_ending_soon_email_template" {
-  name = "/${var.ssm_namespace}/TrialEndingSoonEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-resource "aws_ssm_parameter" "VH_forgot_password_completed_email_template" {
-  name = "/${var.ssm_namespace}/ForgotPasswordCompletedEmailTemplate"
-  type = "String"
-  value = "test"
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-output "ssm_email_verification_template_id_parameter_name"{
-  value = aws_ssm_parameter.VH_verification_email_template.name
-}
-
-output "ssm_email_password_reset_template_id_parameter_name"{
-  value = aws_ssm_parameter.VH_password_reset_email_template.name
-}
-
-output "ssm_subscription_thank_you_template_id_parameter_name" {
-  value = aws_ssm_parameter.VH_subscription_thank_you_email_template.name
-}
-
-output "ssm_trial_ending_soon_template_id_parameter_name" {
-  value = aws_ssm_parameter.VH_trial_ending_soon_email_template.name
-}
-
-output "ssm_user_welcome_tempalte_id_parameter_name" {
-  value = aws_ssm_parameter.VH_user_welcome_email_template.name
-}
-
-
-output "ssm_forgot_password_completed_template_parameter_name" {
-  value = aws_ssm_parameter.VH_forgot_password_completed_email_template.name
-} 
-output "ssm_subscription_cancelled_template_id_parameter_name" {
-  value = aws_ssm_parameter.VH_subscription_cancelled_email_template.name
-}
-
-output "ssm_subscription_reactivated_template_id_parameter_name" {
-  value = aws_ssm_parameter.VH_subscription_reactivated_email_template.name
-}
-
-output "ssm_read_vh_parameters_policy_arn"{
-  value = aws_iam_policy.VH_ssm_policy.arn
-}
-
-output "settings_namespace" {
-  value = var.ssm_namespace
+  tags = merge(local.tags, {
+    Component = "IAM"
+  })
 }

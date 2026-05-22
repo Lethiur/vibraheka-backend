@@ -23,7 +23,7 @@ output "email_templates_table_name" {
 }
 
 output "verification_codes_table_name" {
-  value = module.Dev.dynamodb_table_codes_name
+  value = module.Dev.verification_codes_table_name
 }
 
 output "action_log_table_name" {
@@ -83,7 +83,7 @@ output "backend_ecr_repository_name" {
 }
 
 output "settings_namespace" {
-  value = module.Config.settings_namespace
+  value = var.ssm_namespace
 }
 
 output "recordings_table_name" {

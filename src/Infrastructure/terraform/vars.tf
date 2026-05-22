@@ -1,4 +1,19 @@
 ﻿
+locals {
+  context = {
+    project_name = var.project_name
+    workspace   = trim(replace(lower(terraform.workspace), "_", "-"), "-")
+    resource_prefix = "${var.project_name}-${terraform.workspace}-"
+    common_tags = {
+      Project = var.project_name
+      Environment = terraform.workspace
+      dev = terraform.workspace != "prod" ? "true" : "false"
+      ManagedBy = "Terraform"
+    }
+  }
+  ssm_namespace = "/${var.project_name}/"
+}
+
 variable project_name {
   description = "The name of the project for this instance"
   type = string

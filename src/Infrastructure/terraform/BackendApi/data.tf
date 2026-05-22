@@ -22,19 +22,21 @@ data "aws_ami" "amazon_linux_2023_arm64" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+  
+  tags = merge(local.tags, {
+    Component = "AMI"
+  })
 }
 
 locals {
   # Workspace normalized to a slug compatible with AWS name constraints.
-  workspace_slug = trim(replace(lower(terraform.workspace), "_", "-"), "-")
-  workspace_safe = local.workspace_slug != "" ? local.workspace_slug : "default"
 
-  repository_name_safe = trim(replace(lower(var.ecr_repository_name), "_", "-"), "-")
+  repository_name_safe = trim(replace(lower("${var.context.resource_prefix}-repository"), "_", "-"), "-")
 
   # Suffixes capped to satisfy max length constraints in AWS resources.
-  workspace_suffix_34 = substr(local.workspace_safe, 0, 34) # 64-char instance profile name limit.
-  workspace_suffix_37 = substr(local.workspace_safe, 0, 37) # 64-char IAM role name limit.
+  workspace_suffix_34 = substr(var.context.resource_prefix, 0, 34) # 64-char instance profile name limit.
+  workspace_suffix_37 = substr(var.context.resource_prefix, 0, 37) # 64-char IAM role name limit.
 
-  iam_role_name    = "vibraheka-backend-ec2-role-${local.workspace_suffix_37}"
-  iam_profile_name = "vibraheka-backend-ec2-profile-${local.workspace_suffix_34}"
+  iam_role_name    = "${local.workspace_suffix_37}-backend-ec2-role"
+  iam_profile_name = "${local.workspace_suffix_34}-backend-ec2-profile"
 }

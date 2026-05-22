@@ -31,11 +31,10 @@ resource "aws_security_group" "backend_instance" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name        = "vibraheka-backend-ec2-sg-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-  }
+  tags = merge(local.tags, {
+    Component = "EC2"
+    Name = "${var.context.project_name}-${var.context.workspace}-BackendEC2SG"
+  })
 }
 
 # IAM role assumed by EC2 for SSM and ECR image pull operations.
@@ -53,6 +52,11 @@ resource "aws_iam_role" "backend_ec2_role" {
         }
       }
     ]
+  })
+
+  tags = merge(local.tags, {
+    Component = "IAM"
+    Name = "${var.context.project_name}-${var.context.workspace}-BackendEC2Role"
   })
 }
 
@@ -72,6 +76,10 @@ resource "aws_iam_role_policy_attachment" "ecr_read_only" {
 resource "aws_iam_instance_profile" "backend" {
   name = local.iam_profile_name
   role = aws_iam_role.backend_ec2_role.name
+  tags = merge(local.tags, {
+    Component = "IAM"
+    Name = "${var.context.project_name}-${var.context.workspace}-BackendEC2InstanceProfile"
+  })
 }
 
 # Optional generated private key for CI/CD SSH usage.
@@ -86,7 +94,10 @@ resource "aws_key_pair" "backend" {
   count = var.enable_ssh_ingress ? 1 : 0
   key_name   = "vibraheka-backend-ssh-${terraform.workspace}"
   public_key = trimspace(var.existing_ssh_public_key) == ""  ? tls_private_key.backend_ssh[0].public_key_openssh : var.existing_ssh_public_key
-  
+  tags = merge(local.tags, {
+    Component = "SSH"
+    Name = "${var.context.project_name}-${var.context.workspace}-BackendKeyPair"
+  })
 }
 
 # Generated private key stored securely for retrieval from CI (GitHub Actions).
@@ -98,11 +109,10 @@ resource "aws_ssm_parameter" "backend_ssh_private_key" {
   value       = tls_private_key.backend_ssh[0].private_key_pem
   overwrite   = true
 
-  tags = {
-    Name        = "vibraheka-backend-ssh-key-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-  }
+  tags = merge(local.tags, {
+    Component = "SSM"
+    Name = "${var.context.project_name}-${var.context.workspace}-SSMParameter"
+    })
 }
 
 # Single public EC2 instance with Elastic IP (minimal VPC setup).
@@ -139,23 +149,19 @@ resource "aws_instance" "backend" {
               systemctl enable --now fail2ban || true
               EOF
 
-  tags = {
-    Name        = "vibraheka-backend-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-    service     = "BackendApi"
-  }
+  tags = merge(local.tags, {
+    Component = "IAM"
+    Name = "${var.context.resource_prefix}-Backend"
+  })
 }
 
 resource "aws_eip" "backend" {
   domain = "vpc"
 
-  tags = {
-    Name        = "vibraheka-backend-eip-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-    service     = "BackendApi"
-  }
+  tags = merge(local.tags, {
+    Component = "EIP"
+    Name = "${var.context.resource_prefix}-backend-eip"
+  })
 }
 
 resource "aws_eip_association" "backend" {
