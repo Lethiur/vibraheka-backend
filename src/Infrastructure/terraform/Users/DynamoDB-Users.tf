@@ -79,6 +79,6 @@ resource "aws_dynamodb_table" "Users_Profile" {
   tags = local.tags
 }
 
-output "dynamodb-users-name" {
+output "dynamodb_users_profile_table_name" {
   value = aws_dynamodb_table.vibraheka-dynamodb-users.name
 }

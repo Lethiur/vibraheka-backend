@@ -67,6 +67,6 @@ resource "aws_dynamodb_table" "Verification_Codes" {
   tags = local.tags
 }
 
-output "dynamodb-users-codes" {
+output "dynamodb_users_codes_verification_codes_table_name" {
   value = aws_dynamodb_table.vibraheka-dynamodb-users-codes.name
 }

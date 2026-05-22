@@ -33,7 +33,7 @@ resource "aws_dynamodb_table" "Catalog_Products" {
   tags = local.tags
 }
 
-output "DynamoDB_Catalog_Product_TableName" {
+output "dynamodb_catalog_products_table_name" {
   value       = aws_dynamodb_table.Catalog_Products.name
   description = "The name of the DynamoDB table for Catalog Products"
 }

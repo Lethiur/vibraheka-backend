@@ -77,7 +77,7 @@ resource "aws_dynamodb_table" "Payment_Attempts" {
   tags = local.tags
 }
 
-output "DynamoDB_Catalog_Product_TableName" {
+output "dynamodb_payment_attempts_table_name" {
   value = aws_dynamodb_table.VibraHeka_Payment_Attempts.name
   description = "The name of the DynamoDB table for Catalog Products"
 }

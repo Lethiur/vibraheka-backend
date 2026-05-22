@@ -54,6 +54,6 @@ resource "aws_dynamodb_table" "Commerce_Order_Lines" {
   tags = local.tags
 }
 
-output "order_lines_table_name" {
+output "dynamodb_commerce_order_lines_table_name" {
   value = aws_dynamodb_table.VH_order_lines.name
 }

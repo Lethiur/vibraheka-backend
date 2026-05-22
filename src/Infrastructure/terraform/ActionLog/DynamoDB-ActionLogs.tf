@@ -47,7 +47,7 @@ resource "aws_dynamodb_table" "ActionLogs_Records" {
   tags = local.tags
 }
 
-output "action_log_table_name" {
-  value = aws_dynamodb_table.ActionLogs_Records.name
+output "dynamodb_action_log_records_table_name" {
+  value = aws_dynamodb_table.vibraheka-dynamodb-users-action-log.name
 }
 

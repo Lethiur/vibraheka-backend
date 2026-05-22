@@ -58,6 +58,6 @@ resource "aws_dynamodb_table" "Commerce_Orders" {
   tags = local.tags
 }
 
-output "orders_table_name" {
+output "dynamodb_commerce_orders_table_name" {
   value = aws_dynamodb_table.VH_orders.name
 }

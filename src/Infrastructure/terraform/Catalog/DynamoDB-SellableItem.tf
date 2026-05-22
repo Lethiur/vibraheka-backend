@@ -63,7 +63,7 @@ resource "aws_dynamodb_table" "Catalog_SellableItems" {
   tags = local.tags
 }
 
-output "DynamoDB_Catalog_SellableItem_TableName" {
+output "dynamodb_catalog_sellable_items_table_name" {
   value = aws_dynamodb_table.Catalog_SellableItems.name
   description = "The name of the DynamoDB table for Catalog Sellable Items"
 }

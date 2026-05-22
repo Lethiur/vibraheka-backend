@@ -57,11 +57,11 @@ resource "aws_dynamodb_table" "Recordings_Records" {
   tags = local.tags
 }
 
-output "dynamodb_recordings_table_name" {
+output "dynamodb_recordings_records_table_name" {
   value = aws_dynamodb_table.VH_recordings.name
 }
 
-output "dynamodb_recordings_table_arn" {
+output "dynamodb_recordings_records_table_arn" {
   value = aws_dynamodb_table.VH_recordings.arn
 }
 

@@ -53,6 +53,6 @@ resource "aws_dynamodb_table" "Catalog_SellableItemPrices" {
 }
 
 
-output "DynamoDB_SellableItemPrice_TableName" {
+output "dynamodb_catalog_sellable_item_prices_table_name" {
   value = aws_dynamodb_table.Catalog_SellableItemPrices.name
 }
