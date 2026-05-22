@@ -2,7 +2,7 @@
 module "Config" {
   source        = "./Config"
   context       = local.context
-  ssm_namespace = terraform.workspace == "default" ? var.project_name : "${var.project_name}/${terraform.workspace}"
+  ssm_namespace = local.ssm_namespace
 }
 
 module "Emails" {
@@ -64,7 +64,7 @@ module "Lambda" {
   stripe_event_bus_arn                                  = var.stripe_event_bus_arn
   stripe_secret_key                                     = var.stripe_api_key
   password_reset_token_secret                           = var.password_reset_token_secret
-  password_reset_frontend_url                           = "${local.ssm_namespace}${terraform.workspace}/frontend/url"
+  password_reset_frontend_url                           = "${local.ssm_namespace}frontend/url"
   password_reset_token_ttl_minutes                      = var.password_reset_token_ttl_minutes
   dynamodb_subscription_table                           = module.Subscriptions.dynamodb_subscription_table_name
   dynamodb_subscription_table_arn                       = module.Subscriptions.dynamodb_subscription_table_arn

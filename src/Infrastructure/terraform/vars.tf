@@ -11,18 +11,13 @@ locals {
       ManagedBy = "Terraform"
     }
   }
-  ssm_namespace = "/${var.project_name}/"
+  ssm_namespace = terraform.workspace == "default" ? "/${var.project_name}/" : "/${var.project_name}/${terraform.workspace}/"
 }
 
 variable project_name {
   description = "The name of the project for this instance"
   type = string
   default = "VibraHeka"
-}
-
-variable ssm_namespace {
-  default = "/VibraHeka/"
-  description = "The SSM namespace for this environment"
 }
 
 variable prod_deployment {
