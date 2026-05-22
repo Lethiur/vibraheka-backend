@@ -39,7 +39,7 @@ output "ssm_frontend_url" {
 }
 
 output "subscriptions_table_user_index_name" {
-  value = module.Subscriptions.dynamodb_subscription_records_table_name
+  value = module.Subscriptions.dynamodb_subscription_records_user_id_index_name
 }
 
 output "backend_api_gateway_endpoint" {

@@ -14,7 +14,7 @@ resource "aws_iam_policy" "SSM_Policy" {
         ]
         Effect = "Allow"
         # Esto es lo que te da la libertad: cualquier cosa que empiece por /mi-app/
-        Resource = "arn:aws:ssm:*:*:parameter/${var.ssm_namespace}/*"
+        Resource = "arn:aws:ssm:*:*:parameter${var.ssm_namespace}*"
       }
     ]
   })
