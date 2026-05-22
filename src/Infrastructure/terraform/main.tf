@@ -37,7 +37,10 @@ module "Commerce" {
   source  = "./Commerce"
   context = local.context
 }
-
+module "Subscriptions" {
+  source  = "./Subscriptions"
+  context = local.context
+}
 module "Lambda" {
   source                                                = "./Lambdas"
   s3_templates_arn                                      = module.Emails.s3_email_templates_bucket_arn
@@ -58,16 +61,16 @@ module "Lambda" {
   kms_users_key_alias_arn                               = module.Users.kms_users_key_alias_arn
   kms_users_key_alias_name                              = module.Users.kms_users_key_alias_name
   cognito_user_pool_arn                                 = module.Users.cognito_pool_users_arn
-  dynamodb_codes_table_arn                              = module.Dev.dynamodb_table_codes_arn
-  dynamodb_codes_table_name                             = module.Dev.verification_codes_table_name
+  dynamodb_codes_table_arn                              = module.Dev.dynamodb_verification_codes_table_arn
+  dynamodb_codes_table_name                             = module.Dev.dynamodb_verification_codes_table_name
   ssm_read_parameters_policy_arn                        = module.Config.ssm_read_vh_parameters_policy_arn
   stripe_event_bus_arn                                  = var.stripe_event_bus_arn
   stripe_secret_key                                     = var.stripe_api_key
   password_reset_token_secret                           = var.password_reset_token_secret
   password_reset_frontend_url                           = "${local.ssm_namespace}frontend/url"
   password_reset_token_ttl_minutes                      = var.password_reset_token_ttl_minutes
-  dynamodb_subscription_table                           = module.Subscriptions.dynamodb_subscription_table_name
-  dynamodb_subscription_table_arn                       = module.Subscriptions.dynamodb_subscription_table_arn
+  dynamodb_subscription_table                           = module.Subscriptions.dynamodb_subscription_records_table_name
+  dynamodb_subscription_table_arn                       = module.Subscriptions.dynamodb_subscription_records_table_arn
 }
 
 
@@ -81,10 +84,6 @@ module "Recordings" {
   context = local.context
 }
 
-module "Subscriptions" {
-  source  = "./Subscriptions"
-  context = local.context
-}
 
 module "BackendApi" {
   count                   = var.prod_deployment ? 1 : 0
