@@ -83,7 +83,7 @@ output "backend_ecr_repository_name" {
 }
 
 output "settings_namespace" {
-  value = var.ssm_namespace
+  value = "${var.ssm_namespace}${terraform.workspace}/"
 }
 
 output "recordings_table_name" {
