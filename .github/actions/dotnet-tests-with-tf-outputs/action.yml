@@ -35,9 +35,6 @@ inputs:
   projects:
     description: Newline-separated list of .csproj paths to test.
     required: true
-  super_env:
-    description: Environment name.
-    required: true
 
 runs:
   using: composite
@@ -77,7 +74,6 @@ runs:
       env:
         PASSWORD_RESET_TOKEN_SECRET: ${{ inputs.password-reset-token-secret }}
         STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
-        ENVIRONMENT: ${{ inputs.super_env }}
         REGION: ${{ inputs.aws-region }}
         PROFILE: ${{ inputs.aws-profile-name }}
       run: |

@@ -60,17 +60,13 @@ else
 fi
 PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
 STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
-ENVIRONMENT_VALUE="${ENVIRONMENT:-}"
 AWS_REGION="${REGION:-}"
 AWS_PROFILE="${PROFILE:-}"
-if [[ -z "$ENVIRONMENT_VALUE" ]]; then
-  echo "Error: 'ENVIRONMENT' environment variable is required but not set." >&2
-  exit 1
-fi
+
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
-  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prof "$AWS_PROFILE" --arg reg "$AWS_REGION" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" --arg env "$ENVIRONMENT_VALUE" '
+  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prof "$AWS_PROFILE" --arg reg "$AWS_REGION" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" '
     .AWS = (.AWS // {}) |
     .Stripe = (.Stripe // {}) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |
@@ -80,7 +76,7 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     (if ($tf.settings_namespace.value? != null) then .AWS.SettingsNameSpace = $tf.settings_namespace.value else . end) |
     (if ($prs != "") then .AWS.PasswordResetTokenSecret = $prs else . end) |
     (if ($ssk != "") then .Stripe.SecretKey = $ssk else . end) |
-    .AWS.Environment = $env |
+    .AWS.Environment = $tf.environment.value |
     .AWS.Profile = $prof |
     .AWS.Location = $reg |
     .AWSLogging.LogGroup = ($tf.settings_namespace.value + "api/logs") |
