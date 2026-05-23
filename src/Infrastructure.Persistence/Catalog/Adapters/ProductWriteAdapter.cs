@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Catalog.Ports.Out;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace Infrastructure.Persistence.Catalog.Adapters;
 
@@ -16,7 +15,7 @@ namespace Infrastructure.Persistence.Catalog.Adapters;
 /// DynamoDB database models and creating transactional write operations to
 /// store them in the configured DynamoDB table. Implements the IProductWritePort interface.
 /// </remarks>
-public class ProductWriteAdapter(ProductEntityMapper Mapper, AWSConfig Config, IDynamoDBContext Context)
+public class ProductWriteAdapter(ProductEntityMapper Mapper, IDynamoDBContext Context)
     : IProductWritePort
 {
     /// <summary>
@@ -28,10 +27,7 @@ public class ProductWriteAdapter(ProductEntityMapper Mapper, AWSConfig Config, I
     {
         ProductDBModel model = Mapper.FromDomain(product);
 
-        ITransactWrite<ProductDBModel> transaction = Context.CreateTransactWrite<ProductDBModel>(new TransactWriteConfig()
-        {
-            OverrideTableName = Config.ProductTable
-        });
+        ITransactWrite<ProductDBModel> transaction = Context.CreateTransactWrite<ProductDBModel>();
         transaction.AddSaveItem(model);
         return new DynamoTransactionalWriteOperation(transaction);
     }

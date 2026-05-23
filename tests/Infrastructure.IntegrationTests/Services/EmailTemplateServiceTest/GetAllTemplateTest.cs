@@ -1,5 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
@@ -25,9 +24,8 @@ public class GetAllTemplateTest : GenericEmailTemplateServiceTest
         };
 
         // Guardamos las plantillas usando el contexto real en la tabla de test
-        SaveConfig config = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        await _context.SaveAsync(template1, config, CancellationToken.None);
-        await _context.SaveAsync(template2, config, CancellationToken.None);
+        await _context.SaveAsync(template1, CancellationToken.None);
+        await _context.SaveAsync(template2, CancellationToken.None);
 
         // When
         Result<IEnumerable<EmailEntity>> result = await _service.GetAllTemplates(CancellationToken.None);

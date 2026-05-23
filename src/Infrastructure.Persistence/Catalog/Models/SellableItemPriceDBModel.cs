@@ -5,7 +5,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace Infrastructure.Persistence.Catalog.Models;
 
-[DynamoDBTable("SellableItemPrices")]
+[DynamoDBTable("Catalog-SellableItemPrices")]
 public class SellableItemPriceDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

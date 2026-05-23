@@ -6,7 +6,6 @@ using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemRepositoryTest;
 
@@ -15,7 +14,6 @@ public abstract class GenericSellableItemRepositoryTest
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<IAmazonDynamoDB> DynamoDbClientMock = default!;
     protected Mock<ILogger<SellableItemRepository>> LoggerMock = default!;
-    protected AWSConfig Config = default!;
     protected SellableItemRepository Repository = default!;
 
     [SetUp]
@@ -24,11 +22,9 @@ public abstract class GenericSellableItemRepositoryTest
         ContextMock = new Mock<IDynamoDBContext>();
         DynamoDbClientMock = new Mock<IAmazonDynamoDB>();
         LoggerMock = new Mock<ILogger<SellableItemRepository>>();
-        Config = new AWSConfig { SellableItemsTable = "unit-test-sellable-items-table" };
         Repository = new SellableItemRepository(
             DynamoDbClientMock.Object,
             ContextMock.Object,
-            Config,
             new SellableItemEntityMapper(),
             LoggerMock.Object);
     }

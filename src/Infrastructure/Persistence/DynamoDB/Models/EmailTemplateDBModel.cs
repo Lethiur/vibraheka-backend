@@ -3,7 +3,7 @@ using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("EmailTemplates")]
+[DynamoDBTable("Email-Templates")]
 public class EmailTemplateDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey("ID")]

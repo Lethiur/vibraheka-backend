@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
@@ -21,8 +20,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Implements the IEmailTemplatesRepository interface for application-specific email template operations.
 /// Inherits from GenericDynamoRepository for shared data access behaviors.
 /// </remarks>
-public class EmailTemplateRepository(IDynamoDBContext context, IAmazonDynamoDB client, AWSConfig config, ILogger<EmailTemplateRepository> logger)
-    : GenericDynamoRepository<EmailTemplateDBModel>(context, client, config.EmailTemplatesTable, logger),
+public class EmailTemplateRepository(IDynamoDBContext context, IAmazonDynamoDB client, ILogger<EmailTemplateRepository> logger)
+    : GenericDynamoRepository<EmailTemplateDBModel>(context, client, logger),
         IEmailTemplatesRepository
 {
     /// <summary>

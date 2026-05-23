@@ -4,7 +4,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using SellableItemType = VibraHeka.Domain.Catalog.Entities.SellableItemType;
 namespace Infrastructure.Persistence.Catalog.Models;
 
-[DynamoDBTable("SellableItems")]
+[DynamoDBTable("Catalog-SellableItems")]
 public class SellableItemDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

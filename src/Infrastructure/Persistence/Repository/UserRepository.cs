@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
@@ -16,8 +15,8 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// <summary>
 /// Represents a repository for managing user persistence operations utilizing Amazon DynamoDB.
 /// </summary>
-public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, AWSConfig config, ILogger<UserRepository> logger)
-    : GenericDynamoRepository<UserDBModel>(context, client, config.UsersTable, logger), IUserRepository
+public class UserRepository(IDynamoDBContext context, IAmazonDynamoDB client, ILogger<UserRepository> logger)
+    : GenericDynamoRepository<UserDBModel>(context, client, logger), IUserRepository
 {
     /// <summary>
     /// Adds a new user to the DynamoDB users table asynchronously.

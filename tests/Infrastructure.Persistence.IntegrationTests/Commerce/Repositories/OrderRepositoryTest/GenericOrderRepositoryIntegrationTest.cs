@@ -23,7 +23,6 @@ public abstract class GenericOrderRepositoryIntegrationTest : TestBase
         OrderRepository = new OrderRepository(
             _client,
             DynamoContext,
-            _configuration,
             new OrderMapper(),
             Logger);
     }
@@ -38,8 +37,7 @@ public abstract class GenericOrderRepositoryIntegrationTest : TestBase
     {
         try
         {
-            DeleteConfig deleteConfig = new() { OverrideTableName = _configuration.OrdersTable };
-            await DynamoContext.DeleteAsync(orderId, deleteConfig);
+            await DynamoContext.DeleteAsync(orderId);
             Console.WriteLine($"Cleanup: Deleted Order {orderId}");
         }
         catch (Exception ex)

@@ -2,14 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SimpleSystemsManagement;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Bogus;
-using Microsoft.Build.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Stripe;
@@ -93,7 +91,10 @@ public abstract class TestBase
 
     protected IDynamoDBContext CreateDynamoDBContext()
     {
-        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
+        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().ConfigureContext(configuration =>
+            {
+                configuration.TableNamePrefix = _configuration.Environment;
+            }).WithDynamoDBClient(() =>
                 new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) }))
             .Build();
 
@@ -150,8 +151,7 @@ public abstract class TestBase
     {
         try
         {
-            DeleteConfig config = new() { OverrideTableName = _configuration.UsersTable };
-            await dynamoContext.DeleteAsync<UserDBModel>(userId, config);
+            await dynamoContext.DeleteAsync<UserDBModel>(userId);
             Console.WriteLine($"Cleanup: Deleted user {userId}");
         }
         catch (Exception ex)

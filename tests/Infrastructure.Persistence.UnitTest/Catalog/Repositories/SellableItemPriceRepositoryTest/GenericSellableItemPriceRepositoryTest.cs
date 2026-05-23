@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Enums;
-using VibraHeka.Infrastructure.Entities;
+
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemPriceRepositoryTest;
 
 public abstract class GenericSellableItemPriceRepositoryTest
@@ -15,7 +15,6 @@ public abstract class GenericSellableItemPriceRepositoryTest
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<IAmazonDynamoDB> DynamoDbClientMock = default!;
     protected Mock<ILogger<SellableItemPriceRepository>> LoggerMock = default!;
-    protected AWSConfig Config = default!;
     protected SellableItemPriceRepository Repository = default!;
     [SetUp]
     public virtual void SetUp()
@@ -23,11 +22,9 @@ public abstract class GenericSellableItemPriceRepositoryTest
         ContextMock = new Mock<IDynamoDBContext>();
         DynamoDbClientMock = new Mock<IAmazonDynamoDB>();
         LoggerMock = new Mock<ILogger<SellableItemPriceRepository>>();
-        Config = new AWSConfig { SellableItemPricesTable = "unit-test-sellable-item-prices-table" };
         Repository = new SellableItemPriceRepository(
             DynamoDbClientMock.Object,
             ContextMock.Object,
-            Config,
             new SellableItemPriceEntityMapper(),
             LoggerMock.Object);
     }

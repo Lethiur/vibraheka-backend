@@ -20,7 +20,7 @@ public abstract class GenericRecordingRepositoryTest : TestBase
         base.OneTimeSetUp();
         Logger = CreateTestLogger<RecordingRepository>();
         DynamoContext = CreateDynamoDBContext();
-        RecordingRepository = new RecordingRepository(DynamoContext, _client, _configuration, new RecordingEntityMapper(), Logger);
+        RecordingRepository = new RecordingRepository(DynamoContext, _client, new RecordingEntityMapper(), Logger);
     }
 
     [OneTimeTearDown]
@@ -33,8 +33,7 @@ public abstract class GenericRecordingRepositoryTest : TestBase
     {
         try
         {
-            SaveConfig deleteConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-            await DynamoContext.DeleteAsync<RecordingDBModel>(recordingId, deleteConfig);
+            await DynamoContext.DeleteAsync<RecordingDBModel>(recordingId);
             Console.WriteLine($"Cleanup: Deleted recording {recordingId}");
         }
         catch (Exception ex)

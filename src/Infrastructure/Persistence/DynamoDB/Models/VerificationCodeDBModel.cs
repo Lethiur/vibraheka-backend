@@ -2,7 +2,7 @@
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("TABLE_VERIFICATION_CODES")]
+[DynamoDBTable("Verification-CognitoCodes")]
 public class VerificationCodeDBModel
 {
     [DynamoDBHashKey("username")] public string UserName { get; set; } = string.Empty;

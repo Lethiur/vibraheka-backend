@@ -7,7 +7,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace Infrastructure.Persistence.Commerce.Models;
 
-[DynamoDBTable("OrderLines")]
+[DynamoDBTable("Commerce-Order-Lines")]
 public class OrderLineDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

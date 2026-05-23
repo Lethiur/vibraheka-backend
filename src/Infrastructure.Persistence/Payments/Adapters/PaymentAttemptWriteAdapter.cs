@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Payments.Models;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Payments.Ports.Out;
 using VibraHeka.Domain.Payments.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace Infrastructure.Persistence.Payments.Adapters;
 
@@ -14,7 +13,7 @@ namespace Infrastructure.Persistence.Payments.Adapters;
 /// and managing transactional write operations for payment attempts,
 /// leveraging Amazon DynamoDB as the persistence layer.
 /// </summary>
-public class PaymentAttemptWriteAdapter(PaymentAttemptMapper Mapper, AWSConfig Config, IDynamoDBContext Context)
+public class PaymentAttemptWriteAdapter(PaymentAttemptMapper Mapper, IDynamoDBContext Context)
     : IPaymentAttemptWritePort
 {
     /// <summary>
@@ -26,10 +25,7 @@ public class PaymentAttemptWriteAdapter(PaymentAttemptMapper Mapper, AWSConfig C
     {
         PaymentAttemptDBModel model = Mapper.FromDomain(paymentIntent);
 
-        ITransactWrite<PaymentAttemptDBModel> transaction = Context.CreateTransactWrite<PaymentAttemptDBModel>(new TransactWriteConfig()
-        {
-            OverrideTableName = Config.PaymentAttemptTable
-        });
+        ITransactWrite<PaymentAttemptDBModel> transaction = Context.CreateTransactWrite<PaymentAttemptDBModel>();
         transaction.AddSaveItem(model);
 
         return new DynamoTransactionalWriteOperation(transaction);

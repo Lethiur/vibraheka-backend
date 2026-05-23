@@ -14,37 +14,7 @@ public class AWSConfig
     [Required]
     public string EmailTemplatesBucketName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets or sets the name of the database table that stores user codes.
-    /// This property is used to specify the storage location for managing and retrieving codes associated with user operations in the database.
-    /// </summary>
-    [Required]
-    public string UserCodesTable { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores email templates.
-    /// This property defines the table location for managing and retrieving email template data within the AWS infrastructure.
-    /// </summary>
-    [Required]
-    public string EmailTemplatesTable { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores user information.
-    /// This property is used to define the database table location for managing and accessing user-related data in the AWS infrastructure.
-    /// </summary>
-    [Required]
-    public string UsersTable { get; set; } = string.Empty;
-
-#if DEBUG
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores code-related data.
-    /// This property is used to define the table location for managing and accessing code entities within the AWS infrastructure.
-    /// </summary>
-    [Required]
-    public string CodesTable { get; set; } = string.Empty;
-
-#endif
-
+  
     /// <summary>
     /// Gets or sets the unique identifier for the AWS Cognito client application.
     /// This property is used to identify and authenticate the client application
@@ -81,21 +51,7 @@ public class AWSConfig
     /// Secret used to encrypt and authenticate password reset tokens exchanged with the frontend.
     /// </summary>
     public string PasswordResetTokenSecret { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores action log entries.
-    /// This property is used to define the table location for tracking and managing user or system activities within the AWS infrastructure.
-    /// </summary>
-    [Required]
-    public string ActionLogTable { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores subscription data.
-    /// This property specifies the table location used for managing subscription-related records in the AWS infrastructure.
-    /// </summary>
-    [Required]
-    public string SubscriptionTable { get; set; } = string.Empty;
-
+    
     /// <summary>
     /// Gets or sets the name of the index on the Subscription table used for querying subscriptions by user ID.
     /// This property is used to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
@@ -103,9 +59,18 @@ public class AWSConfig
     [Required]
     public string SubscriptionUserIdIndex { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the name of the DynamoDB index used for querying recordings by tier.
+    /// This property is required for operations that involve filtering or retrieving recordings
+    /// based on their assigned tier in the AWS DynamoDB infrastructure.
+    /// </summary>
     [Required]
     public string RecordingsTierIndex { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the namespace used to organize and resolve AWS Systems Manager Parameter Store settings.
+    /// This property is crucial for defining the hierarchical path where configuration parameters are stored and retrieved.
+    /// </summary>
     [Required]
     public string SettingsNameSpace { get; set; } = string.Empty;
 
@@ -114,31 +79,8 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string RecordingsBucketName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the name of the DynamoDB table that stores recording metadata.
-    /// </summary>
+    
     [Required]
-    public string RecordingsTable { get; set; } = string.Empty;
-
-    [Required]
-    public string OrdersTable { get; set; } = string.Empty;
-
-    [Required]
-    public string OrderLineTable { get; set; } = string.Empty;
-
-    [Required]
-    public string ProductTable { get; set; } = string.Empty;
-
-    [Required]
-    public string SellableItemsTable { get; set; } = string.Empty;
-
-    [Required]
-    public string SellableItemPricesTable { get; set; } = string.Empty;
-
-    [Required]
-    public string SubscriptionPlansTable { get; set; } = string.Empty;
-
-    [Required]
-    public string PaymentAttemptTable { get; set; } = string.Empty;
+    public string Environment { get; set; } = string.Empty;
+    
 }

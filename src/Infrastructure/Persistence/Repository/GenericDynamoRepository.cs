@@ -1,4 +1,5 @@
-﻿using Amazon.DynamoDBv2;
+﻿using System.Reflection;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
@@ -11,7 +12,6 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 public abstract class GenericDynamoRepository<T>(
     IDynamoDBContext context,
     IAmazonDynamoDB client,
-    string tableConfigKey,
     ILogger<GenericDynamoRepository<T>> logger)
 {
     /// <summary>
@@ -24,10 +24,9 @@ public abstract class GenericDynamoRepository<T>(
     protected async Task<Result<T>> FindByID(string ID, CancellationToken token)
     {
         logger.LogInformation("Retrieving entity of type {EntityType} by ID  {ID}", typeof(T).Name, ID);
-        LoadConfig configuration = new() { OverrideTableName = tableConfigKey };
         try
         {
-            T model = await context.LoadAsync<T>(ID, configuration, token);
+            T model = await context.LoadAsync<T>(ID, token);
             return Maybe.From(model).ToResult(GenericPersistenceErrors.NoRecordsFound).Tap(_ =>
             {
                 logger.LogInformation("Successfully retrieved of type {EntityType} entity with ID: {EntityID}",
@@ -53,10 +52,10 @@ public abstract class GenericDynamoRepository<T>(
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Retrieving entity of type {EntityType} by ID  {ID} and range key {RangeKey}", typeof(T).Name, idValue, rangeKeyValue);
-        LoadConfig configuration = new() { OverrideTableName = tableConfigKey };
+       
         try
         {
-            T? model = await context.LoadAsync<T>(idValue, rangeKeyValue, configuration, cancellationToken);
+            T? model = await context.LoadAsync<T>(idValue, rangeKeyValue, cancellationToken);
             return Maybe.From(model)
                 .ToResult(GenericPersistenceErrors.NoRecordsFound);
         }
@@ -80,7 +79,7 @@ public abstract class GenericDynamoRepository<T>(
     {
         logger.LogInformation(
             "Retrieving entity of type {EntityType} using index {IndexName} with value {IndexValue}", typeof(T).Name, indexName, indexValue);
-        QueryConfig queryConfig = new() { IndexName = indexName, OverrideTableName = tableConfigKey };
+        QueryConfig queryConfig = new() { IndexName = indexName};
         try
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
@@ -123,11 +122,11 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
-        SaveConfig saveConfig = new() { OverrideTableName = tableConfigKey };
+        DynamoDBTableAttribute? dynamoDbTableAttribute = typeof(T).GetCustomAttribute<DynamoDBTableAttribute>(inherit:true);
+
         try
         {
-            logger.LogInformation("Saving entity of type {EntityType} on table {TableName}", typeof(T).Name, tableConfigKey);
-            await context.SaveAsync(entity, saveConfig, token);
+            await context.SaveAsync(entity, token);
             logger.LogInformation("Successfully saved entity of type {EntityType}", typeof(T).Name);
             return Unit.Value;
         }
@@ -150,8 +149,7 @@ public abstract class GenericDynamoRepository<T>(
     {
         try
         {
-            BatchWriteConfig config = new() { OverrideTableName = tableConfigKey };
-            IBatchWrite<T> batchWrite = context.CreateBatchWrite<T>(config);
+            IBatchWrite<T> batchWrite = context.CreateBatchWrite<T>();
             batchWrite.AddPutItems(entities);
             await batchWrite.ExecuteAsync(token);
             return Unit.Value;
@@ -172,11 +170,10 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<Unit>> Delete(T entity, CancellationToken token)
     {
-        DeleteConfig deleteConfig = new() { OverrideTableName = tableConfigKey };
         try
         {
             logger.LogInformation("Deleting entity of type {EntityType}", typeof(T).Name);
-            await context.DeleteAsync(entity, deleteConfig, token);
+            await context.DeleteAsync(entity, token);
             return Unit.Value;
         }
         catch (Exception e)
@@ -201,11 +198,11 @@ public abstract class GenericDynamoRepository<T>(
         DynamoExpression? condition = null,
         CancellationToken token = default)
     {
+        
         UpdateItemRequest request = new UpdateItemRequest
         {
-            TableName = tableConfigKey,
             Key = key,
-
+            TableName = context.GetTargetTable<T>().TableName,
             UpdateExpression = update.Expression,
             ConditionExpression = condition?.Expression,
 
@@ -221,7 +218,7 @@ public abstract class GenericDynamoRepository<T>(
             foreach (var kv in condition.AttributeValues)
                 request.ExpressionAttributeValues[kv.Key] = kv.Value;
         }
-
+        
         UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
 
         return Result.Success(Unit.Value);
@@ -236,11 +233,9 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<IEnumerable<T>>> GetAll(CancellationToken cancellationToken)
     {
-        ScanConfig configuration = new() { OverrideTableName = tableConfigKey };
-
         try
         {
-            IAsyncSearch<T> asyncSearch = context.ScanAsync<T>(Enumerable.Empty<ScanCondition>(), configuration);
+            IAsyncSearch<T> asyncSearch = context.ScanAsync<T>(Enumerable.Empty<ScanCondition>());
             List<T> models = await asyncSearch.GetRemainingAsync(cancellationToken);
             return models;
         }

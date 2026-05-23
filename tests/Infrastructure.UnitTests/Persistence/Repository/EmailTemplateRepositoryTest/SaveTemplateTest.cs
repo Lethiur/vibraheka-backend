@@ -40,7 +40,6 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryTest
         Assert.That(result.IsSuccess, Is.True);
         _contextMock.Verify(c => c.SaveAsync(
                 It.Is<EmailTemplateDBModel>(m => m.TemplateID == template.ID && m.Path == template.Path && m.Name == template.Name),
-                It.Is<SaveConfig>(cfg => cfg.OverrideTableName == TableName),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -58,7 +57,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryTest
         };
 
         _contextMock
-            .Setup(c => c.SaveAsync(It.IsAny<EmailTemplateDBModel>(), It.IsAny<SaveConfig>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.SaveAsync(It.IsAny<EmailTemplateDBModel>() ,It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Dynamo save error"));
 
         // When

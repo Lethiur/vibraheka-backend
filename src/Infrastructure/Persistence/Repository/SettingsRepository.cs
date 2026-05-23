@@ -173,7 +173,7 @@ public class SettingsRepository(
 
     private string BuildParameterName(string parameterName)
     {
-        return $"/{config.SettingsNameSpace}/{parameterName}";
+        return $"{config.SettingsNameSpace}{parameterName}";
     }
 
     /// <summary>

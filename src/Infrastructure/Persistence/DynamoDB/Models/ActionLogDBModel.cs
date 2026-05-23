@@ -5,7 +5,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("ActionLogs")]
+[DynamoDBTable("ActionLogs-Records")]
 public class ActionLogDBModel
 {
     [DynamoDBHashKey("ActionLogID")]

@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Commerce.Models;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Commerce.Ports.Out;
 using VibraHeka.Domain.Commerce.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace Infrastructure.Persistence.Commerce.Adapters;
 
@@ -13,7 +12,7 @@ namespace Infrastructure.Persistence.Commerce.Adapters;
 /// This implementation serves as an adapter to map domain entities to database models
 /// and facilitate transactional write operations.
 /// </summary>
-public class OrderLineWriteAdapter(OrderLineMapper Mapper, AWSConfig Config, IDynamoDBContext Context)
+public class OrderLineWriteAdapter(OrderLineMapper Mapper, IDynamoDBContext Context)
     : IOrderLineWritePort
 {
     /// <summary>
@@ -29,10 +28,7 @@ public class OrderLineWriteAdapter(OrderLineMapper Mapper, AWSConfig Config, IDy
     {
         OrderLineDBModel model = Mapper.FromDomain(orderLine);
 
-        ITransactWrite<OrderLineDBModel> transactWrite = Context.CreateTransactWrite<OrderLineDBModel>(new TransactWriteConfig()
-        {
-            OverrideTableName = Config.OrderLineTable
-        });
+        ITransactWrite<OrderLineDBModel> transactWrite = Context.CreateTransactWrite<OrderLineDBModel>();
 
         transactWrite.AddSaveItem(model);
         return new DynamoTransactionalWriteOperation(transactWrite);

@@ -53,7 +53,7 @@ public static class DependencyInjection
         {
             configurationBuilder.AddSystemsManager(options =>
             {
-                options.Path = $"/{awsConfig.SettingsNameSpace}/";
+                options.Path = awsConfig.SettingsNameSpace;
                 options.ReloadAfter = TimeSpan.FromSeconds(2);
                 options.Optional = true;
             });
@@ -115,8 +115,8 @@ public static class DependencyInjection
         services.AddSingleton<ICodeRepository, VerificationCodesRepository>();
 #endif
         services.AddSingleton<IUserCodeRepository, UserCodeRepository>();
-        services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
         services.AddSingleton<ApplicationDynamoContext>();
+        services.AddSingleton<IDynamoDBContext>(sp => sp.GetRequiredService<ApplicationDynamoContext>().Context);
 
         services.AddSingleton<IActionLogRepository, ActionLogRepository>();
 

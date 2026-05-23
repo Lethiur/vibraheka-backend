@@ -139,7 +139,7 @@ public class SubscriptionService(
             .BindTry(subscriptionEntity =>
             {
                 logger.LogInformation($"Reactivating subscription for user {subscriptionEntity.UserID} date {subscriptionEntity.StartDate}");
-                if (subscriptionEntity.Status == OrderStatus.Draft && subscriptionEntity.StartDate > DateTime.UtcNow)
+                if (subscriptionEntity.Status == OrderStatus.PendingPayment && subscriptionEntity.StartDate > DateTime.UtcNow)
                 {
                     logger.LogInformation($"Subscription for user {subscriptionEntity.UserID} is delayed. Restoring trialing");
                     subscriptionEntity.SubscriptionStatus = SubscriptionStatus.Trialing;

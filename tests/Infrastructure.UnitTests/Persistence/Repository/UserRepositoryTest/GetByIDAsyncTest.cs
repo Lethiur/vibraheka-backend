@@ -26,7 +26,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
             Role = UserRole.Therapist
         };
 
-        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
+        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, CancellationToken.None))
             .ReturnsAsync(userModel);
 
         // When: Getting the user by ID
@@ -45,7 +45,7 @@ public class GetByIDAsyncTest : GenericUserRepositoryTest
     {
         // Given: An ID that doesn't exist in DynamoDB
         const string userId = "non-existent";
-        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, It.IsAny<LoadConfig>(), CancellationToken.None))
+        ContextMock.Setup(x => x.LoadAsync<UserDBModel>(userId, CancellationToken.None))
             .ReturnsAsync((UserDBModel)null!);
 
         // When: Getting the user by ID

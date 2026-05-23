@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -82,12 +81,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
             LastModified = DateTimeOffset.UtcNow
         };
 
-        SaveConfig config = new()
-        {
-            OverrideTableName = _configuration.EmailTemplatesTable
-        };
-
-        await DynamoContext.SaveAsync(model, config);
+        await DynamoContext.SaveAsync(model);
     }
 
     #endregion

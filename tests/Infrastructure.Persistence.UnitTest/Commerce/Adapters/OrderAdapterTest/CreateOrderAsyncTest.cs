@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Commerce.Models;
 using Moq;
@@ -31,13 +30,12 @@ public sealed class CreateOrderAsyncTest : GenericOrderAdapterTest
         ContextMock.Verify(
             x => x.SaveAsync(
                 It.Is<OrderDBModel>(m => m.OrderID == order.OrderID && m.UserID == order.UserID),
-                It.Is<SaveConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName)),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             $"Expected SaveAsync called once with OrderDBModel for OrderID='{order.OrderID}'");
 
         ContextMock.Verify(
-            x => x.CreateBatchWrite<OrderLineDBModel>(It.Is<BatchWriteConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName))),
+            x => x.CreateBatchWrite<OrderLineDBModel>(),
             Times.Once,
             "Expected CreateBatchWrite<OrderLineDBModel> called once for empty lines batch");
 
@@ -61,7 +59,7 @@ public sealed class CreateOrderAsyncTest : GenericOrderAdapterTest
     {
         // Given: SaveAsync throws a general exception simulating a DynamoDB outage
         ContextMock
-            .Setup(x => x.SaveAsync(It.IsAny<OrderDBModel>(), It.IsAny<SaveConfig>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<OrderDBModel>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Simulated DynamoDB failure"));
 
         OrderEntity order = BuildValidOrderEntityNoLines();
@@ -78,7 +76,6 @@ public sealed class CreateOrderAsyncTest : GenericOrderAdapterTest
         ContextMock.Verify(
             x => x.SaveAsync(
                 It.Is<OrderDBModel>(m => m.OrderID == order.OrderID),
-                It.Is<SaveConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName)),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveAsync attempted once before failing");
@@ -111,13 +108,12 @@ public sealed class CreateOrderAsyncTest : GenericOrderAdapterTest
         ContextMock.Verify(
             x => x.SaveAsync(
                 It.Is<OrderDBModel>(m => m.OrderID == order.OrderID),
-                It.Is<SaveConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName)),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveAsync called once before batch write failure");
 
         ContextMock.Verify(
-            x => x.CreateBatchWrite<OrderLineDBModel>(It.Is<BatchWriteConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName))),
+            x => x.CreateBatchWrite<OrderLineDBModel>(),
             Times.Once,
             "Expected CreateBatchWrite<OrderLineDBModel> called once before ExecuteAsync failure");
 

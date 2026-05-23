@@ -44,10 +44,9 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
                     m.Description == entity.Description &&
                     m.Type == entity.Type &&
                     m.CreatedBy == entity.CreatedBy),
-                It.Is<SaveConfig>(s => s.OverrideTableName == Config.RecordingsTable),
                 It.IsAny<CancellationToken>()),
             Times.Once,
-            $"Expected SaveAsync called once with model mapped from entity.Id={entity.Id} and OverrideTableName={Config.RecordingsTable}");
+            $"Expected SaveAsync called once with model mapped from entity.Id={entity.Id}");
 
         ContextMock.VerifyNoOtherCalls();
     }
@@ -85,7 +84,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.SaveAsync(
                 It.Is<RecordingDBModel>(m => m.Id == entity.Id && m.Name == entity.Name),
-                It.Is<SaveConfig>(s => s.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveAsync to be called exactly once with the correct model and table name");
@@ -113,7 +111,7 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
         InvalidOperationException expectedException = new("DynamoDB connection failed");
 
         ContextMock
-            .Setup(c => c.SaveAsync(It.IsAny<RecordingDBModel>(), It.IsAny<SaveConfig>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.SaveAsync(It.IsAny<RecordingDBModel>(),It.IsAny<CancellationToken>()))
             .ThrowsAsync(expectedException);
 
         // When / Then: invoking SaveAsync should propagate the exception
@@ -126,7 +124,6 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.SaveAsync(
                 It.Is<RecordingDBModel>(m => m.Id == entity.Id),
-                It.Is<SaveConfig>(s => s.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveAsync to be called once before throwing");

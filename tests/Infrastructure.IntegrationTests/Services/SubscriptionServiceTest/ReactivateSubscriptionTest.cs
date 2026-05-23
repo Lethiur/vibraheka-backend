@@ -103,7 +103,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceIntegrationT
             ExternalSubscriptionItemID = _stripeConfig.SubscriptionID,
             ExternalCustomerID = "cus_test_" + Guid.NewGuid().ToString("N"),
             SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
-            Status = OrderStatus.Draft,
+            Status = OrderStatus.PendingPayment,
             StartDate = DateTimeOffset.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
             CreatedBy = "integration-test"

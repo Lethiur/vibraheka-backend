@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Errors;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace Infrastructure.Persistence.Commerce.Repositories;
@@ -19,10 +18,9 @@ namespace Infrastructure.Persistence.Commerce.Repositories;
 public class OrderRepository(
     IAmazonDynamoDB client,
     IDynamoDBContext context,
-    AWSConfig config,
     OrderMapper mapper,
     ILogger<OrderRepository> logger)
-    : GenericDynamoRepository<OrderDBModel>(context, client, config.OrdersTable, logger)
+    : GenericDynamoRepository<OrderDBModel>(context, client, logger)
 {
     /// <summary>
     /// Saves an order asynchronously to the underlying storage.

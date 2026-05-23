@@ -5,7 +5,6 @@ using Infrastructure.Persistence.Commerce.Models;
 using Moq;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderWriteAdapterTest;
 
@@ -13,7 +12,6 @@ public abstract class GenericOrderWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<OrderDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected OrderMapper Mapper = default!;
     protected OrderWriteAdapter Adapter = default!;
 
@@ -22,12 +20,11 @@ public abstract class GenericOrderWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<OrderDBModel>>();
-        Config = new AWSConfig { OrdersTable = "unit-test-orders-table" };
         Mapper = new OrderMapper();
-        Adapter = new OrderWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new OrderWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
-            .Setup(x => x.CreateTransactWrite<OrderDBModel>(It.IsAny<TransactWriteConfig>()))
+            .Setup(x => x.CreateTransactWrite<OrderDBModel>())
             .Returns(TransactWriteMock.Object);
     }
 

@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Commerce.Models;
 using Moq;
@@ -21,14 +20,7 @@ public sealed class CreateOrderLineTest : GenericOrderLineWriteAdapterTest
 
         // When: CreateOrderLine is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateOrderLine(orderLine);
-
-        // Then: context.CreateTransactWrite is called once with the configured order-line table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<OrderLineDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.OrderLineTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<OrderLineDBModel> called once with OverrideTableName='{Config.OrderLineTable}'");
-
+        
         // Then: AddSaveItem is called once with the model produced by the mapper
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

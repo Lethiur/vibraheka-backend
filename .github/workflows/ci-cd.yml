@@ -280,7 +280,11 @@ jobs:
             tests/Application.UnitTests/Application.UnitTests.csproj
             tests/Application.FunctionalTests/Application.FunctionalTests.csproj
             tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj
-#            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
+            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
+            tests/Infrastructure.Persistence.IntegrationTests/Infrastructure.Persistence.IntegrationTests.csproj
+            tests/Infrastructure.Persistence.UnitTest/Infrastructure.Persistence.UnitTest.csproj
+            tests/Infrastructure.Rest.Client.UnitTests/Infrastructure.Rest.Client.UnitTests.csproj
+#            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
 
 #  tests_acceptance:
 #    name: Tests (acceptance)
@@ -403,6 +407,9 @@ jobs:
         env:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STRIPE_API_KEY_MAIN || secrets.STRIPE_API_KEY }}
+          ENVIRONMENT: ${{ needs.prepare.outputs.environment }}
+          REGION: ${{ env.AWS_REGION }}
+          PROFILE: ${{ env.AWS_PROFILE_NAME }}
         run: |
           set -euo pipefail
           chmod +x ./update-appsettings-from-terraform.sh
@@ -479,9 +486,8 @@ jobs:
           set -euo pipefail
 
           USER_POOL_ID="$(jq -r '.cognito_pool_id.value' /tmp/tf-prod.json)"
-          USERS_TABLE="$(jq -r '.users_table_name.value' /tmp/tf-prod.json)"
+          USERS_TABLE="$(jq -r '.environment.value' /tmp/tf-prod.json)Users-Profiles"
 
-          echo "Seed inputs: USER_POOL_ID='${USER_POOL_ID}', USERS_TABLE='${USERS_TABLE}'"
           if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" || "${USER_POOL_ID}" == "null" || "${USERS_TABLE}" == "null" ]]; then
             echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
             exit 1

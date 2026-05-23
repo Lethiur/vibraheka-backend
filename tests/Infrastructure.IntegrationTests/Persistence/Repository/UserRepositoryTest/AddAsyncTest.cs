@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -99,11 +98,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(addResult.IsSuccess, Is.True);
 
         // And: Retrieving the user directly from DynamoDB
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(originalUserEntity.Id, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(originalUserEntity.Id);
 
         // Then: Retrieved user should match original data
         Assert.That(retrievedUser, Is.Not.Null);
@@ -125,11 +120,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(addResult.IsSuccess, Is.True);
 
         // And: Checking if user exists by email
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userEntity.Id, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userEntity.Id);
 
         // Then: User should exist
         Assert.That(retrievedUser, Is.Not.Null, "User should exist after adding");
@@ -164,11 +155,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(secondResult.Value, Is.EqualTo(userId));
 
         // And: The user data should be updated to the new values
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userId, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userId);
 
         Assert.That(retrievedUser, Is.Not.Null);
         Assert.That(retrievedUser.Id, Is.EqualTo(userId));
@@ -196,13 +183,8 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(firstResult.Value, Is.Not.EqualTo(secondResult.Value)); // Different IDs
 
         // And: Both users should exist in the database
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-
-        UserDBModel? retrievedFirstUser = await _dynamoContext.LoadAsync<UserDBModel>(firstUserEntity.Id, loadConfig);
-        UserDBModel? retrievedSecondUser = await _dynamoContext.LoadAsync<UserDBModel>(secondUserEntity.Id, loadConfig);
+        UserDBModel? retrievedFirstUser = await _dynamoContext.LoadAsync<UserDBModel>(firstUserEntity.Id);
+        UserDBModel? retrievedSecondUser = await _dynamoContext.LoadAsync<UserDBModel>(secondUserEntity.Id);
 
         Assert.That(retrievedFirstUser, Is.Not.Null);
         Assert.That(retrievedSecondUser, Is.Not.Null);
@@ -242,11 +224,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         }
 
         // And: One of the users should be persisted (last write wins)
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-        UserEntity? retrievedUser = await _dynamoContext.LoadAsync<UserEntity>(userId, loadConfig);
+        UserDBModel? retrievedUser = await _dynamoContext.LoadAsync<UserDBModel>(userId);
 
         Assert.That(retrievedUser, Is.Not.Null);
         Assert.That(retrievedUser.Id, Is.EqualTo(userId));
@@ -281,11 +259,7 @@ public class AddAsyncTest : GenericUserRepositoryTest
         Assert.That(secondResult.IsSuccess, Is.True);
 
         // And: Only the latest data should persist
-        LoadConfig loadConfig = new()
-        {
-            OverrideTableName = _configuration.UsersTable
-        };
-        UserDBModel? finalUser = await _dynamoContext.LoadAsync<UserDBModel>(userId, loadConfig);
+        UserDBModel? finalUser = await _dynamoContext.LoadAsync<UserDBModel>(userId);
 
         Assert.That(finalUser, Is.Not.Null);
         Assert.That(finalUser.Email, Is.EqualTo("second@example.com"));

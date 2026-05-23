@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SubscriptionPlanWriteAdapterTest;
 
@@ -12,7 +11,6 @@ public abstract class GenericSubscriptionPlanWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<SubscriptionPlanDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected SubscriptionPlanEntityMapper Mapper = default!;
     protected SubscriptionPlanWriteAdapter Adapter = default!;
 
@@ -21,9 +19,9 @@ public abstract class GenericSubscriptionPlanWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<SubscriptionPlanDBModel>>();
-        Config = new AWSConfig { SubscriptionPlansTable = "unit-test-subscription-plans-write-table" };
+        
         Mapper = new SubscriptionPlanEntityMapper();
-        Adapter = new SubscriptionPlanWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new SubscriptionPlanWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
             .Setup(x => x.CreateTransactWrite<SubscriptionPlanDBModel>(It.IsAny<TransactWriteConfig>()))

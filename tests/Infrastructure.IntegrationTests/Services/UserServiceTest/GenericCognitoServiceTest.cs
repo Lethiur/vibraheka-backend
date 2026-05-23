@@ -1,6 +1,4 @@
-﻿using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 using Bogus;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
@@ -29,11 +27,10 @@ public abstract class GenericCognitoServiceTest : TestBase
         base.OneTimeSetUp();
         Logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<UserService>();
         _faker = new Faker();
-        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
-            new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile("Twingers") })).Build();
+        IDynamoDBContext dynamoDbContext = CreateDynamoDBContext();
         _verificationCodeRepository =
-            new VerificationCodesRepository(dynamoDbContext, _configuration, new VerificationCodeEntityMapper());
-        UserRepository = new UserRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<UserRepository>());
+            new VerificationCodesRepository(dynamoDbContext, new VerificationCodeEntityMapper());
+        UserRepository = new UserRepository(dynamoDbContext, _client, CreateTestLogger<UserRepository>());
         UserService = new UserService(_configuration, Logger, UserRepository);
         PasswordResetTokenService = new PasswordResetTokenService(
             _configuration,

@@ -33,12 +33,6 @@ public abstract class GenericPaymentsRepositoryTest
             ClientId = "client-id",
             UserPoolId = "user-pool-id",
             EmailTemplatesBucketName = "bucket",
-            UsersTable = "users",
-            CodesTable = "codes",
-            UserCodesTable = "user-codes",
-            EmailTemplatesTable = "templates",
-            ActionLogTable = "action-log",
-            SubscriptionTable = "subscription",
             SubscriptionUserIdIndex = "user-index"
         };
 

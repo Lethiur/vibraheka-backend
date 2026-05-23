@@ -88,19 +88,12 @@ public class ValidateAndReadTokenTest : GenericPasswordResetTokenServiceIntegrat
         AWSConfig invalidConfig = new()
         {
             EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
-            UserCodesTable = _configuration.UserCodesTable,
-            EmailTemplatesTable = _configuration.EmailTemplatesTable,
-            UsersTable = _configuration.UsersTable,
-#if DEBUG
-            CodesTable = _configuration.CodesTable,
-#endif
             ClientId = _configuration.ClientId,
             UserPoolId = _configuration.UserPoolId,
             Location = _configuration.Location,
             Profile = _configuration.Profile,
             PasswordResetTokenSecret = string.Empty,
-            ActionLogTable = _configuration.ActionLogTable,
-            SubscriptionTable = _configuration.SubscriptionTable,
+            Environment = "VibraHeka-test",
             SubscriptionUserIdIndex = _configuration.SubscriptionUserIdIndex,
             SettingsNameSpace = _configuration.SettingsNameSpace
         };

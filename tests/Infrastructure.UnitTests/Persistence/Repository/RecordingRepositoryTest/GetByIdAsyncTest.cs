@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Recordings.Entities;
@@ -36,7 +35,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.LoadAsync<RecordingDBModel>(
                 It.IsAny<string>(),
-                It.IsAny<LoadConfig>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(model);
 
@@ -56,10 +54,9 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.LoadAsync<RecordingDBModel>(
                 It.Is<string>(id => id == recordingId),
-                It.Is<LoadConfig>(lc => lc.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            $"Expected LoadAsync called once with id='{recordingId}' and OverrideTableName='{Config.RecordingsTable}'");
+            $"Expected LoadAsync called once with id='{recordingId}'");
 
         ContextMock.VerifyNoOtherCalls();
     }
@@ -74,7 +71,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.LoadAsync<RecordingDBModel>(
                 It.IsAny<string>(),
-                It.IsAny<LoadConfig>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecordingDBModel)null!);
 
@@ -90,7 +86,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.LoadAsync<RecordingDBModel>(
                 It.Is<string>(id => id == recordingId),
-                It.Is<LoadConfig>(lc => lc.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected LoadAsync to be called exactly once before returning null");
@@ -108,7 +103,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.LoadAsync<RecordingDBModel>(
                 It.IsAny<string>(),
-                It.IsAny<LoadConfig>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Unexpected DynamoDB connection error"));
 
@@ -126,7 +120,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.LoadAsync<RecordingDBModel>(
                 It.Is<string>(id => id == recordingId),
-                It.Is<LoadConfig>(lc => lc.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected LoadAsync to be called once before throwing");
@@ -152,7 +145,6 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.LoadAsync<RecordingDBModel>(
                 It.IsAny<string>(),
-                It.IsAny<LoadConfig>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(model);
 
@@ -166,10 +158,9 @@ public sealed class GetByIdAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.LoadAsync<RecordingDBModel>(
                 It.Is<string>(id => id == recordingId),
-                It.Is<LoadConfig>(lc => lc.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            $"Expected LoadAsync called with OverrideTableName='{Config.RecordingsTable}' but was not");
+            $"Expected LoadAsync called ");
 
         ContextMock.VerifyNoOtherCalls();
     }

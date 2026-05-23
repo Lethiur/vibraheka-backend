@@ -45,10 +45,9 @@ public sealed class GetSellableItemByReferenceAsyncTest : GenericSellableItemAda
             x => x.QueryAsync<SellableItemDBModel>(
                 It.Is<string>(id => id == referenceId),
                 It.Is<QueryConfig>(qc =>
-                    qc.IndexName == "ReferenceID-Index" &&
-                    qc.OverrideTableName == Config.SellableItemsTable)),
+                    qc.IndexName == "ReferenceID-Index")),
             Times.Once,
-            $"Expected QueryAsync called once with referenceId='{referenceId}' and table='{Config.SellableItemsTable}'");
+            $"Expected QueryAsync called once with referenceId='{referenceId}''");
 
         SearchMock.Verify(
             x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),

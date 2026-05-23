@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Entities;
@@ -21,7 +20,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
         const string templateId = "welcome-template";
         EmailTemplateDBModel template = new() { TemplateID = templateId, Path = "Welcome" };
 
-        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, It.IsAny<LoadConfig>(), None))
+        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ReturnsAsync(template);
 
         // When: Retrieving the template
@@ -30,8 +29,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
         // Then: Should return success with the template
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.ID, Is.EqualTo(template.TemplateID));
-        _contextMock.Verify(x => x.LoadAsync<EmailTemplateDBModel>(templateId,
-            It.Is<LoadConfig>(c => c.OverrideTableName == TableName), None), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None), Times.Once);
     }
 
     [Test]
@@ -40,7 +38,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     {
         // Given: An ID that is not in DynamoDB
         const string templateId = "missing-template";
-        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, It.IsAny<LoadConfig>(), None))
+        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ReturnsAsync((EmailTemplateDBModel)null!);
 
         // When: Retrieving the template
@@ -57,7 +55,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     {
         // Given: A database error
         const string templateId = "any-id";
-        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, It.IsAny<LoadConfig>(), None))
+        _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ThrowsAsync(new Exception("DynamoDB error"));
 
         // When: Retrieving the template

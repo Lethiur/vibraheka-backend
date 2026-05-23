@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Domain.Recordings.Ports.Out;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -16,10 +15,9 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 public class RecordingRepository(
     IDynamoDBContext context,
     IAmazonDynamoDB client,
-    AWSConfig config,
     RecordingEntityMapper mapper,
     ILogger<RecordingRepository> logger)
-    : GenericDynamoRepository<RecordingDBModel>(context, client, config.RecordingsTable, logger),
+    : GenericDynamoRepository<RecordingDBModel>(context, client, logger),
         IRecordingRegistryPort
 {
     public Task<Result<string>> SaveRecording(RecordingEntity recording, CancellationToken cancellationToken)

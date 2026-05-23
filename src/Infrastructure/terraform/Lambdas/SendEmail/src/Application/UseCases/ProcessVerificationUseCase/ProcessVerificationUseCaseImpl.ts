@@ -32,7 +32,7 @@ export default class ProcessVerificationUseCaseImpl implements  IProcessVerifica
                 confirmationLink: resetLink
             })).andThen(template => this.EmailDeliveryService.Send(context.recipient, this.EMAIL_SUBJECT, template, []))
             .mapErr(error => {
-                console.log("Error while executing the forgot password use case: ", error);
+                console.log("Error while executing the account verification use case: ", error);
                 return EmailSenderErrors.EMAIL_DELIVERY_FAILED;
             })
 

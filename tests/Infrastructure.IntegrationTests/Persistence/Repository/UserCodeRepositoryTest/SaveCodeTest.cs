@@ -1,4 +1,3 @@
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Common.Enums;
@@ -34,10 +33,6 @@ public class SaveCodeTest : GenericUserCodeRepositoryIntegrationTest
 
         UserCodeDBModel? persistedModel = await _dynamoDbContext.LoadAsync<UserCodeDBModel>(
             tokenId,
-            new LoadConfig
-            {
-                OverrideTableName = _configuration.UserCodesTable
-            },
             CancellationToken.None);
 
         Assert.That(persistedModel, Is.Not.Null);

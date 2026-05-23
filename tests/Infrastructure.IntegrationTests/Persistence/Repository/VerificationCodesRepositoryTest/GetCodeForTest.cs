@@ -1,5 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
@@ -21,10 +20,7 @@ public class GetCodeForTest : GenericVerificationCodesRepositoryIntegrationTest
         };
 
 #if DEBUG
-        await _dynamoDbContext.SaveAsync(model, new SaveConfig
-        {
-            OverrideTableName = _configuration.CodesTable
-        }, CancellationToken.None);
+        await _dynamoDbContext.SaveAsync(model, CancellationToken.None);
 #endif
 
         // When

@@ -20,7 +20,7 @@ public class CreateClientTest : TestBase
     {
         base.OneTimeSetUp();
         _context = CreateDynamoDBContext();
-        _userRepositoryMock = new UserRepository(_context, _client, _configuration, CreateTestLogger<UserRepository>());
+        _userRepositoryMock = new UserRepository(_context, _client, CreateTestLogger<UserRepository>());
         _loggerMock = new NullLogger<UserService>();
     }
 

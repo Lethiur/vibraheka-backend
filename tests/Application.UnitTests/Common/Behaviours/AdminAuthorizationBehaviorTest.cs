@@ -63,14 +63,17 @@ public class AdminAuthorizationBehaviorTest
             new(currentUserServiceMock.Object, privilegeServiceMock.Object);
 
         // When
-        TestDelegate action = () => behaviour.Handle(new TestAdminRequest(), _ =>
-        {
-            nextCalled = true;
-            return Task.FromResult("ok");
-        }, CancellationToken.None).GetAwaiter().GetResult();
+        void Action() =>
+            behaviour.Handle(new TestAdminRequest(), _ =>
+                {
+                    nextCalled = true;
+                    return Task.FromResult("ok");
+                }, CancellationToken.None)
+                .GetAwaiter()
+                .GetResult();
 
         // Then
-        Assert.Throws<UnauthorizedException>(action);
+        Assert.Throws<UnauthorizedException>(Action);
         Assert.That(nextCalled, Is.False);
         currentUserServiceMock.VerifyGet(x => x.UserId, Times.Once);
         privilegeServiceMock.Verify(x => x.HasRoleAsync("user-id", UserRole.Admin, It.IsAny<CancellationToken>()),

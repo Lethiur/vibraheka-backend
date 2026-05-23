@@ -23,8 +23,8 @@ public abstract class GenericPrivilegeServiceTest : TestBase
         base.OneTimeSetUp();
         _logger = NullLogger<IPrivilegeService>.Instance;
         IDynamoDBContext dynamoDbContext = CreateDynamoDBContext();
-        _userRepository = new UserRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<UserRepository>());
-        _actionLogRepository = new ActionLogRepository(dynamoDbContext, _client, _configuration, CreateTestLogger<ActionLogRepository>());
+        _userRepository = new UserRepository(dynamoDbContext, _client, CreateTestLogger<UserRepository>());
+        _actionLogRepository = new ActionLogRepository(dynamoDbContext, _client, CreateTestLogger<ActionLogRepository>());
         PrivilegeService = new Infrastructure.Services.PrivilegeService(_userRepository, _actionLogRepository, _logger);
     }
 }

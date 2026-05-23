@@ -47,8 +47,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
 
         ContextMock
             .Setup(c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)))
+                It.IsAny<IEnumerable<ScanCondition>>()))
             .Returns(searchMock.Object);
 
         // When: GetAllAsync is called
@@ -68,8 +67,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
 
         ContextMock.Verify(
             c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)),
+                It.IsAny<IEnumerable<ScanCondition>>()),
             Times.Once,
             "Expected ScanAsync to be called exactly once with correct table name");
     }
@@ -86,8 +84,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
 
         ContextMock
             .Setup(c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)))
+                It.IsAny<IEnumerable<ScanCondition>>()))
             .Returns(searchMock.Object);
 
         // When: GetAllAsync is called
@@ -101,8 +98,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
 
         ContextMock.Verify(
             c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)),
+                It.IsAny<IEnumerable<ScanCondition>>()),
             Times.Once,
             "Expected ScanAsync to be called exactly once");
 
@@ -130,8 +126,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
 
         ContextMock.Verify(
             c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(sc => sc.OverrideTableName == Config.RecordingsTable)),
+                It.IsAny<IEnumerable<ScanCondition>>()),
             Times.Once,
             "Expected ScanAsync to be called exactly once before throwing");
 
@@ -144,9 +139,7 @@ public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest
     {
         // Given: DynamoDB throws ProvisionedThroughputExceededException during scan
         ContextMock
-            .Setup(c => c.ScanAsync<RecordingDBModel>(
-                It.IsAny<IEnumerable<ScanCondition>>(),
-                It.IsAny<ScanConfig>()))
+            .Setup(c => c.ScanAsync<RecordingDBModel>(It.IsAny<IEnumerable<ScanCondition>>()))
             .Throws(new ProvisionedThroughputExceededException("Throughput exceeded"));
 
         // When: GetAllAsync is called

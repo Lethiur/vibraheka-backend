@@ -1,5 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
@@ -21,7 +20,7 @@ public class GetActionLogForUserTest : GenericActionLogRepositoryTest
             Timestamp = DateTimeOffset.UtcNow
         };
 
-        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification, It.IsAny<LoadConfig>(), It.IsAny<CancellationToken>()))
+        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification,  It.IsAny<CancellationToken>()))
             .ReturnsAsync(dbModel);
 
         // When
@@ -37,7 +36,7 @@ public class GetActionLogForUserTest : GenericActionLogRepositoryTest
     public async Task ShouldReturnActionLogNotFoundWhenNoRecordExists()
     {
         // Given
-        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification, It.IsAny<LoadConfig>(), It.IsAny<CancellationToken>()))
+        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ActionLogDBModel)null!);
 
         // When

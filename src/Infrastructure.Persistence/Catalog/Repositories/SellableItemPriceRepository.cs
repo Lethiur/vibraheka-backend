@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 namespace Infrastructure.Persistence.Catalog.Repositories;
@@ -15,10 +14,9 @@ namespace Infrastructure.Persistence.Catalog.Repositories;
 public class SellableItemPriceRepository(
     IAmazonDynamoDB client,
     IDynamoDBContext context,
-    AWSConfig config,
     SellableItemPriceEntityMapper mapper,
     ILogger<SellableItemPriceRepository> logger)
-    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, config.SellableItemPricesTable, logger)
+    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, logger)
 {
     public async Task<Result<SellableItemPriceEntity>> GetBySellableItemIdAndKindAsync(
         string sellableItemId, PriceKind kind, CancellationToken ct)

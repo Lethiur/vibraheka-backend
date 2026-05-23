@@ -7,7 +7,7 @@ namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 /// <summary>
 /// DynamoDB model used to persist user token/code markers.
 /// </summary>
-[DynamoDBTable("CODES-TABLE")]
+[DynamoDBTable("Users-VerificationCodes")]
 public class UserCodeDBModel : BaseAuditableDBModel
 {
     /// <summary>

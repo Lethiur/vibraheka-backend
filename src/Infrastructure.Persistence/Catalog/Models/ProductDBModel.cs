@@ -5,7 +5,7 @@ using ProductType = VibraHeka.Domain.Catalog.Enums.ProductType;
 
 namespace Infrastructure.Persistence.Catalog.Models;
 
-[DynamoDBTable("Products")]
+[DynamoDBTable("Catalog-Products")]
 public class ProductDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

@@ -22,7 +22,6 @@ public abstract class GenericSubscriptionRepositoryTest
         ClientMock = new Mock<IAmazonDynamoDB>();
         ConfigMock = new AWSConfig
         {
-            SubscriptionTable = "SubscriptionsTable",
             SubscriptionUserIdIndex = "User-Index"
         };
 

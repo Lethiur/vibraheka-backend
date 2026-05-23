@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Commerce.Models;
 using Moq;
@@ -21,14 +20,7 @@ public sealed class CreateOrderTest : GenericOrderWriteAdapterTest
 
         // When: CreateOrder is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateOrder(order);
-
-        // Then: context.CreateTransactWrite is called once with the configured orders table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<OrderDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.OrdersTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<OrderDBModel> called once with OverrideTableName='{Config.OrdersTable}'");
-
+        
         // Then: AddSaveItem is called once with the model produced by the mapper
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

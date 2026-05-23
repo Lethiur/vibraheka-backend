@@ -7,7 +7,6 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
@@ -18,12 +17,11 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 /// Repository implementation for persisted user code markers in DynamoDB.
 /// </summary>
 public class UserCodeRepository(
-    AWSConfig config,
     IDynamoDBContext context,
     IAmazonDynamoDB client,
     UsersCodeMapper mapper,
     ILogger<GenericDynamoRepository<UserCodeDBModel>> logger)
-    : GenericDynamoRepository<UserCodeDBModel>(context, client, config.UserCodesTable, logger), IUserCodeRepository
+    : GenericDynamoRepository<UserCodeDBModel>(context, client, logger), IUserCodeRepository
 {
     /// <summary>
     /// Saves a user code marker.

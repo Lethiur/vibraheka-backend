@@ -101,3 +101,11 @@ output "recordings_bucket_name" {
 output "recordings_bucket_arn" {
   value = module.Recordings.s3_recordings_bucket_arn
 }
+
+output "environment" {
+  value = local.context.resource_prefix
+}
+
+output "project_name" {
+  value = local.context.project_name
+}

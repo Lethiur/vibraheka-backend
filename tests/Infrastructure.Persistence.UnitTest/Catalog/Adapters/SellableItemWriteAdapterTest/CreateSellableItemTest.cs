@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
@@ -19,16 +18,15 @@ public sealed class CreateSellableItemTest : GenericSellableItemWriteAdapterTest
         // Given: a valid SellableItemEntity with known SellableItemID, Name and IsActive values
         SellableItemEntity product = BuildDefaultSellableItemEntity();
 
+        // And: Some mocking
+        ContextMock
+            .Setup(c => c.CreateTransactWrite<SellableItemDBModel>())
+            .Returns(TransactWriteMock.Object);
+
+        
         // When: CreateSellableItem is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateSellableItem(product);
-
-        // Then: context.CreateTransactWrite is called once with the configured sellable items table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<SellableItemDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.SellableItemsTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<SellableItemDBModel> called once with OverrideTableName='{Config.SellableItemsTable}'");
-
+        
         // Then: AddSaveItem is called once with the model produced by the mapper (key fields must match the domain entity)
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

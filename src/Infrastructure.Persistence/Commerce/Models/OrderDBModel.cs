@@ -8,7 +8,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace Infrastructure.Persistence.Commerce.Models;
 
 
-[DynamoDBTable("Orders")]
+[DynamoDBTable("Commerce-Orders")]
 public class OrderDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey] public string OrderID { get; set; } = string.Empty;

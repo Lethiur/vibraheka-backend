@@ -4,7 +4,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("TABLE_USERS")]
+[DynamoDBTable("Users-Profiles")]
 public class UserDBModel : BaseAuditableDBModel
 {
 

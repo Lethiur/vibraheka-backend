@@ -18,19 +18,18 @@ public sealed class CreateProductTest : GenericProductWriteAdapterTest
     {
         // Given: a valid ProductEntity with known Name and Description
         ProductEntity product = BuildDefaultProductEntity();
+        
+        // And: Some mocking
+        Mock<ITransactWrite<ProductDBModel>> transactMock = new Mock<ITransactWrite<ProductDBModel>>();
+        ContextMock
+            .Setup(c => c.CreateTransactWrite<ProductDBModel>())
+            .Returns(transactMock.Object);
 
         // When: CreateProduct is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateProduct(product);
 
-        // Then: context.CreateTransactWrite is called once with the configured product table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<ProductDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.ProductTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<ProductDBModel> called once with OverrideTableName='{Config.ProductTable}'");
-
         // Then: AddSaveItem is called once with the model produced by the mapper (Name and Description must match the domain entity)
-        TransactWriteMock.Verify(
+        transactMock.Verify(
             x => x.AddSaveItem(
                 It.Is<ProductDBModel>(m =>
                     m.Name == product.Name &&
@@ -43,10 +42,6 @@ public sealed class CreateProductTest : GenericProductWriteAdapterTest
             "Expected a non-null ITransactionalWriteOperation");
         Assert.That(result, Is.InstanceOf<DynamoTransactionalWriteOperation>(),
             $"Expected DynamoTransactionalWriteOperation but got '{result.GetType().Name}'");
-
-        DynamoTransactionalWriteOperation dynamoOperation = (DynamoTransactionalWriteOperation)result;
-        Assert.That(dynamoOperation.Item, Is.SameAs(TransactWriteMock.Object),
-            "Expected the wrapped ITransactWrite item to be the mock returned by CreateTransactWrite");
 
         ContextMock.VerifyNoOtherCalls();
         TransactWriteMock.VerifyNoOtherCalls();

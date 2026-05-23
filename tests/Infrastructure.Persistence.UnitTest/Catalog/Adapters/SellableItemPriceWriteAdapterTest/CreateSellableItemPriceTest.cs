@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
@@ -21,13 +20,6 @@ public sealed class CreateSellableItemPriceTest : GenericSellableItemPriceWriteA
 
         // When: CreateSellableItemPrice is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateSellableItemPrice(price);
-
-        // Then: context.CreateTransactWrite is called once with the configured sellable item prices table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<SellableItemPriceDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.SellableItemPricesTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<SellableItemPriceDBModel> called once with OverrideTableName='{Config.SellableItemPricesTable}'");
 
         // Then: AddSaveItem is called once with the model produced by the mapper (key fields must match the domain entity)
         TransactWriteMock.Verify(

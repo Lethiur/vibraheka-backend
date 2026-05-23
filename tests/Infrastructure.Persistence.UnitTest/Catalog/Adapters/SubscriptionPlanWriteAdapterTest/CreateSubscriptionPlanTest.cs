@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
@@ -18,17 +17,14 @@ public sealed class CreateSubscriptionPlanTest : GenericSubscriptionPlanWriteAda
     {
         // Given: a valid SubscriptionPlanEntity with known Name and IncludesFullCatalog values
         SubscriptionPlanEntity subscriptionPlan = BuildDefaultSubscriptionPlanEntity();
+        
+        // And: Some mocking
+        ContextMock.Setup(c => c.CreateTransactWrite<SubscriptionPlanDBModel>())
+            .Returns(TransactWriteMock.Object);
 
         // When: CreateSubscriptionPlan is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateSubscriptionPlan(subscriptionPlan);
-
-        // Then: context.CreateTransactWrite is called once with the configured subscription plans table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<SubscriptionPlanDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.SubscriptionPlansTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<SubscriptionPlanDBModel> called once with OverrideTableName='{Config.SubscriptionPlansTable}'");
-
+        
         // Then: AddSaveItem is called once with the model produced by the mapper (key fields match the domain entity)
         TransactWriteMock.Verify(
             x => x.AddSaveItem(
