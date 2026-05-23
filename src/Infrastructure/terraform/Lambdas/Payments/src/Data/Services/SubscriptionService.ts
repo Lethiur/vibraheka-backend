@@ -1,6 +1,6 @@
 import {SubscriptionErrors} from "@/Domain/Errors/SubscriptionErrors";
 import ISubscriptionService from "@Domain/Interfaces/ISubscriptionService";
-import {err, ok, Result, ResultAsync} from "neverthrow";
+import {err, ok, Result} from "neverthrow";
 import Stripe from "stripe";
 import ISubscriptionRepository from "@Domain/Interfaces/ISubscriptionRepository";
 import SubscriptionEntity from "@Domain/Entities/SubscriptionEntity";
@@ -95,7 +95,7 @@ export default class SubscriptionService implements ISubscriptionService {
                     subscriptionEntity.SubscriptionStatus = 'ToBeCancelled';
                     subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at * 1000).toISOString();
                 } else {
-                    if (subscriptionEntity.Status === 'OrderDelayed') {
+                    if (subscriptionEntity.Status === 'PendingPayment') {
                         console.log("Subscription is in trial mode, setting to trialing");
                         subscriptionEntity.SubscriptionStatus = 'Trialing';
                     } else {
@@ -153,7 +153,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         const subscription : Stripe.Subscription = await this.StripeClient.subscriptions.retrieve(invoice.lines.data[0].parent?.subscription_item_details?.subscription!);
                         subscriptionData.ExternalSubscriptionID = subscription.id;
                         subscriptionData.SubscriptionStatus = 'Trialing';
-                        subscriptionData.Status = 'OrderDelayed'
+                        subscriptionData.Status = 'PendingPayment'
                         const trialStartDate = subscription.trial_end
                             ? new Date(subscription.trial_end * 1000).toISOString()
                             : subscriptionData.StartDate;
@@ -174,7 +174,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         subscriptionData.StartDate = period.startDate;
                         subscriptionData.EndDate = period.endDate;
                         subscriptionData.SubscriptionStatus = 'Active';
-                        subscriptionData.Status = 'InvoicePayed';
+                        subscriptionData.Status = 'Paid';
                         console.log(`Transitioned subscription to active SubscriptionID=${subscriptionData.SubscriptionID} Status=${subscriptionData.Status} SubscriptionStatus=${subscriptionData.SubscriptionStatus} ExternalSubscriptionID=${subscriptionData.ExternalSubscriptionID}`);
                     }
                     
@@ -182,7 +182,7 @@ export default class SubscriptionService implements ISubscriptionService {
                 } else {
                     subscriptionData.SubscriptionStatus = 'Inactive';
                     subscriptionData.ExternalSubscriptionID = subscriptionID;
-                    subscriptionData.Status = 'PaymentFailed';
+                    subscriptionData.Status = 'Failed';
                     const period = this.ResolveInvoiceLinePeriod(invoice.lines.data[0], subscriptionData);
                     subscriptionData.StartDate = period.startDate;
                     subscriptionData.EndDate = period.endDate;
@@ -266,10 +266,8 @@ export default class SubscriptionService implements ISubscriptionService {
     }
 
     private ResolveSubscriptionEndTimestamp(subscriptionData: Stripe.Subscription): number {
-        const endTimestamp = subscriptionData.cancel_at
+        return subscriptionData.cancel_at
             ?? subscriptionData.canceled_at
             ?? Math.floor(Date.now() / 1000);
-
-        return endTimestamp;
     }
 }
