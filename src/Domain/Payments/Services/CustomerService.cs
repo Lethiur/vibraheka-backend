@@ -35,7 +35,7 @@ public class CustomerService(IUserRepository userRepository, IPaymentsPort payme
             return user;
         }
 
-        (bool _, bool isFailure, string? value, string? error) = await paymentPort.RegisterCustomerAsync(user, token);
+        (bool _, bool isFailure, string? value, string? error) = await paymentPort.RegisterCustomerAsync(ref user, token);
 
         if (isFailure)
         {

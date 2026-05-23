@@ -86,7 +86,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Setup Node.js for lambda packaging
         uses: actions/setup-node@v6
@@ -94,9 +94,9 @@ jobs:
           node-version: "24"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
-          version: 9
+          version: 10
 
       - name: Install zip tool
         run: sudo apt-get update && sudo apt-get install -y zip
@@ -181,7 +181,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Setup Node.js for lambda packaging
         uses: actions/setup-node@v6
@@ -335,7 +335,7 @@ jobs:
       - name: Install zip tool
         run: sudo apt-get update && sudo apt-get install -y zip
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
 
       - name: Build and package lambda artifacts
