@@ -275,6 +275,7 @@ jobs:
           appsettings-path: src/Web/appsettings.Test.json
           password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+          environment: ${{ needs.prepare.outputs.environment }}
           projects: |
             tests/Domain.UnitTests/Domain.UnitTests.csproj
             tests/Application.UnitTests/Application.UnitTests.csproj

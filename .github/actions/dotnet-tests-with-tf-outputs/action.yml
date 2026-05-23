@@ -35,6 +35,9 @@ inputs:
   projects:
     description: Newline-separated list of .csproj paths to test.
     required: true
+  environment:
+    description: Environment name.
+    required: true
 
 runs:
   using: composite
@@ -74,7 +77,7 @@ runs:
       env:
         PASSWORD_RESET_TOKEN_SECRET: ${{ inputs.password-reset-token-secret }}
         STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
-        ENVIRONMENT: ${{ needs.prepare.outputs.environment }}
+        ENVIRONMENT: ${{ inputs.environment }}
         REGION: ${{ inputs.aws-region }}
         PROFILE: ${{ inputs.aws-profile-name }}
       run: |
@@ -86,7 +89,6 @@ runs:
       shell: bash
       env:
         ASPNETCORE_ENVIRONMENT: ${{ inputs.aspnetcore-environment }}
-        Stripe__SecretKey: ${{ inputs.stripe-secret-key }}
       run: |
         set -euo pipefail
         AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
