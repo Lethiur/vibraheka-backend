@@ -95,7 +95,7 @@ export default class SubscriptionService implements ISubscriptionService {
                     subscriptionEntity.SubscriptionStatus = 'ToBeCancelled';
                     subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at * 1000).toISOString();
                 } else {
-                    if (subscriptionEntity.Status === 'Draft') {
+                    if (subscriptionEntity.Status === 'PendingPayment') {
                         console.log("Subscription is in trial mode, setting to trialing");
                         subscriptionEntity.SubscriptionStatus = 'Trialing';
                     } else {
@@ -153,7 +153,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         const subscription : Stripe.Subscription = await this.StripeClient.subscriptions.retrieve(invoice.lines.data[0].parent?.subscription_item_details?.subscription!);
                         subscriptionData.ExternalSubscriptionID = subscription.id;
                         subscriptionData.SubscriptionStatus = 'Trialing';
-                        subscriptionData.Status = 'Draft'
+                        subscriptionData.Status = 'PendingPayment'
                         const trialStartDate = subscription.trial_end
                             ? new Date(subscription.trial_end * 1000).toISOString()
                             : subscriptionData.StartDate;

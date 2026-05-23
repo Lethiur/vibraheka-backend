@@ -112,7 +112,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionServiceTest
         {
             UserID = "user-1",
             SubscriptionStatus = SubscriptionStatus.ToBeCancelled,
-            Status = OrderStatus.Draft,
+            Status = OrderStatus.PendingPayment,
             StartDate = DateTimeOffset.UtcNow.AddDays(15)
         };
 
