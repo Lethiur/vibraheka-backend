@@ -388,6 +388,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
 
       - name: Download prod terraform outputs
         uses: actions/download-artifact@v7
@@ -407,7 +408,6 @@ jobs:
         env:
           PASSWORD_RESET_TOKEN_SECRET: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           STRIPE_SECRET_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STRIPE_API_KEY_MAIN || secrets.STRIPE_API_KEY }}
-          ENVIRONMENT: ${{ needs.prepare.outputs.environment }}
           REGION: ${{ env.AWS_REGION }}
           PROFILE: ${{ env.AWS_PROFILE_NAME }}
         run: |
