@@ -79,11 +79,9 @@ runs:
 
     - name: Run .NET tests (verbose console logs)
       shell: bash
-      env:
-        ASPNETCORE_ENVIRONMENT: ${{ inputs.aspnetcore-environment }}
       run: |
         set -euo pipefail
         while IFS= read -r proj; do
           [[ -z "${proj// }" ]] && continue
-          dotnet test "$proj" --logger "console;verbosity=detailed"
+          dotnet test "$proj" --environment "${{ inputs.aspnetcore-environment }}" --logger "console;verbosity=detailed"
         done <<< "${{ inputs.projects }}"
