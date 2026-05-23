@@ -23,13 +23,7 @@ resource "aws_dynamodb_table" "Verification_Codes" {
     attribute_name = "ExpiresAtUnix"
     enabled        = true
   }
-
-  point_in_time_recovery {
-    enabled = true
-  }
   
-  restore_to_latest_time = true
-
   tags = merge(local.tags, {
     Component = "DynamoDB",
   })
