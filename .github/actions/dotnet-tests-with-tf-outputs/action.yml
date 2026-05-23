@@ -51,7 +51,7 @@ runs:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: ${{ inputs.aws-region }}
-        aws-profile-name: ${{ inputs.aws-profile-name }}
+        aws-profile: ${{ inputs.aws-profile-name }}
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v5
