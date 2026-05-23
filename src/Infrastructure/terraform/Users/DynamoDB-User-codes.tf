@@ -28,5 +28,5 @@ resource "aws_dynamodb_table" "Verification_Codes" {
 }
 
 output "dynamodb_users_codes_verification_codes_table_name" {
-  value = aws_dynamodb_table.vibraheka-dynamodb-users-codes.name
+  value = aws_dynamodb_table.Verification_Codes.name
 }
