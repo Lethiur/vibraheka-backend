@@ -388,7 +388,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          aws-profile-name: ${{ env.AWS_PROFILE_NAME }}
+          aws-profile: ${{ env.AWS_PROFILE_NAME }}
+          output-env-credentials: true
 
       - name: Download prod terraform outputs
         uses: actions/download-artifact@v7
