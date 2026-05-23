@@ -87,7 +87,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the persisted record should have the same type
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success for type='{type}' but got failure: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        
+
         RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
 
         Assert.That(persisted, Is.Not.Null,
@@ -132,7 +132,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the second save should succeed and the record should reflect updated data
         Assert.That(secondResult.IsSuccess, Is.True,
             $"Expected second SaveAsync to succeed but got failure: '{(secondResult.IsSuccess ? "N/A" : secondResult.Error)}'");
-        
+
         RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(recordingId);
 
         Assert.That(persisted, Is.Not.Null,
@@ -163,7 +163,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the record should be retrievable from the configured RecordingsTable
         Assert.That(result.IsSuccess, Is.True,
             $"SaveAsync failed, indicating the table name might be wrong. Error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        
+
         RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
 
         Assert.That(persisted, Is.Not.Null,

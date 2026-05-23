@@ -17,14 +17,14 @@ public sealed class CreateSubscriptionPlanTest : GenericSubscriptionPlanWriteAda
     {
         // Given: a valid SubscriptionPlanEntity with known Name and IncludesFullCatalog values
         SubscriptionPlanEntity subscriptionPlan = BuildDefaultSubscriptionPlanEntity();
-        
+
         // And: Some mocking
         ContextMock.Setup(c => c.CreateTransactWrite<SubscriptionPlanDBModel>())
             .Returns(TransactWriteMock.Object);
 
         // When: CreateSubscriptionPlan is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateSubscriptionPlan(subscriptionPlan);
-        
+
         // Then: AddSaveItem is called once with the model produced by the mapper (key fields match the domain entity)
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

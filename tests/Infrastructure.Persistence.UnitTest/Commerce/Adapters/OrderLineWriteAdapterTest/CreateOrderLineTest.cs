@@ -20,7 +20,7 @@ public sealed class CreateOrderLineTest : GenericOrderLineWriteAdapterTest
 
         // When: CreateOrderLine is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateOrderLine(orderLine);
-        
+
         // Then: AddSaveItem is called once with the model produced by the mapper
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

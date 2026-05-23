@@ -19,7 +19,7 @@ public abstract class GenericSellableItemWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<SellableItemDBModel>>();
-        
+
         Mapper = new SellableItemEntityMapper();
         Adapter = new SellableItemWriteAdapter(Mapper, ContextMock.Object);
 

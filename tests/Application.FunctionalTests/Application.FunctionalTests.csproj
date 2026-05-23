@@ -29,11 +29,13 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Web\Web.csproj" />
+      <Folder Include="Settings\Commands\" />
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="Settings\Commands\" />
+      <ProjectReference Include="..\..\src\Application\Application.csproj" />
+      <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
+      <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

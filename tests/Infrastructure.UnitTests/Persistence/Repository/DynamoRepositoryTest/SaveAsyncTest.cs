@@ -16,7 +16,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
     {
         // Given: An entity to save
         TestEntity entity = new() { ID = "save-id" };
-        _contextMock.Setup(x => x.SaveAsync(entity,  None))
+        _contextMock.Setup(x => x.SaveAsync(entity, None))
             .Returns(Task.CompletedTask);
 
         // When: Saving the entity

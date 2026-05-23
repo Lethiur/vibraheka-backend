@@ -14,7 +14,7 @@ namespace VibraHeka.Infrastructure.Persistence.Repository;
 public class VerificationCodesRepository(IDynamoDBContext context, VerificationCodeEntityMapper mapper) : ICodeRepository
 {
 
-    public async Task<Result<VerificationCodeEntity>> GetCodeFor(string email)  
+    public async Task<Result<VerificationCodeEntity>> GetCodeFor(string email)
     {
         VerificationCodeDBModel? results = await context.LoadAsync<VerificationCodeDBModel>(email);
 

@@ -49,7 +49,7 @@ public sealed class GetBySellableItemIdAndKindAsyncTest : GenericSellableItemPri
             x => x.QueryAsync<SellableItemPriceDBModel>(
                 It.Is<string>(id => id == sellableItemId),
                 It.Is<QueryConfig>(qc =>
-                    qc.IndexName == "SellableItemID-Index" )),
+                    qc.IndexName == "SellableItemID-Index")),
             Times.Once,
             $"Expected QueryAsync called once with indexName='SellableItemID-Index'");
 

@@ -52,7 +52,7 @@ public abstract class GenericDynamoRepository<T>(
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Retrieving entity of type {EntityType} by ID  {ID} and range key {RangeKey}", typeof(T).Name, idValue, rangeKeyValue);
-       
+
         try
         {
             T? model = await context.LoadAsync<T>(idValue, rangeKeyValue, cancellationToken);
@@ -79,7 +79,7 @@ public abstract class GenericDynamoRepository<T>(
     {
         logger.LogInformation(
             "Retrieving entity of type {EntityType} using index {IndexName} with value {IndexValue}", typeof(T).Name, indexName, indexValue);
-        QueryConfig queryConfig = new() { IndexName = indexName};
+        QueryConfig queryConfig = new() { IndexName = indexName };
         try
         {
             IAsyncSearch<T>? search = context.QueryAsync<T>(indexValue, queryConfig);
@@ -122,7 +122,7 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
-        DynamoDBTableAttribute? dynamoDbTableAttribute = typeof(T).GetCustomAttribute<DynamoDBTableAttribute>(inherit:true);
+        DynamoDBTableAttribute? dynamoDbTableAttribute = typeof(T).GetCustomAttribute<DynamoDBTableAttribute>(inherit: true);
 
         try
         {
@@ -198,7 +198,7 @@ public abstract class GenericDynamoRepository<T>(
         DynamoExpression? condition = null,
         CancellationToken token = default)
     {
-        
+
         UpdateItemRequest request = new UpdateItemRequest
         {
             Key = key,
@@ -218,7 +218,7 @@ public abstract class GenericDynamoRepository<T>(
             foreach (var kv in condition.AttributeValues)
                 request.ExpressionAttributeValues[kv.Key] = kv.Value;
         }
-        
+
         UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
 
         return Result.Success(Unit.Value);

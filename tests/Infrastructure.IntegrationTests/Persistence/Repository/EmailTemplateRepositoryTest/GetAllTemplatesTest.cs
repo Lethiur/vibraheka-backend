@@ -16,7 +16,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
         // Given: dos plantillas sembradas en la tabla de pruebas.
         string templateId1 = $"it-{Guid.NewGuid():N}";
         string templateId2 = $"it-{Guid.NewGuid():N}";
-        
+
         await DynamoContext.SaveAsync(new EmailTemplateDBModel
         {
             TemplateID = templateId1,

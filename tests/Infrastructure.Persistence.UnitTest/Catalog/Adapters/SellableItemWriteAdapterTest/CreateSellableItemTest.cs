@@ -23,10 +23,10 @@ public sealed class CreateSellableItemTest : GenericSellableItemWriteAdapterTest
             .Setup(c => c.CreateTransactWrite<SellableItemDBModel>())
             .Returns(TransactWriteMock.Object);
 
-        
+
         // When: CreateSellableItem is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateSellableItem(product);
-        
+
         // Then: AddSaveItem is called once with the model produced by the mapper (key fields must match the domain entity)
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

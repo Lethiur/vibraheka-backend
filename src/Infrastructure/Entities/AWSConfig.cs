@@ -14,7 +14,7 @@ public class AWSConfig
     [Required]
     public string EmailTemplatesBucketName { get; set; } = string.Empty;
 
-  
+
     /// <summary>
     /// Gets or sets the unique identifier for the AWS Cognito client application.
     /// This property is used to identify and authenticate the client application
@@ -51,7 +51,7 @@ public class AWSConfig
     /// Secret used to encrypt and authenticate password reset tokens exchanged with the frontend.
     /// </summary>
     public string PasswordResetTokenSecret { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Gets or sets the name of the index on the Subscription table used for querying subscriptions by user ID.
     /// This property is used to specify the indexed attribute that allows efficient lookups for user-specific subscriptions in the database.
@@ -79,8 +79,8 @@ public class AWSConfig
     /// </summary>
     [Required]
     public string RecordingsBucketName { get; set; } = string.Empty;
-    
+
     [Required]
     public string Environment { get; set; } = string.Empty;
-    
+
 }
