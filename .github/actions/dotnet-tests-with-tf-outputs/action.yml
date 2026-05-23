@@ -52,6 +52,7 @@ runs:
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: ${{ inputs.aws-region }}
         aws-profile: ${{ inputs.aws-profile-name }}
+        output-env-credentials: true
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v5
