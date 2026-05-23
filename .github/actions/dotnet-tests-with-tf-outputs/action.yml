@@ -76,7 +76,6 @@ runs:
         set -euo pipefail
         chmod +x ./update-appsettings-from-terraform.sh
         ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "${{ inputs.appsettings-path }}"
-        cat "${{ inputs.appsettings-path }}"
 
     - name: Run .NET tests (verbose console logs)
       shell: bash
