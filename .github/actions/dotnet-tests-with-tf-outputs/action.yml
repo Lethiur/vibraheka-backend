@@ -31,7 +31,7 @@ inputs:
   aspnetcore-environment:
     description: ASPNETCORE_ENVIRONMENT for dotnet test.
     required: false
-    default: Test
+    default: Development
   projects:
     description: Newline-separated list of .csproj paths to test.
     required: true
