@@ -284,7 +284,7 @@ public class PaymentsRepository(
             return fallbackUrl;
         }
 
-        string parameterName = $"/{awsConfig.SettingsNameSpace}/frontend/url";
+        string parameterName = $"{awsConfig.SettingsNameSpace}frontend/url";
 
         try
         {
