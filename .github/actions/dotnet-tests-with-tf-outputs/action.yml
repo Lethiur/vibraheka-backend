@@ -90,5 +90,5 @@ runs:
         set -euo pipefail
         while IFS= read -r proj; do
           [[ -z "${proj// }" ]] && continue
-          dotnet test "$proj" --environment  --logger "console;verbosity=detailed"
+          dotnet test "$proj" --logger "console;verbosity=detailed"
         done <<< "${{ inputs.projects }}"
