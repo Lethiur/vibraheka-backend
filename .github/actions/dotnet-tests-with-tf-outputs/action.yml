@@ -72,12 +72,11 @@ runs:
     - name: Sync terraform outputs into appsettings
       shell: bash
       env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_REGION: ${{ inputs.aws-region }}
-        AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
         PASSWORD_RESET_TOKEN_SECRET: ${{ inputs.password-reset-token-secret }}
         STRIPE_SECRET_KEY: ${{ inputs.stripe-secret-key }}
+        ENVIRONMENT: ${{ needs.prepare.outputs.environment }}
+        REGION: ${{ inputs.aws-region }}
+        PROFILE: ${{ inputs.aws-profile-name }}
       run: |
         set -euo pipefail
         chmod +x ./update-appsettings-from-terraform.sh
