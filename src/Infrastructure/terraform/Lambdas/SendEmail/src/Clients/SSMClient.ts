@@ -18,7 +18,10 @@ export default class SSMClientWrapper {
         const command = new GetParameterCommand({Name: parameterName});
         return ResultAsync.fromPromise(
             this.ssmClient.send(command),
-            _error => "SSM_PARAMETER_NOT_FOUND"
+            _error => {
+                console.error("Failed to retrieve SSM parameter:", parameterName, _error);
+                return "SSM_PARAMETER_NOT_FOUND"
+            }
         ).andThen(response => {
             const value = response.Parameter?.Value;
             return value ? okAsync(value) : errAsync("SSM_PARAMETER_NOT_FOUND");
