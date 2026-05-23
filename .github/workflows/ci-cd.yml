@@ -280,7 +280,11 @@ jobs:
             tests/Application.UnitTests/Application.UnitTests.csproj
             tests/Application.FunctionalTests/Application.FunctionalTests.csproj
             tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj
-#            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
+            tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj
+            tests/Infrastructure.Persistence.IntegrationTests/Infrastructure.Persistence.IntegrationTests.csproj
+            tests/Infrastructure.Persistence.UnitTests/Infrastructure.Persistence.UnitTests.csproj
+            tests/Infrastructure.Rest.Client.UnitTests/Infrastructure.Rest.Client.UnitTests.csproj
+#            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
 
 #  tests_acceptance:
 #    name: Tests (acceptance)
