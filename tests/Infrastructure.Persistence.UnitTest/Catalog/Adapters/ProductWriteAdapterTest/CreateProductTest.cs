@@ -18,7 +18,7 @@ public sealed class CreateProductTest : GenericProductWriteAdapterTest
     {
         // Given: a valid ProductEntity with known Name and Description
         ProductEntity product = BuildDefaultProductEntity();
-        
+
         // And: Some mocking
         Mock<ITransactWrite<ProductDBModel>> transactMock = new Mock<ITransactWrite<ProductDBModel>>();
         ContextMock

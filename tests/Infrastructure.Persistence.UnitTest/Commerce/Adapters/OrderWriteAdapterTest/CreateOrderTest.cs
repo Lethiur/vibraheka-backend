@@ -20,7 +20,7 @@ public sealed class CreateOrderTest : GenericOrderWriteAdapterTest
 
         // When: CreateOrder is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreateOrder(order);
-        
+
         // Then: AddSaveItem is called once with the model produced by the mapper
         TransactWriteMock.Verify(
             x => x.AddSaveItem(

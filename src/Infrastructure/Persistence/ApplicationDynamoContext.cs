@@ -14,7 +14,7 @@ public class ApplicationDynamoContext(IAmazonDynamoDB client, AWSConfig config)
     /// Gets the instance of <see cref="IDynamoDBContext"/> which is used to interact with the Amazon DynamoDB database.
     /// This property provides a high-level abstraction for accessing tables, executing queries, and performing database operations.
     /// </summary>
-    public IDynamoDBContext Context { get; } = new  DynamoDBContextBuilder().ConfigureContext(context =>
+    public IDynamoDBContext Context { get; } = new DynamoDBContextBuilder().ConfigureContext(context =>
     {
         context.TableNamePrefix = config.Environment;
     }).WithDynamoDBClient(() => client).Build();

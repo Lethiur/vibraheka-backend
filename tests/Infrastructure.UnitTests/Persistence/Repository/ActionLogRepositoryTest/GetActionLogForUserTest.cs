@@ -20,7 +20,7 @@ public class GetActionLogForUserTest : GenericActionLogRepositoryTest
             Timestamp = DateTimeOffset.UtcNow
         };
 
-        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification,  It.IsAny<CancellationToken>()))
+        ContextMock.Setup(x => x.LoadAsync<ActionLogDBModel>("user-1", ActionType.UserVerification, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dbModel);
 
         // When

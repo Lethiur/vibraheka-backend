@@ -26,6 +26,7 @@ public class EmailClient(IAmazonSimpleEmailServiceV2 sesClient, ILogger<EmailCli
         };
 
         SendEmailResponse sendEmailResponse = await sesClient.SendEmailAsync(request);
+        logger.LogInformation("Email sent successfully with messageID {MessageId} with subject {Subject}", sendEmailResponse.MessageId, subject);
         return Result.Success(sendEmailResponse.MessageId);
     }
 }

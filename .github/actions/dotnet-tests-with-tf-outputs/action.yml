@@ -45,17 +45,14 @@ runs:
         name: ${{ inputs.terraform-outputs-artifact-name }}
         path: /tmp/terraform-outputs-test
 
-    - name: Create local AWS profile for SDK-based tools
-      shell: bash
-      run: |
-        set -euo pipefail
-        aws configure set aws_access_key_id "${{ inputs.aws-access-key-id }}" --profile "${{ inputs.aws-profile-name }}"
-        aws configure set aws_secret_access_key "${{ inputs.aws-secret-access-key }}" --profile "${{ inputs.aws-profile-name }}"
-        aws configure set region "${{ inputs.aws-region }}" --profile "${{ inputs.aws-profile-name }}"
-
-        # Make sure the SDK uses shared config/profile for tools that require it.
-        echo "AWS_PROFILE=${{ inputs.aws-profile-name }}" >> "$GITHUB_ENV"
-        echo "AWS_SDK_LOAD_CONFIG=1" >> "$GITHUB_ENV"
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
+        aws-profile: ${{ inputs.aws-profile-name }}
+        output-env-credentials: true
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v5
@@ -80,7 +77,6 @@ runs:
         set -euo pipefail
         chmod +x ./update-appsettings-from-terraform.sh
         ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "${{ inputs.appsettings-path }}"
-        cat "${{ inputs.appsettings-path }}"
 
     - name: Run .NET tests (verbose console logs)
       shell: bash
@@ -90,5 +86,6 @@ runs:
         set -euo pipefail
         while IFS= read -r proj; do
           [[ -z "${proj// }" ]] && continue
+          echo "Running dotnet test on $proj"
           dotnet test "$proj" --logger "console;verbosity=detailed"
         done <<< "${{ inputs.projects }}"

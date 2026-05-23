@@ -24,7 +24,12 @@ resource "aws_dynamodb_table" "Verification_Codes" {
     enabled        = true
   }
   
-  tags = local.tags
+  tags = merge(local.tags, {
+    Component = "DynamoDB",
+  })
+  tags_all = merge(local.tags, {
+    Component = "DynamoDB",
+  })
 }
 
 output "dynamodb_users_codes_verification_codes_table_name" {

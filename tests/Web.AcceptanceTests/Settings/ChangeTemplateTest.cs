@@ -28,7 +28,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: authorization middleware rejects the request.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
-    
+
     [TestCase(ActionType.UserRegistered, "test/welcome-email.html")]
     [TestCase(ActionType.SubscriptionThankYou, "test/subscription-thank-you-email.html")]
     [TestCase(ActionType.TrialEndingSoon, "test/trial-ending-soon-email.html")]

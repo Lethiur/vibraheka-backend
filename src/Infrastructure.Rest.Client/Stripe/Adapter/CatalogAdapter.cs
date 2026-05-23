@@ -38,6 +38,7 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
         CancellationToken cancellationToken)
     {
 
+        Logger.LogInformation("Creating product and price in Stripe gateway {ProductID}", productEntity.ProductID);
         CreateProductAndPriceRequest request = new CreateProductAndPriceRequest()
         {
             Name = productEntity.Name,

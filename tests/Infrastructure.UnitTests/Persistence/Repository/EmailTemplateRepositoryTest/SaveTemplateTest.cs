@@ -57,7 +57,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryTest
         };
 
         _contextMock
-            .Setup(c => c.SaveAsync(It.IsAny<EmailTemplateDBModel>() ,It.IsAny<CancellationToken>()))
+            .Setup(c => c.SaveAsync(It.IsAny<EmailTemplateDBModel>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Dynamo save error"));
 
         // When

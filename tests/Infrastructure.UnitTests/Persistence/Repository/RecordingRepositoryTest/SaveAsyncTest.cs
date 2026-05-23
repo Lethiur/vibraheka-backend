@@ -111,7 +111,7 @@ public class SaveAsyncTest : GenericRecordingRepositoryTest
         InvalidOperationException expectedException = new("DynamoDB connection failed");
 
         ContextMock
-            .Setup(c => c.SaveAsync(It.IsAny<RecordingDBModel>(),It.IsAny<CancellationToken>()))
+            .Setup(c => c.SaveAsync(It.IsAny<RecordingDBModel>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(expectedException);
 
         // When / Then: invoking SaveAsync should propagate the exception

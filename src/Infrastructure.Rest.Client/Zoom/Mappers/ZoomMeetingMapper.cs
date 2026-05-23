@@ -50,6 +50,7 @@ public partial class ZoomMeetingMapper
     [MapProperty(nameof(RegisterAttendeeModel.RegistrantName), nameof(ZoomRegisterRegistrantRequest.FirstName))]
     [MapProperty(nameof(RegisterAttendeeModel.RegistrantLastName), nameof(ZoomRegisterRegistrantRequest.LastName))]
     [MapValue(nameof(ZoomRegisterRegistrantRequest.AutoApprove), true)]
+    [MapperIgnoreSource(nameof(RegisterAttendeeModel.UserID))]
     public partial ZoomRegisterRegistrantRequest ToZoomRequest(RegisterAttendeeModel model);
 
     [MapProperty(nameof(ZoomCreateRegistrantResposne.MeetingId), nameof(RegisterAttendeeResult.EventID))]

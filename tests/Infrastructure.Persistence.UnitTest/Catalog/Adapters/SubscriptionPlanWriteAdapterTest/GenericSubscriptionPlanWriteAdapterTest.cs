@@ -19,7 +19,7 @@ public abstract class GenericSubscriptionPlanWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<SubscriptionPlanDBModel>>();
-        
+
         Mapper = new SubscriptionPlanEntityMapper();
         Adapter = new SubscriptionPlanWriteAdapter(Mapper, ContextMock.Object);
 

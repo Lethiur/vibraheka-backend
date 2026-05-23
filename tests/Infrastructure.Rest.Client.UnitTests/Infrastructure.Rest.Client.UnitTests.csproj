@@ -32,6 +32,10 @@
         <ProjectReference Include="..\..\src\Infrastructure.Rest.Client\Infrastructure.Rest.Client.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageVersion Update="NUnit" Version="4.6.1" />
+    </ItemGroup>
+
 </Project>
 
 
