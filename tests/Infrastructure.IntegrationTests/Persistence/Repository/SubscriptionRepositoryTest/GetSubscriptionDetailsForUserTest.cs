@@ -63,19 +63,12 @@ public class GetSubscriptionDetailsForUserTest : GenericSubscriptionRepositoryIn
         AWSConfig invalidConfig = new()
         {
             EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
-            UserCodesTable = _configuration.UserCodesTable,
-            EmailTemplatesTable = _configuration.EmailTemplatesTable,
-            UsersTable = _configuration.UsersTable,
-#if DEBUG
-            CodesTable = _configuration.CodesTable,
-#endif
             ClientId = _configuration.ClientId,
             UserPoolId = _configuration.UserPoolId,
             Location = _configuration.Location,
             Profile = _configuration.Profile,
             PasswordResetTokenSecret = _configuration.PasswordResetTokenSecret,
-            ActionLogTable = _configuration.ActionLogTable,
-            SubscriptionTable = _configuration.SubscriptionTable,
+            Environment = "VibraHeka-test",
             SubscriptionUserIdIndex = $"invalid-index-{Guid.NewGuid():N}",
             SettingsNameSpace = _configuration.SettingsNameSpace
         };

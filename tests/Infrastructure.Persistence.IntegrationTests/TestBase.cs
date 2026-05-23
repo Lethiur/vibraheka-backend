@@ -91,7 +91,10 @@ public abstract class TestBase
 
     protected IDynamoDBContext CreateDynamoDBContext()
     {
-        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().WithDynamoDBClient(() =>
+        DynamoDBContext dynamoDbContext = new DynamoDBContextBuilder().ConfigureContext(context =>
+            {
+                context.TableNamePrefix = _configuration.Environment;
+            }).WithDynamoDBClient(() =>
                 new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { Profile = new Profile(_configuration.Profile) }))
             .Build();
 

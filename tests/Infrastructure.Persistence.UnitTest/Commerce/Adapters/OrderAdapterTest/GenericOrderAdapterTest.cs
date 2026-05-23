@@ -9,7 +9,6 @@ using Moq;
 using NMoneys;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderAdapterTest;
 
@@ -21,7 +20,6 @@ public abstract class GenericOrderAdapterTest
     protected Mock<ILogger<OrderLineRepository>> OrderLineRepositoryLoggerMock = default!;
     protected Mock<ILogger<OrderAdapter>> AdapterLoggerMock = default!;
     protected Mock<IBatchWrite<OrderLineDBModel>> BatchWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected OrderAdapter Adapter = default!;
 
     [SetUp]
@@ -34,43 +32,15 @@ public abstract class GenericOrderAdapterTest
         AdapterLoggerMock = new Mock<ILogger<OrderAdapter>>();
         BatchWriteMock = new Mock<IBatchWrite<OrderLineDBModel>>();
 
-        Config = new AWSConfig
-        {
-            OrdersTable = "unit-test-orders-table",
-            OrderLineTable = "unit-test-order-lines-table",
-            EmailTemplatesBucketName = "n/a",
-            UserCodesTable = "n/a",
-            EmailTemplatesTable = "n/a",
-            UsersTable = "n/a",
-            ClientId = "n/a",
-            UserPoolId = "n/a",
-            Location = "n/a",
-            Profile = "n/a",
-            ActionLogTable = "n/a",
-            SubscriptionTable = "n/a",
-            SubscriptionUserIdIndex = "n/a",
-            RecordingsTierIndex = "n/a",
-            SettingsNameSpace = "n/a",
-            RecordingsBucketName = "n/a",
-            RecordingsTable = "n/a",
-            ProductTable = "n/a",
-            SellableItemsTable = "n/a",
-            SellableItemPricesTable = "n/a",
-            SubscriptionPlansTable = "n/a",
-            PaymentAttemptTable = "n/a"
-        };
-
         OrderRepository orderRepository = new OrderRepository(
             DynamoDbClientMock.Object,
             ContextMock.Object,
-            Config,
             new OrderMapper(),
             OrderRepositoryLoggerMock.Object);
 
         OrderLineRepository orderLineRepository = new OrderLineRepository(
             DynamoDbClientMock.Object,
             ContextMock.Object,
-            Config,
             new OrderLineMapper(),
             OrderLineRepositoryLoggerMock.Object);
 
@@ -81,11 +51,11 @@ public abstract class GenericOrderAdapterTest
 
         // Default happy-path setup
         ContextMock
-            .Setup(x => x.SaveAsync(It.IsAny<OrderDBModel>(), It.IsAny<SaveConfig>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<OrderDBModel>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         ContextMock
-            .Setup(x => x.CreateBatchWrite<OrderLineDBModel>(It.IsAny<BatchWriteConfig>()))
+            .Setup(x => x.CreateBatchWrite<OrderLineDBModel>())
             .Returns(BatchWriteMock.Object);
 
         BatchWriteMock

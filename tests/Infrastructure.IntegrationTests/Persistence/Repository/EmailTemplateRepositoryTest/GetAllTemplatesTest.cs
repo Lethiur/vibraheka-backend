@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Exceptions;
@@ -17,8 +16,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
         // Given: dos plantillas sembradas en la tabla de pruebas.
         string templateId1 = $"it-{Guid.NewGuid():N}";
         string templateId2 = $"it-{Guid.NewGuid():N}";
-
-        SaveConfig saveConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
+        
         await DynamoContext.SaveAsync(new EmailTemplateDBModel
         {
             TemplateID = templateId1,
@@ -26,7 +24,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
             Path = "Path 1",
             Created = DateTimeOffset.UtcNow,
             LastModified = DateTimeOffset.UtcNow
-        }, saveConfig);
+        });
         await DynamoContext.SaveAsync(new EmailTemplateDBModel
         {
             TemplateID = templateId2,
@@ -34,7 +32,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryIntegrationTest
             Path = "Path 2",
             Created = DateTimeOffset.UtcNow,
             LastModified = DateTimeOffset.UtcNow
-        }, saveConfig);
+        });
 
         // When: se solicitan todas las plantillas del repositorio.
         Result<IEnumerable<EmailEntity>> result = await Repository.GetAllTemplates(CancellationToken.None);

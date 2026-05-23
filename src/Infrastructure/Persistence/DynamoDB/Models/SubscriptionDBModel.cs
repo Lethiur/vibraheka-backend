@@ -5,7 +5,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("TABLE_SUBSCRIPTIONS")]
+[DynamoDBTable("Subscriptions-Records")]
 public class SubscriptionDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

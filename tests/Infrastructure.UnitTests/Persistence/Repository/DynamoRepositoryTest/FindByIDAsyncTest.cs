@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Infrastructure.Exceptions;
@@ -16,7 +15,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
         // Given: A valid ID and an entity in DynamoDB
         const string id = "test-id";
         TestEntity entity = new() { ID = id };
-        _contextMock.Setup(x => x.LoadAsync<TestEntity>(id, It.IsAny<LoadConfig>(), CancellationToken.None))
+        _contextMock.Setup(x => x.LoadAsync<TestEntity>(id, CancellationToken.None))
             .ReturnsAsync(entity);
 
         // When: Finding by ID
@@ -25,8 +24,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
         // Then: Result should be success and contain the entity
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(entity));
-        _contextMock.Verify(x => x.LoadAsync<TestEntity>(id,
-            It.Is<LoadConfig>(c => c.OverrideTableName == TableName), CancellationToken.None), Times.Once);
+        _contextMock.Verify(x => x.LoadAsync<TestEntity>(id, CancellationToken.None), Times.Once);
     }
 
     [Test]
@@ -34,7 +32,7 @@ public class FindByIDAsyncTest : GenericDynamoRepositoryTest
     public async Task ShouldReturnFailureWhenLoadThrowsException()
     {
         // Given: An exception in the context
-        _contextMock.Setup(x => x.LoadAsync<TestEntity>(It.IsAny<string>(), It.IsAny<LoadConfig>(), default))
+        _contextMock.Setup(x => x.LoadAsync<TestEntity>(It.IsAny<string>(), CancellationToken.None))
             .ThrowsAsync(new Exception("DB Connection Error"));
 
         // When: Finding by ID

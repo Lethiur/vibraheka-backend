@@ -17,7 +17,6 @@ public abstract class GenericUserCodeRepositoryIntegrationTest : TestBase
         base.OneTimeSetUp();
         _dynamoDbContext = CreateDynamoDBContext();
         _repository = new UserCodeRepository(
-            _configuration,
             _dynamoDbContext,
             _client,
             new UsersCodeMapper(),
@@ -36,10 +35,6 @@ public abstract class GenericUserCodeRepositoryIntegrationTest : TestBase
         {
             await _dynamoDbContext.DeleteAsync<UserCodeDBModel>(
                 tokenId,
-                new DeleteConfig
-                {
-                    OverrideTableName = _configuration.UserCodesTable
-                },
                 CancellationToken.None);
         }
         catch

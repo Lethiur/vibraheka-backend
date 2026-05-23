@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemWriteAdapterTest;
 
@@ -12,7 +11,6 @@ public abstract class GenericSellableItemWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<SellableItemDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected SellableItemEntityMapper Mapper = default!;
     protected SellableItemWriteAdapter Adapter = default!;
 
@@ -21,9 +19,9 @@ public abstract class GenericSellableItemWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<SellableItemDBModel>>();
-        Config = new AWSConfig { SellableItemsTable = "unit-test-sellable-items-write-table" };
+        
         Mapper = new SellableItemEntityMapper();
-        Adapter = new SellableItemWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new SellableItemWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
             .Setup(x => x.CreateTransactWrite<SellableItemDBModel>(It.IsAny<TransactWriteConfig>()))

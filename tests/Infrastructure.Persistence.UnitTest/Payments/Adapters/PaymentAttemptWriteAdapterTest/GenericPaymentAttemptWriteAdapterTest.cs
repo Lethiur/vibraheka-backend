@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Payments.Mappers;
 using Infrastructure.Persistence.Payments.Models;
 using Moq;
 using VibraHeka.Domain.Payments.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Payments.Adapters.PaymentAttemptWriteAdapterTest;
 
@@ -12,7 +11,6 @@ public abstract class GenericPaymentAttemptWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<PaymentAttemptDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected PaymentAttemptMapper Mapper = default!;
     protected PaymentAttemptWriteAdapter Adapter = default!;
 
@@ -21,12 +19,11 @@ public abstract class GenericPaymentAttemptWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<PaymentAttemptDBModel>>();
-        Config = new AWSConfig { PaymentAttemptTable = "unit-test-payment-attempts-table" };
         Mapper = new PaymentAttemptMapper();
-        Adapter = new PaymentAttemptWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new PaymentAttemptWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
-            .Setup(x => x.CreateTransactWrite<PaymentAttemptDBModel>(It.IsAny<TransactWriteConfig>()))
+            .Setup(x => x.CreateTransactWrite<PaymentAttemptDBModel>())
             .Returns(TransactWriteMock.Object);
     }
 

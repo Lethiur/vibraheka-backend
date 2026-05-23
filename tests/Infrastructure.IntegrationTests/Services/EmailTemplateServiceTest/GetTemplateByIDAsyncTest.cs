@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
@@ -24,8 +23,7 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
             Path = "Integration Test Subject"
         };
 
-        await _context.SaveAsync(expectedTemplate,
-            new SaveConfig() { OverrideTableName = _configuration.EmailTemplatesTable });
+        await _context.SaveAsync(expectedTemplate);
 
         // When: Retrieving the template through the service
         Result<EmailEntity> result = await _service.GetTemplateByID(templateId, CancellationToken.None);

@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Commerce.Models;
 using Moq;
@@ -33,7 +32,7 @@ public sealed class CreateOrderLinesAsyncTest : GenericOrderAdapterTest
             $"Expected OrderLineID='{line.OrderLineID}' but got '{result.Value.First().OrderLineID}'");
 
         ContextMock.Verify(
-            x => x.CreateBatchWrite<OrderLineDBModel>(It.Is<BatchWriteConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName))),
+            x => x.CreateBatchWrite<OrderLineDBModel>(),
             Times.Once,
             "Expected CreateBatchWrite<OrderLineDBModel> called once with a valid table name");
 
@@ -74,7 +73,7 @@ public sealed class CreateOrderLinesAsyncTest : GenericOrderAdapterTest
             $"Expected error '{CommerceErrors.FailedToSaveOrderLines}' (CO-002) but got '{result.Error}'");
 
         ContextMock.Verify(
-            x => x.CreateBatchWrite<OrderLineDBModel>(It.Is<BatchWriteConfig>(cfg => !string.IsNullOrEmpty(cfg.OverrideTableName))),
+            x => x.CreateBatchWrite<OrderLineDBModel>(),
             Times.Once,
             "Expected CreateBatchWrite<OrderLineDBModel> attempted once before ExecuteAsync failure");
 

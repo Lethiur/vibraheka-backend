@@ -28,69 +28,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: authorization middleware rejects the request.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
-
-    [Test]
-    public async Task ShouldUpdateVerificationEmailTemplateSuccessfullyWhenUserIsAdmin()
-    {
-        // Given: A registered and confirmed admin user
-        string email = TheFaker.Internet.Email();
-        string username = TheFaker.Person.FullName;
-        string templateID = Guid.NewGuid().ToString();
-        await RegisterAndConfirmAdmin(username, email, ThePassword);
-
-        // And: The user is authenticated
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-
-        // And: Template in the DB
-        await SeedEmailTemplate(templateID, "test/verification-email.html");
-
-        // And: A command to change the template
-        ChangeTemplateForActionCommand command = new(templateID, ActionType.UserVerification);
-
-        // When: The admin attempts to change the template
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
-
-        // Then: The response should be 200 OK
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.True);
-        bool foundAssociation = await WaitForTemplateAssociation(ActionType.UserVerification, templateID, TimeSpan.FromSeconds(10));
-        Assert.That(foundAssociation, Is.True);
-    }
-
-    [Test]
-    public async Task ShouldUpdatePasswordResetTemplateSuccessfullyWhenUserIsAdmin()
-    {
-        // Given: A registered and confirmed admin user
-        string email = TheFaker.Internet.Email();
-        string username = TheFaker.Person.FullName;
-        string templateID = Guid.NewGuid().ToString();
-        await RegisterAndConfirmAdmin(username, email, ThePassword);
-
-        // And: The user is authenticated
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-
-        // And: Template in the DB
-        await SeedEmailTemplate(templateID, "test/password-reset-email.html");
-
-        // And: A command to change the template
-        ChangeTemplateForActionCommand command = new(templateID, ActionType.PasswordReset);
-
-        // When: The admin attempts to change the template
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
-
-        // Then: The response should be 200 OK
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.True);
-
-        bool foundAssociation = await WaitForTemplateAssociation(ActionType.PasswordReset, templateID, TimeSpan.FromSeconds(10));
-        Assert.That(foundAssociation, Is.True);
-    }
-
+    
     [TestCase(ActionType.UserRegistered, "test/welcome-email.html")]
     [TestCase(ActionType.SubscriptionThankYou, "test/subscription-thank-you-email.html")]
     [TestCase(ActionType.TrialEndingSoon, "test/trial-ending-soon-email.html")]
@@ -98,6 +36,8 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     [TestCase(ActionType.SubscriptionCancelled, "test/password-changed-email.html")]
     [TestCase(ActionType.SubscriptionReactivated, "test/password-changed-email.html")]
     [TestCase(ActionType.ForgotPasswordCompleted, "test/password-changed-email.html")]
+    [TestCase(ActionType.UserVerification, "test/user-verification-email.html")]
+    [TestCase(ActionType.PasswordReset, "test/password-reset-email.html")]
     public async Task ShouldUpdateNewAdminManagedTemplatesSuccessfullyWhenUserIsAdmin(ActionType actionType, string templatePath)
     {
         // Given: a registered and authenticated admin user.

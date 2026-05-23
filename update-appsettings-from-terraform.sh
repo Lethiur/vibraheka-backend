@@ -60,34 +60,33 @@ else
 fi
 PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
 STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
+ENVIRONMENT_VALUE="${ENVIRONMENT:-}"
+AWS_REGION="${REGION:-}"
+AWS_PROFILE="${PROFILE:-}"
+if [[ -z "$ENVIRONMENT_VALUE" ]]; then
+  echo "Error: 'ENVIRONMENT' environment variable is required but not set." >&2
+  exit 1
+fi
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
-  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" '
+  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prof "$AWS_PROFILE" --arg reg "$AWS_REGION" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" --arg env "$ENVIRONMENT_VALUE" '
     .AWS = (.AWS // {}) |
-    .Backend = (.Backend // {}) |
     .Stripe = (.Stripe // {}) |
-
-    (if ($tf.users_table_name.value? != null) then .AWS.UsersTable = $tf.users_table_name.value else . end) |
-    (if ($tf.user_codes_table_name.value? != null) then .AWS.UserCodesTable = $tf.user_codes_table_name.value else . end) |
-    (if ($tf.verification_codes_table_name.value? != null) then .AWS.CodesTable = $tf.verification_codes_table_name.value else . end) |
-    (if ($tf.email_templates_table_name.value? != null) then .AWS.EmailTemplatesTable = $tf.email_templates_table_name.value else . end) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |
-    (if ($tf.action_log_table_name.value? != null) then .AWS.ActionLogTable = $tf.action_log_table_name.value else . end) |
-    (if ($tf.subscriptions_table_name.value? != null) then .AWS.SubscriptionTable = $tf.subscriptions_table_name.value else . end) |
-    (if ($tf.subscriptions_table_user_index_name.value? != null) then .AWS.SubscriptionUserIdIndex = $tf.subscriptions_table_user_index_name.value else . end) |
+    (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
     (if ($tf.cognito_client_id.value? != null) then .AWS.ClientId = $tf.cognito_client_id.value else . end) |
     (if ($tf.cognito_pool_id.value? != null) then .AWS.UserPoolId = $tf.cognito_pool_id.value else . end) |
     (if ($tf.settings_namespace.value? != null) then .AWS.SettingsNameSpace = $tf.settings_namespace.value else . end) |
     (if ($prs != "") then .AWS.PasswordResetTokenSecret = $prs else . end) |
     (if ($ssk != "") then .Stripe.SecretKey = $ssk else . end) |
-    (if ($tf.recordings_table_name.value? != null) then .AWS.RecordingsTable = $tf.recordings_table_name.value else . end) |
-    (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
-    (if ($tf.dynamodb_catalog_sellable_item_price_table_name.value? != null) then .AWS.SellableItemPricesTable = $tf.dynamodb_catalog_sellable_item_price_table_name.value else . end) |
-    (if ($tf.dynamodb_catalog_sellable_item_table_name.value? != null) then .AWS.SellableItemsTable = $tf.dynamodb_catalog_sellable_item_table_name.value else . end) |
-    (if ($tf.dynamodb_catalog_products_table_name.value? != null) then .AWS.ProductTable = $tf.dynamodb_catalog_products_table_name.value else . end) |
-    (if ($tf.dynamodb_commerce_orders_table_name.value? != null) then .AWS.OrdersTable = $tf.dynamodb_commerce_orders_table_name.value else . end) |
-    (if ($tf.dynamodb_commerce_order_lines_Table_name.value? != null) then .AWS.OrderLineTable = $tf.dynamodb_commerce_orders_table_name.value else . end) 
+    .AWS.Environment = $env |
+    .AWS.Profile = $prof |
+    .AWS.Location = $reg |
+    .AWSLogging.LogGroup = ($tf.settings_namespace.value + "api/logs") |
+    .AWSLogging.Region = $reg |
+    .AWSLogging.Profile = $prof |
+    .XRay.ServiceName = $tf.project_name.value
   ' "$appsettings_path" > "$tmp_file"
 
   mv "$tmp_file" "$appsettings_path"

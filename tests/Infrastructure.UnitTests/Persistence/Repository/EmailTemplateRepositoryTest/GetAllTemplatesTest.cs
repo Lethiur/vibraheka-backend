@@ -27,8 +27,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
             .ReturnsAsync(models);
 
         _contextMock
-            .Setup(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>(),
-                It.Is<ScanConfig>(cfg => cfg.OverrideTableName == TableName)))
+            .Setup(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>()))
             .Returns(searchMock.Object);
 
         // When
@@ -36,10 +35,9 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e.ID == "t1" && e.Name == "n1" && e.Path == "p1"));
-        Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e.ID == "t2" && e.Name == "n2" && e.Path == "p2"));
-        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>(),
-            It.Is<ScanConfig>(cfg => cfg.OverrideTableName == TableName)), Times.Once);
+        Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e is { ID: "t1", Name: "n1", Path: "p1" }));
+        Assert.That(result.Value, Has.Exactly(1).Matches<VibraHeka.Domain.Entities.EmailEntity>(e => e.ID == "t2" && e is { Name: "n2", Path: "p2" }));
+        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>()), Times.Once);
         searchMock.Verify(s => s.GetRemainingAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -55,8 +53,7 @@ public class GetAllTemplatesTest : GenericEmailTemplateRepositoryTest
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
-        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>(),
-            It.IsAny<ScanConfig>()), Times.Once);
+        _contextMock.Verify(c => c.ScanAsync<EmailTemplateDBModel>(It.IsAny<IEnumerable<ScanCondition>>()), Times.Once);
     }
 }
 

@@ -25,7 +25,7 @@ public abstract class GenericSettingsRepositoryTest
     public void SetUp()
     {
         AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("mock"));
-        config = new AWSConfig() { SettingsNameSpace = "TEST" };
+        config = new AWSConfig() { SettingsNameSpace = "/TEST/" };
         SsmClientMock = new Mock<IAmazonSimpleSystemsManagement>();
         LoggerMock = new Mock<ILogger<SettingsRepository>>();
         Repository = new SettingsRepository(SsmClientMock.Object, config, LoggerMock.Object);

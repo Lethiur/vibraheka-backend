@@ -4,14 +4,13 @@ using Infrastructure.Persistence.Commerce.Models;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Commerce.Ports.Out;
 using VibraHeka.Domain.Commerce.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace Infrastructure.Persistence.Commerce.Adapters;
 
 /// <summary>
 /// Implements the functionality to persist order data into a DynamoDB data store.
 /// </summary>
-public class OrderWriteAdapter(OrderMapper Mapper, AWSConfig Config, IDynamoDBContext Context) : IOrderWritePort
+public class OrderWriteAdapter(OrderMapper Mapper, IDynamoDBContext Context) : IOrderWritePort
 {
     /// <summary>
     /// Creates a new order by mapping a domain order entity to a database model and preparing it
@@ -28,10 +27,7 @@ public class OrderWriteAdapter(OrderMapper Mapper, AWSConfig Config, IDynamoDBCo
     public ITransactionalWriteOperation CreateOrder(OrderEntity order)
     {
         OrderDBModel model = Mapper.FromDomain(order);
-        ITransactWrite<OrderDBModel> transactWrite = Context.CreateTransactWrite<OrderDBModel>(new TransactWriteConfig()
-        {
-            OverrideTableName = Config.OrdersTable
-        });
+        ITransactWrite<OrderDBModel> transactWrite = Context.CreateTransactWrite<OrderDBModel>();
 
         transactWrite.AddSaveItem(model);
         return new DynamoTransactionalWriteOperation(transactWrite);

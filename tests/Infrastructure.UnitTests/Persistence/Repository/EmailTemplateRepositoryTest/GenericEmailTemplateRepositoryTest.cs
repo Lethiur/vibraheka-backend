@@ -14,9 +14,8 @@ public abstract class GenericEmailTemplateRepositoryTest : GenericDynamoReposito
     public void SetUpEmailTemplateRepository()
     {
         base.SetUp();
-        _configMock.EmailTemplatesTable = TableName;
         logger = new Mock<ILogger<EmailTemplateRepository>>();
-        Repository = new EmailTemplateRepository(_contextMock.Object, _dynamoDbClientMock.Object, _configMock, logger.Object);
+        Repository = new EmailTemplateRepository(_contextMock.Object, _dynamoDbClientMock.Object, logger.Object);
     }
 }
 

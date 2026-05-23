@@ -47,10 +47,9 @@ public sealed class GetSellableItemPriceAndKindAsyncTest : GenericSellableItemPr
             x => x.QueryAsync<SellableItemPriceDBModel>(
                 It.Is<string>(id => id == sellableItemId),
                 It.Is<QueryConfig>(qc =>
-                    qc.IndexName == "SellableItemID-Index" &&
-                    qc.OverrideTableName == Config.SellableItemPricesTable)),
+                    qc.IndexName == "SellableItemID-Index")),
             Times.Once,
-            $"Expected QueryAsync called once with sellableItemId='{sellableItemId}' and table='{Config.SellableItemPricesTable}'");
+            $"Expected QueryAsync called once with sellableItemId='{sellableItemId}'");
 
         SearchMock.Verify(
             x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),

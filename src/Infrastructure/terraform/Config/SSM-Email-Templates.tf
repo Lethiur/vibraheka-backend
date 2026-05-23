@@ -35,7 +35,6 @@ resource "aws_ssm_parameter" "User_Welcome_Email_Template" {
   lifecycle {
     ignore_changes = [value]
   }
-  overwrite = true
   tags = local.tags
 }
 
@@ -47,7 +46,6 @@ resource "aws_ssm_parameter" "Subscription_Thank_You_Email_Template" {
     ignore_changes = [value]
   }
   tags = local.tags
-  overwrite = true
 }
 
 
@@ -69,7 +67,6 @@ resource "aws_ssm_parameter" "Subscription_Reactivated_Email_Template" {
     ignore_changes = [value]
   }
   tags = local.tags
-  overwrite = true
 }
 
 resource "aws_ssm_parameter" "Trial_Ending_Soon_Email_Template" {
@@ -80,7 +77,6 @@ resource "aws_ssm_parameter" "Trial_Ending_Soon_Email_Template" {
     ignore_changes = [value]
   }
   tags = local.tags
-  overwrite = true
 }
 resource "aws_ssm_parameter" "Forgot_Password_Completed_Email_Template" {
   name = "${var.ssm_namespace}ForgotPasswordCompletedEmailTemplate"

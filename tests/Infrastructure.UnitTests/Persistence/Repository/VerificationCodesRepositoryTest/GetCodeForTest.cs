@@ -20,7 +20,7 @@ public class GetCodeForTest : GenericVerificationCodesRepositoryTest
             Timestamp = 1111
         };
 
-        ContextMock.Setup(x => x.LoadAsync<VerificationCodeDBModel>("mail@test.com", It.IsAny<LoadConfig>()))
+        ContextMock.Setup(x => x.LoadAsync<VerificationCodeDBModel>("mail@test.com"))
             .ReturnsAsync(dbModel);
 
         // When

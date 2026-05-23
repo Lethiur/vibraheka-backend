@@ -17,7 +17,7 @@ public abstract class GenericEmailTemplateServiceTest : TestBase
     {
         _context = CreateDynamoDBContext();
         _dynamoDbClient = CreateDynamoDBClient();
-        _repository = new EmailTemplateRepository(_context, _dynamoDbClient, _configuration, CreateTestLogger<EmailTemplateRepository>());
+        _repository = new EmailTemplateRepository(_context, _dynamoDbClient, CreateTestLogger<EmailTemplateRepository>());
         _service = new EmailTemplateService(_repository);
     }
 

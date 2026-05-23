@@ -22,7 +22,7 @@ public class GetUserByIDTest : TestBase
     {
         base.OneTimeSetUp();
         _dynamoDbClient = CreateDynamoDBClient();
-        _userRepository = new UserRepository(CreateDynamoDBContext(), _dynamoDbClient, _configuration, CreateTestLogger<UserRepository>());
+        _userRepository = new UserRepository(CreateDynamoDBContext(), _dynamoDbClient, CreateTestLogger<UserRepository>());
         _paymentRepository = new PaymentsRepository(
             _stripeConfig,
             _configuration,

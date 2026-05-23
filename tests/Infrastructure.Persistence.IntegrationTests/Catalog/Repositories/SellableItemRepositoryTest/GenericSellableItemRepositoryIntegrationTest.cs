@@ -21,7 +21,6 @@ public abstract class GenericSellableItemRepositoryIntegrationTest : TestBase
         SellableItemRepository = new SellableItemRepository(
             _client,
             DynamoContext,
-            _configuration,
             new SellableItemEntityMapper(),
             Logger);
     }
@@ -36,8 +35,7 @@ public abstract class GenericSellableItemRepositoryIntegrationTest : TestBase
     {
         try
         {
-            SaveConfig deleteConfig = new() { OverrideTableName = _configuration.SellableItemsTable };
-            await DynamoContext.DeleteAsync<SellableItemDBModel>(sellableItemId, deleteConfig);
+            await DynamoContext.DeleteAsync<SellableItemDBModel>(sellableItemId);
             Console.WriteLine($"Cleanup: Deleted SellableItem {sellableItemId}");
         }
         catch (Exception ex)
@@ -60,8 +58,7 @@ public abstract class GenericSellableItemRepositoryIntegrationTest : TestBase
             LastModified = DateTimeOffset.UtcNow,
             LastModifiedBy = "integration-test",
         };
-        SaveConfig saveConfig = new() { OverrideTableName = _configuration.SellableItemsTable };
-        await DynamoContext.SaveAsync(model, saveConfig);
+        await DynamoContext.SaveAsync(model);
         Console.WriteLine($"Seeded SellableItem {model.SellableItemID} with ReferenceId {referenceId}");
         return model.SellableItemID;
     }

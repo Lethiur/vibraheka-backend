@@ -6,7 +6,6 @@ using Infrastructure.Persistence.Commerce.Models;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Errors;
-using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace Infrastructure.Persistence.Commerce.Repositories;
@@ -18,10 +17,9 @@ namespace Infrastructure.Persistence.Commerce.Repositories;
 public class OrderLineRepository(
     IAmazonDynamoDB client,
     IDynamoDBContext context,
-    AWSConfig config,
     OrderLineMapper mapper,
     ILogger<OrderLineRepository> logger)
-    : GenericDynamoRepository<OrderLineDBModel>(context, client, config.OrderLineTable, logger)
+    : GenericDynamoRepository<OrderLineDBModel>(context, client, logger)
 {
     /// <summary>
     /// Saves a list of order line entities to a DynamoDB table asynchronously.

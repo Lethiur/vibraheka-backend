@@ -25,7 +25,7 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryTest
             ActionType = ActionType.PasswordReset,
             ExpiresAtUnix = 9999999999
         };
-        ContextMock.Setup(x => x.LoadAsync<UserCodeDBModel>(tokenId, It.IsAny<LoadConfig>(), CancellationToken.None))
+        ContextMock.Setup(x => x.LoadAsync<UserCodeDBModel>(tokenId, CancellationToken.None))
             .ReturnsAsync(model);
 
         // When: retrieving the token marker by token id
@@ -40,7 +40,6 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryTest
 
         ContextMock.Verify(x => x.LoadAsync<UserCodeDBModel>(
             tokenId,
-            It.Is<LoadConfig>(config => config.OverrideTableName == ConfigMock.UserCodesTable),
             CancellationToken.None), Times.Once);
     }
 
@@ -65,7 +64,7 @@ public class GetCodeEntityByTokenIdTest : GenericUserCodeRepositoryTest
     {
         // Given: a generic persistence error while loading by token id
         const string tokenId = "token-123";
-        ContextMock.Setup(x => x.LoadAsync<UserCodeDBModel>(tokenId, It.IsAny<LoadConfig>(), CancellationToken.None))
+        ContextMock.Setup(x => x.LoadAsync<UserCodeDBModel>(tokenId, CancellationToken.None))
             .ThrowsAsync(new Exception("Unexpected load failure"));
 
         // When: retrieving the token marker by token id

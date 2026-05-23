@@ -55,10 +55,9 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
                 It.Is<RecordingDBModel>(m =>
                     m.Id == entity.Id &&
                     m.Name == entity.Name),
-                It.Is<DeleteConfig>(d => d.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            $"Expected DeleteAsync called once with model mapped from entity.Id={entity.Id} and OverrideTableName={Config.RecordingsTable}");
+            $"Expected DeleteAsync called once with model mapped from entity.Id={entity.Id}");
 
         ContextMock.VerifyNoOtherCalls();
     }
@@ -89,7 +88,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.DeleteAsync(
                 It.Is<RecordingDBModel>(m => m.Id == entity.Id),
-                It.Is<DeleteConfig>(d => d.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteAsync to be called exactly once with the correct entity id and table name");
@@ -108,7 +106,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.DeleteAsync(
                 It.IsAny<RecordingDBModel>(),
-                It.IsAny<DeleteConfig>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(expectedException);
 
@@ -129,7 +126,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
         ContextMock.Verify(
             c => c.DeleteAsync(
                 It.Is<RecordingDBModel>(m => m.Id == entity.Id),
-                It.Is<DeleteConfig>(d => d.OverrideTableName == Config.RecordingsTable),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected DeleteAsync to be called once before throwing");
@@ -147,7 +143,6 @@ public sealed class DeleteRecordingAsyncTest : GenericRecordingRepositoryTest
         ContextMock
             .Setup(c => c.DeleteAsync(
                 It.IsAny<RecordingDBModel>(),
-                It.IsAny<DeleteConfig>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ProvisionedThroughputExceededException("Throughput exceeded"));
 

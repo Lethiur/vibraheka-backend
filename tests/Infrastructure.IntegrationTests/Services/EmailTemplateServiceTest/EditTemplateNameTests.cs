@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Entities;
@@ -32,7 +31,7 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
             LastModified = initialLastModified
         };
 
-        await _context.SaveAsync(persisted, new SaveConfig { OverrideTableName = _configuration.EmailTemplatesTable });
+        await _context.SaveAsync(persisted);
 
         // When
         Result<Unit> editResult = await _service.EditTemplateName(templateId, newName, CancellationToken.None);

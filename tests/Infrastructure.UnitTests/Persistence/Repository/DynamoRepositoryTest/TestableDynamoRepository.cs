@@ -12,8 +12,8 @@ public class TestEntity
     public string ID { get; set; } = string.Empty;
 }
 
-public class TestableDynamoRepository(IDynamoDBContext context, IAmazonDynamoDB client, string key)
-    : GenericDynamoRepository<TestEntity>(context, client, key, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<GenericDynamoRepository<TestEntity>>())
+public class TestableDynamoRepository(IDynamoDBContext context, IAmazonDynamoDB client)
+    : GenericDynamoRepository<TestEntity>(context, client, LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<GenericDynamoRepository<TestEntity>>())
 {
     public Task<Result<TestEntity>> ExposedFindByID(string id) => FindByID(id, CancellationToken.None);
     public Task<Result<Unit>> ExposedSave(TestEntity entity) => Save(entity);

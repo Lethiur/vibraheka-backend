@@ -15,7 +15,7 @@ public abstract class GenericVerificationCodesRepositoryIntegrationTest : TestBa
     {
         base.OneTimeSetUp();
         _dynamoDbContext = CreateDynamoDBContext();
-        _repository = new VerificationCodesRepository(_dynamoDbContext, _configuration, new VerificationCodeEntityMapper());
+        _repository = new VerificationCodesRepository(_dynamoDbContext, new VerificationCodeEntityMapper());
     }
 
     [OneTimeTearDown]

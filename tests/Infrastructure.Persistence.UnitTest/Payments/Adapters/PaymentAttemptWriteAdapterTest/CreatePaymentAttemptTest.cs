@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Payments.Models;
 using Moq;
@@ -21,13 +20,6 @@ public sealed class CreatePaymentAttemptTest : GenericPaymentAttemptWriteAdapter
 
         // When: CreatePaymentAttempt is called on the adapter
         ITransactionalWriteOperation result = Adapter.CreatePaymentAttempt(paymentAttempt);
-
-        // Then: context.CreateTransactWrite is called once with the configured payment-attempt table name
-        ContextMock.Verify(
-            x => x.CreateTransactWrite<PaymentAttemptDBModel>(
-                It.Is<TransactWriteConfig>(cfg => cfg.OverrideTableName == Config.PaymentAttemptTable)),
-            Times.Once,
-            $"Expected CreateTransactWrite<PaymentAttemptDBModel> called once with OverrideTableName='{Config.PaymentAttemptTable}'");
 
         // Then: AddSaveItem is called once with the model produced by the mapper
         TransactWriteMock.Verify(

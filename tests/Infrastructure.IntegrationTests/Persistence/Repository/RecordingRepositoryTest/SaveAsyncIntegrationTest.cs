@@ -1,4 +1,3 @@
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
@@ -55,8 +54,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
             $"Pre-condition failed: SaveAsync returned failure with error: '{(saveResult.IsSuccess ? "N/A" : saveResult.Error)}'");
 
         // Then: loading the record from DynamoDB should return matching data
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id, loadConfig);
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
 
         Assert.That(persisted, Is.Not.Null,
             $"Expected a persisted RecordingDBModel with Id='{entity.Id}' but got null");
@@ -89,9 +87,8 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the persisted record should have the same type
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success for type='{type}' but got failure: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id, loadConfig);
+        
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
 
         Assert.That(persisted, Is.Not.Null,
             $"Expected persisted record with Id='{entity.Id}' but got null");
@@ -135,9 +132,8 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the second save should succeed and the record should reflect updated data
         Assert.That(secondResult.IsSuccess, Is.True,
             $"Expected second SaveAsync to succeed but got failure: '{(secondResult.IsSuccess ? "N/A" : secondResult.Error)}'");
-
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(recordingId, loadConfig);
+        
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(recordingId);
 
         Assert.That(persisted, Is.Not.Null,
             $"Expected persisted record with Id='{recordingId}' but got null");
@@ -167,12 +163,11 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: the record should be retrievable from the configured RecordingsTable
         Assert.That(result.IsSuccess, Is.True,
             $"SaveAsync failed, indicating the table name might be wrong. Error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.RecordingsTable };
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id, loadConfig);
+        
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
 
         Assert.That(persisted, Is.Not.Null,
-            $"Expected to load record from table '{_configuration.RecordingsTable}' but got null. " +
+            $"Expected to load record but got null. " +
             $"This suggests OverrideTableName is not being applied correctly.");
     }
 

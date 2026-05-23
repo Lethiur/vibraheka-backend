@@ -1,9 +1,6 @@
 using System.ComponentModel;
 using CSharpFunctionalExtensions;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Infrastructure.Entities;
-using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.UserRepositoryTest;
 
@@ -57,39 +54,5 @@ public class GetByRoleAsyncTest : GenericUserRepositoryTest
         Assert.That(retrievedUserEntity.Role, Is.EqualTo(UserRole.Therapist));
 
         await CleanupUser(userEntity.Id);
-    }
-
-    [Test]
-    [DisplayName("Should return failure when querying a non-existing table")]
-    public async Task ShouldReturnFailureWhenQueryingNonExistingTable()
-    {
-        // Given: un repositorio apuntando a una tabla inexistente.
-        AWSConfig invalidConfig = new()
-        {
-            EmailTemplatesBucketName = _configuration.EmailTemplatesBucketName,
-            UserCodesTable = _configuration.UserCodesTable,
-            EmailTemplatesTable = _configuration.EmailTemplatesTable,
-            UsersTable = $"non-existing-users-table-{Guid.NewGuid():N}",
-#if DEBUG
-            CodesTable = _configuration.CodesTable,
-#endif
-            ClientId = _configuration.ClientId,
-            UserPoolId = _configuration.UserPoolId,
-            Location = _configuration.Location,
-            Profile = _configuration.Profile,
-            PasswordResetTokenSecret = _configuration.PasswordResetTokenSecret,
-            ActionLogTable = _configuration.ActionLogTable,
-            SubscriptionTable = _configuration.SubscriptionTable,
-            SubscriptionUserIdIndex = _configuration.SubscriptionUserIdIndex,
-            SettingsNameSpace = _configuration.SettingsNameSpace
-        };
-        UserRepository invalidRepository = new(_dynamoContext, _client, invalidConfig, CreateTestLogger<UserRepository>());
-
-        // When: se consulta por rol contra la tabla inexistente.
-        Result<List<UserEntity>> result = await invalidRepository.GetByRoleAsync(UserRole.Therapist);
-
-        // Then: debe devolverse failure con mensaje de query.
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.UserNotFound));
     }
 }

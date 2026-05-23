@@ -4,7 +4,6 @@ using Infrastructure.Persistence.Commerce.Mappers;
 using Infrastructure.Persistence.Commerce.Models;
 using Moq;
 using VibraHeka.Domain.Commerce.Entities;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderLineWriteAdapterTest;
 
@@ -12,7 +11,6 @@ public abstract class GenericOrderLineWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<OrderLineDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected OrderLineMapper Mapper = default!;
     protected OrderLineWriteAdapter Adapter = default!;
 
@@ -21,12 +19,11 @@ public abstract class GenericOrderLineWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<OrderLineDBModel>>();
-        Config = new AWSConfig { OrderLineTable = "unit-test-order-lines-table" };
         Mapper = new OrderLineMapper();
-        Adapter = new OrderLineWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new OrderLineWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
-            .Setup(x => x.CreateTransactWrite<OrderLineDBModel>(It.IsAny<TransactWriteConfig>()))
+            .Setup(x => x.CreateTransactWrite<OrderLineDBModel>())
             .Returns(TransactWriteMock.Object);
     }
 

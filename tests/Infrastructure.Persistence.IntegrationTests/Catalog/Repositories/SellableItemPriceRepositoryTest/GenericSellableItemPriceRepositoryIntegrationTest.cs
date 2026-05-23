@@ -23,7 +23,6 @@ public abstract class GenericSellableItemPriceRepositoryIntegrationTest : TestBa
         SellableItemPriceRepository = new SellableItemPriceRepository(
             _client,
             DynamoContext,
-            _configuration,
             new SellableItemPriceEntityMapper(),
             Logger);
     }
@@ -38,8 +37,7 @@ public abstract class GenericSellableItemPriceRepositoryIntegrationTest : TestBa
     {
         try
         {
-            SaveConfig deleteConfig = new() { OverrideTableName = _configuration.SellableItemPricesTable };
-            await DynamoContext.DeleteAsync<SellableItemPriceDBModel>(sellableItemPriceId, deleteConfig);
+            await DynamoContext.DeleteAsync<SellableItemPriceDBModel>(sellableItemPriceId);
             Console.WriteLine($"Cleanup: Deleted SellableItemPrice {sellableItemPriceId}");
         }
         catch (Exception ex)
@@ -64,8 +62,7 @@ public abstract class GenericSellableItemPriceRepositoryIntegrationTest : TestBa
             LastModified = DateTimeOffset.UtcNow,
             LastModifiedBy = "integration-test",
         };
-        SaveConfig saveConfig = new() { OverrideTableName = _configuration.SellableItemPricesTable };
-        await DynamoContext.SaveAsync(model, saveConfig);
+        await DynamoContext.SaveAsync(model);
         Console.WriteLine($"Seeded SellableItemPrice {model.SellableItemPriceID} for SellableItem {sellableItemId}");
         return model.SellableItemPriceID;
     }

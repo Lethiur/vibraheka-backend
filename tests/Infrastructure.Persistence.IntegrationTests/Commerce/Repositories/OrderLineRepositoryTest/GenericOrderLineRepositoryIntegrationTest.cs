@@ -24,7 +24,6 @@ public abstract class GenericOrderLineRepositoryIntegrationTest : TestBase
         OrderLineRepository = new OrderLineRepository(
             _client,
             DynamoContext,
-            _configuration,
             new OrderLineMapper(),
             Logger);
     }
@@ -39,8 +38,7 @@ public abstract class GenericOrderLineRepositoryIntegrationTest : TestBase
     {
         try
         {
-            SaveConfig deleteConfig = new() { OverrideTableName = _configuration.OrderLineTable };
-            await DynamoContext.DeleteAsync<OrderLineDBModel>(orderLineId, deleteConfig);
+            await DynamoContext.DeleteAsync<OrderLineDBModel>(orderLineId);
             Console.WriteLine($"Cleanup: Deleted OrderLine {orderLineId}");
         }
         catch (Exception ex)

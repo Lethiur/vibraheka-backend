@@ -26,7 +26,7 @@ public class SubscriptionRepository(
     IDynamoDBContext context,
     SubscriptionEntityMapper mapper,
     ILogger<SubscriptionRepository> logger)
-    : GenericDynamoRepository<SubscriptionDBModel>(context, client, config.SubscriptionTable, logger), ISubscriptionRepository
+    : GenericDynamoRepository<SubscriptionDBModel>(context, client, logger), ISubscriptionRepository
 {
     /// <summary>
     /// Retrieves the order status for a specific user based on their user ID.

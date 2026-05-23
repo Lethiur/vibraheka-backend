@@ -24,12 +24,12 @@ public abstract class GenericSettingsRepositoryTest : TestBase
         // Usamos un Profile para asegurar que se conecta a la cuenta de sandbox/test
         SSMClient = new AmazonSimpleSystemsManagementClient(amazonSimpleSystemsManagementConfig);
         Repository = new SettingsRepository(SSMClient, _configuration, CreateTestLogger<SettingsRepository>());
-        VerificationParameterName = $"/{_configuration.SettingsNameSpace}/VerificationEmailTemplate";
-        RecoverPasswordParameterName = $"/{_configuration.SettingsNameSpace}/RecoverPasswordEmailTemplate";
-        UserWelcomeParameterName = $"/{_configuration.SettingsNameSpace}/UserWelcomeEmailTemplate";
-        SubscriptionThankYouParameterName = $"/{_configuration.SettingsNameSpace}/SubscriptionThankYouEmailTemplate";
-        TrialEndingSoonParameterName = $"/{_configuration.SettingsNameSpace}/TrialEndingSoonEmailTemplate";
-        PasswordChangedParameterName = $"/{_configuration.SettingsNameSpace}/PasswordChangedEmailTemplate";
+        VerificationParameterName = $"{_configuration.SettingsNameSpace}VerificationEmailTemplate";
+        RecoverPasswordParameterName = $"{_configuration.SettingsNameSpace}RecoverPasswordEmailTemplate";
+        UserWelcomeParameterName = $"{_configuration.SettingsNameSpace}UserWelcomeEmailTemplate";
+        SubscriptionThankYouParameterName = $"{_configuration.SettingsNameSpace}SubscriptionThankYouEmailTemplate";
+        TrialEndingSoonParameterName = $"{_configuration.SettingsNameSpace}TrialEndingSoonEmailTemplate";
+        PasswordChangedParameterName = $"{_configuration.SettingsNameSpace}PasswordChangedEmailTemplate";
     }
 
     [OneTimeTearDown]

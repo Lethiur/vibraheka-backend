@@ -46,7 +46,6 @@ public class SaveCodeTest : GenericUserCodeRepositoryTest
                 model.ActionType == entity.ActionType &&
                 model.Code == entity.Code &&
                 model.ExpiresAtUnix == entity.ExpiresAtUnix),
-            It.Is<SaveConfig>(config => config.OverrideTableName == ConfigMock.UserCodesTable),
             CancellationToken.None), Times.Once);
     }
 
@@ -62,7 +61,6 @@ public class SaveCodeTest : GenericUserCodeRepositoryTest
         };
         ContextMock.Setup(x => x.SaveAsync(
                 It.IsAny<UserCodeDBModel>(),
-                It.IsAny<SaveConfig>(),
                 CancellationToken.None))
             .ThrowsAsync(new Exception("Save failed"));
 

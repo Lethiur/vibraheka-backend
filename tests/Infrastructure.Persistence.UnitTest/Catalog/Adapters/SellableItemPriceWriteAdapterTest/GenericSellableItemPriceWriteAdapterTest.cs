@@ -6,7 +6,6 @@ using Moq;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemPriceWriteAdapterTest;
 
@@ -14,7 +13,6 @@ public abstract class GenericSellableItemPriceWriteAdapterTest
 {
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<ITransactWrite<SellableItemPriceDBModel>> TransactWriteMock = default!;
-    protected AWSConfig Config = default!;
     protected SellableItemPriceEntityMapper Mapper = default!;
     protected SellableItemPriceWriteAdapter Adapter = default!;
 
@@ -23,12 +21,11 @@ public abstract class GenericSellableItemPriceWriteAdapterTest
     {
         ContextMock = new Mock<IDynamoDBContext>();
         TransactWriteMock = new Mock<ITransactWrite<SellableItemPriceDBModel>>();
-        Config = new AWSConfig { SellableItemPricesTable = "unit-test-sellable-item-prices-write-table" };
         Mapper = new SellableItemPriceEntityMapper();
-        Adapter = new SellableItemPriceWriteAdapter(Mapper, Config, ContextMock.Object);
+        Adapter = new SellableItemPriceWriteAdapter(Mapper, ContextMock.Object);
 
         ContextMock
-            .Setup(x => x.CreateTransactWrite<SellableItemPriceDBModel>(It.IsAny<TransactWriteConfig>()))
+            .Setup(x => x.CreateTransactWrite<SellableItemPriceDBModel>())
             .Returns(TransactWriteMock.Object);
     }
 

@@ -3,7 +3,6 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Moq;
-using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.DynamoRepositoryTest;
 
@@ -11,7 +10,6 @@ public abstract class GenericDynamoRepositoryTest
 {
     protected Mock<IDynamoDBContext> _contextMock;
     protected Mock<IAmazonDynamoDB> _dynamoDbClientMock;
-    protected AWSConfig _configMock;
     protected TestableDynamoRepository _repository;
     protected const string TableName = "RealTableName";
 
@@ -21,7 +19,6 @@ public abstract class GenericDynamoRepositoryTest
         AWSXRayRecorder.Instance.TraceContext.SetEntity(new Segment("mock"));
         _contextMock = new Mock<IDynamoDBContext>();
         _dynamoDbClientMock = new Mock<IAmazonDynamoDB>();
-        _configMock = new AWSConfig();
-        _repository = new TestableDynamoRepository(_contextMock.Object, _dynamoDbClientMock.Object, TableName);
+        _repository = new TestableDynamoRepository(_contextMock.Object, _dynamoDbClientMock.Object);
     }
 }

@@ -7,7 +7,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace Infrastructure.Persistence.Payments.Models;
 
-[DynamoDBTable("PaymentAttempt")]
+[DynamoDBTable("Payments-Attempts")]
 public class PaymentAttemptDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

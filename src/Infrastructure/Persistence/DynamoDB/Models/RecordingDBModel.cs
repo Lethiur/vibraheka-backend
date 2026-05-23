@@ -4,7 +4,7 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-[DynamoDBTable("TABLE_RECORDINGS")]
+[DynamoDBTable("Recordings-Records")]
 public class RecordingDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]

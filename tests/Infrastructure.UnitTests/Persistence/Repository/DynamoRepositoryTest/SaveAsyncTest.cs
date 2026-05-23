@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
@@ -17,7 +16,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
     {
         // Given: An entity to save
         TestEntity entity = new() { ID = "save-id" };
-        _contextMock.Setup(x => x.SaveAsync(entity, It.IsAny<SaveConfig>(), None))
+        _contextMock.Setup(x => x.SaveAsync(entity,  None))
             .Returns(Task.CompletedTask);
 
         // When: Saving the entity
@@ -26,8 +25,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
         // Then: Result should be success Unit
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
-        _contextMock.Verify(x => x.SaveAsync(entity,
-            It.Is<SaveConfig>(c => c.OverrideTableName == TableName), None), Times.Once);
+        _contextMock.Verify(x => x.SaveAsync(entity, None), Times.Once);
     }
 
     [Test]
@@ -36,7 +34,7 @@ public class SaveAsyncTest : GenericDynamoRepositoryTest
     {
         // Given: A database error during save
         TestEntity entity = new() { ID = "fail-id" };
-        _contextMock.Setup(x => x.SaveAsync(entity, It.IsAny<SaveConfig>(), None))
+        _contextMock.Setup(x => x.SaveAsync(entity, None))
             .ThrowsAsync(new Exception("Write Error"));
 
         // When: Saving the entity

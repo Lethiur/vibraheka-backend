@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Entities;
@@ -59,8 +58,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
         // When: se guarda la plantilla y luego se carga desde DynamoDB.
         await Repository.SaveTemplate(originalTemplate, CancellationToken.None);
 
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID, loadConfig);
+        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(originalTemplate.ID);
 
         // Then: los valores persistidos deben coincidir.
         Assert.That(retrieved, Is.Not.Null);
@@ -94,8 +92,7 @@ public class SaveTemplateTest : GenericEmailTemplateRepositoryIntegrationTest
         // Then: la ruta debe actualizarse.
         Assert.That(result.IsSuccess, Is.True);
 
-        LoadConfig loadConfig = new() { OverrideTableName = _configuration.EmailTemplatesTable };
-        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(templateId, loadConfig);
+        EmailTemplateDBModel? retrieved = await DynamoContext.LoadAsync<EmailTemplateDBModel>(templateId);
 
         Assert.That(retrieved!.Path, Is.EqualTo("path/new.html"));
     }

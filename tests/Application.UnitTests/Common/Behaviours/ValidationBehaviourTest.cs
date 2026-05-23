@@ -40,10 +40,10 @@ public class ValidationBehaviourTest
         TestValidationRequest request = new(string.Empty);
 
         // When
-        TestDelegate action = () => behaviour.Handle(request, _ => Task.FromResult("ok"), CancellationToken.None).GetAwaiter().GetResult();
+        void Action() => behaviour.Handle(request, _ => Task.FromResult("ok"), CancellationToken.None).GetAwaiter().GetResult();
 
         // Then
-        ValidationException ex = Assert.Throws<ValidationException>(action)!;
+        ValidationException ex = Assert.Throws<ValidationException>(Action)!;
         Assert.That(ex.Message, Does.Contain("NAME_REQUIRED"));
     }
 }
