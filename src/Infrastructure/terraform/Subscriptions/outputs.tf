@@ -4,7 +4,7 @@ output "dynamodb_subscription_records_table_name" {
 }
 
 output "dynamodb_subscription_records_table_arn" {
-  value = aws_dynamodb_table.Subscription_Records.arn
+  value = aws_dynamodb_table.vibraheka-dynamodb-subscriptions.arn
   description = "The ARN of the subscriptions table"
 }
 
