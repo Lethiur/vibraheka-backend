@@ -84,6 +84,7 @@ runs:
         set -euo pipefail
         chmod +x ./update-appsettings-from-terraform.sh
         ./update-appsettings-from-terraform.sh --tf-outputs-json /tmp/tf-test.json "${{ inputs.appsettings-path }}"
+        cat "${{ inputs.appsettings-path }}"
 
     - name: Run .NET tests (verbose console logs)
       shell: bash
@@ -91,11 +92,7 @@ runs:
         ASPNETCORE_ENVIRONMENT: ${{ inputs.aspnetcore-environment }}
       run: |
         set -euo pipefail
-        AWS_CODES_TABLE="$(jq -r '.verification_codes_table_name.value' /tmp/tf-test.json)"
-        AWS_USER_CODES_TABLE="$(jq -r '.user_codes_table_name.value' /tmp/tf-test.json)"
-        export AWS_CODES_TABLE AWS_USER_CODES_TABLE
-
         while IFS= read -r proj; do
           [[ -z "${proj// }" ]] && continue
-          dotnet test "$proj" --logger "console;verbosity=detailed"
+          dotnet test "$proj" --environment  --logger "console;verbosity=detailed"
         done <<< "${{ inputs.projects }}"
