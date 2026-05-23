@@ -1,16 +1,16 @@
 output "dynamodb_subscription_records_table_name" {
-  value       = aws_dynamodb_table.vibraheka-dynamodb-subscriptions.name                                          # The actual value to be outputted
+  value       = aws_dynamodb_table.Subscription_Records.name                                          # The actual value to be outputted
   description = "The public IP address of the EC2 instance" # Description of what this output represents
 }
 
 output "dynamodb_subscription_records_table_arn" {
-  value = aws_dynamodb_table.vibraheka-dynamodb-subscriptions.arn
+  value = aws_dynamodb_table.Subscription_Records.arn
   description = "The ARN of the subscriptions table"
 }
 
 output "dynamodb_subscription_records_user_id_index_name" {
   value = one([
-    for gsi in aws_dynamodb_table.vibraheka-dynamodb-subscriptions.global_secondary_index : gsi.name
+    for gsi in aws_dynamodb_table.Subscription_Records.global_secondary_index : gsi.name
     if gsi.hash_key == "UserID"
   ])
 }
