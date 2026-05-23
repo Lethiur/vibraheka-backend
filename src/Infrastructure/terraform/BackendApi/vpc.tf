@@ -4,12 +4,10 @@ resource "aws_vpc" "backend" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name        = "vibraheka-backend-vpc-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-    system      = "VibraHeka"
-  }
+  tags = merge(local.tags, {
+    Component = "CloudFront"
+    Name = "${var.context.resource_prefix}-BackendVPC"
+  })
 }
 
 # Single public subnet for the backend host.
@@ -19,22 +17,19 @@ resource "aws_subnet" "private_a" {
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0]
 
-  tags = {
-    Name        = "vibraheka-backend-private-a-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-  }
+  tags = merge(local.tags, {
+    Component = "IAM"
+    Name = "${var.context.resource_prefix}-private-a"
+  })
 }
 
 # Internet Gateway (public internet egress).
 resource "aws_internet_gateway" "backend" {
   vpc_id = aws_vpc.backend.id
-
-  tags = {
-    Name        = "vibraheka-backend-igw-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-  }
+  tags = merge(local.tags, {
+    Component = "Gateway"
+    Name = "${var.context.resource_prefix}-backend-igw"
+  })
 }
 
 # Public route table for subnet A.
@@ -45,12 +40,11 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.backend.id
   }
-
-  tags = {
-    Name        = "vibraheka-backend-public-rt-${terraform.workspace}"
-    environment = terraform.workspace
-    created     = "terraform"
-  }
+  
+  tags = merge(local.tags, {
+    Component = "Gateway"
+    Name = "${var.context.resource_prefix}-route-table-public"
+  })
 }
 
 # Associates subnet A to public route table.

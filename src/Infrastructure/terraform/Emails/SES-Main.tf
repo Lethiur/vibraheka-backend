@@ -18,14 +18,12 @@ resource "aws_ses_domain_identity" "VibraHeka_ses_domain" {
 resource "time_sleep" "wait_for_ses_domain_identity" {
   count      = local.manage_shared_ses ? 1 : 0
   depends_on = [aws_ses_domain_identity.VibraHeka_ses_domain]
-
   create_duration = "30s"
 }
 
 resource "aws_ses_domain_dkim" "VibraHeka_ses_dkim" {
   count      = local.manage_shared_ses ? 1 : 0
   depends_on = [time_sleep.wait_for_ses_domain_identity]
-
   domain = aws_ses_domain_identity.VibraHeka_ses_domain[0].domain
 }
 

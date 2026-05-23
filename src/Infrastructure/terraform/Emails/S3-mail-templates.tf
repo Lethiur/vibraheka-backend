@@ -2,6 +2,9 @@
 resource "aws_s3_bucket" "VH_email_templates" {
   bucket        = "vibraheka-email-templates-${terraform.workspace}"
   force_destroy = true
+  tags = merge(local.tags ,{
+    Component = "S3"
+  })
 }
 
 resource "aws_s3_bucket_public_access_block" "VH_email_templates_access" {

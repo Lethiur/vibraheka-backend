@@ -18,21 +18,50 @@ resource "aws_dynamodb_table" "VH_recordings" {
     name            = "tier-index"
     projection_type = "ALL"
   }
-  
-  tags = {
-    created     = "terraform"
-    environment = terraform.workspace
-    system      = "VibraHeka"
-    service     = "Recordings"
-    dev         = tostring(terraform.workspace != "prod")
+
+  point_in_time_recovery {
+    enabled = true
   }
+  
+  tags = local.tags
 }
 
-output "dynamodb_recordings_table_name" {
+resource "aws_dynamodb_table" "Recordings_Records" {
+  name         = "${local.table_prefix}Records"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "Id"
+
+  attribute {
+    name = "Id"
+    type = "S"
+  }
+
+  attribute {
+    name = "Tier"
+    type = "S"
+  }
+
+  global_secondary_index {
+    hash_key        = "Tier"
+    name            = "tier-index"
+    projection_type = "ALL"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  restore_source_name    = aws_dynamodb_table.VH_recordings.name
+  restore_to_latest_time = true
+  
+  tags = local.tags
+}
+
+output "dynamodb_recordings_records_table_name" {
   value = aws_dynamodb_table.VH_recordings.name
 }
 
-output "dynamodb_recordings_table_arn" {
+output "dynamodb_recordings_records_table_arn" {
   value = aws_dynamodb_table.VH_recordings.arn
 }
 

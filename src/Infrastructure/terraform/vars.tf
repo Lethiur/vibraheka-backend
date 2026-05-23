@@ -1,13 +1,23 @@
 ﻿
+locals {
+  context = {
+    project_name = var.project_name
+    workspace   = trim(replace(lower(terraform.workspace), "_", "-"), "-")
+    resource_prefix = "${var.project_name}-${terraform.workspace}-"
+    common_tags = {
+      Project = var.project_name
+      Environment = terraform.workspace
+      dev = terraform.workspace != "prod" ? "true" : "false"
+      ManagedBy = "Terraform"
+    }
+  }
+  ssm_namespace = terraform.workspace == "default" ? "/${var.project_name}/" : "/${var.project_name}/${terraform.workspace}/"
+}
+
 variable project_name {
   description = "The name of the project for this instance"
   type = string
   default = "VibraHeka"
-}
-
-variable ssm_namespace {
-  default = "/VibraHeka/"
-  description = "The SSM namespace for this environment"
 }
 
 variable prod_deployment {

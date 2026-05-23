@@ -13,12 +13,11 @@ resource "aws_ecr_repository" "backend" {
     encryption_type = "AES256"
   }
 
-  tags = {
-    Name        = local.repository_name_safe
-    environment = terraform.workspace
-    created     = "terraform"
-    service     = "BackendApi"
-  }
+  tags = merge(local.tags, {
+    Component = "ECR"
+    Name = local.repository_name_safe
+  })
+  
 }
 
 # Lifecycle policy to avoid unbounded image growth in ECR.

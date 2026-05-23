@@ -1,6 +1,6 @@
 # HTTP API Gateway exposed publicly.
 resource "aws_apigatewayv2_api" "backend" {
-  name          = "vibraheka-backend-api-${terraform.workspace}"
+  name          = "${var.context.resource_prefix}BackendApi"
   protocol_type = "HTTP"
 
   cors_configuration {
@@ -10,6 +10,10 @@ resource "aws_apigatewayv2_api" "backend" {
     expose_headers = ["*"]
     max_age        = 86400
   }
+  
+  tags = merge(local.tags, {
+    Component = "ApiGateway"
+  })
 }
 
 # Integration definition for all API routes to the public backend host.
@@ -49,4 +53,7 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.backend.id
   name        = "$default"
   auto_deploy = true
+  tags = merge(local.tags, {
+    Component = "ApiGateway"
+  })
 }

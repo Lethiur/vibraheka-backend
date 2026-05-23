@@ -1,6 +1,9 @@
 ﻿resource "aws_s3_bucket" "VH_user_material" {
   bucket = "vibraheka-user-material-${terraform.workspace}"
   force_destroy = true
+  tags = merge(local.tags, {
+    Component = "S3"
+  })
 }
 
 resource "aws_s3_bucket_public_access_block" "VH_user_material_access" {
