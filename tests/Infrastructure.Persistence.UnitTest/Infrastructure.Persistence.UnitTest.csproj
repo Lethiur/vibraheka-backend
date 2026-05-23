@@ -35,4 +35,8 @@
       <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageVersion Update="NUnit" Version="4.6.1" />
+    </ItemGroup>
+
 </Project>

@@ -9,7 +9,6 @@
   <ItemGroup>
     <!-- No patched version available for this advisory yet; suppressed until fix is released -->
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-37gx-xxp4-5rgx" />
-    <!-- System.Security.Cryptography.Xml 10.0.1 transitive from .NET 10 runtime; no patched version available yet -->
-    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-w3x6-4m5h-cxqf" />
+   
   </ItemGroup>
 </Project>
