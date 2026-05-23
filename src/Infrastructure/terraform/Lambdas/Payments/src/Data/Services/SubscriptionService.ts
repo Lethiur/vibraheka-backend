@@ -82,7 +82,7 @@ export default class SubscriptionService implements ISubscriptionService {
 
             if (subscriptionData.pending_setup_intent != null) {
                 console.log("Subscription has pending setup intent, setting the order to payment pending");
-                subscriptionEntity.Status = 'PaymentPending';
+                subscriptionEntity.Status = 'PendingPayment';
                 subscriptionEntity.SubscriptionStatus = 'Trialing';
             } else if (["past_due", "unpaid","incomplete", "incomplete_expired"].includes(subscriptionData.status)) {
                 console.log("Subscription update indicates payment issue, setting status to inactive/paymentFailed");
@@ -95,7 +95,7 @@ export default class SubscriptionService implements ISubscriptionService {
                     subscriptionEntity.SubscriptionStatus = 'ToBeCancelled';
                     subscriptionEntity.EndDate = new Date(subscriptionData.cancel_at * 1000).toISOString();
                 } else {
-                    if (subscriptionEntity.Status === 'PendingPayment') {
+                    if (subscriptionEntity.Status === 'Draft') {
                         console.log("Subscription is in trial mode, setting to trialing");
                         subscriptionEntity.SubscriptionStatus = 'Trialing';
                     } else {
@@ -153,7 +153,7 @@ export default class SubscriptionService implements ISubscriptionService {
                         const subscription : Stripe.Subscription = await this.StripeClient.subscriptions.retrieve(invoice.lines.data[0].parent?.subscription_item_details?.subscription!);
                         subscriptionData.ExternalSubscriptionID = subscription.id;
                         subscriptionData.SubscriptionStatus = 'Trialing';
-                        subscriptionData.Status = 'PendingPayment'
+                        subscriptionData.Status = 'Draft'
                         const trialStartDate = subscription.trial_end
                             ? new Date(subscription.trial_end * 1000).toISOString()
                             : subscriptionData.StartDate;
