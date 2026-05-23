@@ -486,7 +486,7 @@ jobs:
           set -euo pipefail
 
           USER_POOL_ID="$(jq -r '.cognito_pool_id.value' /tmp/tf-prod.json)"
-          USERS_TABLE="$(jq -r '.users_table_name.value' /tmp/tf-prod.json)"
+          USERS_TABLE="$(jq -r '.environment.value' /tmp/tf-prod.json)Users-Profiles"
 
           if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" || "${USER_POOL_ID}" == "null" || "${USERS_TABLE}" == "null" ]]; then
             echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
