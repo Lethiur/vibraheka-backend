@@ -38,7 +38,7 @@ public sealed class CreateProductInGatewayAsyncTest : GenericCatalogAdapterTest
 
         ProductEntity productEntity = new ProductEntity
         {
-            ProductID = Guid.NewGuid().ToString(),
+            ID = Guid.NewGuid().ToString(),
             Name = "Meditacion Matutina",
             Description = "Sesion de meditacion para iniciar el dia",
         };
@@ -81,7 +81,7 @@ public sealed class CreateProductInGatewayAsyncTest : GenericCatalogAdapterTest
 
         ProductEntity productEntity = new ProductEntity
         {
-            ProductID = Guid.NewGuid().ToString(),
+            ID = Guid.NewGuid().ToString(),
             Name = "Test Product",
             Description = "Test",
         };

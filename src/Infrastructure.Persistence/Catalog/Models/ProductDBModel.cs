@@ -8,18 +8,16 @@ namespace Infrastructure.Persistence.Catalog.Models;
 [DynamoDBTable("Catalog-Products")]
 public class ProductDBModel : BaseAuditableDBModel
 {
-    [DynamoDBHashKey]
-    public string ProductID { get; set; } = string.Empty;
-
+    
+    [DynamoDBIgnore]
+    public string ID { get; set; } = string.Empty;
+    
     [DynamoDBProperty]
     public string Name { get; set; } = string.Empty;
 
     [DynamoDBProperty]
     public string Description { get; set; } = string.Empty;
-
-    [DynamoDBProperty(typeof(EnumStringConverter<ProductType>))]
-    public ProductType Type { get; set; }
-
+    
     [DynamoDBProperty]
     public bool IsActive { get; set; }
 }

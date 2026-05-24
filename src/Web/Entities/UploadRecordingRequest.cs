@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using NMoneys;
 using VibraHeka.Domain.Recordings.Enums;
 
 namespace VibraHeka.Web.Entities;
@@ -27,4 +29,9 @@ public sealed class UploadRecordingRequest
     /// The type of recording: Meditacion, Masterclass or Taller.
     /// </summary>
     public RecordingType Type { get; set; }
+
+    public decimal Price { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public CurrencyIsoCode CurrencyCode { get; set; }
 }

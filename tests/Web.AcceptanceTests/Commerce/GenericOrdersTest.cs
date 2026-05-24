@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CSharpFunctionalExtensions;
 using NMoneys;
+using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.Out;
@@ -19,7 +20,7 @@ namespace VibraHeka.Web.AcceptanceTests.Commerce;
 public abstract class GenericOrdersTest : GenericAcceptanceTest<VibraHekaProgram>
 {
     protected const string OrdersEndpoint = "/api/v1/orders";
-    private const string CatalogSeedEndpoint = "/api/v1/catalog";
+    private const string SeedRecordingEndpoint = "/api/v1/catalog/recordings";
 
     protected CreateOrderRequest BuildValidRequest(
         string sellableItemId,
@@ -140,8 +141,8 @@ public abstract class GenericOrdersTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Create the product through the catalog API
         HttpResponseMessage catalogResponse = await Client.PostAsJsonAsync(
-            CatalogSeedEndpoint,
-            new CreateProductRequest
+            SeedRecordingEndpoint,
+            new UploadRecordingRequest
             {
                 Name = "Acceptance Test Product",
                 Description = "Product seeded for order acceptance test",
@@ -154,13 +155,13 @@ public abstract class GenericOrdersTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = null;
 
         // Extract the productId (= SellableItem ReferenceID = what order handler uses as SellableItemID)
-        ResponseEntity catalogEntity = await catalogResponse.GetAsResponseEntityAndContentAs<string>();
-        string productId = catalogEntity.GetContentAs<string>()!;
+        ResponseEntity catalogEntity = await catalogResponse.GetAsResponseEntityAndContentAs<AddRecordingResult>();
+        AddRecordingResult productId = catalogEntity.GetContentAs<AddRecordingResult>()!;
 
         // Retrieve the SellableItem via domain port (keyed by ReferenceID = productId)
         ISellableItemPort sellableItemPort = GetObjectFromFactory<ISellableItemPort>();
         Result<SellableItemEntity> itemResult =
-            await sellableItemPort.GetSellableItemByReferenceAsync(productId, CancellationToken.None);
+            await sellableItemPort.GetSellableItemByReferenceAsync(productId.RecordingId, CancellationToken.None);
         SellableItemEntity sellableItemEntity = itemResult.Value;
 
         // Retrieve the price via domain port (one-time price keyed by SellableItemID GSI)
@@ -171,6 +172,6 @@ public abstract class GenericOrdersTest : GenericAcceptanceTest<VibraHekaProgram
         SellableItemPriceEntity priceEntity = priceResult.Value;
 
         // The order line uses productId as SellableItemID (adapter resolves via ReferenceID index)
-        return (productId, priceEntity.SellableItemPriceID);
+        return (sellableItemEntity.SellableItemID, priceEntity.SellableItemPriceID);
     }
 }

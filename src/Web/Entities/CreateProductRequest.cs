@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using NMoneys;
 
 namespace VibraHeka.Web.Entities;
@@ -25,6 +26,7 @@ public sealed class CreateProductRequest
     /// <summary>
     /// The ISO 4217 currency code for the product price (e.g. EUR, USD).
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public CurrencyIsoCode CurrencyCode { get; set; }
 }
 

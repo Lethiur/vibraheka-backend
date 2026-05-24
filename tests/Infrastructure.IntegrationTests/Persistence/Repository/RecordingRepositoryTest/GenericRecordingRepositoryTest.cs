@@ -46,10 +46,10 @@ public abstract class GenericRecordingRepositoryTest : TestBase
     {
         return new RecordingEntity
         {
-            Id = Guid.NewGuid().ToString(),
+            ID = Guid.NewGuid().ToString(),
             Name = _faker.Lorem.Sentence(3),
             Description = _faker.Lorem.Paragraph(),
-            Type = RecordingType.Meditacion,
+            RecordingType = RecordingType.Meditacion,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,
