@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Catalog.Entities;
 
 namespace VibraHeka.Application.Catalog.Queries.AdminGetPrices;
 
-public record AdminGetPrices(string RefID) : IRequireAdmin, IRequest<Result<SellableItemEntity>>;
+public record AdminGetPrices(string RefID) : IRequireAdmin, IRequest<Result<SellableItemDto>>;

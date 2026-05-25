@@ -117,33 +117,6 @@
             </PendingDiffInfo>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/Infrastructure.Persistence/Events/Models/EventDBModel.cs">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/src/Infrastructure.Persistence/Events/Models/EventDBModel.cs" />
-              <option name="originalContent" value="using Amazon.DynamoDBv2.DataModel;&#10;using Infrastructure.Persistence.Catalog.Models;&#10;using VibraHeka.Domain.Events.Enums;&#10;using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;&#10;&#10;namespace Infrastructure.Persistence.Events.Models;&#10;&#10;[DynamoDBTable(&quot;Events-Records&quot;)]&#10;public class EventDBModel : ProductDBModel&#10;{&#10;    [DynamoDBHashKey]&#10;    public string EventID { get =&gt; ID; set =&gt; ID = value; }&#10;    &#10;    [DynamoDBGlobalSecondaryIndexHashKey(&quot;EventsByDate-Index&quot;)]&#10;    [DynamoDBProperty(typeof(DateTimeOffsetConverter))]&#10;    public DateTimeOffset EventDateUtc { get; set; }&#10;&#10;    [DynamoDBProperty]&#10;    public int Duration { get; set; } = 0;&#10;&#10;    [DynamoDBProperty]&#10;    public string EventPassword { get; set; } = string.Empty;&#10;&#10;    [DynamoDBProperty]&#10;    [DynamoDBGlobalSecondaryIndexRangeKey(&quot;EventsByDate-Index&quot;)]&#10;    public string EventTimezone { get; set; } = string.Empty;&#10;&#10;    [DynamoDBProperty(typeof(EnumStringConverter&lt;EventStatus&gt;))]&#10;    public EventStatus Status { get; set; } = EventStatus.MissingLink;&#10;&#10;    [DynamoDBProperty]&#10;    public string EventLink { get; set; } = string.Empty;&#10;}&#10;" />
-              <option name="updatedContent" value="using Amazon.DynamoDBv2.DataModel;&#10;using Infrastructure.Persistence.Catalog.Models;&#10;using VibraHeka.Domain.Events.Enums;&#10;using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;&#10;&#10;namespace Infrastructure.Persistence.Events.Models;&#10;&#10;[DynamoDBTable(&quot;Events-Records&quot;)]&#10;public class EventDBModel : ProductDBModel&#10;{&#10;    [DynamoDBHashKey]&#10;    public string EventID { get =&gt; ID; set =&gt; ID = value; }&#10;&#10;    [DynamoDBGlobalSecondaryIndexHashKey(&quot;EventsByDate-Index&quot;)]&#10;    [DynamoDBProperty(typeof(DateTimeOffsetConverter))]&#10;    public DateTimeOffset EventDateUtc { get; set; }&#10;&#10;    [DynamoDBProperty]&#10;    public int Duration { get; set; } = 0;&#10;&#10;    [DynamoDBProperty]&#10;    public string EventPassword { get; set; } = string.Empty;&#10;&#10;    [DynamoDBProperty]&#10;    [DynamoDBGlobalSecondaryIndexRangeKey(&quot;EventsByDate-Index&quot;)]&#10;    public string EventTimezone { get; set; } = string.Empty;&#10;&#10;    [DynamoDBProperty(typeof(EnumStringConverter&lt;EventStatus&gt;))]&#10;    public EventStatus Status { get; set; } = EventStatus.MissingLink;&#10;&#10;    [DynamoDBProperty]&#10;    public string EventLink { get; set; } = string.Empty;&#10;}&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/Infrastructure/DynamoExpression.cs">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/src/Infrastructure/DynamoExpression.cs" />
-              <option name="originalContent" value="using Amazon.DynamoDBv2.Model;&#10;&#10;namespace VibraHeka.Infrastructure;&#10;&#10;public class DynamoExpression&#10;{&#10;    public string IndexName { get; set; } = &quot;&quot;;&#10;    public string Expression { get; set; } = &quot;&quot;;&#10;    public Dictionary&lt;string, string&gt; AttributeNames { get; set; } = new();&#10;    public Dictionary&lt;string, AttributeValue&gt; AttributeValues { get; set; } = new();&#10;}&#10;" />
-              <option name="updatedContent" value="using Amazon.DynamoDBv2.Model;&#10;&#10;namespace VibraHeka.Infrastructure;&#10;&#10;public class DynamoExpression&#10;{&#10;    public string IndexName { get; set; } = &quot;&quot;;&#10;&#10;    /// &lt;summary&gt;&#10;    /// Used as KeyConditionExpression in queries and UpdateExpression in updates.&#10;    /// Must reference only key attributes when used in QueryIndexAsync.&#10;    /// &lt;/summary&gt;&#10;    public string Expression { get; set; } = &quot;&quot;;&#10;&#10;    /// &lt;summary&gt;&#10;    /// Optional non-key filter applied after the key condition in a Query.&#10;    /// Set this for attributes that are NOT part of the index key schema.&#10;    /// &lt;/summary&gt;&#10;    public string? FilterExpression { get; set; }&#10;&#10;    public Dictionary&lt;string, string&gt; AttributeNames { get; set; } = new();&#10;    public Dictionary&lt;string, AttributeValue&gt; AttributeValues { get; set; } = new();&#10;}" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/Infrastructure/Exceptions/GenericPersistenceErrors.cs">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/src/Infrastructure/Exceptions/GenericPersistenceErrors.cs" />
-              <option name="originalContent" value="namespace VibraHeka.Infrastructure.Exceptions;&#10;&#10;public class GenericPersistenceErrors&#10;{&#10;    public const string NoRecordsFound = &quot;GPE-000&quot;;&#10;    public const string ResourceNotFound = &quot;GPE-001&quot;;&#10;    public const string ProvisionedThroughputExceeded = &quot;GPE-002&quot;;&#10;    public const string ConditionalCheckFailed = &quot;GPE-003&quot;;&#10;    public const string GeneralError = &quot;GPE-999&quot;;&#10;}&#10;" />
-              <option name="updatedContent" value="namespace VibraHeka.Infrastructure.Exceptions;&#10;&#10;public class GenericPersistenceErrors&#10;{&#10;    public const string NoRecordsFound = &quot;GPE-000&quot;;&#10;    public const string ResourceNotFound = &quot;GPE-001&quot;;&#10;    public const string ProvisionedThroughputExceeded = &quot;GPE-002&quot;;&#10;    public const string ConditionalCheckFailed = &quot;GPE-003&quot;;&#10;    public const string InvalidKeyCondition = &quot;GPE-004&quot;;&#10;    public const string GeneralError = &quot;GPE-999&quot;;&#10;}" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/tests/Application.FunctionalTests/Recordings/Commands/AdminAddRecording/AdminAddRecordingCommandHandlerTest.cs">
           <value>
             <PendingDiffInfo>

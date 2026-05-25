@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.AdminGetPrices;
-using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Web.Controllers;
@@ -11,14 +11,14 @@ namespace VibraHeka.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/catalog/prices")]
-public class PricingController(IMediator mediator)
+public class PricingController(IMediator mediator) : ControllerBase
 {
     /// <summary>
     /// Retrieves pricing details for a specified reference ID.
     /// </summary>
     /// <param name="refID">The unique reference ID used to query pricing details.</param>
     /// <param name="ct">The cancellation token used to signal request cancellation.</param>
-    /// <returns>A response containing a successful result with a SellableItemEntity or an error message.</returns>
+    /// <returns>A response containing a successful result with a SellableItemDto or an error code.</returns>
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
@@ -30,7 +30,7 @@ public class PricingController(IMediator mediator)
     {
         AdminGetPrices query = new(refID);
 
-        Result<SellableItemEntity> result = await mediator.Send(query, ct);
+        Result<SellableItemDto> result = await mediator.Send(query, ct);
 
         if (result.IsFailure)
         {
