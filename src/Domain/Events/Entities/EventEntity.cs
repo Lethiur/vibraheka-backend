@@ -1,17 +1,17 @@
-﻿using VibraHeka.Domain.Events.Enums;
+﻿using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Events.Enums;
 
 namespace VibraHeka.Domain.Events.Entities;
 
-public class EventEntity : BaseAuditableEntity
+public class EventEntity : ProductEntity
 {
-    public String EventID { get; set; } = string.Empty;
-    public String EventName { get; set; } = string.Empty;
-    public String EventDescription { get; set; } = string.Empty;
-    public DateTime EventDateUtc { get; set; } = DateTime.UtcNow;
+    public string EventID { get => ID; set => ID = value; }
+    public DateTimeOffset EventDateUtc { get; set; } = DateTime.UtcNow;
     public int Duration { get; set; } = 0;
-    public String EventPassword { get; set; } = string.Empty;
-    public String EventTimezone { get; set; } = string.Empty;
-    public List<EventAttendee> Attendees { get; set; } = [];
+    public string EventPassword { get; set; } = string.Empty;
+    public string EventTimezone { get; set; } = string.Empty;
     public EventStatus Status { get; set; } = EventStatus.MissingLink;
+
+    public string EventLink { get; set; } = string.Empty;
 
 }

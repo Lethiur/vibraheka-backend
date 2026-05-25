@@ -41,7 +41,7 @@ public partial class ZoomMeetingMapper
     [MapperIgnoreSource(nameof(ZoomCreateMeetingResponse.PstnPassword))]
     public partial CreateEventResult CreateMeetingResponseToDomain(ZoomCreateMeetingResponse response);
 
-    [MapProperty(nameof(UnRegisterAttendeeModel.MeetingID), nameof(ZoomUnRegisterRegistrantRequest.MeetingID))]
+    [MapProperty(nameof(UnRegisterAttendeeModel.EventID), nameof(ZoomUnRegisterRegistrantRequest.MeetingID))]
     [MapProperty(nameof(UnRegisterAttendeeModel.RegistrantID), nameof(ZoomUnRegisterRegistrantRequest.RegistrantID))]
     public partial ZoomUnRegisterRegistrantRequest ToZoomUnRegisterRegistrantRequest(UnRegisterAttendeeModel model);
 

@@ -2,5 +2,5 @@
 
 public class EventDto
 {
-
+    public string EventID { get; set; } = string.Empty;
 }

@@ -105,7 +105,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
             Tier: Free,
             Price: 0m,
             CurrencyCode: CurrencyIsoCode.AED,
-            Description:  new string('D', 2001),
+            Description: new string('D', 2001),
             Type: Meditacion);
 
         // When: validating the command

@@ -2,6 +2,7 @@ resource "aws_dynamodb_table" "Verification_Codes" {
   name         = "${local.table_prefix}CognitoCodes"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "username"
+  
 
   attribute {
     name = "username"

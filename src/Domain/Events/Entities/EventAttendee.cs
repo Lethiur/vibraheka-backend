@@ -5,4 +5,6 @@ public class EventAttendee
 {
     public String AttendeeName { get; set; } = string.Empty;
     public String Email { get; set; } = string.Empty;
+
+    public String UserID { get; set; } = string.Empty;
 }

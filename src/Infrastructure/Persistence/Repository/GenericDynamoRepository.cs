@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using MediatR;
@@ -51,7 +52,8 @@ public abstract class GenericDynamoRepository<T>(
     protected async Task<Result<T>> FindByIdAndRangeKey(string idValue, object rangeKeyValue,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Retrieving entity of type {EntityType} by ID  {ID} and range key {RangeKey}", typeof(T).Name, idValue, rangeKeyValue);
+        logger.LogInformation("Retrieving entity of type {EntityType} by ID  {ID} and range key {RangeKey}",
+            typeof(T).Name, idValue, rangeKeyValue);
 
         try
         {
@@ -78,7 +80,8 @@ public abstract class GenericDynamoRepository<T>(
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
-            "Retrieving entity of type {EntityType} using index {IndexName} with value {IndexValue}", typeof(T).Name, indexName, indexValue);
+            "Retrieving entity of type {EntityType} using index {IndexName} with value {IndexValue}", typeof(T).Name,
+            indexName, indexValue);
         QueryConfig queryConfig = new() { IndexName = indexName };
         try
         {
@@ -122,8 +125,6 @@ public abstract class GenericDynamoRepository<T>(
     /// </returns>
     protected async Task<Result<Unit>> Save(T entity, CancellationToken token = default)
     {
-        DynamoDBTableAttribute? dynamoDbTableAttribute = typeof(T).GetCustomAttribute<DynamoDBTableAttribute>(inherit: true);
-
         try
         {
             await context.SaveAsync(entity, token);
@@ -198,14 +199,12 @@ public abstract class GenericDynamoRepository<T>(
         DynamoExpression? condition = null,
         CancellationToken token = default)
     {
-
         UpdateItemRequest request = new UpdateItemRequest
         {
             Key = key,
             TableName = context.GetTargetTable<T>().TableName,
             UpdateExpression = update.Expression,
             ConditionExpression = condition?.Expression,
-
             ExpressionAttributeNames = update.AttributeNames,
             ExpressionAttributeValues = update.AttributeValues,
         };
@@ -222,6 +221,91 @@ public abstract class GenericDynamoRepository<T>(
         UpdateItemResponse updateItemResponse = await client.UpdateItemAsync(request, cancellationToken: token);
 
         return Result.Success(Unit.Value);
+    }
+
+    /// <summary>
+    /// Queries a GSI or LSI using a key condition expression. Non-key attribute conditions must be
+    /// placed in <see cref="DynamoExpression.FilterExpression"/>; putting them in
+    /// <see cref="DynamoExpression.Expression"/> causes DynamoDB to reject the request with
+    /// "Query key condition not supported".
+    /// </summary>
+    protected async Task<Result<List<T>>> QueryIndexAsync(
+        DynamoExpression expression,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(expression.Expression))
+        {
+            logger.LogWarning(
+                "QueryIndexAsync called with empty KeyConditionExpression for entity {EntityType} on index {IndexName}",
+                typeof(T).Name, expression.IndexName);
+            return Result.Failure<List<T>>(GenericPersistenceErrors.InvalidKeyCondition);
+        }
+
+        try
+        {
+            QueryRequest request = new()
+            {
+                IndexName = expression.IndexName,
+                TableName = context.GetTargetTable<T>().TableName,
+                KeyConditionExpression = expression.Expression,
+                FilterExpression = expression.FilterExpression,
+                ExpressionAttributeNames = expression.AttributeNames,
+                ExpressionAttributeValues = expression.AttributeValues,
+            };
+
+            QueryResponse response = await client.QueryAsync(request, cancellationToken);
+            List<T> items = response.Items
+                .Select(Document.FromAttributeMap)
+                .Select(context.FromDocument<T>)
+                .ToList();
+
+            logger.LogInformation(
+                "QueryIndexAsync returned {Count} item(s) for entity {EntityType} on index {IndexName}",
+                items.Count, typeof(T).Name, expression.IndexName);
+
+            return Result.Success(items);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<List<T>>(HandleError(e));
+        }
+    }
+
+    /// <summary>
+    /// Performs a full-table scan with an optional filter expression. Use when no valid key
+    /// condition exists for the required query (e.g. range queries on non-sort-key attributes).
+    /// Note: scans consume read capacity proportional to table size; prefer GSI queries when possible.
+    /// </summary>
+    protected async Task<Result<List<T>>> ScanWithFilterAsync(
+        DynamoExpression filter,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScanRequest request = new()
+            {
+                TableName = context.GetTargetTable<T>().TableName,
+                FilterExpression = filter.Expression,
+                ExpressionAttributeNames = filter.AttributeNames.Count > 0 ? filter.AttributeNames : null,
+                ExpressionAttributeValues = filter.AttributeValues.Count > 0 ? filter.AttributeValues : null,
+            };
+
+            ScanResponse response = await client.ScanAsync(request, cancellationToken);
+            List<T> items = response.Items
+                .Select(Document.FromAttributeMap)
+                .Select(context.FromDocument<T>)
+                .ToList();
+
+            logger.LogInformation(
+                "ScanWithFilterAsync returned {Count} item(s) for entity {EntityType}",
+                items.Count, typeof(T).Name);
+
+            return Result.Success(items);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure<List<T>>(HandleError(e));
+        }
     }
 
     /// <summary>

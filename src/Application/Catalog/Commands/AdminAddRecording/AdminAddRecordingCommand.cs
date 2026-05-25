@@ -9,7 +9,7 @@ namespace VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 public sealed record AdminAddRecordingCommand(
     string Name,
     string Description,
-    decimal Price, 
+    decimal Price,
     CurrencyIsoCode CurrencyCode,
     RecordingTier Tier,
     RecordingType Type) : IRequest<Result<AddRecordingResult>>, IRequireAdmin;

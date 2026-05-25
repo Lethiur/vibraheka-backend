@@ -57,7 +57,7 @@ public class RegisterSellableProductUseCase(
             LastModified = DateTime.UtcNow,
             LastModifiedBy = currentUserService.UserId,
         };
-        
+
         SellableItemPriceEntity sellableItemPriceEntity = new SellableItemPriceEntity()
         {
             Amount = price,
@@ -69,7 +69,7 @@ public class RegisterSellableProductUseCase(
             LastModified = DateTime.UtcNow,
             LastModifiedBy = currentUserService.UserId,
         };
-        
+
         (bool _, bool isFailure, ProductGatewayCreatedResponseModel? value, string? error) =
             await productCreationWritePort.CreateProductInGatewayAsync(entity, sellableItemPriceEntity,
                 cancellationToken);
@@ -85,7 +85,7 @@ public class RegisterSellableProductUseCase(
         TransactionalWriteBatch productCreationBatch = new TransactionalWriteBatch(Guid.NewGuid().ToString());
         productCreationBatch.Add(sellableItemWritePort.CreateSellableItem(sellableItemEntity));
         productCreationBatch.Add(sellableItemPriceWritePort.CreateSellableItemPrice(sellableItemPriceEntity));
-        
+
         return await transactionStore.CommitAsync(productCreationBatch, cancellationToken);
     }
 

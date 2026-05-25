@@ -64,7 +64,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
             $"Expected Name='{entity.Name}' but got: '{persisted.Name}'");
         Assert.That(persisted.Description, Is.EqualTo(entity.Description),
             $"Expected Description='{entity.Description}' but got: '{persisted.Description}'");
-     
+
         Assert.That(persisted.CreatedBy, Is.EqualTo(entity.CreatedBy),
             $"Expected CreatedBy='{entity.CreatedBy}' but got: '{persisted.CreatedBy}'");
     }

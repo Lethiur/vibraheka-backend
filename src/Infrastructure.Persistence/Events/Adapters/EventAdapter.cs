@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Events.Repositories;
 using MediatR;
 using VibraHeka.Domain.Events.Entities;
 using VibraHeka.Domain.Events.Models;
@@ -6,7 +7,7 @@ using VibraHeka.Domain.Events.Ports.Out;
 
 namespace Infrastructure.Persistence.Events.Adapters;
 
-public class EventAdapter : IEventRepositoryPort
+public class EventAdapter(EventRepository repository) : IEventRepositoryPort
 {
     public Task<Result<EventEntity>> GetEventByIdAsync(string eventId, CancellationToken token)
     {
@@ -15,7 +16,12 @@ public class EventAdapter : IEventRepositoryPort
 
     public Task<Result<EventEntity>> SaveEventAsync(EventEntity eventEntity, CancellationToken token)
     {
-        throw new NotImplementedException();
+        return repository.SaveEventAsync(eventEntity, token);
+    }
+
+    public Task<Result<List<EventEntity>>> GetEventsAsync(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken token)
+    {
+        return repository.GetEventsFromDateAsync(startDate, endDate, token);
     }
 
     public Task<Result<Unit>> DeleteEventAsync(string eventId, CancellationToken token)

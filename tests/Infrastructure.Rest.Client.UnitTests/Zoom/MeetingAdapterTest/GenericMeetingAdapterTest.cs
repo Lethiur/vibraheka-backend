@@ -180,7 +180,7 @@ public abstract class GenericMeetingAdapterTest
     {
         return new UnRegisterAttendeeModel
         {
-            MeetingID = 123456789,
+            EventID = 123456789,
             RegistrantID = "reg-abc-123",
         };
     }
