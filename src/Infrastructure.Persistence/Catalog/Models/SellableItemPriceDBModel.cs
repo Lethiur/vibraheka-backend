@@ -10,19 +10,26 @@ public class SellableItemPriceDBModel : BaseAuditableDBModel
 {
     [DynamoDBHashKey]
     public string SellableItemPriceID { get; set; } = string.Empty;
-    [DynamoDBGlobalSecondaryIndexHashKey("SellableItemID-Index")]
+
+    [DynamoDBGlobalSecondaryIndexHashKey("SellableItemID-Index", "SellableItemID-Kind-Index")]
     public string SellableItemID { get; set; } = string.Empty;
+
     [DynamoDBProperty(typeof(MoneyConverter))]
     public NMoneys.Money Amount { get; set; }
+
+    [DynamoDBGlobalSecondaryIndexRangeKey("SellableItemID-Kind-Index")]
     [DynamoDBProperty(typeof(EnumStringConverter<PriceKind>))]
     public PriceKind Kind { get; set; }
 
     [DynamoDBProperty(typeof(EnumStringConverter<BillingInterval>))]
     public BillingInterval? BillingIntervalValue { get; set; }
+
     [DynamoDBProperty]
     public string ExternalProductID { get; set; } = string.Empty;
+
     [DynamoDBProperty]
     public string ExternalPriceID { get; set; } = string.Empty;
+
     [DynamoDBProperty]
     public bool IsActive { get; set; }
 }

@@ -14,7 +14,9 @@ public abstract class GenericSellableItemAdapterTest
     protected Mock<IDynamoDBContext> ContextMock = default!;
     protected Mock<IAmazonDynamoDB> DynamoDbClientMock = default!;
     protected Mock<ILogger<SellableItemRepository>> LoggerMock = default!;
+    protected Mock<ILogger<SellableItemPriceRepository>> PriceLoggerMock = default!;
     protected SellableItemRepository Repository = default!;
+    protected SellableItemPriceRepository PriceRepository = default!;
     protected SellableItemAdapter Adapter = default!;
 
     [SetUp]
@@ -23,12 +25,18 @@ public abstract class GenericSellableItemAdapterTest
         ContextMock = new Mock<IDynamoDBContext>();
         DynamoDbClientMock = new Mock<IAmazonDynamoDB>();
         LoggerMock = new Mock<ILogger<SellableItemRepository>>();
+        PriceLoggerMock = new Mock<ILogger<SellableItemPriceRepository>>();
         Repository = new SellableItemRepository(
             DynamoDbClientMock.Object,
             ContextMock.Object,
             new SellableItemEntityMapper(),
             LoggerMock.Object);
-        Adapter = new SellableItemAdapter(Repository);
+        PriceRepository = new SellableItemPriceRepository(
+            DynamoDbClientMock.Object,
+            ContextMock.Object,
+            new SellableItemPriceEntityMapper(),
+            PriceLoggerMock.Object);
+        Adapter = new SellableItemAdapter(Repository, PriceRepository);
     }
 
     protected static SellableItemDBModel BuildDefaultSellableItemDBModel(string referenceId = "ref-id-001") =>
@@ -41,4 +49,3 @@ public abstract class GenericSellableItemAdapterTest
             IsActive = true,
         };
 }
-

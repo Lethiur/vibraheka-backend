@@ -13,5 +13,5 @@ public class SellableItemEntity : BaseAuditableEntity
 
     public bool IsActive { get; set; }
 
-    public List<SellableItemPriceEntity> Prices { get; private set; } = [];
+    public List<SellableItemPriceEntity> Prices { get; set; } = [];
 }
