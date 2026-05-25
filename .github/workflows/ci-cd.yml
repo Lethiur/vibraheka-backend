@@ -284,7 +284,7 @@ jobs:
             tests/Infrastructure.Persistence.IntegrationTests/Infrastructure.Persistence.IntegrationTests.csproj
             tests/Infrastructure.Persistence.UnitTest/Infrastructure.Persistence.UnitTest.csproj
             tests/Infrastructure.Rest.Client.UnitTests/Infrastructure.Rest.Client.UnitTests.csproj
-#            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
+            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
 
 #  tests_acceptance:
 #    name: Tests (acceptance)
