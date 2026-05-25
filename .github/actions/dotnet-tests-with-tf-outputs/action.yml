@@ -88,7 +88,7 @@ runs:
         ZOOM_ACCOUNT_ID: ${{ inputs.ZOOM_ACCOUNT_ID }}
         ZOOM_CLIENT_ID: ${{ inputs.ZOOM_CLIENT_ID }}
         ZOOM_CLIENT_SECRET: ${{ inputs.ZOOM_CLIENT_SECRET }}
-        ZOOM_HOST_EMAIL: ${{ inputs.ZOOM_EMAIL }}
+        ZOOM_HOST_EMAIL: ${{ inputs.ZOOM_HOST_EMAIL }}
       run: |
         set -euo pipefail
         chmod +x ./update-appsettings-from-terraform.sh
