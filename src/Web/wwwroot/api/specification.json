@@ -358,18 +358,18 @@
         }
       }
     },
-    "/api/v1/catalog": {
+    "/api/v1/catalog/recordings": {
       "post": {
         "tags": [
-          "Catalog"
+          "Recording"
         ],
-        "operationId": "Catalog_CreateProduct",
+        "operationId": "Recording_UploadRecording",
         "requestBody": {
           "x-name": "request",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateProductRequest"
+                "$ref": "#/components/schemas/UploadRecordingRequest"
               }
             }
           },
@@ -392,12 +392,155 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetAllRecordings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
                   "$ref": "#/components/schemas/ResponseEntity"
                 }
               }
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/{recordingId}/download-url": {
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetDownloadUrl",
+        "parameters": [
+          {
+            "name": "recordingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/{recordingId}": {
+      "delete": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_DeleteRecording",
+        "parameters": [
+          {
+            "name": "recordingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "",
             "content": {
               "application/json": {
@@ -685,18 +828,18 @@
         }
       }
     },
-    "/api/v1/recordings": {
-      "post": {
+    "/api/v1/events": {
+      "put": {
         "tags": [
-          "Recording"
+          "Event"
         ],
-        "operationId": "Recording_UploadRecording",
+        "operationId": "Event_CreateEvent",
         "requestBody": {
           "x-name": "request",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UploadRecordingRequest"
+                "$ref": "#/components/schemas/CreateEventRequest"
               }
             }
           },
@@ -707,57 +850,10 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
+              "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_GetAllRecordings",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -765,114 +861,42 @@
         }
       }
     },
-    "/api/v1/recordings/{recordingId}/download-url": {
+    "/api/v1/events/{from}/to/{to}": {
       "get": {
         "tags": [
-          "Recording"
+          "Event"
         ],
-        "operationId": "Recording_GetDownloadUrl",
+        "operationId": "Event_GetEvents",
         "parameters": [
           {
-            "name": "recordingId",
+            "name": "from",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "date-time"
             },
             "x-position": 1
+          },
+          {
+            "name": "to",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 2
           }
         ],
         "responses": {
           "200": {
             "description": "",
             "content": {
-              "application/json": {
+              "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/recordings/{recordingId}": {
-      "delete": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_DeleteRecording",
-        "parameters": [
-          {
-            "name": "recordingId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -1394,7 +1418,7 @@
           }
         }
       },
-      "CreateProductRequest": {
+      "UploadRecordingRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1403,6 +1427,12 @@
           },
           "description": {
             "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RecordingTier"
+          },
+          "type": {
+            "$ref": "#/components/schemas/RecordingType"
           },
           "price": {
             "type": "number",
@@ -1413,8 +1443,36 @@
           }
         }
       },
-      "CurrencyIsoCode": {
+      "RecordingTier": {
         "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Free",
+          "Premium",
+          "DiscountForMembers"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "RecordingType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Meditacion",
+          "Masterclass",
+          "Taller"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "CurrencyIsoCode": {
+        "type": "string",
         "description": "Currency codes as stated by the ISO 4217 standard",
         "x-enumNames": [
           "ALL",
@@ -1610,197 +1668,197 @@
           "XXX"
         ],
         "enum": [
-          8,
-          12,
-          32,
-          36,
-          44,
-          48,
-          50,
-          51,
-          52,
-          60,
-          64,
-          68,
-          72,
-          84,
-          90,
-          96,
-          104,
-          108,
-          116,
-          124,
-          132,
-          136,
-          144,
-          152,
-          156,
-          170,
-          174,
-          188,
-          191,
-          192,
-          203,
-          208,
-          214,
-          222,
-          230,
-          232,
-          233,
-          238,
-          242,
-          262,
-          270,
-          292,
-          320,
-          324,
-          328,
-          332,
-          340,
-          344,
-          348,
-          352,
-          356,
-          360,
-          364,
-          368,
-          376,
-          388,
-          392,
-          398,
-          400,
-          404,
-          408,
-          410,
-          414,
-          417,
-          418,
-          422,
-          426,
-          428,
-          430,
-          434,
-          440,
-          446,
-          454,
-          458,
-          462,
-          478,
-          480,
-          484,
-          496,
-          498,
-          504,
-          512,
-          516,
-          524,
-          532,
-          533,
-          548,
-          554,
-          558,
-          566,
-          578,
-          586,
-          590,
-          598,
-          600,
-          604,
-          608,
-          634,
-          643,
-          646,
-          654,
-          678,
-          682,
-          690,
-          694,
-          702,
-          704,
-          706,
-          710,
-          728,
-          748,
-          752,
-          756,
-          760,
-          764,
-          776,
-          780,
-          784,
-          788,
-          800,
-          807,
-          818,
-          826,
-          834,
-          840,
-          858,
-          860,
-          882,
-          886,
-          894,
-          901,
-          924,
-          925,
-          926,
-          927,
-          928,
-          929,
-          930,
-          931,
-          932,
-          933,
-          934,
-          936,
-          937,
-          938,
-          940,
-          941,
-          943,
-          944,
-          946,
-          947,
-          948,
-          949,
-          950,
-          951,
-          952,
-          953,
-          955,
-          956,
-          957,
-          958,
-          959,
-          960,
-          961,
-          962,
-          963,
-          964,
-          965,
-          967,
-          968,
-          969,
-          970,
-          971,
-          972,
-          973,
-          974,
-          975,
-          976,
-          977,
-          978,
-          979,
-          980,
-          981,
-          984,
-          985,
-          986,
-          990,
-          994,
-          997,
-          998,
-          999
+          "ALL",
+          "DZD",
+          "ARS",
+          "AUD",
+          "BSD",
+          "BHD",
+          "BDT",
+          "AMD",
+          "BBD",
+          "BMD",
+          "BTN",
+          "BOB",
+          "BWP",
+          "BZD",
+          "SBD",
+          "BND",
+          "MMK",
+          "BIF",
+          "KHR",
+          "CAD",
+          "CVE",
+          "KYD",
+          "LKR",
+          "CLP",
+          "CNY",
+          "COP",
+          "KMF",
+          "CRC",
+          "HRK",
+          "CUP",
+          "CZK",
+          "DKK",
+          "DOP",
+          "SVC",
+          "ETB",
+          "ERN",
+          "EEK",
+          "FKP",
+          "FJD",
+          "DJF",
+          "GMD",
+          "GIP",
+          "GTQ",
+          "GNF",
+          "GYD",
+          "HTG",
+          "HNL",
+          "HKD",
+          "HUF",
+          "ISK",
+          "INR",
+          "IDR",
+          "IRR",
+          "IQD",
+          "ILS",
+          "JMD",
+          "JPY",
+          "KZT",
+          "JOD",
+          "KES",
+          "KPW",
+          "KRW",
+          "KWD",
+          "KGS",
+          "LAK",
+          "LBP",
+          "LSL",
+          "LVL",
+          "LRD",
+          "LYD",
+          "LTL",
+          "MOP",
+          "MWK",
+          "MYR",
+          "MVR",
+          "MRO",
+          "MUR",
+          "MXN",
+          "MNT",
+          "MDL",
+          "MAD",
+          "OMR",
+          "NAD",
+          "NPR",
+          "ANG",
+          "AWG",
+          "VUV",
+          "NZD",
+          "NIO",
+          "NGN",
+          "NOK",
+          "PKR",
+          "PAB",
+          "PGK",
+          "PYG",
+          "PEN",
+          "PHP",
+          "QAR",
+          "RUB",
+          "RWF",
+          "SHP",
+          "STD",
+          "SAR",
+          "SCR",
+          "SLL",
+          "SGD",
+          "VND",
+          "SOS",
+          "ZAR",
+          "SSP",
+          "SZL",
+          "SEK",
+          "CHF",
+          "SYP",
+          "THB",
+          "TOP",
+          "TTD",
+          "AED",
+          "TND",
+          "UGX",
+          "MKD",
+          "EGP",
+          "GBP",
+          "TZS",
+          "USD",
+          "UYU",
+          "UZS",
+          "WST",
+          "YER",
+          "ZMK",
+          "TWD",
+          "ZWG",
+          "SLE",
+          "VED",
+          "UYW",
+          "VES",
+          "MRU",
+          "STN",
+          "CUC",
+          "ZWL",
+          "BYN",
+          "TMT",
+          "GHS",
+          "VEF",
+          "SDG",
+          "UYI",
+          "RSD",
+          "MZN",
+          "AZN",
+          "RON",
+          "CHE",
+          "CHW",
+          "TRY",
+          "XAF",
+          "XCD",
+          "XOF",
+          "XPF",
+          "XBA",
+          "XBB",
+          "XBC",
+          "XBD",
+          "XAU",
+          "XDR",
+          "XAG",
+          "XPT",
+          "XTS",
+          "XPD",
+          "XUA",
+          "ZMW",
+          "SRD",
+          "MGA",
+          "COU",
+          "AFN",
+          "TJS",
+          "AOA",
+          "BYR",
+          "BGN",
+          "CDF",
+          "BAM",
+          "EUR",
+          "MXV",
+          "UAH",
+          "GEL",
+          "BOV",
+          "PLN",
+          "BRL",
+          "CLF",
+          "XSU",
+          "USN",
+          "USS",
+          "XXX"
         ]
       },
       "EditTemplateNameRequest": {
@@ -1815,51 +1873,35 @@
           }
         }
       },
-      "UploadRecordingRequest": {
+      "CreateEventRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {
+          "eventName": {
             "type": "string"
           },
-          "description": {
+          "eventDescription": {
             "type": "string"
           },
-          "tier": {
-            "$ref": "#/components/schemas/RecordingTier"
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
           },
-          "type": {
-            "$ref": "#/components/schemas/RecordingType"
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventTimezone": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currencyCode": {
+            "$ref": "#/components/schemas/CurrencyIsoCode"
           }
         }
-      },
-      "RecordingTier": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Free",
-          "Premium",
-          "DiscountForMembers"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
-      },
-      "RecordingType": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Meditacion",
-          "Masterclass",
-          "Taller"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
       },
       "ChangeTemplateForActionCommand": {
         "type": "object",

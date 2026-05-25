@@ -79,6 +79,8 @@ public class ZoomApiClient(ILogger<ZoomApiClient> Logger, HttpClient Client)
         HttpResponseMessage response = await Client.PostAsJsonAsync(endpoint, request, cancellationToken);
         if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
         {
+            string errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            Logger.LogError("Failed to create Zoom meeting: {StatusCode}, error: {Error}", response.StatusCode, errorContent);
             return Result.Failure<ZoomCreateMeetingResponse>(ZoomErrors.FailedToCreateMeeting);
         }
 

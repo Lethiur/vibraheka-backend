@@ -275,6 +275,10 @@ jobs:
           appsettings-path: src/Web/appsettings.Test.json
           password-reset-token-secret: ${{ secrets.PASSWORD_RESET_TOKEN_SECRET }}
           stripe-secret-key: ${{ secrets.STRIPE_API_KEY }}
+          ZOOM_ACCOUNT_ID: ${{ secrets.ZOOM_ACCOUNT_ID }}
+          ZOOM_CLIENT_ID: ${{ secrets.ZOOM_CLIENT_ID }}
+          ZOOM_CLIENT_SECRET: ${{ secrets.ZOOM_CLIENT_SECRET }}
+          ZOOM_HOST_EMAIL: ${{ secrets.ZOOM_EMAIL }}
           projects: |
             tests/Domain.UnitTests/Domain.UnitTests.csproj
             tests/Application.UnitTests/Application.UnitTests.csproj
@@ -284,7 +288,7 @@ jobs:
             tests/Infrastructure.Persistence.IntegrationTests/Infrastructure.Persistence.IntegrationTests.csproj
             tests/Infrastructure.Persistence.UnitTest/Infrastructure.Persistence.UnitTest.csproj
             tests/Infrastructure.Rest.Client.UnitTests/Infrastructure.Rest.Client.UnitTests.csproj
-#            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
+            tests/Infrastructure.Rest.Client.IntegrationTests/Infrastructure.Rest.Client.IntegrationTests.csproj
 
 #  tests_acceptance:
 #    name: Tests (acceptance)
@@ -411,6 +415,10 @@ jobs:
           STRIPE_SECRET_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STRIPE_API_KEY_MAIN || secrets.STRIPE_API_KEY }}
           REGION: ${{ env.AWS_REGION }}
           PROFILE: ${{ env.AWS_PROFILE_NAME }}
+          ZOOM_ACCOUNT_ID: ${{ secrets.ZOOM_ACCOUNT_ID }}
+          ZOOM_CLIENT_ID: ${{ secrets.ZOOM_CLIENT_ID }}
+          ZOOM_CLIENT_SECRET: ${{ secrets.ZOOM_CLIENT_SECRET }}
+          ZOOM_HOST_EMAIL: ${{ secrets.ZOOM_EMAIL }}
         run: |
           set -euo pipefail
           chmod +x ./update-appsettings-from-terraform.sh
@@ -483,61 +491,10 @@ jobs:
         env:
           ADMIN_EMAIL: ${{ env.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
+          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
-          set -euo pipefail
-
-          USER_POOL_ID="$(jq -r '.cognito_pool_id.value' /tmp/tf-prod.json)"
-          USERS_TABLE="$(jq -r '.environment.value' /tmp/tf-prod.json)Users-Profiles"
-
-          if [[ -z "${USER_POOL_ID:-}" || -z "${USERS_TABLE:-}" || "${USER_POOL_ID}" == "null" || "${USERS_TABLE}" == "null" ]]; then
-            echo "USER_POOL_ID or USERS_TABLE is empty; cannot seed admin user."
-            exit 1
-          fi
-
-          if ! aws cognito-idp admin-get-user --user-pool-id "$USER_POOL_ID" --username "$ADMIN_EMAIL" >/dev/null 2>&1; then
-            aws cognito-idp admin-create-user \
-              --user-pool-id "$USER_POOL_ID" \
-              --username "$ADMIN_EMAIL" \
-              --user-attributes \
-                Name=email,Value="$ADMIN_EMAIL" \
-                Name=email_verified,Value=true \
-                Name=name,Value="Default Admin" \
-              --message-action SUPPRESS
-          fi
-
-          aws cognito-idp admin-set-user-password \
-            --user-pool-id "$USER_POOL_ID" \
-            --username "$ADMIN_EMAIL" \
-            --password "$ADMIN_PASSWORD" \
-            --permanent
-
-          SUB="$(aws cognito-idp admin-get-user \
-            --user-pool-id "$USER_POOL_ID" \
-            --username "$ADMIN_EMAIL" \
-            --query "UserAttributes[?Name=='sub']|[0].Value" \
-            --output text)"
-
-          NOW="$(date -u +"%Y-%m-%dT%H:%M:%S.0000000+00:00")"
-
-          aws dynamodb put-item \
-            --table-name "$USERS_TABLE" \
-            --item "{\
-              \"Id\": {\"S\": \"$SUB\"},\
-              \"CustomerID\": {\"S\": \"\"},\
-              \"Email\": {\"S\": \"$ADMIN_EMAIL\"},\
-              \"FirstName\": {\"S\": \"Default\"},\
-              \"MiddleName\": {\"S\": \"\"},\
-              \"LastName\": {\"S\": \"Admin\"},\
-              \"PhoneNumber\": {\"S\": \"+34600000000\"},\
-              \"Bio\": {\"S\": \"System default administrator\"},\
-              \"TimezoneID\": {\"S\": \"Europe/Madrid\"},\
-              \"ProfilePictureUrl\": {\"S\": \"\"},\
-              \"Role\": {\"S\": \"Admin\"},\
-              \"Created\": {\"S\": \"$NOW\"},\
-              \"CreatedBy\": {\"S\": \"$SUB\"},\
-              \"LastModified\": {\"S\": \"$NOW\"},\
-              \"LastModifiedBy\": {\"S\": \"$SUB\"}\
-            }"
+          chmod +x ./seed-default-admin.sh
+          ./seed-default-admin.sh --tf-outputs-json /tmp/tf-prod.json
 
   deploy_ec2:
     name: Deploy Backend And XRay On EC2

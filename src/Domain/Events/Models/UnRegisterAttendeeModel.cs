@@ -3,5 +3,5 @@
 public class UnRegisterAttendeeModel
 {
     public string RegistrantID { get; set; } = string.Empty;
-    public long MeetingID { get; set; }
+    public long EventID { get; set; }
 }

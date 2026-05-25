@@ -37,7 +37,7 @@ public sealed class UnRegisterAttendeeAsyncTest : GenericMeetingAdapterTest
         // When: UnRegisterAttendeeAsync is called
         Result<Unit> result = await Adapter.UnRegisterAttendeeAsync(new UnRegisterAttendeeModel()
         {
-            MeetingID = scheduleMeetingAsync.Value.EventID,
+            EventID = scheduleMeetingAsync.Value.EventID,
             RegistrantID = registerResult.Value.RegistrantID
         }, CancellationToken.None);
 

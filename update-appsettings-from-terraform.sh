@@ -62,13 +62,28 @@ PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
 STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
 AWS_REGION="${REGION:-}"
 AWS_PROFILE="${PROFILE:-}"
+ZOOM_ACCOUNT_ID="${ZOOM_ACCOUNT_ID:-}"
+ZOOM_CLIENT_ID="${ZOOM_CLIENT_ID:-}"
+ZOOM_CLIENT_SECRET="${ZOOM_CLIENT_SECRET:-}"
+ZOOM_EMAIL="${ZOOM_HOST_EMAIL:-}"
 
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
-  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prof "$AWS_PROFILE" --arg reg "$AWS_REGION" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" '
+  jq \
+    --argjson tf "$TF_OUTPUTS_JSON" \
+    --arg prof "$AWS_PROFILE" \
+    --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" \
+    --arg ssk "$STRIPE_SECRET_KEY_VALUE" \
+    --arg reg "$AWS_REGION" \
+    --arg zoomAccountId "$ZOOM_ACCOUNT_ID" \
+    --arg zoomClientId "$ZOOM_CLIENT_ID" \
+    --arg zoomClientSecret "$ZOOM_CLIENT_SECRET" \
+    --arg zoomEmail "$ZOOM_EMAIL" \
+    '
     .AWS = (.AWS // {}) |
     .Stripe = (.Stripe // {}) |
+    .Zoom = (.Zoom // {}) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |
     (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
     (if ($tf.cognito_client_id.value? != null) then .AWS.ClientId = $tf.cognito_client_id.value else . end) |
@@ -82,7 +97,11 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     .AWSLogging.LogGroup = ($tf.settings_namespace.value + "api/logs") |
     .AWSLogging.Region = $reg |
     .AWSLogging.Profile = $prof |
-    .XRay.ServiceName = $tf.project_name.value
+    .XRay.ServiceName = $tf.project_name.value |
+    .Zoom.AccountID = $zoomAccountId |
+    .Zoom.ClientID = $zoomClientId |
+    .Zoom.ClientSecret = $zoomClientSecret |
+    .Zoom.HostEmail = $zoomEmail
   ' "$appsettings_path" > "$tmp_file"
 
   mv "$tmp_file" "$appsettings_path"

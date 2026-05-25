@@ -6,5 +6,6 @@ public class GenericPersistenceErrors
     public const string ResourceNotFound = "GPE-001";
     public const string ProvisionedThroughputExceeded = "GPE-002";
     public const string ConditionalCheckFailed = "GPE-003";
+    public const string InvalidKeyCondition = "GPE-004";
     public const string GeneralError = "GPE-999";
 }

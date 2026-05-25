@@ -1382,6 +1382,139 @@ export class EmailTemplateClient implements IEmailTemplateClient {
     }
 }
 
+export interface IEventClient {
+    event_CreateEvent(request: CreateEventRequest): Observable<FileResponse>;
+    event_GetEvents(from: Date, to: Date): Observable<FileResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class EventClient implements IEventClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    event_CreateEvent(request: CreateEventRequest): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/v1/events";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEvent_CreateEvent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEvent_CreateEvent(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processEvent_CreateEvent(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    event_GetEvents(from: Date, to: Date): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/v1/events/{from}/to/{to}";
+        if (from === undefined || from === null)
+            throw new globalThis.Error("The parameter 'from' must be defined.");
+        url_ = url_.replace("{from}", encodeURIComponent(from ? "" + from.toISOString() : "null"));
+        if (to === undefined || to === null)
+            throw new globalThis.Error("The parameter 'to' must be defined.");
+        url_ = url_.replace("{to}", encodeURIComponent(to ? "" + to.toISOString() : "null"));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEvent_GetEvents(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEvent_GetEvents(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processEvent_GetEvents(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface ISettingsClient {
     settings_ChangeTemplate(command: ChangeTemplateForActionCommand): Observable<void>;
     settings_GetTemplates(): Observable<FileResponse>;
@@ -2868,6 +3001,66 @@ export class EditTemplateNameRequest implements IEditTemplateNameRequest {
 export interface IEditTemplateNameRequest {
     templateID?: string;
     newTemplateName?: string;
+}
+
+export class CreateEventRequest implements ICreateEventRequest {
+    eventName?: string;
+    eventDescription?: string;
+    eventDate?: Date;
+    duration?: number;
+    eventTimezone?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+
+    constructor(data?: ICreateEventRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.eventName = _data["eventName"];
+            this.eventDescription = _data["eventDescription"];
+            this.eventDate = _data["eventDate"] ? new Date(_data["eventDate"].toString()) : undefined as any;
+            this.duration = _data["duration"];
+            this.eventTimezone = _data["eventTimezone"];
+            this.price = _data["price"];
+            this.currencyCode = _data["currencyCode"];
+        }
+    }
+
+    static fromJS(data: any): CreateEventRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateEventRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["eventName"] = this.eventName;
+        data["eventDescription"] = this.eventDescription;
+        data["eventDate"] = this.eventDate ? this.eventDate.toISOString() : undefined as any;
+        data["duration"] = this.duration;
+        data["eventTimezone"] = this.eventTimezone;
+        data["price"] = this.price;
+        data["currencyCode"] = this.currencyCode;
+        return data;
+    }
+}
+
+export interface ICreateEventRequest {
+    eventName?: string;
+    eventDescription?: string;
+    eventDate?: Date;
+    duration?: number;
+    eventTimezone?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
 }
 
 export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {

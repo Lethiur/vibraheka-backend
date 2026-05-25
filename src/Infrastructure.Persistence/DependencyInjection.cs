@@ -5,6 +5,8 @@ using Infrastructure.Persistence.Commerce.Adapters;
 using Infrastructure.Persistence.Commerce.Mappers;
 using Infrastructure.Persistence.Commerce.Repositories;
 using Infrastructure.Persistence.Events.Adapters;
+using Infrastructure.Persistence.Events.Mappers;
+using Infrastructure.Persistence.Events.Repositories;
 using Infrastructure.Persistence.Payments.Adapters;
 using Infrastructure.Persistence.Payments.Mappers;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +39,7 @@ public static class DependencyInjection
         services.AddSingleton<OrderLineMapper>();
         services.AddSingleton<PaymentAttemptMapper>();
         services.AddSingleton<RecordingEntityMapper>();
+        services.AddSingleton<EventEntityMapper>();
         services.AddSingleton<SellableItemEntityMapper>();
         services.AddSingleton<SellableItemPriceEntityMapper>();
         services.AddSingleton<SubscriptionPlanEntityMapper>();
@@ -57,6 +60,7 @@ public static class DependencyInjection
         services.AddSingleton<IOrderLineWritePort, OrderLineWriteAdapter>();
         services.AddSingleton<IPaymentAttemptWritePort, PaymentAttemptWriteAdapter>();
         services.AddSingleton<IRecordingRegistryPort, RecordingsAdapter>();
+        services.AddSingleton<IEventRepositoryPort, EventAdapter>();
     }
 
     private static void AttachRepositories(this IServiceCollection services)
@@ -66,6 +70,7 @@ public static class DependencyInjection
         services.AddSingleton<SellableItemRepository>();
         services.AddSingleton<SellableItemPriceRepository>();
         services.AddSingleton<RecordingRepository>();
+        services.AddSingleton<EventRepository>();
     }
 }
 

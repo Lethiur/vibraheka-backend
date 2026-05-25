@@ -20,5 +20,5 @@ public class RecordingDBModel : ProductDBModel
 
     [DynamoDBProperty(typeof(EnumStringConverter<RecordingType>))]
     public RecordingType RecordingType { get; set; }
-    
+
 }

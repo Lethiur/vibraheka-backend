@@ -52,7 +52,7 @@ public sealed class AdminAddRecordingCommandHandler(
         Result<Unit> productRegistrationResult =
             await SellableItemPort.RegisterSellableItemAsync(entity, new Money(request.Price, request.CurrencyCode),
                 PriceKind.OneTime, cancellationToken);
-        
+
         if (productRegistrationResult.IsFailure)
         {
             Logger.LogWarning("Failed to register sellable item for recording {RecordingId}: {Error}", recordingId,
@@ -71,7 +71,7 @@ public sealed class AdminAddRecordingCommandHandler(
                 urlResult.Error);
             return Result.Failure<AddRecordingResult>(urlResult.Error);
         }
-        
+
         Logger.LogInformation("Recording {RecordingId} ready for direct upload", entity.RecordingID);
         return Result.Success(new AddRecordingResult(entity.RecordingID, urlResult.Value));
     }

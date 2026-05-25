@@ -23,6 +23,11 @@ module "Catalog" {
   context = local.context
 }
 
+module "Events" {
+  source  = "./Events"
+  context = local.context
+}
+
 module "Payments" {
   source = "./Payments"
   context = local.context

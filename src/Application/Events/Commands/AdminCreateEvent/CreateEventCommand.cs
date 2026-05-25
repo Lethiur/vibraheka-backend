@@ -1,4 +1,6 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Text.Json.Serialization;
+using CSharpFunctionalExtensions;
+using NMoneys;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Events.Models;
 
@@ -10,6 +12,7 @@ public record CreateEventCommand(
     DateTime EventDate,
     int Duration,
     string EventTimezone,
-    string? ProductID) : IRequireAdmin, IRequest<Result<EventDto>>
+    decimal Price,
+    CurrencyIsoCode CurrencyCode) : IRequireAdmin, IRequest<Result<EventDto>>
 {
 }
