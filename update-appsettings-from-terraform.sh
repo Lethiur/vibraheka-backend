@@ -71,6 +71,7 @@ ZOOM_EMAIL="${ZOOM_EMAIL:-}"
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
   jq \
+    --argjson tf "$TF_OUTPUTS_JSON" \
     --arg prof "$AWS_PROFILE" \
     --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" \
     --arg ssk "$STRIPE_SECRET_KEY_VALUE" \
