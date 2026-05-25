@@ -411,6 +411,10 @@ jobs:
           STRIPE_SECRET_KEY: ${{ github.ref == 'refs/heads/main' && secrets.STRIPE_API_KEY_MAIN || secrets.STRIPE_API_KEY }}
           REGION: ${{ env.AWS_REGION }}
           PROFILE: ${{ env.AWS_PROFILE_NAME }}
+          ZOOM_ACCOUNT_ID: ${{ secrets.ZOOM_ACCOUNT_ID }}
+          ZOOM_CLIENT_ID: ${{ secrets.ZOOM_CLIENT_ID }}
+          ZOOM_CLIENT_SECRET: ${{ secrets.ZOOM_CLIENT_SECRET }}
+          ZOOM_HOST_EMAIL: ${{ secrets.ZOOM_EMAIL }}
         run: |
           set -euo pipefail
           chmod +x ./update-appsettings-from-terraform.sh

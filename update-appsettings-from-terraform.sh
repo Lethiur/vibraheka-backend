@@ -62,11 +62,24 @@ PASSWORD_RESET_TOKEN_SECRET_VALUE="${PASSWORD_RESET_TOKEN_SECRET:-}"
 STRIPE_SECRET_KEY_VALUE="${STRIPE_SECRET_KEY:-}"
 AWS_REGION="${REGION:-}"
 AWS_PROFILE="${PROFILE:-}"
+ZOOM_ACCOUNT_ID="${ZOOM_ACCOUNT_ID:-}"
+ZOOM_CLIENT_ID="${ZOOM_CLIENT_ID:-}"
+ZOOM_CLIENT_SECRET="${ZOOM_CLIENT_SECRET:-}"
+ZOOM_EMAIL="${ZOOM_EMAIL:-}"
 
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
   tmp_file="$(mktemp)"
-  jq --argjson tf "$TF_OUTPUTS_JSON" --arg prof "$AWS_PROFILE" --arg reg "$AWS_REGION" --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" --arg ssk "$STRIPE_SECRET_KEY_VALUE" '
+  jq \
+    --arg prof "$AWS_PROFILE" \
+    --arg prs "$PASSWORD_RESET_TOKEN_SECRET_VALUE" \
+    --arg ssk "$STRIPE_SECRET_KEY_VALUE" \
+    --arg reg "$AWS_REGION" \
+    --arg zoomAccountId "$ZOOM_ACCOUNT_ID" \
+    --arg zoomClientId "$ZOOM_CLIENT_ID" \
+    --arg zoomClientSecret "$ZOOM_CLIENT_SECRET" \
+    --arg zoomEmail "$ZOOM_EMAIL" \
+    '
     .AWS = (.AWS // {}) |
     .Stripe = (.Stripe // {}) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |
