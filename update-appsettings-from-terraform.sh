@@ -65,7 +65,7 @@ AWS_PROFILE="${PROFILE:-}"
 ZOOM_ACCOUNT_ID="${ZOOM_ACCOUNT_ID:-}"
 ZOOM_CLIENT_ID="${ZOOM_CLIENT_ID:-}"
 ZOOM_CLIENT_SECRET="${ZOOM_CLIENT_SECRET:-}"
-ZOOM_EMAIL="${ZOOM_EMAIL:-}"
+ZOOM_EMAIL="${ZOOM_HOST_EMAIL:-}"
 
 
 for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
@@ -83,6 +83,7 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     '
     .AWS = (.AWS // {}) |
     .Stripe = (.Stripe // {}) |
+    .Zoom = (.Zoom // {}) |
     (if ($tf.email_templates_bucket_name.value? != null) then .AWS.EmailTemplatesBucketName = $tf.email_templates_bucket_name.value else . end) |
     (if ($tf.recordings_bucket_name.value? != null) then .AWS.RecordingsBucketName = $tf.recordings_bucket_name.value else . end) |
     (if ($tf.cognito_client_id.value? != null) then .AWS.ClientId = $tf.cognito_client_id.value else . end) |
@@ -96,7 +97,11 @@ for appsettings_path in "${APPSETTINGS_PATHS[@]}"; do
     .AWSLogging.LogGroup = ($tf.settings_namespace.value + "api/logs") |
     .AWSLogging.Region = $reg |
     .AWSLogging.Profile = $prof |
-    .XRay.ServiceName = $tf.project_name.value
+    .XRay.ServiceName = $tf.project_name.value |
+    .Zoom.AccountID = $zoomAccountId |
+    .Zoom.ClientID = $zoomClientId |
+    .Zoom.ClientSecret = $zoomClientSecret |
+    .Zoom.HostEmail = $zoomEmail
   ' "$appsettings_path" > "$tmp_file"
 
   mv "$tmp_file" "$appsettings_path"
