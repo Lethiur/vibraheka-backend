@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog\Ports\In\" />
     <Folder Include="Models\DTO\" />
     <Folder Include="Users\Entities\" />
   </ItemGroup>

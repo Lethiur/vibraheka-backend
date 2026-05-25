@@ -38,7 +38,7 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
         CancellationToken cancellationToken)
     {
 
-        Logger.LogInformation("Creating product and price in Stripe gateway {ProductID}", productEntity.ProductID);
+        Logger.LogInformation("Creating product and price in Stripe gateway {ProductID}", productEntity.ID);
         CreateProductAndPriceRequest request = new CreateProductAndPriceRequest()
         {
             Name = productEntity.Name,
@@ -47,7 +47,7 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
             PriceInCents = priceEntity.Amount.MinorIntegralAmount,
             Metadata = new Dictionary<string, string>()
             {
-                { "ProductID", productEntity.ProductID }, { "SellableItemID", priceEntity.SellableItemID }
+                { "ProductID", productEntity.ID }, { "SellableItemID", priceEntity.SellableItemID }
             },
         };
 

@@ -108,7 +108,6 @@ public static class DependencyInjection
         StripeConfiguration.ApiKey = stripeConfig.SecretKey;
 
         services.AddSingleton<SubscriptionEntityMapper>();
-        services.AddSingleton<RecordingEntityMapper>();
         services.AddSingleton<VerificationCodeEntityMapper>();
         services.AddSingleton<UsersCodeMapper>();
 #if DEBUG
@@ -151,7 +150,6 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordResetTokenService, PasswordResetTokenService>();
 
         // Recordings
-        services.AddSingleton<IRecordingRegistryPort, RecordingRepository>();
         services.AddSingleton<IRecordingStoragePort, RecordingStorageRepository>();
 
         services.AddSingleton(TimeProvider.System);

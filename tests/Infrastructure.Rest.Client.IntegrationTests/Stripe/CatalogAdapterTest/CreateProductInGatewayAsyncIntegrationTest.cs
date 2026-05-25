@@ -36,7 +36,7 @@ public sealed class CreateProductInGatewayAsyncIntegrationTest : GenericCatalogA
         // Given: valid product and price entities
         ProductEntity productEntity = new ProductEntity
         {
-            ProductID = Guid.NewGuid().ToString(),
+            ID = Guid.NewGuid().ToString(),
             Name = $"Integration Test Product {Guid.NewGuid()}",
             Description = "Created by integration test - will be archived/deleted in TearDown",
         };

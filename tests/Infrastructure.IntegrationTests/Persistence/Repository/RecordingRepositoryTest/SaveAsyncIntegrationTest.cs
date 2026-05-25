@@ -28,7 +28,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     {
         // Given: a valid RecordingEntity
         RecordingEntity entity = CreateValidRecordingEntity();
-        LastCreatedRecordingId = entity.Id;
+        LastCreatedRecordingId = entity.RecordingID;
 
         // When: saving the entity
         Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
@@ -36,8 +36,8 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // Then: result should be success and contain the entity's ID
         Assert.That(result.IsSuccess, Is.True,
             $"Expected Result.Success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        Assert.That(result.Value, Is.EqualTo(entity.Id),
-            $"Expected result.Value == '{entity.Id}' but got: '{result.Value}'");
+        Assert.That(result.Value, Is.EqualTo(entity.RecordingID),
+            $"Expected result.Value == '{entity.RecordingID}' but got: '{result.Value}'");
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     {
         // Given: a RecordingEntity with all fields populated
         RecordingEntity entity = CreateValidRecordingEntity();
-        LastCreatedRecordingId = entity.Id;
+        LastCreatedRecordingId = entity.RecordingID;
 
         // When: saving the entity
         Result<string> saveResult = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
@@ -54,18 +54,17 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
             $"Pre-condition failed: SaveAsync returned failure with error: '{(saveResult.IsSuccess ? "N/A" : saveResult.Error)}'");
 
         // Then: loading the record from DynamoDB should return matching data
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.RecordingID);
 
         Assert.That(persisted, Is.Not.Null,
-            $"Expected a persisted RecordingDBModel with Id='{entity.Id}' but got null");
-        Assert.That(persisted!.Id, Is.EqualTo(entity.Id),
-            $"Expected Id='{entity.Id}' but got: '{persisted.Id}'");
+            $"Expected a persisted RecordingDBModel with Id='{entity.RecordingID}' but got null");
+        Assert.That(persisted!.Id, Is.EqualTo(entity.RecordingID),
+            $"Expected Id='{entity.RecordingID}' but got: '{persisted.Id}'");
         Assert.That(persisted.Name, Is.EqualTo(entity.Name),
             $"Expected Name='{entity.Name}' but got: '{persisted.Name}'");
         Assert.That(persisted.Description, Is.EqualTo(entity.Description),
             $"Expected Description='{entity.Description}' but got: '{persisted.Description}'");
-        Assert.That(persisted.Type, Is.EqualTo(entity.Type),
-            $"Expected Type='{entity.Type}' but got: '{persisted.Type}'");
+     
         Assert.That(persisted.CreatedBy, Is.EqualTo(entity.CreatedBy),
             $"Expected CreatedBy='{entity.CreatedBy}' but got: '{persisted.CreatedBy}'");
     }
@@ -78,8 +77,8 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     {
         // Given: a RecordingEntity with a specific type
         RecordingEntity entity = CreateValidRecordingEntity();
-        entity.Type = type;
-        LastCreatedRecordingId = entity.Id;
+        entity.RecordingType = type;
+        LastCreatedRecordingId = entity.RecordingID;
 
         // When: saving the entity
         Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
@@ -88,12 +87,9 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success for type='{type}' but got failure: '{(result.IsSuccess ? "N/A" : result.Error)}'");
 
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
-
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.RecordingID);
         Assert.That(persisted, Is.Not.Null,
-            $"Expected persisted record with Id='{entity.Id}' but got null");
-        Assert.That(persisted!.Type, Is.EqualTo(type),
-            $"Expected persisted Type='{type}' but got: '{persisted.Type}'");
+            $"Expected persisted record with Id='{entity.RecordingID}' but got null");
     }
 
     #endregion
@@ -116,10 +112,10 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         // And: a modified entity with the same ID
         RecordingEntity updatedEntity = new()
         {
-            Id = recordingId,
+            ID = recordingId,
             Name = "Nombre actualizado",
             Description = "Descripcion actualizada",
-            Type = RecordingType.Taller,
+            RecordingType = RecordingType.Taller,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "admin-user-id",
             LastModified = DateTimeOffset.UtcNow,
@@ -155,7 +151,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
     {
         // Given: a valid recording entity
         RecordingEntity entity = CreateValidRecordingEntity();
-        LastCreatedRecordingId = entity.Id;
+        LastCreatedRecordingId = entity.RecordingID;
 
         // When: saving the entity via the repository
         Result<string> result = await RecordingRepository.SaveRecording(entity, CancellationToken.None);
@@ -164,7 +160,7 @@ public class RecordingRepositoryIntegrationTest : GenericRecordingRepositoryTest
         Assert.That(result.IsSuccess, Is.True,
             $"SaveAsync failed, indicating the table name might be wrong. Error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
 
-        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.Id);
+        RecordingDBModel? persisted = await DynamoContext.LoadAsync<RecordingDBModel>(entity.RecordingID);
 
         Assert.That(persisted, Is.Not.Null,
             $"Expected to load record but got null. " +

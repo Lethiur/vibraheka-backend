@@ -620,14 +620,17 @@ export class AuthClient implements IAuthClient {
     }
 }
 
-export interface ICatalogClient {
-    catalog_CreateProduct(request: CreateProductRequest): Observable<ResponseEntity>;
+export interface IRecordingClient {
+    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity>;
+    recording_GetAllRecordings(): Observable<ResponseEntity>;
+    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity>;
+    recording_DeleteRecording(recordingId: string): Observable<void>;
 }
 
 @Injectable({
     providedIn: 'root'
 })
-export class CatalogClient implements ICatalogClient {
+export class RecordingClient implements IRecordingClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -637,8 +640,8 @@ export class CatalogClient implements ICatalogClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    catalog_CreateProduct(request: CreateProductRequest): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/catalog";
+    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
@@ -654,11 +657,11 @@ export class CatalogClient implements ICatalogClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCatalog_CreateProduct(response_);
+            return this.processRecording_UploadRecording(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processCatalog_CreateProduct(response_ as any);
+                    return this.processRecording_UploadRecording(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<ResponseEntity>;
                 }
@@ -667,7 +670,7 @@ export class CatalogClient implements ICatalogClient {
         }));
     }
 
-    protected processCatalog_CreateProduct(response: HttpResponseBase): Observable<ResponseEntity> {
+    protected processRecording_UploadRecording(response: HttpResponseBase): Observable<ResponseEntity> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -685,7 +688,7 @@ export class CatalogClient implements ICatalogClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ResponseEntity.fromJS(resultData400);
+            result400 = ProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
@@ -694,6 +697,201 @@ export class CatalogClient implements ICatalogClient {
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetAllRecordings(): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetAllRecordings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetAllRecordings(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetAllRecordings(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}/download-url";
+        if (recordingId === undefined || recordingId === null)
+            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
+        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetDownloadUrl(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetDownloadUrl(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetDownloadUrl(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_DeleteRecording(recordingId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}";
+        if (recordingId === undefined || recordingId === null)
+            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
+        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_DeleteRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_DeleteRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecording_DeleteRecording(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1175,288 +1373,6 @@ export class EmailTemplateClient implements IEmailTemplateClient {
                 fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
-export interface IRecordingClient {
-    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity>;
-    recording_GetAllRecordings(): Observable<ResponseEntity>;
-    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity>;
-    recording_DeleteRecording(recordingId: string): Observable<void>;
-}
-
-@Injectable({
-    providedIn: 'root'
-})
-export class RecordingClient implements IRecordingClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/recordings";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_UploadRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_UploadRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_UploadRecording(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_GetAllRecordings(): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/recordings";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_GetAllRecordings(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_GetAllRecordings(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_GetAllRecordings(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/recordings/{recordingId}/download-url";
-        if (recordingId === undefined || recordingId === null)
-            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
-        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_GetDownloadUrl(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_GetDownloadUrl(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_GetDownloadUrl(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_DeleteRecording(recordingId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/v1/recordings/{recordingId}";
-        if (recordingId === undefined || recordingId === null)
-            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
-        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_DeleteRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_DeleteRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRecording_DeleteRecording(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2651,13 +2567,15 @@ export interface IResponseEntity {
     content?: any | undefined;
 }
 
-export class CreateProductRequest implements ICreateProductRequest {
+export class UploadRecordingRequest implements IUploadRecordingRequest {
     name?: string;
     description?: string;
+    tier?: RecordingTier;
+    type?: RecordingType;
     price?: number;
     currencyCode?: CurrencyIsoCode;
 
-    constructor(data?: ICreateProductRequest) {
+    constructor(data?: IUploadRecordingRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2670,14 +2588,16 @@ export class CreateProductRequest implements ICreateProductRequest {
         if (_data) {
             this.name = _data["name"];
             this.description = _data["description"];
+            this.tier = _data["tier"];
+            this.type = _data["type"];
             this.price = _data["price"];
             this.currencyCode = _data["currencyCode"];
         }
     }
 
-    static fromJS(data: any): CreateProductRequest {
+    static fromJS(data: any): UploadRecordingRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateProductRequest();
+        let result = new UploadRecordingRequest();
         result.init(data);
         return result;
     }
@@ -2686,212 +2606,228 @@ export class CreateProductRequest implements ICreateProductRequest {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["description"] = this.description;
+        data["tier"] = this.tier;
+        data["type"] = this.type;
         data["price"] = this.price;
         data["currencyCode"] = this.currencyCode;
         return data;
     }
 }
 
-export interface ICreateProductRequest {
+export interface IUploadRecordingRequest {
     name?: string;
     description?: string;
+    tier?: RecordingTier;
+    type?: RecordingType;
     price?: number;
     currencyCode?: CurrencyIsoCode;
 }
 
+export enum RecordingTier {
+    Free = 0,
+    Premium = 1,
+    DiscountForMembers = 2,
+}
+
+export enum RecordingType {
+    Meditacion = 0,
+    Masterclass = 1,
+    Taller = 2,
+}
+
 /** Currency codes as stated by the ISO 4217 standard */
 export enum CurrencyIsoCode {
-    ALL = 8,
-    DZD = 12,
-    ARS = 32,
-    AUD = 36,
-    BSD = 44,
-    BHD = 48,
-    BDT = 50,
-    AMD = 51,
-    BBD = 52,
-    BMD = 60,
-    BTN = 64,
-    BOB = 68,
-    BWP = 72,
-    BZD = 84,
-    SBD = 90,
-    BND = 96,
-    MMK = 104,
-    BIF = 108,
-    KHR = 116,
-    CAD = 124,
-    CVE = 132,
-    KYD = 136,
-    LKR = 144,
-    CLP = 152,
-    CNY = 156,
-    COP = 170,
-    KMF = 174,
-    CRC = 188,
-    HRK = 191,
-    CUP = 192,
-    CZK = 203,
-    DKK = 208,
-    DOP = 214,
-    SVC = 222,
-    ETB = 230,
-    ERN = 232,
-    EEK = 233,
-    FKP = 238,
-    FJD = 242,
-    DJF = 262,
-    GMD = 270,
-    GIP = 292,
-    GTQ = 320,
-    GNF = 324,
-    GYD = 328,
-    HTG = 332,
-    HNL = 340,
-    HKD = 344,
-    HUF = 348,
-    ISK = 352,
-    INR = 356,
-    IDR = 360,
-    IRR = 364,
-    IQD = 368,
-    ILS = 376,
-    JMD = 388,
-    JPY = 392,
-    KZT = 398,
-    JOD = 400,
-    KES = 404,
-    KPW = 408,
-    KRW = 410,
-    KWD = 414,
-    KGS = 417,
-    LAK = 418,
-    LBP = 422,
-    LSL = 426,
-    LVL = 428,
-    LRD = 430,
-    LYD = 434,
-    LTL = 440,
-    MOP = 446,
-    MWK = 454,
-    MYR = 458,
-    MVR = 462,
-    MRO = 478,
-    MUR = 480,
-    MXN = 484,
-    MNT = 496,
-    MDL = 498,
-    MAD = 504,
-    OMR = 512,
-    NAD = 516,
-    NPR = 524,
-    ANG = 532,
-    AWG = 533,
-    VUV = 548,
-    NZD = 554,
-    NIO = 558,
-    NGN = 566,
-    NOK = 578,
-    PKR = 586,
-    PAB = 590,
-    PGK = 598,
-    PYG = 600,
-    PEN = 604,
-    PHP = 608,
-    QAR = 634,
-    RUB = 643,
-    RWF = 646,
-    SHP = 654,
-    STD = 678,
-    SAR = 682,
-    SCR = 690,
-    SLL = 694,
-    SGD = 702,
-    VND = 704,
-    SOS = 706,
-    ZAR = 710,
-    SSP = 728,
-    SZL = 748,
-    SEK = 752,
-    CHF = 756,
-    SYP = 760,
-    THB = 764,
-    TOP = 776,
-    TTD = 780,
-    AED = 784,
-    TND = 788,
-    UGX = 800,
-    MKD = 807,
-    EGP = 818,
-    GBP = 826,
-    TZS = 834,
-    USD = 840,
-    UYU = 858,
-    UZS = 860,
-    WST = 882,
-    YER = 886,
-    ZMK = 894,
-    TWD = 901,
-    ZWG = 924,
-    SLE = 925,
-    VED = 926,
-    UYW = 927,
-    VES = 928,
-    MRU = 929,
-    STN = 930,
-    CUC = 931,
-    ZWL = 932,
-    BYN = 933,
-    TMT = 934,
-    GHS = 936,
-    VEF = 937,
-    SDG = 938,
-    UYI = 940,
-    RSD = 941,
-    MZN = 943,
-    AZN = 944,
-    RON = 946,
-    CHE = 947,
-    CHW = 948,
-    TRY = 949,
-    XAF = 950,
-    XCD = 951,
-    XOF = 952,
-    XPF = 953,
-    XBA = 955,
-    XBB = 956,
-    XBC = 957,
-    XBD = 958,
-    XAU = 959,
-    XDR = 960,
-    XAG = 961,
-    XPT = 962,
-    XTS = 963,
-    XPD = 964,
-    XUA = 965,
-    ZMW = 967,
-    SRD = 968,
-    MGA = 969,
-    COU = 970,
-    AFN = 971,
-    TJS = 972,
-    AOA = 973,
-    BYR = 974,
-    BGN = 975,
-    CDF = 976,
-    BAM = 977,
-    EUR = 978,
-    MXV = 979,
-    UAH = 980,
-    GEL = 981,
-    BOV = 984,
-    PLN = 985,
-    BRL = 986,
-    CLF = 990,
-    XSU = 994,
-    USN = 997,
-    USS = 998,
-    XXX = 999,
+    ALL = "ALL",
+    DZD = "DZD",
+    ARS = "ARS",
+    AUD = "AUD",
+    BSD = "BSD",
+    BHD = "BHD",
+    BDT = "BDT",
+    AMD = "AMD",
+    BBD = "BBD",
+    BMD = "BMD",
+    BTN = "BTN",
+    BOB = "BOB",
+    BWP = "BWP",
+    BZD = "BZD",
+    SBD = "SBD",
+    BND = "BND",
+    MMK = "MMK",
+    BIF = "BIF",
+    KHR = "KHR",
+    CAD = "CAD",
+    CVE = "CVE",
+    KYD = "KYD",
+    LKR = "LKR",
+    CLP = "CLP",
+    CNY = "CNY",
+    COP = "COP",
+    KMF = "KMF",
+    CRC = "CRC",
+    HRK = "HRK",
+    CUP = "CUP",
+    CZK = "CZK",
+    DKK = "DKK",
+    DOP = "DOP",
+    SVC = "SVC",
+    ETB = "ETB",
+    ERN = "ERN",
+    EEK = "EEK",
+    FKP = "FKP",
+    FJD = "FJD",
+    DJF = "DJF",
+    GMD = "GMD",
+    GIP = "GIP",
+    GTQ = "GTQ",
+    GNF = "GNF",
+    GYD = "GYD",
+    HTG = "HTG",
+    HNL = "HNL",
+    HKD = "HKD",
+    HUF = "HUF",
+    ISK = "ISK",
+    INR = "INR",
+    IDR = "IDR",
+    IRR = "IRR",
+    IQD = "IQD",
+    ILS = "ILS",
+    JMD = "JMD",
+    JPY = "JPY",
+    KZT = "KZT",
+    JOD = "JOD",
+    KES = "KES",
+    KPW = "KPW",
+    KRW = "KRW",
+    KWD = "KWD",
+    KGS = "KGS",
+    LAK = "LAK",
+    LBP = "LBP",
+    LSL = "LSL",
+    LVL = "LVL",
+    LRD = "LRD",
+    LYD = "LYD",
+    LTL = "LTL",
+    MOP = "MOP",
+    MWK = "MWK",
+    MYR = "MYR",
+    MVR = "MVR",
+    MRO = "MRO",
+    MUR = "MUR",
+    MXN = "MXN",
+    MNT = "MNT",
+    MDL = "MDL",
+    MAD = "MAD",
+    OMR = "OMR",
+    NAD = "NAD",
+    NPR = "NPR",
+    ANG = "ANG",
+    AWG = "AWG",
+    VUV = "VUV",
+    NZD = "NZD",
+    NIO = "NIO",
+    NGN = "NGN",
+    NOK = "NOK",
+    PKR = "PKR",
+    PAB = "PAB",
+    PGK = "PGK",
+    PYG = "PYG",
+    PEN = "PEN",
+    PHP = "PHP",
+    QAR = "QAR",
+    RUB = "RUB",
+    RWF = "RWF",
+    SHP = "SHP",
+    STD = "STD",
+    SAR = "SAR",
+    SCR = "SCR",
+    SLL = "SLL",
+    SGD = "SGD",
+    VND = "VND",
+    SOS = "SOS",
+    ZAR = "ZAR",
+    SSP = "SSP",
+    SZL = "SZL",
+    SEK = "SEK",
+    CHF = "CHF",
+    SYP = "SYP",
+    THB = "THB",
+    TOP = "TOP",
+    TTD = "TTD",
+    AED = "AED",
+    TND = "TND",
+    UGX = "UGX",
+    MKD = "MKD",
+    EGP = "EGP",
+    GBP = "GBP",
+    TZS = "TZS",
+    USD = "USD",
+    UYU = "UYU",
+    UZS = "UZS",
+    WST = "WST",
+    YER = "YER",
+    ZMK = "ZMK",
+    TWD = "TWD",
+    ZWG = "ZWG",
+    SLE = "SLE",
+    VED = "VED",
+    UYW = "UYW",
+    VES = "VES",
+    MRU = "MRU",
+    STN = "STN",
+    CUC = "CUC",
+    ZWL = "ZWL",
+    BYN = "BYN",
+    TMT = "TMT",
+    GHS = "GHS",
+    VEF = "VEF",
+    SDG = "SDG",
+    UYI = "UYI",
+    RSD = "RSD",
+    MZN = "MZN",
+    AZN = "AZN",
+    RON = "RON",
+    CHE = "CHE",
+    CHW = "CHW",
+    TRY = "TRY",
+    XAF = "XAF",
+    XCD = "XCD",
+    XOF = "XOF",
+    XPF = "XPF",
+    XBA = "XBA",
+    XBB = "XBB",
+    XBC = "XBC",
+    XBD = "XBD",
+    XAU = "XAU",
+    XDR = "XDR",
+    XAG = "XAG",
+    XPT = "XPT",
+    XTS = "XTS",
+    XPD = "XPD",
+    XUA = "XUA",
+    ZMW = "ZMW",
+    SRD = "SRD",
+    MGA = "MGA",
+    COU = "COU",
+    AFN = "AFN",
+    TJS = "TJS",
+    AOA = "AOA",
+    BYR = "BYR",
+    BGN = "BGN",
+    CDF = "CDF",
+    BAM = "BAM",
+    EUR = "EUR",
+    MXV = "MXV",
+    UAH = "UAH",
+    GEL = "GEL",
+    BOV = "BOV",
+    PLN = "PLN",
+    BRL = "BRL",
+    CLF = "CLF",
+    XSU = "XSU",
+    USN = "USN",
+    USS = "USS",
+    XXX = "XXX",
 }
 
 export class EditTemplateNameRequest implements IEditTemplateNameRequest {
@@ -2932,66 +2868,6 @@ export class EditTemplateNameRequest implements IEditTemplateNameRequest {
 export interface IEditTemplateNameRequest {
     templateID?: string;
     newTemplateName?: string;
-}
-
-export class UploadRecordingRequest implements IUploadRecordingRequest {
-    name?: string;
-    description?: string;
-    tier?: RecordingTier;
-    type?: RecordingType;
-
-    constructor(data?: IUploadRecordingRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.tier = _data["tier"];
-            this.type = _data["type"];
-        }
-    }
-
-    static fromJS(data: any): UploadRecordingRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UploadRecordingRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["tier"] = this.tier;
-        data["type"] = this.type;
-        return data;
-    }
-}
-
-export interface IUploadRecordingRequest {
-    name?: string;
-    description?: string;
-    tier?: RecordingTier;
-    type?: RecordingType;
-}
-
-export enum RecordingTier {
-    Free = 0,
-    Premium = 1,
-    DiscountForMembers = 2,
-}
-
-export enum RecordingType {
-    Meditacion = 0,
-    Masterclass = 1,
-    Taller = 2,
 }
 
 export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {

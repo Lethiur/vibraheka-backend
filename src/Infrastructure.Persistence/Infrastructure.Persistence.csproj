@@ -18,8 +18,4 @@
       <PackageReference Include="Riok.Mapperly" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Catalog\Repositories\" />
-    </ItemGroup>
-
 </Project>

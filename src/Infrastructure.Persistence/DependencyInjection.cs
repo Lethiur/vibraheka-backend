@@ -16,6 +16,9 @@ using VibraHeka.Application.Payments.Ports.Out;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
+using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Infrastructure.Mappers;
+using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace Infrastructure.Persistence;
 
@@ -33,7 +36,7 @@ public static class DependencyInjection
         services.AddSingleton<OrderMapper>();
         services.AddSingleton<OrderLineMapper>();
         services.AddSingleton<PaymentAttemptMapper>();
-        services.AddSingleton<ProductEntityMapper>();
+        services.AddSingleton<RecordingEntityMapper>();
         services.AddSingleton<SellableItemEntityMapper>();
         services.AddSingleton<SellableItemPriceEntityMapper>();
         services.AddSingleton<SubscriptionPlanEntityMapper>();
@@ -45,7 +48,6 @@ public static class DependencyInjection
         services.AddSingleton<IEventRepositoryPort, EventAdapter>();
         services.AddSingleton<IOrderPort, OrderAdapter>();
         services.AddSingleton<IOrderLinePort, OrderAdapter>();
-        services.AddSingleton<IProductWritePort, ProductWriteAdapter>();
         services.AddSingleton<ISellableItemWritePort, SellableItemWriteAdapter>();
         services.AddSingleton<ISellableItemPriceWritePort, SellableItemPriceWriteAdapter>();
         services.AddSingleton<ISubscriptionPlanWritePort, SubscriptionPlanWriteAdapter>();
@@ -54,6 +56,7 @@ public static class DependencyInjection
         services.AddSingleton<IOrderWritePort, OrderWriteAdapter>();
         services.AddSingleton<IOrderLineWritePort, OrderLineWriteAdapter>();
         services.AddSingleton<IPaymentAttemptWritePort, PaymentAttemptWriteAdapter>();
+        services.AddSingleton<IRecordingRegistryPort, RecordingsAdapter>();
     }
 
     private static void AttachRepositories(this IServiceCollection services)
@@ -62,5 +65,7 @@ public static class DependencyInjection
         services.AddSingleton<OrderRepository>();
         services.AddSingleton<SellableItemRepository>();
         services.AddSingleton<SellableItemPriceRepository>();
+        services.AddSingleton<RecordingRepository>();
     }
 }
+
