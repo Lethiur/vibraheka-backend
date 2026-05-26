@@ -19,7 +19,7 @@ namespace VibraHeka.Web.AcceptanceTests.Recordings;
 [TestFixture]
 public sealed class GetDownloadUrlTest : GenericRecordingsTest
 {
-    private const string RecordingsBaseEndpoint = "/api/v1/recordings";
+    private const string RecordingsBaseEndpoint = "/api/v1/catalog/recordings";
     private static readonly HttpClient S3Client = new();
     private const string UploadEndpoint = RecordingsBaseEndpoint;
 

@@ -28,6 +28,6 @@ resource "aws_dynamodb_table" "Catalog_SellableItems" {
 }
 
 output "dynamodb_catalog_sellable_items_table_name" {
-  value = aws_dynamodb_table.Catalog_SellableItems.name
+  value       = aws_dynamodb_table.Catalog_SellableItems.name
   description = "The name of the DynamoDB table for Catalog Sellable Items"
 }

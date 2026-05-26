@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
@@ -7,8 +8,10 @@ using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
+using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
+
 namespace Infrastructure.Persistence.Catalog.Repositories;
 
 public class SellableItemPriceRepository(
@@ -16,24 +19,41 @@ public class SellableItemPriceRepository(
     IDynamoDBContext context,
     SellableItemPriceEntityMapper mapper,
     ILogger<SellableItemPriceRepository> logger)
-    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, logger)
+    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, logger), ISellableItemPriceRepository
 {
     public async Task<Result<SellableItemPriceEntity>> GetBySellableItemIdAndKindAsync(
         string sellableItemId, PriceKind kind, CancellationToken ct)
     {
-        Result<List<SellableItemPriceDBModel>> queryResult =
-            await FindAllByIndexAsync("SellableItemID-Index", sellableItemId, ct);
-        return queryResult
+        DynamoExpression expression = new()
+        {
+            IndexName = "SellableItemID-Kind-Index",
+            Expression = "#sid = :sid AND #kind = :kind",
+            AttributeNames = new Dictionary<string, string>
+            {
+                ["#sid"] = "SellableItemID",
+                ["#kind"] = "Kind",
+            },
+            AttributeValues = new Dictionary<string, AttributeValue>
+            {
+                [":sid"] = new AttributeValue { S = sellableItemId },
+                [":kind"] = new AttributeValue { S = kind.ToString() },
+            },
+        };
+
+        return await QueryIndexAsync(expression, ct)
+            .Bind(items => items.Count > 0
+                ? Result.Success(mapper.ToDomain(items[0]))
+                : Result.Failure<SellableItemPriceEntity>(CatalogErrors.SellableItemPriceNotFound));
+    }
+
+    public async Task<Result<List<SellableItemPriceEntity>>> GetBySellableItemIdAsync(string sellableItemId,
+        CancellationToken ct)
+    {
+        return await FindAllByIndexAsync("SellableItemID-Index", sellableItemId, ct)
             .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
                 ? CatalogErrors.SellableItemPriceNotFound
                 : CatalogErrors.FailedToQuerySellableItemPrice)
-            .Bind(models =>
-            {
-                SellableItemPriceDBModel? match = models.Find(m => m.Kind == kind);
-                return match is not null
-                    ? Result.Success(mapper.ToDomain(match))
-                    : Result.Failure<SellableItemPriceEntity>(CatalogErrors.SellableItemPriceNotFound);
-            });
+            .Map(models => models.ConvertAll(mapper.ToDomain));
     }
 
     public Task<Result<SellableItemPriceEntity>> GetBySellableItemPriceIdAsync(string sellableItemPriceId,

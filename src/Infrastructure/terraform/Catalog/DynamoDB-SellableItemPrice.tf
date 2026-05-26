@@ -10,11 +10,22 @@ resource "aws_dynamodb_table" "Catalog_SellableItemPrices" {
   attribute {
     name = "SellableItemID"
     type = "S"
+  }  
+  
+  attribute {
+    name = "Kind"
+    type = "S"
   }
 
   global_secondary_index {
     hash_key        = "SellableItemID"
     name            = "SellableItemID-Index"
+    projection_type = "ALL"
+  }
+  global_secondary_index {
+    hash_key        = "SellableItemID"
+    name            = "SellableItemID-Kind-Index"
+    range_key       = "Kind"
     projection_type = "ALL"
   }
 

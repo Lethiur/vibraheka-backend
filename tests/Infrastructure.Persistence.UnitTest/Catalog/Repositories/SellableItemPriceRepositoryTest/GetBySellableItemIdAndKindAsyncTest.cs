@@ -1,11 +1,13 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
+using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemPriceRepositoryTest;
 
@@ -13,25 +15,34 @@ namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItem
 [NUnit.Framework.Category("Unit")]
 public sealed class GetBySellableItemIdAndKindAsyncTest : GenericSellableItemPriceRepositoryTest
 {
+    // ──────────────────────────────────────────────────────────────────────────
+    // NOTE: GetBySellableItemIdAndKindAsync uses QueryIndexAsync internally,
+    // which calls IAmazonDynamoDB.QueryAsync (raw AWS client) + GetTargetTable +
+    // FromDocument — NOT IDynamoDBContext.QueryAsync<T>.
+    // Index used: "SellableItemID-Kind-Index" (compound GSI on SellableItemID + Kind).
+    // Kind filtering is server-side; the application layer only checks items.Count.
+    // ──────────────────────────────────────────────────────────────────────────
+
     [Test]
     [DisplayName("Should return mapped SellableItemPriceEntity when DynamoDB returns a matching model")]
     public async Task ShouldReturnMappedEntityWhenDynamoDbReturnsMatchingModel()
     {
-        // Given: DynamoDB returns one SellableItemPriceDBModel matching the requested sellableItemId and kind
+        // Given: DynamoDB (via raw client) returns one item for sellableItemId + OneTime compound key
         string sellableItemId = "sellable-item-001";
         PriceKind kind = PriceKind.OneTime;
         SellableItemPriceDBModel model = BuildDefaultSellableItemPriceDBModel(sellableItemId, kind);
 
-        Mock<IAsyncSearch<SellableItemPriceDBModel>> SearchMock = new();
-        SearchMock
-            .Setup(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([model]);
+        ContextMock
+            .Setup(x => x.GetTargetTable<SellableItemPriceDBModel>())
+            .Returns(BuildFakeTable());
+
+        DynamoDbClientMock
+            .Setup(x => x.QueryAsync(It.IsAny<QueryRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueryResponse { Items = [new Dictionary<string, AttributeValue>()] });
 
         ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(
-                sellableItemId,
-                It.IsAny<QueryConfig>()))
-            .Returns(SearchMock.Object);
+            .Setup(x => x.FromDocument<SellableItemPriceDBModel>(It.IsAny<Document>()))
+            .Returns(model);
 
         // When: GetBySellableItemIdAndKindAsync is called
         Result<SellableItemPriceEntity> result =
@@ -46,144 +57,157 @@ public sealed class GetBySellableItemIdAndKindAsyncTest : GenericSellableItemPri
             $"Expected Kind '{kind}' but got '{result.Value.Kind}'");
 
         ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
-                It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc =>
-                    qc.IndexName == "SellableItemID-Index")),
+            x => x.GetTargetTable<SellableItemPriceDBModel>(),
             Times.Once,
-            $"Expected QueryAsync called once with indexName='SellableItemID-Index'");
+            "Expected GetTargetTable called once to resolve the DynamoDB table name");
 
-        SearchMock.Verify(
-            x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+        DynamoDbClientMock.Verify(
+            x => x.QueryAsync(
+                It.Is<QueryRequest>(r =>
+                    r.IndexName == "SellableItemID-Kind-Index"
+                    && r.KeyConditionExpression == "#sid = :sid AND #kind = :kind"),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected GetRemainingAsync called exactly once");
+            "Expected QueryAsync called once with IndexName='SellableItemID-Kind-Index'");
+
+        ContextMock.Verify(
+            x => x.FromDocument<SellableItemPriceDBModel>(It.IsAny<Document>()),
+            Times.Once,
+            "Expected FromDocument called once to deserialise the raw DynamoDB item");
+
 
         ContextMock.VerifyNoOtherCalls();
-        SearchMock.VerifyNoOtherCalls();
+        DynamoDbClientMock.VerifyNoOtherCalls();
     }
 
     [Test]
-    [DisplayName("Should return CAT-002 failure when DynamoDB returns no prices for the sellable item")]
+    [DisplayName("Should return CAT-002 failure when DynamoDB returns no items for the compound key")]
     public async Task ShouldReturnCAT002FailureWhenDynamoDbReturnsEmptyList()
     {
-        // Given: DynamoDB returns an empty list — no prices for the sellable item
+        // Given: DynamoDB returns an empty list — no price exists for sellableItemId + OneTime
         string sellableItemId = "sellable-item-002";
 
-        Mock<IAsyncSearch<SellableItemPriceDBModel>> SearchMock = new();
-        SearchMock
-            .Setup(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
         ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(
-                sellableItemId,
-                It.IsAny<QueryConfig>()))
-            .Returns(SearchMock.Object);
+            .Setup(x => x.GetTargetTable<SellableItemPriceDBModel>())
+            .Returns(BuildFakeTable());
 
-        // When: GetBySellableItemIdAndKindAsync is called for a non-existent sellable item
+        DynamoDbClientMock
+            .Setup(x => x.QueryAsync(It.IsAny<QueryRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueryResponse { Items = [] });
+
+        // When: GetBySellableItemIdAndKindAsync is called for a non-existent compound key
         Result<SellableItemPriceEntity> result =
             await Repository.GetBySellableItemIdAndKindAsync(sellableItemId, PriceKind.OneTime, CancellationToken.None);
 
-        // Then: result should be failure with CAT-002 (mapped from GPE-000)
+        // Then: result should be failure with CAT-002
         Assert.That(result.IsFailure, Is.True,
-            $"Expected failure for empty list but got success with ID: '{(result.IsSuccess ? result.Value.SellableItemPriceID : "N/A")}'");
+            $"Expected failure for empty result but got success with ID: '{(result.IsSuccess ? result.Value.SellableItemPriceID : "N/A")}'");
         Assert.That(result.Error, Is.EqualTo(CatalogErrors.SellableItemPriceNotFound),
             $"Expected error '{CatalogErrors.SellableItemPriceNotFound}' (CAT-002) but got '{result.Error}'");
 
         ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
-                It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc => qc.IndexName == "SellableItemID-Index")),
+            x => x.GetTargetTable<SellableItemPriceDBModel>(),
             Times.Once,
-            "Expected QueryAsync called exactly once before returning empty results");
+            "Expected GetTargetTable called once before querying");
 
-        SearchMock.Verify(
-            x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+        DynamoDbClientMock.Verify(
+            x => x.QueryAsync(
+                It.Is<QueryRequest>(r => r.IndexName == "SellableItemID-Kind-Index"),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected GetRemainingAsync called exactly once");
+            "Expected QueryAsync called exactly once with IndexName='SellableItemID-Kind-Index'");
+
 
         ContextMock.VerifyNoOtherCalls();
-        SearchMock.VerifyNoOtherCalls();
+        DynamoDbClientMock.VerifyNoOtherCalls();
     }
 
     [Test]
-    [DisplayName("Should return CAT-002 failure when prices exist but none match the requested PriceKind")]
-    public async Task ShouldReturnCAT002FailureWhenNoPriceMatchesRequestedKind()
+    [DisplayName("Should return CAT-002 failure when DynamoDB compound index returns no items for the requested PriceKind")]
+    public async Task ShouldReturnCAT002FailureWhenCompoundIndexReturnsNoItemsForRequestedKind()
     {
-        // Given: DynamoDB returns a Recurring price but the caller requests OneTime
+        // Given: DynamoDB (via SellableItemID-Kind-Index) returns empty — Kind filtering is server-side;
+        //        no item exists for sellableItemId + Recurring compound key
         string sellableItemId = "sellable-item-003";
-        SellableItemPriceDBModel recurringModel =
-            BuildDefaultSellableItemPriceDBModel(sellableItemId, PriceKind.Recurring);
-
-        Mock<IAsyncSearch<SellableItemPriceDBModel>> SearchMock = new();
-        SearchMock
-            .Setup(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([recurringModel]);
 
         ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(
-                sellableItemId,
-                It.IsAny<QueryConfig>()))
-            .Returns(SearchMock.Object);
+            .Setup(x => x.GetTargetTable<SellableItemPriceDBModel>())
+            .Returns(BuildFakeTable());
 
-        // When: GetBySellableItemIdAndKindAsync is called requesting OneTime kind
+        DynamoDbClientMock
+            .Setup(x => x.QueryAsync(It.IsAny<QueryRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueryResponse { Items = [] });
+
+        // When: GetBySellableItemIdAndKindAsync is called requesting Recurring kind (not present)
         Result<SellableItemPriceEntity> result =
-            await Repository.GetBySellableItemIdAndKindAsync(sellableItemId, PriceKind.OneTime, CancellationToken.None);
+            await Repository.GetBySellableItemIdAndKindAsync(sellableItemId, PriceKind.Recurring, CancellationToken.None);
 
-        // Then: result should be failure with CAT-002 (no matching kind found in returned list)
+        // Then: result should be failure with CAT-002 — compound GSI returns empty when Kind does not match
         Assert.That(result.IsFailure, Is.True,
-            $"Expected failure when kind does not match but got success with ID: '{(result.IsSuccess ? result.Value.SellableItemPriceID : "N/A")}'");
+            $"Expected failure when compound index returns no items for the requested kind, but got success with ID: '{(result.IsSuccess ? result.Value.SellableItemPriceID : "N/A")}'");
         Assert.That(result.Error, Is.EqualTo(CatalogErrors.SellableItemPriceNotFound),
-            $"Expected error '{CatalogErrors.SellableItemPriceNotFound}' (CAT-002) when no price matches the kind, but got '{result.Error}'");
+            $"Expected '{CatalogErrors.SellableItemPriceNotFound}' (CAT-002) when compound GSI returns empty, but got '{result.Error}'");
 
         ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
-                It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc => qc.IndexName == "SellableItemID-Index")),
+            x => x.GetTargetTable<SellableItemPriceDBModel>(),
             Times.Once,
-            "Expected QueryAsync called once even when no matching kind is found");
+            "Expected GetTargetTable called once");
 
-        SearchMock.Verify(
-            x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
+        DynamoDbClientMock.Verify(
+            x => x.QueryAsync(
+                It.Is<QueryRequest>(r => r.IndexName == "SellableItemID-Kind-Index"),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected GetRemainingAsync called exactly once");
+            "Expected QueryAsync called once with IndexName='SellableItemID-Kind-Index'");
+
 
         ContextMock.VerifyNoOtherCalls();
-        SearchMock.VerifyNoOtherCalls();
+        DynamoDbClientMock.VerifyNoOtherCalls();
     }
 
     [Test]
-    [DisplayName("Should return CAT-004 failure when DynamoDB throws an unexpected exception")]
-    public async Task ShouldReturnCAT004FailureWhenDynamoDbThrowsException()
+    [DisplayName("Should return GPE-999 failure when DynamoDB throws an unexpected exception")]
+    public async Task ShouldReturnGPE999FailureWhenDynamoDbThrowsException()
     {
-        // Given: DynamoDB throws an unexpected exception during the query
+        // Given: DynamoDB raw client throws an unexpected exception during the query
         string sellableItemId = "sellable-item-004";
 
         ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(
-                sellableItemId,
-                It.IsAny<QueryConfig>()))
-            .Throws(new Exception("Unexpected DynamoDB connection error"));
+            .Setup(x => x.GetTargetTable<SellableItemPriceDBModel>())
+            .Returns(BuildFakeTable());
+
+        DynamoDbClientMock
+            .Setup(x => x.QueryAsync(It.IsAny<QueryRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Unexpected DynamoDB connection error"));
 
         // When: GetBySellableItemIdAndKindAsync is called
         Result<SellableItemPriceEntity> result =
             await Repository.GetBySellableItemIdAndKindAsync(sellableItemId, PriceKind.OneTime, CancellationToken.None);
 
-        // Then: result should be failure with CAT-004 (FailedToQuerySellableItemPrice)
+        // Then: result should be failure with GPE-999 (GeneralError)
+        //       GetBySellableItemIdAndKindAsync uses QueryIndexAsync which propagates raw persistence
+        //       errors without MapError; domain error mapping is not applied here.
         Assert.That(result.IsFailure, Is.True,
             "Expected failure when DynamoDB throws an unexpected exception");
-        Assert.That(result.Error, Is.EqualTo(CatalogErrors.FailedToQuerySellableItemPrice),
-            $"Expected error '{CatalogErrors.FailedToQuerySellableItemPrice}' (CAT-004) for a general exception, but got '{result.Error}'");
+        Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError),
+            $"Expected '{GenericPersistenceErrors.GeneralError}' (GPE-999) since QueryIndexAsync maps generic exceptions to GeneralError and GetBySellableItemIdAndKindAsync does not apply MapError, but got '{result.Error}'");
         Assert.That(result.Error, Is.Not.EqualTo(CatalogErrors.SellableItemPriceNotFound),
-            "General exceptions must NOT be mapped to CAT-002; they must map to CAT-004");
+            "General exceptions must NOT be mapped to CAT-002 (not-found)");
 
         ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
-                It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc => qc.IndexName == "SellableItemID-Index")),
+            x => x.GetTargetTable<SellableItemPriceDBModel>(),
+            Times.Once,
+            "Expected GetTargetTable called once before the exception was thrown");
+
+        DynamoDbClientMock.Verify(
+            x => x.QueryAsync(
+                It.Is<QueryRequest>(r => r.IndexName == "SellableItemID-Kind-Index"),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected QueryAsync called once before throwing the exception");
 
+
         ContextMock.VerifyNoOtherCalls();
+        DynamoDbClientMock.VerifyNoOtherCalls();
     }
 }

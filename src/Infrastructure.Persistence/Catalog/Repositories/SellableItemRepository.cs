@@ -15,7 +15,7 @@ public class SellableItemRepository(
     IDynamoDBContext context,
     SellableItemEntityMapper mapper,
     ILogger<SellableItemRepository> logger)
-    : GenericDynamoRepository<SellableItemDBModel>(context, client, logger)
+    : GenericDynamoRepository<SellableItemDBModel>(context, client, logger), ISellableItemRepository
 {
     public async Task<Result<SellableItemEntity>> GetByReferenceIdAsync(string referenceId, CancellationToken ct)
     {

@@ -11,7 +11,7 @@ namespace VibraHeka.Web.AcceptanceTests.Recordings;
 [TestFixture]
 public sealed class GetRecordingsTest : GenericRecordingsTest
 {
-    private const string GetRecordingsEndpoint = "/api/v1/recordings";
+    private const string GetRecordingsEndpoint = "/api/v1/catalog/recordings";
 
     [Test]
     public async Task ShouldReturn401WhenNoAuthenticationToken()

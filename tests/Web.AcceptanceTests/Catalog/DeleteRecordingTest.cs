@@ -18,7 +18,7 @@ namespace VibraHeka.Web.AcceptanceTests.Recordings;
 [TestFixture]
 public sealed class DeleteRecordingTest : GenericRecordingsTest
 {
-    private const string RecordingsBaseEndpoint = "/api/v1/recordings";
+    private const string RecordingsBaseEndpoint = "/api/v1/catalog/recordings";
     private const string UploadEndpoint = RecordingsBaseEndpoint;
 
     private static string BuildDeleteEndpoint(string recordingId) =>

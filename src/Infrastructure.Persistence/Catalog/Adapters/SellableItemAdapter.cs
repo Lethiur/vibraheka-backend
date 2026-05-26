@@ -3,9 +3,10 @@ using Infrastructure.Persistence.Catalog.Repositories;
 using MediatR;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
+
 namespace Infrastructure.Persistence.Catalog.Adapters;
 
-public class SellableItemAdapter(SellableItemRepository repository) : ISellableItemPort
+public class SellableItemAdapter(ISellableItemRepository repository, ISellableItemPriceRepository sellableItemPriceRepository) : ISellableItemPort
 {
     public Task<Result<SellableItemEntity>> GetSellableItemByIdAsync(string sellableItemId, CancellationToken cancellationToken)
     {
@@ -15,7 +16,16 @@ public class SellableItemAdapter(SellableItemRepository repository) : ISellableI
     public Task<Result<SellableItemEntity>> GetSellableItemByReferenceAsync(
         string referenceID, CancellationToken cancellationToken)
     {
-        return repository.GetByReferenceIdAsync(referenceID, cancellationToken);
+        return repository.GetByReferenceIdAsync(referenceID, cancellationToken).BindTry(
+            async sellableItem =>
+            {
+                var pricesResult = await sellableItemPriceRepository.GetBySellableItemIdAsync(sellableItem.SellableItemID, cancellationToken);
+                return pricesResult.Map(prices =>
+                {
+                    sellableItem.Prices = prices;
+                    return sellableItem;
+                });
+            });
     }
 
     public Task<Result<Unit>> DeactivateSellableItemAsync(string referenceID, CancellationToken cancellationToken)
