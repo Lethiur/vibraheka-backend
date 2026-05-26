@@ -1,39 +1,26 @@
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
+using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Adapters;
-using Infrastructure.Persistence.Catalog.Mappers;
-using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NMoneys;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemPriceAdapterTest;
 
 public abstract class GenericSellableItemPriceAdapterTest
 {
-    protected Mock<IDynamoDBContext> ContextMock = default!;
-    protected Mock<IAmazonDynamoDB> DynamoDbClientMock = default!;
-    protected Mock<ILogger<SellableItemPriceRepository>> LoggerMock = default!;
-    protected SellableItemPriceRepository Repository = default!;
+    protected Mock<ISellableItemPriceRepository> RepositoryMock = default!;
     protected SellableItemPriceAdapter Adapter = default!;
 
     [SetUp]
     public virtual void SetUp()
     {
-        ContextMock = new Mock<IDynamoDBContext>();
-        DynamoDbClientMock = new Mock<IAmazonDynamoDB>();
-        LoggerMock = new Mock<ILogger<SellableItemPriceRepository>>();
-        Repository = new SellableItemPriceRepository(
-            DynamoDbClientMock.Object,
-            ContextMock.Object,
-            new SellableItemPriceEntityMapper(),
-            LoggerMock.Object);
-        Adapter = new SellableItemPriceAdapter(Repository);
+        RepositoryMock = new Mock<ISellableItemPriceRepository>();
+        Adapter = new SellableItemPriceAdapter(RepositoryMock.Object);
     }
 
-    protected static SellableItemPriceDBModel BuildDefaultSellableItemPriceDBModel(
+    protected static SellableItemPriceEntity BuildDefaultSellableItemPriceEntity(
         string sellableItemId = "sellable-item-unit-001",
         PriceKind kind = PriceKind.OneTime) =>
         new()
@@ -44,7 +31,5 @@ public abstract class GenericSellableItemPriceAdapterTest
             Kind = kind,
             ExternalProductID = "ext-prod-adapter-test",
             ExternalPriceID = "ext-price-adapter-test",
-            IsActive = true,
         };
 }
-

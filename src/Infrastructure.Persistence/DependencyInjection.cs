@@ -67,8 +67,8 @@ public static class DependencyInjection
     {
         services.AddSingleton<OrderLineRepository>();
         services.AddSingleton<OrderRepository>();
-        services.AddSingleton<SellableItemRepository>();
-        services.AddSingleton<SellableItemPriceRepository>();
+        services.AddSingleton<ISellableItemRepository, SellableItemRepository>();
+        services.AddSingleton<ISellableItemPriceRepository, SellableItemPriceRepository>();
         services.AddSingleton<RecordingRepository>();
         services.AddSingleton<EventRepository>();
     }

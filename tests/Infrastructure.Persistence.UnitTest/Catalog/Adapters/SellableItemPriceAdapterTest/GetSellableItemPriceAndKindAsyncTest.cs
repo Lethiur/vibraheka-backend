@@ -1,7 +1,5 @@
 using System.ComponentModel;
-using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
-using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
@@ -17,89 +15,67 @@ public sealed class GetSellableItemPriceAndKindAsyncTest : GenericSellableItemPr
     [DisplayName("Should return Result.Success propagated from repository without alteration when a matching price is found")]
     public async Task ShouldReturnSuccessWhenRepositoryReturnsMatchingPrice()
     {
-        // Given: DynamoDB context returns a price model matching the requested sellableItemId and kind
+        // Given: repository returns a valid price entity for sellableItemId + OneTime
         string sellableItemId = "sellable-item-adapter-success-001";
         PriceKind kind = PriceKind.OneTime;
-        SellableItemPriceDBModel model = BuildDefaultSellableItemPriceDBModel(sellableItemId, kind);
+        SellableItemPriceEntity entity = BuildDefaultSellableItemPriceEntity(sellableItemId, kind);
 
-        Mock<IAsyncSearch<SellableItemPriceDBModel>> SearchMock = new();
-        SearchMock
-            .Setup(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([model]);
-
-        ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(sellableItemId, It.IsAny<QueryConfig>()))
-            .Returns(SearchMock.Object);
+        RepositoryMock
+            .Setup(x => x.GetBySellableItemIdAndKindAsync(It.IsAny<string>(), It.IsAny<PriceKind>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Success(entity));
 
         // When: GetSellableItemPriceAndKindAsync is called on the adapter
         Result<SellableItemPriceEntity> result =
             await Adapter.GetSellableItemPriceAndKindAsync(sellableItemId, kind, CancellationToken.None);
 
-        // Then: result is Success and the entity data matches the model — no alteration by the adapter
+        // Then: result is Success with entity data matching the model — adapter propagates without alteration
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        Assert.That(result.Value.SellableItemPriceID, Is.EqualTo(model.SellableItemPriceID),
-            $"Expected SellableItemPriceID '{model.SellableItemPriceID}' but got '{result.Value.SellableItemPriceID}'");
+        Assert.That(result.Value.SellableItemPriceID, Is.EqualTo(entity.SellableItemPriceID),
+            $"Expected SellableItemPriceID '{entity.SellableItemPriceID}' but got '{result.Value.SellableItemPriceID}'");
         Assert.That(result.Value.Kind, Is.EqualTo(kind),
             $"Expected Kind '{kind}' but got '{result.Value.Kind}'");
 
-        ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
+        RepositoryMock.Verify(
+            x => x.GetBySellableItemIdAndKindAsync(
                 It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc =>
-                    qc.IndexName == "SellableItemID-Index")),
+                It.Is<PriceKind>(k => k == kind),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            $"Expected QueryAsync called once with sellableItemId='{sellableItemId}'");
+            $"Expected GetBySellableItemIdAndKindAsync called once with sellableItemId='{sellableItemId}' and kind='{kind}'");
 
-        SearchMock.Verify(
-            x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected GetRemainingAsync called exactly once");
-
-        ContextMock.VerifyNoOtherCalls();
-        SearchMock.VerifyNoOtherCalls();
+        RepositoryMock.VerifyNoOtherCalls();
     }
 
     [Test]
     [DisplayName("Should return Result.Failure propagated from repository without alteration when no price is found")]
     public async Task ShouldReturnFailureWhenRepositoryReturnsNoMatchingPrice()
     {
-        // Given: DynamoDB context returns an empty list — no prices exist for the given sellable item
+        // Given: repository returns failure — no price exists for the given sellableItemId + OneTime
         string sellableItemId = "sellable-item-adapter-notfound-002";
 
-        Mock<IAsyncSearch<SellableItemPriceDBModel>> SearchMock = new();
-        SearchMock
-            .Setup(x => x.GetRemainingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        ContextMock
-            .Setup(x => x.QueryAsync<SellableItemPriceDBModel>(sellableItemId, It.IsAny<QueryConfig>()))
-            .Returns(SearchMock.Object);
+        RepositoryMock
+            .Setup(x => x.GetBySellableItemIdAndKindAsync(It.IsAny<string>(), It.IsAny<PriceKind>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Failure<SellableItemPriceEntity>(CatalogErrors.SellableItemPriceNotFound));
 
         // When: GetSellableItemPriceAndKindAsync is called on the adapter
         Result<SellableItemPriceEntity> result =
             await Adapter.GetSellableItemPriceAndKindAsync(sellableItemId, PriceKind.OneTime, CancellationToken.None);
 
-        // Then: result is Failure with the exact error code the repository produces — adapter does not modify it
+        // Then: result is Failure with CAT-002 propagated from repository — adapter does not modify it
         Assert.That(result.IsFailure, Is.True,
             $"Expected failure but got success with ID: '{(result.IsSuccess ? result.Value.SellableItemPriceID : "N/A")}'");
         Assert.That(result.Error, Is.EqualTo(CatalogErrors.SellableItemPriceNotFound),
             $"Expected error '{CatalogErrors.SellableItemPriceNotFound}' (CAT-002) but got '{result.Error}'");
 
-        ContextMock.Verify(
-            x => x.QueryAsync<SellableItemPriceDBModel>(
+        RepositoryMock.Verify(
+            x => x.GetBySellableItemIdAndKindAsync(
                 It.Is<string>(id => id == sellableItemId),
-                It.Is<QueryConfig>(qc => qc.IndexName == "SellableItemID-Index")),
+                It.Is<PriceKind>(k => k == PriceKind.OneTime),
+                It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
-            "Expected QueryAsync called exactly once before returning empty list");
+            "Expected GetBySellableItemIdAndKindAsync called exactly once before returning not-found failure");
 
-        SearchMock.Verify(
-            x => x.GetRemainingAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
-            Times.Once,
-            "Expected GetRemainingAsync called exactly once");
-
-        ContextMock.VerifyNoOtherCalls();
-        SearchMock.VerifyNoOtherCalls();
+        RepositoryMock.VerifyNoOtherCalls();
     }
 }
-

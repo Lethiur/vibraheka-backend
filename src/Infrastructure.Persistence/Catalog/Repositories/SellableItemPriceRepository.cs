@@ -19,7 +19,7 @@ public class SellableItemPriceRepository(
     IDynamoDBContext context,
     SellableItemPriceEntityMapper mapper,
     ILogger<SellableItemPriceRepository> logger)
-    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, logger)
+    : GenericDynamoRepository<SellableItemPriceDBModel>(context, client, logger), ISellableItemPriceRepository
 {
     public async Task<Result<SellableItemPriceEntity>> GetBySellableItemIdAndKindAsync(
         string sellableItemId, PriceKind kind, CancellationToken ct)

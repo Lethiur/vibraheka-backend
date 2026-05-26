@@ -3,9 +3,10 @@ using Infrastructure.Persistence.Catalog.Repositories;
 using MediatR;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
+
 namespace Infrastructure.Persistence.Catalog.Adapters;
 
-public class SellableItemAdapter(SellableItemRepository repository, SellableItemPriceRepository sellableItemPriceRepository) : ISellableItemPort
+public class SellableItemAdapter(ISellableItemRepository repository, ISellableItemPriceRepository sellableItemPriceRepository) : ISellableItemPort
 {
     public Task<Result<SellableItemEntity>> GetSellableItemByIdAsync(string sellableItemId, CancellationToken cancellationToken)
     {
