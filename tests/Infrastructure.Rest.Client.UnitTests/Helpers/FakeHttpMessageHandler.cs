@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Rest.Client.UnitTests.Helpers;
+﻿namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Helpers;
 
 /// <summary>
 /// Fake HttpMessageHandler that returns pre-configured responses in FIFO order.

@@ -1,22 +1,23 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Catalog.Mappers;
+using Infrastructure.Persistence.Catalog.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+using VibraHeka.Infrastructure.Persistence.Repository;
 
-namespace VibraHeka.Infrastructure.Persistence.Repository;
+namespace Infrastructure.Persistence.Catalog.Repositories;
 
 public class RecordingRepository(
     IDynamoDBContext context,
     IAmazonDynamoDB client,
     RecordingEntityMapper mapper,
     ILogger<RecordingRepository> logger)
-    : GenericDynamoRepository<RecordingDBModel>(context, client, logger)
+    : GenericDynamoRepository<RecordingDBModel>(context, client, logger), IRecordingRepository
 {
     public Task<Result<string>> SaveRecording(RecordingEntity recording, CancellationToken cancellationToken)
     {

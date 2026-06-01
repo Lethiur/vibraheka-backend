@@ -1,10 +1,13 @@
 using Amazon.DynamoDBv2.DataModel;
+using Infrastructure.Persistence.Catalog.Models;
+using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using VibraHeka.Infrastructure.Persistence.Repository;
+using RecordingEntityMapper = Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.RecordingRepositoryTest;
 

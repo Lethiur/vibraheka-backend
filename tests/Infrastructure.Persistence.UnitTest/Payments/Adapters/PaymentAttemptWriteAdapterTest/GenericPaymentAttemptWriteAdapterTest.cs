@@ -5,7 +5,7 @@ using Infrastructure.Persistence.Payments.Models;
 using Moq;
 using VibraHeka.Domain.Payments.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Payments.Adapters.PaymentAttemptWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Payments.Adapters.PaymentAttemptWriteAdapterTest;
 
 public abstract class GenericPaymentAttemptWriteAdapterTest
 {

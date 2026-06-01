@@ -5,7 +5,7 @@ using Moq;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Payments.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Payments.Adapters.PaymentAttemptWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Payments.Adapters.PaymentAttemptWriteAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

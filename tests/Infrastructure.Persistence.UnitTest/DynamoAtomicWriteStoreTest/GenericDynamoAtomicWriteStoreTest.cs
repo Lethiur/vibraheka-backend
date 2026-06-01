@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Application.Abstractions.Transactions;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.DynamoAtomicWriteStoreTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.DynamoAtomicWriteStoreTest;
 
 public abstract class GenericDynamoAtomicWriteStoreTest
 {

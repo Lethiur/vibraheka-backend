@@ -7,7 +7,7 @@ using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Commerce.Entities;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Commerce.Repositories.OrderLineRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Commerce.Repositories.OrderLineRepositoryTest;
 
 public abstract class GenericOrderLineRepositoryIntegrationTest : TestBase
 {

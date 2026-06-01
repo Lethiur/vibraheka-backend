@@ -4,7 +4,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
-namespace VibraHeka.Application.FunctionalTests.Recordings.Queries.GetAllRecordings;
+namespace VibraHeka.Application.FunctionalTests.Catalog.Queries.GetAllRecordings;
 
 public abstract class GenericGetAllRecordingsQueryHandlerTest
 {

@@ -16,7 +16,7 @@ using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using static System.ComponentModel.DataAnnotations.Validator;
 
-namespace VibraHeka.Infrastructure.IntegrationTests;
+namespace Infrastructure.Persistence.IntegrationTests;
 
 public abstract class TestBase
 {

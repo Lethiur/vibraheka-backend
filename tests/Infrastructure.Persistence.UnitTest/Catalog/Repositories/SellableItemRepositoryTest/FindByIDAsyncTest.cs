@@ -5,7 +5,7 @@ using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.SellableItemRepositoryTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

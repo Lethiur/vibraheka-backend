@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Errors;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Commerce.Repositories.OrderLineRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Commerce.Repositories.OrderLineRepositoryTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Integration")]

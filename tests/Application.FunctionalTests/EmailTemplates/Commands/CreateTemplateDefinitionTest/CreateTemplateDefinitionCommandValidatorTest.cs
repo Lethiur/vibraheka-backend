@@ -3,7 +3,7 @@ using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 using VibraHeka.Domain.Exceptions;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateTemplateDefinitionTest;
 
 [TestFixture]
 public class CreateTemplateDefinitionCommandValidatorTest

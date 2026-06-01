@@ -1,9 +1,8 @@
 using Amazon.DynamoDBv2.DataModel;
-using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
-namespace VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+namespace Infrastructure.Persistence.Catalog.Models;
 
 [DynamoDBTable("Recordings-Records")]
 public class RecordingDBModel : ProductDBModel

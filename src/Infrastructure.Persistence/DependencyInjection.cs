@@ -21,6 +21,7 @@ using VibraHeka.Domain.Events.Ports.Out;
 using VibraHeka.Domain.Recordings.Ports.Out;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.Repository;
+using RecordingEntityMapper = Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper;
 
 namespace Infrastructure.Persistence;
 
@@ -69,7 +70,7 @@ public static class DependencyInjection
         services.AddSingleton<OrderRepository>();
         services.AddSingleton<ISellableItemRepository, SellableItemRepository>();
         services.AddSingleton<ISellableItemPriceRepository, SellableItemPriceRepository>();
-        services.AddSingleton<RecordingRepository>();
+        services.AddSingleton<IRecordingRepository, RecordingRepository>();
         services.AddSingleton<EventRepository>();
     }
 }

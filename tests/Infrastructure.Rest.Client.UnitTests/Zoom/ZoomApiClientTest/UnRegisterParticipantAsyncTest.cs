@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 using MediatR;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.ZoomApiClientTest;
 
 [TestFixture]
 public sealed class UnRegisterParticipantAsyncTest : GenericZoomApiClientTest

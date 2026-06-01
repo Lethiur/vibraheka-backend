@@ -3,7 +3,7 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Queries.GetCode;
 
-namespace VibraHeka.Application.FunctionalTests.Users.Queries;
+namespace VibraHeka.Application.FunctionalTests.Users.Queries.GetCodeQueryHandlerTest;
 
 [TestFixture]
 public class GetCodeQueryValidatorTest

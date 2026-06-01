@@ -2,7 +2,7 @@ using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Errors;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SellableItemRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Catalog.Repositories.SellableItemRepositoryTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Integration")]

@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;

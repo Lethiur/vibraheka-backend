@@ -1,11 +1,12 @@
 using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Catalog.Repositories;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Ports.Out;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace Infrastructure.Persistence.Catalog.Adapters;
 
-public class RecordingsAdapter(RecordingRepository repository) : IRecordingRegistryPort
+public class RecordingsAdapter(IRecordingRepository repository) : IRecordingRegistryPort
 {
     public Task<Result<string>> SaveRecording(RecordingEntity recording, CancellationToken cancellationToken)
     {

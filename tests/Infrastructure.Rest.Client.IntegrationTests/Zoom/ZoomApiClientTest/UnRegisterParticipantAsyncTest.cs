@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 using MediatR;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
 
 [TestFixture]
 public sealed class UnRegisterParticipantAsyncTest : GenericZoomApiClientTest
@@ -15,7 +15,7 @@ public sealed class UnRegisterParticipantAsyncTest : GenericZoomApiClientTest
     {
         // Given: Zoom unregister-participant endpoint returns 204 No Content
         FakeHandler.EnqueueStatusOnly(HttpStatusCode.NoContent);
-        Infrastructure.Rest.Client.Zoom.Models.ZoomUnRegisterRegistrantRequest request =
+        global::Infrastructure.Rest.Client.Zoom.Models.ZoomUnRegisterRegistrantRequest request =
             BuildUnRegisterRegistrantRequest();
 
         // When: UnRegisterParticipantAsync is called
@@ -37,7 +37,7 @@ public sealed class UnRegisterParticipantAsyncTest : GenericZoomApiClientTest
     {
         // Given: Zoom unregister-participant endpoint returns 404 Not Found
         FakeHandler.EnqueueStatusOnly(HttpStatusCode.NotFound);
-        Infrastructure.Rest.Client.Zoom.Models.ZoomUnRegisterRegistrantRequest request =
+        global::Infrastructure.Rest.Client.Zoom.Models.ZoomUnRegisterRegistrantRequest request =
             BuildUnRegisterRegistrantRequest(meetingId: 111111111L, registrantId: "unknown-reg");
 
         // When: UnRegisterParticipantAsync is called

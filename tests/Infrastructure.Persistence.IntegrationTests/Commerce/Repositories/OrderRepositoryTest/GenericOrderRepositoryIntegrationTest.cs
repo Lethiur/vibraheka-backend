@@ -6,7 +6,7 @@ using NMoneys;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Commerce.Repositories.OrderRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Commerce.Repositories.OrderRepositoryTest;
 
 public abstract class GenericOrderRepositoryIntegrationTest : TestBase
 {

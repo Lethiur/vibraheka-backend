@@ -10,7 +10,7 @@ using NMoneys;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Commerce.Adapters.OrderAdapterTest;
 
 public abstract class GenericOrderAdapterTest
 {

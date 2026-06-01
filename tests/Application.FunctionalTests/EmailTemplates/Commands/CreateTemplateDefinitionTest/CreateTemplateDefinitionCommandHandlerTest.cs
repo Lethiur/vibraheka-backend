@@ -6,7 +6,7 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateTemplateDefinitionTest;
 
 [TestFixture]
 public class CreateTemplateDefinitionCommandHandlerTest

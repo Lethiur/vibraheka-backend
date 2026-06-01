@@ -2,7 +2,7 @@ using NMoneys;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Domain.Recordings.Enums;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Commands.AdminAddRecording;
+namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 
 /// <summary>
 /// Provides pre-built <see cref="AdminAddRecordingCommand"/> instances for use in tests.

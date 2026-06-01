@@ -1,12 +1,12 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using Infrastructure.Rest.Client.UnitTests.Helpers;
 using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Models;
 using Microsoft.Extensions.Logging.Abstractions;
+using VibraHeka.Infrastructure.Rest.Client.UnitTests.Helpers;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.ZoomApiClientTest;
 
 public abstract class GenericZoomApiClientTest
 {

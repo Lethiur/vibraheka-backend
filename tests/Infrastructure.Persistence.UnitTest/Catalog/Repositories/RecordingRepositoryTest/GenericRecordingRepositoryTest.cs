@@ -1,11 +1,13 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.Repository;
+using RecordingEntityMapper = Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.RecordingRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.RecordingRepositoryTest;
 
 public abstract class GenericRecordingRepositoryTest
 {

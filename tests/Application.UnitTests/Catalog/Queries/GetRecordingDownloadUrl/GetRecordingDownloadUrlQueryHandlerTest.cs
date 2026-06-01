@@ -7,7 +7,7 @@ using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Recordings.Errors;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Queries.GetRecordingDownloadUrl;
+namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

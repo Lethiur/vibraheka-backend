@@ -3,7 +3,7 @@ using Infrastructure.Rest.Client.Stripe.Client;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Stripe.CatalogAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Stripe.CatalogAdapterTest;
 
 /// <summary>
 /// Base class for CatalogAdapter integration tests against the real Stripe test-mode API.

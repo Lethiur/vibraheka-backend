@@ -5,7 +5,7 @@ using VibraHeka.Application.Admin.Queries.GetAllTherapists;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Queries.GetAllTherapistsQueryTest;
 
 [TestFixture]
 public class GetAllTherapistsQueryHandlerTest

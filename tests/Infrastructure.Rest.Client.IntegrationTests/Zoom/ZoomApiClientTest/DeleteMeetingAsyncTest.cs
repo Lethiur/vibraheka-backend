@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 using MediatR;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
 
 [TestFixture]
 public sealed class DeleteMeetingAsyncTest : GenericZoomApiClientTest

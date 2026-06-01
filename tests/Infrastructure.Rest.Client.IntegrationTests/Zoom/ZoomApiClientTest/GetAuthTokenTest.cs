@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 using Infrastructure.Rest.Client.Zoom.Models;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
 
 [TestFixture]
 public sealed class GetAuthTokenTest : GenericZoomApiClientTest

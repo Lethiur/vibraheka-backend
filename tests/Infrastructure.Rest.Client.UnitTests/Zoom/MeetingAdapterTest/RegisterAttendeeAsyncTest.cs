@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 using VibraHeka.Domain.Events.Models;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
 
 [TestFixture]
 public sealed class RegisterAttendeeAsyncTest : GenericMeetingAdapterTest

@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using Infrastructure.Rest.Client.UnitTests.Helpers;
 using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Adapters;
 using Infrastructure.Rest.Client.Zoom.Config;
@@ -11,8 +10,9 @@ using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using VibraHeka.Domain.Events.Models;
+using VibraHeka.Infrastructure.Rest.Client.UnitTests.Helpers;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
 
 public abstract class GenericMeetingAdapterTest
 {

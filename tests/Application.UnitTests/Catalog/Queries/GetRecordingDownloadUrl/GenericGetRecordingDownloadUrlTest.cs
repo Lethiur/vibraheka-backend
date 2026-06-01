@@ -2,7 +2,6 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
-using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Orders;
@@ -11,7 +10,7 @@ using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Queries.GetRecordingDownloadUrl;
+namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 
 public abstract class GenericGetRecordingDownloadUrlTest
 {

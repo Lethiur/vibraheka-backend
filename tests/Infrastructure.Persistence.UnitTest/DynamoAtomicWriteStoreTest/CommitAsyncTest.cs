@@ -7,7 +7,7 @@ using Moq;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Common.Errors;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.DynamoAtomicWriteStoreTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.DynamoAtomicWriteStoreTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

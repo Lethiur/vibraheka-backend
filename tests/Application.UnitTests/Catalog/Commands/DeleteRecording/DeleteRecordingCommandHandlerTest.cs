@@ -7,7 +7,7 @@ using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Commands.DeleteRecording;
+namespace VibraHeka.Application.UnitTests.Catalog.Commands.DeleteRecording;
 
 [TestFixture]
 public sealed class DeleteRecordingCommandHandlerTest : GenericDeleteRecordingTest

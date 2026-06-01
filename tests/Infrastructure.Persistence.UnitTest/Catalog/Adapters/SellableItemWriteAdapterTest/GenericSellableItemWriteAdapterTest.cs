@@ -5,7 +5,7 @@ using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SellableItemWriteAdapterTest;
 
 public abstract class GenericSellableItemWriteAdapterTest
 {

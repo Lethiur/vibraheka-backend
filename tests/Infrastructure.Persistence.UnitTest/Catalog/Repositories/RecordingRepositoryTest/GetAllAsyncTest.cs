@@ -2,13 +2,14 @@ using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
+using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.RecordingRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.RecordingRepositoryTest;
 
 [TestFixture]
 public sealed class GetAllAsyncTest : GenericRecordingRepositoryTest

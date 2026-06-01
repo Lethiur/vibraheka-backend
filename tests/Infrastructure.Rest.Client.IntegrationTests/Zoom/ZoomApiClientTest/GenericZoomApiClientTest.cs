@@ -1,8 +1,8 @@
-﻿using Infrastructure.Rest.Client.IntegrationTests.Helpers;
-using Infrastructure.Rest.Client.Zoom;
+﻿using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Models;
+using VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Helpers;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomApiClientTest;
 
 /// <summary>
 /// Base class for ZoomApiClient integration tests using deterministic HTTP stubs.

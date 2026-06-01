@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 
-namespace Infrastructure.Rest.Client.UnitTests.DependencyInjectionTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.DependencyInjectionTest;
 
 public abstract class GenericDependencyInjectionTest
 {

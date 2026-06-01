@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
+using Infrastructure.Rest.Client;
 using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Mappers;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.Rest.Client.UnitTests.DependencyInjectionTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.DependencyInjectionTest;
 
 [TestFixture]
 public sealed class AddRestClientServicesTest : GenericDependencyInjectionTest
@@ -79,8 +80,8 @@ public sealed class AddRestClientServicesTest : GenericDependencyInjectionTest
 
         // Then: service provider can resolve IOptions<ZoomConfig> with bound values
         ServiceProvider provider = Services.BuildServiceProvider();
-        Microsoft.Extensions.Options.IOptions<Infrastructure.Rest.Client.Zoom.Config.ZoomConfig> options =
-            provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<Infrastructure.Rest.Client.Zoom.Config.ZoomConfig>>();
+        Microsoft.Extensions.Options.IOptions<global::Infrastructure.Rest.Client.Zoom.Config.ZoomConfig> options =
+            provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<global::Infrastructure.Rest.Client.Zoom.Config.ZoomConfig>>();
 
         Assert.That(options.Value.AccountID, Is.EqualTo("TestAccountID"),
             $"Expected AccountID 'TestAccountID' but got '{options.Value.AccountID}'");

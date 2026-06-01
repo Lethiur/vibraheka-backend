@@ -5,7 +5,7 @@ using VibraHeka.Application.Users.Queries.GetCode;
 using VibraHeka.Domain.Common.Interfaces.Codes;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Queries.GetCodeQueryHandlerTest;
 
 [TestFixture]
 public class GetCodeQueryHandlerTest
