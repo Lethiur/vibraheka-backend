@@ -13,5 +13,7 @@ public class SellableItemEntity : BaseAuditableEntity
 
     public bool IsActive { get; set; }
 
+    public string ExternalProductID { get; set; } = string.Empty;
+
     public List<SellableItemPriceEntity> Prices { get; set; } = [];
 }

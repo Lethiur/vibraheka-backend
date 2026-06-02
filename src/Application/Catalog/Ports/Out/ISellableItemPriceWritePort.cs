@@ -6,4 +6,6 @@ namespace VibraHeka.Application.Catalog.Ports.Out;
 public interface ISellableItemPriceWritePort
 {
     ITransactionalWriteOperation CreateSellableItemPrice(SellableItemPriceEntity price);
+    
+    ITransactionalWriteOperation DeactivatePrice(SellableItemPriceEntity price);
 }

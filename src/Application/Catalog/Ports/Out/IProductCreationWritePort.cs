@@ -7,4 +7,6 @@ namespace VibraHeka.Application.Catalog.Ports.Out;
 public interface IProductCreationWritePort
 {
     Task<Result<ProductGatewayCreatedResponseModel>> CreateProductInGatewayAsync(ProductEntity productEntity, SellableItemPriceEntity priceEntity, CancellationToken cancellationToken);
+    
+    Task<Result<ProductGatewayCreatedResponseModel>> AddSellableItemPriceToProduct(SellableItemPriceEntity price, CancellationToken cancellationToken);
 }

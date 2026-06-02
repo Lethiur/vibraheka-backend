@@ -20,5 +20,5 @@ public class SellableItemPriceEntity : BaseAuditableEntity
     public string ExternalProductID { get; set; } = string.Empty;
     public string ExternalPriceID { get; set; } = string.Empty;
 
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; set; }
 }

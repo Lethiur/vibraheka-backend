@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Domain.Catalog.Ports.In;
 using VibraHeka.Domain.Common.Interfaces;

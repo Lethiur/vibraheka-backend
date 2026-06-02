@@ -1,9 +1,11 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
@@ -28,11 +30,7 @@ public class SellableItemPriceRepository(
         {
             IndexName = "SellableItemID-Kind-Index",
             Expression = "#sid = :sid AND #kind = :kind",
-            AttributeNames = new Dictionary<string, string>
-            {
-                ["#sid"] = "SellableItemID",
-                ["#kind"] = "Kind",
-            },
+            AttributeNames = new Dictionary<string, string> { ["#sid"] = "SellableItemID", ["#kind"] = "Kind", },
             AttributeValues = new Dictionary<string, AttributeValue>
             {
                 [":sid"] = new AttributeValue { S = sellableItemId },
@@ -60,5 +58,28 @@ public class SellableItemPriceRepository(
         CancellationToken cancellationToken)
     {
         return FindByID(sellableItemPriceId, cancellationToken).Map(mapper.ToDomain);
+    }
+
+    public Task<Result<IEnumerable<SellableItemPriceEntity>>> GetAllActivePricesBySellableItemId(string sellableItemId, CancellationToken cancellationToken)
+    {
+        DynamoExpression expression = new()
+        {
+            IndexName = "SellableItemID-Index",
+            Expression = "#sid = :sid",
+            FilterExpression = "#active = :active",
+            AttributeNames = new() { ["#sid"] = "SellableItemID", ["#active"] = "IsActive", },
+            AttributeValues = new()
+            {
+                [":sid"] = new AttributeValue { S = sellableItemId },
+                [":active"] = new AttributeValue { N = "1" },
+            },
+        };
+
+        
+        return QueryIndexAsync(expression, cancellationToken)
+            .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
+                ? CatalogErrors.SellableItemPriceNotFound
+                : CatalogErrors.FailedToQuerySellableItemPrice)
+            .Map(models => models.Select(mapper.ToDomain));
     }
 }

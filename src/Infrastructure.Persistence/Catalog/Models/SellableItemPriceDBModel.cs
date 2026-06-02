@@ -22,7 +22,7 @@ public class SellableItemPriceDBModel : BaseAuditableDBModel
     public PriceKind Kind { get; set; }
 
     [DynamoDBProperty(typeof(EnumStringConverter<BillingInterval>))]
-    public BillingInterval? BillingIntervalValue { get; set; }
+    public BillingInterval? BillingInterval { get; set; }
 
     [DynamoDBProperty]
     public string ExternalProductID { get; set; } = string.Empty;

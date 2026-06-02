@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Application.Abstractions.Transactions;
@@ -17,6 +18,30 @@ public class SellableItemPriceWriteAdapter(
         ITransactWrite<SellableItemPriceDBModel> transaction =
             Context.CreateTransactWrite<SellableItemPriceDBModel>();
         transaction.AddSaveItem(model);
+        return new DynamoTransactionalWriteOperation(transaction);
+    }
+
+    public ITransactionalWriteOperation DeactivatePrice(SellableItemPriceEntity price)
+    {
+        SellableItemPriceDBModel model = Mapper.FromDomain(price);
+        ITransactWrite<SellableItemPriceDBModel> transaction =
+            Context.CreateTransactWrite<SellableItemPriceDBModel>();
+        
+        Expression expression = new()
+        {
+            ExpressionStatement = "SET #isActive = :false",
+            ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                ["#isActive"] = nameof(SellableItemPriceEntity.IsActive)
+            },
+            ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
+            {
+                [":false"] = "0"
+            }
+        };
+        
+        transaction.AddSaveItem(hashKey:model.SellableItemPriceID, conditionExpression: null, updateExpression: expression);
+        
         return new DynamoTransactionalWriteOperation(transaction);
     }
 }

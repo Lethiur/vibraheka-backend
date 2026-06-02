@@ -18,4 +18,9 @@ public class SellableItemPriceAdapter(ISellableItemPriceRepository repository) :
     {
         return repository.GetBySellableItemPriceIdAsync(sellableItemPriceId, cancellationToken);
     }
+
+    public Task<Result<IEnumerable<SellableItemPriceEntity>>> GetAllActivePricesBySellableItemIdAsync(string sellableItemId, CancellationToken cancellationToken)
+    {
+        return repository.GetAllActivePricesBySellableItemId(sellableItemId, cancellationToken);
+    }
 }
