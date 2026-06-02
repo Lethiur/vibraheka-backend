@@ -8,7 +8,7 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Commands.ResendVerificationCodeCommandTest;
 
 [TestFixture]
 public class ResendConfirmationCodeCommandHandlerTest

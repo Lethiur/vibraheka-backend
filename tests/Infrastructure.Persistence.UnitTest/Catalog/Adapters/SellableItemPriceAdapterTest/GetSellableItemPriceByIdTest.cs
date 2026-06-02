@@ -4,7 +4,7 @@ using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemPriceAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SellableItemPriceAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

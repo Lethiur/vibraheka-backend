@@ -3,7 +3,7 @@ using System.Net;
 using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Zoom.Errors;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomAuthServiceTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomAuthServiceTest;
 
 [TestFixture]
 public sealed class GetAuthTokenTest : GenericZoomAuthServiceTest

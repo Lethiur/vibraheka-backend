@@ -5,7 +5,7 @@ using Infrastructure.Persistence.Commerce.Models;
 using Moq;
 using VibraHeka.Domain.Commerce.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderLineWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Commerce.Adapters.OrderLineWriteAdapterTest;
 
 public abstract class GenericOrderLineWriteAdapterTest
 {

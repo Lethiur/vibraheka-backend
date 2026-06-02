@@ -15,6 +15,9 @@ public class SellableItemDBModel : BaseAuditableDBModel
     [DynamoDBGlobalSecondaryIndexHashKey("ReferenceID-Index")]
     [DynamoDBProperty]
     public string ReferenceID { get; set; } = string.Empty;
+    
+    [DynamoDBProperty]
+    public string ExternalProductID { get; set; } = string.Empty;
 
     [DynamoDBProperty]
     public string Name { get; set; } = string.Empty;

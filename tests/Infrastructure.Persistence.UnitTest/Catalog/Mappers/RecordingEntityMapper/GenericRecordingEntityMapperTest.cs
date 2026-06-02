@@ -1,12 +1,12 @@
-namespace VibraHeka.Infrastructure.UnitTests.Mappers.RecordingEntityMapper;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Mappers.RecordingEntityMapper;
 
 public abstract class GenericRecordingEntityMapperTest
 {
-    protected VibraHeka.Infrastructure.Mappers.RecordingEntityMapper Mapper = default!;
+    protected global::Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper Mapper = default!;
 
     [SetUp]
     public void SetUp()
     {
-        Mapper = new VibraHeka.Infrastructure.Mappers.RecordingEntityMapper();
+        Mapper = new global::Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper();
     }
 }

@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Events.Models;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
 
 [TestFixture]
 public sealed class DeleteMetingAsyncTest : GenericMeetingAdapterTest

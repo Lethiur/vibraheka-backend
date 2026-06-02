@@ -8,6 +8,7 @@ public partial class SellableItemEntityMapper
 {
     [MapperIgnoreSource(nameof(SellableItemEntity.Prices))]
     public partial SellableItemDBModel FromDomain(SellableItemEntity entity);
+    
     [MapperIgnoreTarget(nameof(SellableItemEntity.Prices))]
     public partial SellableItemEntity ToDomain(SellableItemDBModel model);
 

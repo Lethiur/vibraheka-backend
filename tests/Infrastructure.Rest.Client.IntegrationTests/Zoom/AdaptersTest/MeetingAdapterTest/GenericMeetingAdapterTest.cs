@@ -4,7 +4,7 @@ using Infrastructure.Rest.Client.Zoom.Mappers;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.AdaptersTest.MeetingAdapterTest;
 
 /// <summary>
 /// Base class for MeetingAdapter integration tests using deterministic HTTP stubs.

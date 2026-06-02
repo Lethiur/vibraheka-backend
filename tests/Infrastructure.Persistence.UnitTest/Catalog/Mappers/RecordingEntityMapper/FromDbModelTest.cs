@@ -1,9 +1,10 @@
 using System.ComponentModel;
+using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.UnitTests.Mappers.RecordingEntityMapper;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Mappers.RecordingEntityMapper;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

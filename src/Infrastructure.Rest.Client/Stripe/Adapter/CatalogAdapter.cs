@@ -37,7 +37,6 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
         SellableItemPriceEntity priceEntity,
         CancellationToken cancellationToken)
     {
-
         Logger.LogInformation("Creating product and price in Stripe gateway {ProductID}", productEntity.ID);
         CreateProductAndPriceRequest request = new CreateProductAndPriceRequest()
         {
@@ -51,10 +50,49 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
             },
         };
 
-        return Client.CreateProductAndPriceAsync(request, cancellationToken).Map(response => new ProductGatewayCreatedResponseModel()
+        return Client.CreateProductAndPriceAsync(request, cancellationToken).Map(response =>
+            new ProductGatewayCreatedResponseModel()
+            {
+                ProductGatewayID = response.ProductID, ProductGatewayPriceID = response.PriceID
+            });
+    }
+
+    /// <summary>
+    /// Associates a sellable item's pricing details with a product in the payment gateway (Stripe).
+    /// Maps the provided sellable item price entity to the request model
+    /// and communicates with the Stripe API to update the product's pricing information.
+    /// </summary>
+    /// <param name="price">
+    /// The domain entity representing the sellable item's pricing information, including details
+    /// such as the price amount, currency, and additional identifiers.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A token to observe while awaiting the operation, enabling cancellation if required.
+    /// </param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. When completed, contains a result object
+    /// with a response model that includes gateway-specific identifiers for the updated product.
+    /// </returns>
+    public Task<Result<ProductGatewayCreatedResponseModel>> AddSellableItemPriceToProduct(SellableItemPriceEntity price,
+        CancellationToken cancellationToken)
+    {
+        Logger.LogInformation("Adding price to product in Stripe gateway for SellableItemID {SellableItemID}",
+            price.SellableItemID);
+        CreatePriceRequest request = new()
         {
-            ProductGatewayID = response.ProductID,
-            ProductGatewayPriceID = response.PriceID
-        });
+            Currency = price.Amount.CurrencyCode.ToString().ToLowerInvariant(),
+            PriceInCents = price.Amount.MinorIntegralAmount,
+            ProductID = price.ExternalProductID,
+            Metadata = new Dictionary<string, string>()
+            {
+                { "SellableItemID", price.SellableItemID }, { "SellableItemPriceID", price.SellableItemPriceID }
+            },
+        };
+
+        return Client.AddPriceToProduct(request, cancellationToken).Map(response =>
+            new ProductGatewayCreatedResponseModel()
+            {
+                ProductGatewayID = price.ExternalProductID, ProductGatewayPriceID = response
+            });
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Enums;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SellableItemPriceRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Catalog.Repositories.SellableItemPriceRepositoryTest;
 
 public abstract class GenericSellableItemPriceRepositoryIntegrationTest : TestBase
 {

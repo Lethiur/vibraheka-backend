@@ -7,7 +7,7 @@ using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results.User;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Commands.CreateTherapistCommandTest;
 
 [TestFixture]
 public class CreateTherapistCommandHandlerTest

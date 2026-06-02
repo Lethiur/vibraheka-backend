@@ -3,7 +3,7 @@ using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Queries.GetTemplateContent;
 using VibraHeka.Domain.Exceptions;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Queries.GetTemplateContentQueryTest;
 
 [TestFixture]
 public class GetTemplateQueryValidatorTest

@@ -5,7 +5,7 @@ using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SubscriptionPlanWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SubscriptionPlanWriteAdapterTest;
 
 public abstract class GenericSubscriptionPlanWriteAdapterTest
 {

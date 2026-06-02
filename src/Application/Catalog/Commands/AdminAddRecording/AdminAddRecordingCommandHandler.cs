@@ -1,15 +1,15 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using NMoneys;
+using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.In;
-using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
-namespace VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
+namespace VibraHeka.Application.Catalog.Commands.AdminAddRecording;
 
 public sealed class AdminAddRecordingCommandHandler(
     IRecordingStoragePort StoragePort,

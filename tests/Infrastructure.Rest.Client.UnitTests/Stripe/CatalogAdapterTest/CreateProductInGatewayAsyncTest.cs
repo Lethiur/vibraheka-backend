@@ -7,7 +7,7 @@ using NMoneys;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace Infrastructure.Rest.Client.UnitTests.Stripe.CatalogAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Stripe.CatalogAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

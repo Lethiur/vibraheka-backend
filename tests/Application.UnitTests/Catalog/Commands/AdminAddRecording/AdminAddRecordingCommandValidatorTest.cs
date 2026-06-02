@@ -9,7 +9,7 @@ using VibraHeka.Domain.Recordings.Errors;
 using static VibraHeka.Domain.Recordings.Enums.RecordingTier;
 using static VibraHeka.Domain.Recordings.Enums.RecordingType;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Commands.AdminAddRecording;
+namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

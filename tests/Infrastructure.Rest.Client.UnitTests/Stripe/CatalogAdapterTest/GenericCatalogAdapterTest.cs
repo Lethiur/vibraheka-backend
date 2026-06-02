@@ -1,10 +1,10 @@
 using Infrastructure.Rest.Client.Stripe.Adapter;
 using Infrastructure.Rest.Client.Stripe.Client;
-using Infrastructure.Rest.Client.UnitTests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Stripe;
+using VibraHeka.Infrastructure.Rest.Client.UnitTests.Helpers;
 
-namespace Infrastructure.Rest.Client.UnitTests.Stripe.CatalogAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Stripe.CatalogAdapterTest;
 
 /// <summary>
 /// Base class for CatalogAdapter unit tests.

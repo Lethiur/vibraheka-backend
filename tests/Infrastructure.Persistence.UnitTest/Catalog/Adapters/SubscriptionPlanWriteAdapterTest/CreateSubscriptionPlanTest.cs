@@ -5,7 +5,7 @@ using Moq;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SubscriptionPlanWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SubscriptionPlanWriteAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

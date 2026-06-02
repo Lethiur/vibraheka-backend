@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Helpers;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Helpers;
 
 /// <summary>
 /// Deterministic HTTP stub for integration tests.

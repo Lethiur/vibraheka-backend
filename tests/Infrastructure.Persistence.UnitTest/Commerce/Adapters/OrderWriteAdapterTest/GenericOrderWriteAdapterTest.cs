@@ -6,7 +6,7 @@ using Moq;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Commerce.Adapters.OrderWriteAdapterTest;
 
 public abstract class GenericOrderWriteAdapterTest
 {

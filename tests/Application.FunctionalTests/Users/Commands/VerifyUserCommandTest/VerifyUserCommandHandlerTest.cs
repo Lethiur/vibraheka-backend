@@ -8,7 +8,7 @@ using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Models.Results;
 
-namespace VibraHeka.Application.FunctionalTests.Users;
+namespace VibraHeka.Application.FunctionalTests.Users.Commands.VerifyUserCommandTest;
 
 [TestFixture]
 public class VerifyUserCommandHandlerTest

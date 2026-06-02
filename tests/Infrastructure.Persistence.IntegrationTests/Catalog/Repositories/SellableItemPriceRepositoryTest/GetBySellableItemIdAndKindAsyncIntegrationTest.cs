@@ -3,7 +3,7 @@ using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SellableItemPriceRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Catalog.Repositories.SellableItemPriceRepositoryTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Integration")]

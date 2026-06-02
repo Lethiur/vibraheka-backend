@@ -6,7 +6,7 @@ using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Commands.AdminAddRecording;
+namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

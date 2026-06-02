@@ -9,7 +9,7 @@ using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemPriceRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.SellableItemPriceRepositoryTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

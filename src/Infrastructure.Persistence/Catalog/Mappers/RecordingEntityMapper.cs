@@ -1,8 +1,8 @@
+using Infrastructure.Persistence.Catalog.Models;
 using Riok.Mapperly.Abstractions;
 using VibraHeka.Domain.Recordings.Entities;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
-namespace VibraHeka.Infrastructure.Mappers;
+namespace Infrastructure.Persistence.Catalog.Mappers;
 
 [Mapper]
 public partial class RecordingEntityMapper

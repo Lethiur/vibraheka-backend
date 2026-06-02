@@ -45,7 +45,7 @@ public class RegisterSellableProductUseCase(
     public async Task<Result<Unit>> RegisterSellableItemAsync(ProductEntity entity, Money price, PriceKind kind,
         CancellationToken cancellationToken)
     {
-        SellableItemEntity sellableItemEntity = new SellableItemEntity()
+        SellableItemEntity sellableItemEntity = new()
         {
             Name = entity.Name,
             SellableItemID = Guid.NewGuid().ToString(),
@@ -81,8 +81,9 @@ public class RegisterSellableProductUseCase(
 
         sellableItemPriceEntity.ExternalProductID = value.ProductGatewayID;
         sellableItemPriceEntity.ExternalPriceID = value.ProductGatewayPriceID;
+        sellableItemEntity.ExternalProductID = value.ProductGatewayID;
 
-        TransactionalWriteBatch productCreationBatch = new TransactionalWriteBatch(Guid.NewGuid().ToString());
+        TransactionalWriteBatch productCreationBatch = new(Guid.NewGuid().ToString());
         productCreationBatch.Add(sellableItemWritePort.CreateSellableItem(sellableItemEntity));
         productCreationBatch.Add(sellableItemPriceWritePort.CreateSellableItemPrice(sellableItemPriceEntity));
 

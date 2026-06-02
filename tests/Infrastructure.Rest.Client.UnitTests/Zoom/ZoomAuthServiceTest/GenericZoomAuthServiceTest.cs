@@ -1,15 +1,15 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using Infrastructure.Rest.Client.UnitTests.Helpers;
 using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Config;
 using Infrastructure.Rest.Client.Zoom.Models;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using VibraHeka.Infrastructure.Rest.Client.UnitTests.Helpers;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.ZoomAuthServiceTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.ZoomAuthServiceTest;
 
 public abstract class GenericZoomAuthServiceTest
 {

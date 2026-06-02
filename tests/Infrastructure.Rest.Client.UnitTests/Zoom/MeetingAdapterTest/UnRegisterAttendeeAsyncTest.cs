@@ -4,7 +4,7 @@ using Infrastructure.Rest.Client.Zoom.Errors;
 using MediatR;
 using VibraHeka.Domain.Events.Models;
 
-namespace Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.UnitTests.Zoom.MeetingAdapterTest;
 
 [TestFixture]
 public sealed class UnRegisterAttendeeAsyncTest : GenericMeetingAdapterTest

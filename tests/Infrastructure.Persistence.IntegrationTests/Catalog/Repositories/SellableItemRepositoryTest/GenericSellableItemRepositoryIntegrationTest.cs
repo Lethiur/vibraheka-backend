@@ -4,7 +4,7 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.SellableItemRepositoryTest;
+namespace Infrastructure.Persistence.IntegrationTests.Catalog.Repositories.SellableItemRepositoryTest;
 
 public abstract class GenericSellableItemRepositoryIntegrationTest : TestBase
 {

@@ -1,9 +1,9 @@
-﻿using Infrastructure.Rest.Client.IntegrationTests.Helpers;
-using Infrastructure.Rest.Client.Zoom;
+﻿using Infrastructure.Rest.Client.Zoom;
 using Infrastructure.Rest.Client.Zoom.Services;
 using Microsoft.Extensions.Options;
+using VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Helpers;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomAuthServiceTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Zoom.ZoomAuthServiceTest;
 
 /// <summary>
 /// Base class for ZoomAuthService integration tests using deterministic HTTP stubs.

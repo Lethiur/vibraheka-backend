@@ -10,7 +10,7 @@ using Moq;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Enums;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemPriceRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.SellableItemPriceRepositoryTest;
 
 public abstract class GenericSellableItemPriceRepositoryTest
 {

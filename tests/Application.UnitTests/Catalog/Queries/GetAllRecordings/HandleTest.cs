@@ -7,7 +7,7 @@ using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Exceptions;
 
-namespace VibraHeka.Application.UnitTests.Recordings.Queries.GetAllRecordings;
+namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetAllRecordings;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

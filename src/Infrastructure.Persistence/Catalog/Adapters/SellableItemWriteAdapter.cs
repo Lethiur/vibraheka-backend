@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Application.Abstractions.Transactions;
@@ -17,6 +18,7 @@ public class SellableItemWriteAdapter(
         ITransactWrite<SellableItemDBModel> transaction =
             Context.CreateTransactWrite<SellableItemDBModel>();
         transaction.AddSaveItem(model);
+        
         return new DynamoTransactionalWriteOperation(transaction);
     }
 }

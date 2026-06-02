@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using static System.ComponentModel.DataAnnotations.Validator;
 
 
-namespace Infrastructure.Rest.Client.IntegrationTests;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests;
 
 public abstract class TestBase
 {

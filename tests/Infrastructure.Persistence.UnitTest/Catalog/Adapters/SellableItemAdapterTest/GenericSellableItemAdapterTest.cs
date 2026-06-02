@@ -1,13 +1,11 @@
-using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Adapters;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Catalog.Enums;
 using static VibraHeka.Domain.Catalog.Entities.SellableItemType;
 using static VibraHeka.Domain.Catalog.Enums.PriceKind;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Catalog.Adapters.SellableItemAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SellableItemAdapterTest;
 
 public abstract class GenericSellableItemAdapterTest
 {

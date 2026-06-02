@@ -5,7 +5,7 @@ using Moq;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Domain.Commerce.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Commerce.Adapters.OrderWriteAdapterTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Commerce.Adapters.OrderWriteAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Unit")]

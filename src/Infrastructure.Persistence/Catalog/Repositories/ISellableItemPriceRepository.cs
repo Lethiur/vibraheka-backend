@@ -14,5 +14,6 @@ public interface ISellableItemPriceRepository
 
     Task<Result<SellableItemPriceEntity>> GetBySellableItemPriceIdAsync(
         string sellableItemPriceId, CancellationToken cancellationToken);
-}
 
+    public Task<Result<IEnumerable<SellableItemPriceEntity>>> GetAllActivePricesBySellableItemId(string sellableItemId, CancellationToken cancellationToken);
+}

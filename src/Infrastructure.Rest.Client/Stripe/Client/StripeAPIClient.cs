@@ -46,6 +46,12 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         }
     }
 
+    /// <summary>
+    /// Creates a new product and associated price in the Stripe system.
+    /// </summary>
+    /// <param name="request">The details required for product and price creation, including product name, description, currency, price in cents, and metadata.</param>
+    /// <param name="token">A token to observe cancellation requests.</param>
+    /// <returns>A result object containing the created product ID and price ID if the operation is successful; otherwise, an error message.</returns>
     public async Task<Result<CreateProductAndPriceResponse>> CreateProductAndPriceAsync(
         CreateProductAndPriceRequest request,
         CancellationToken token)
@@ -53,42 +59,23 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         try
         {
             ProductService productService = new();
-            PriceService priceService = new();
             ProductCreateOptions productCreateOptions = new ProductCreateOptions()
             {
-                Name = request.Name,
-                Description = request.Description,
-                Metadata = request.Metadata
+                Name = request.Name, Description = request.Description, Metadata = request.Metadata
             };
 
             Product product = await productService.CreateAsync(productCreateOptions, cancellationToken: token);
-
-            PriceCreateOptions priceCreateOptions = new PriceCreateOptions()
+            CreatePriceRequest priceCreateOptions = new()
             {
                 Currency = request.Currency,
                 Metadata = request.Metadata,
-                Active = true,
-                UnitAmount = request.PriceInCents,
-                Product = product.Id
+                PriceInCents = request.PriceInCents,
+                ProductID = product.Id
             };
-
-            if (request.PaymentRecurringOptions != null)
-            {
-                priceCreateOptions.Recurring = new PriceRecurringOptions()
-                {
-                    Interval = request.PaymentRecurringOptions switch
-                    {
-                        PaymentRecurringOptions.Monthly => "month",
-                        PaymentRecurringOptions.Yearly => "year",
-                        _ => throw new ArgumentOutOfRangeException()
-                    }
-                };
-            }
-
-
-            Price price = await priceService.CreateAsync(priceCreateOptions, cancellationToken: token);
-
-            return new CreateProductAndPriceResponse() { ProductID = product.Id, PriceID = price.Id };
+            
+            return await AddPriceToProduct(priceCreateOptions, token)
+                .Map(priceID => new CreateProductAndPriceResponse() { ProductID = product.Id, PriceID = priceID });
+            
         }
         catch (StripeException stripeEx)
         {
@@ -100,6 +87,42 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
             logger.LogError(ex, "Unexpected error while creating product and price");
             return Result.Failure<CreateProductAndPriceResponse>(StripeErrors.FailedToCreateProductAndPrice);
         }
+    }
+
+    /// <summary>
+    /// Adds a price to an existing product in the Stripe system and returns the ID of the created price.
+    /// </summary>
+    /// <param name="request">The details of the price to be added, including product ID, price in cents, currency, metadata, and optional recurring payment options.</param>
+    /// <param name="token">A token to observe cancellation requests.</param>
+    /// <returns>A result object containing the Stripe price ID if the operation is successful; otherwise, an error message or failure result.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when an unsupported recurring payment option is provided in the request.</exception>
+    public async Task<Result<string>> AddPriceToProduct(CreatePriceRequest request, CancellationToken token)
+    {
+        PriceService priceService = new();
+
+        PriceCreateOptions priceCreateOptions = new()
+        {
+            Currency = request.Currency,
+            Metadata = request.Metadata,
+            Active = true,
+            UnitAmount = request.PriceInCents,
+            Product = request.ProductID
+        };
+
+        if (request.PaymentRecurringOptions != null)
+        {
+            priceCreateOptions.Recurring = new PriceRecurringOptions()
+            {
+                Interval = request.PaymentRecurringOptions switch
+                {
+                    PaymentRecurringOptions.Monthly => "month",
+                    PaymentRecurringOptions.Yearly => "year",
+                    _ => throw new ArgumentOutOfRangeException()
+                }
+            };
+        }
+        Price price = await priceService.CreateAsync(priceCreateOptions, cancellationToken: token);
+        return price.Id;
     }
 
     /// <summary>
@@ -177,12 +200,12 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
     /// <returns>A <see cref="SessionCreateOptions"/> object populated with the details required for initiating a Stripe Checkout session.</returns>
     private static SessionCreateOptions CreateCheckoutProductOptions(StartOrderRequest order)
     {
-        List<SessionLineItemOptions> sessionLineItemListOptions = order.OrderLines.Select(line => new SessionLineItemOptions()
-        {
-            Price = line.PriceRef,
-            Quantity = line.Quantity,
-            Metadata = line.Metadata
-        }).ToList();
+        List<SessionLineItemOptions> sessionLineItemListOptions = order.OrderLines.Select(line =>
+                new SessionLineItemOptions()
+                    {
+                        Price = line.PriceRef, Quantity = line.Quantity, Metadata = line.Metadata
+                    })
+            .ToList();
 
         return new SessionCreateOptions
         {

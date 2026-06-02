@@ -5,7 +5,7 @@ using NUnit.Framework;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 
-namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands;
+namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.EditeTemplateNameTest;
 
 [TestFixture]
 public class EditTemplateNameCommandHandlerTest

@@ -3,7 +3,7 @@ using NMoneys;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace Infrastructure.Rest.Client.IntegrationTests.Stripe.CatalogAdapterTest;
+namespace VibraHeka.Infrastructure.Rest.Client.IntegrationTests.Stripe.CatalogAdapterTest;
 
 [TestFixture]
 [NUnit.Framework.Category("Integration")]

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace VibraHeka.Infrastructure.UnitTests.Persistence.Repository.SellableItemRepositoryTest;
+namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.SellableItemRepositoryTest;
 
 public abstract class GenericSellableItemRepositoryTest
 {
