@@ -6,7 +6,9 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using MediatR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
@@ -51,7 +53,8 @@ public class SellableItemPriceRepository(
             .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
                 ? CatalogErrors.SellableItemPriceNotFound
                 : CatalogErrors.FailedToQuerySellableItemPrice)
-            .Map(models => models.ConvertAll(mapper.ToDomain));
+            .Map(models => models.ConvertAll(mapper.ToDomain))
+            .OnFailureCompensateWhen(error => error == CatalogErrors.SellableItemPriceNotFound, _ => Task.FromResult(Result.Success<List<SellableItemPriceEntity>>([])));
     }
 
     public Task<Result<SellableItemPriceEntity>> GetBySellableItemPriceIdAsync(string sellableItemPriceId,
@@ -60,14 +63,19 @@ public class SellableItemPriceRepository(
         return FindByID(sellableItemPriceId, cancellationToken).Map(mapper.ToDomain);
     }
 
-    public Task<Result<IEnumerable<SellableItemPriceEntity>>> GetAllActivePricesBySellableItemId(string sellableItemId, CancellationToken cancellationToken)
+    public Task<Result<IEnumerable<SellableItemPriceEntity>>> GetAllActivePricesBySellableItemId(string sellableItemId,
+        CancellationToken cancellationToken)
     {
         DynamoExpression expression = new()
         {
             IndexName = "SellableItemID-Index",
             Expression = "#sid = :sid",
             FilterExpression = "#active = :active",
-            AttributeNames = new() { ["#sid"] = "SellableItemID", ["#active"] = "IsActive", },
+            AttributeNames = new()
+            {
+                ["#sid"] = nameof(SellableItemPriceDBModel.SellableItemID),
+                ["#active"] = nameof(SellableItemPriceDBModel.IsActive),
+            },
             AttributeValues = new()
             {
                 [":sid"] = new AttributeValue { S = sellableItemId },
@@ -75,7 +83,7 @@ public class SellableItemPriceRepository(
             },
         };
 
-        
+
         return QueryIndexAsync(expression, cancellationToken)
             .MapError(error => error == GenericPersistenceErrors.NoRecordsFound
                 ? CatalogErrors.SellableItemPriceNotFound

@@ -358,57 +358,6 @@
         }
       }
     },
-    "/api/v1/catalog/prices": {
-      "get": {
-        "tags": [
-          "Pricing"
-        ],
-        "operationId": "Pricing_GetPrices",
-        "parameters": [
-          {
-            "name": "RefID",
-            "x-originalName": "refID",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/catalog/recordings": {
       "post": {
         "tags": [
@@ -1291,6 +1240,159 @@
           }
         }
       }
+    },
+    "/api/v1/catalog/prices": {
+      "get": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_GetPrices",
+        "parameters": [
+          {
+            "name": "RefID",
+            "x-originalName": "refID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_CreatePrice",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductPriceRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/prices/activate": {
+      "post": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_ActivatePrice",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateProductPriceRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2117,6 +2219,69 @@
           "quantity": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateProductPriceRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellableItemID": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PriceKind"
+          },
+          "billingInterval": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BillingInterval"
+              }
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyIsoCode"
+          }
+        }
+      },
+      "PriceKind": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "OneTime",
+          "Recurring"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "BillingInterval": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Monthly",
+          "Yearly"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "ActivateProductPriceRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellableItemPriceID": {
+            "type": "string"
+          },
+          "sellableItemID": {
+            "type": "string"
           }
         }
       }

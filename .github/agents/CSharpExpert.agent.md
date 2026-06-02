@@ -1,7 +1,7 @@
 ---
 name: CSharpExpert
 description: Developer experto en C# y .NET con foco en Clean Architecture, CQRS con MediatR, SOLID y calidad de código. No escribe tests.
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4 mini (copilot)
 tools: [read_file, file_search, grep_search, apply_patch, get_errors, run_in_terminal, create_file, get_terminal_output, insert_edit_into_file, replace_string_in_file, open_file, list_dir, run_subagent]
 ---
 

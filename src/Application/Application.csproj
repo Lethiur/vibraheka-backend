@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog\Commands\AdminActivateProduct\" />
     <Folder Include="Catalog\Commands\AdminDeactivateProduct\" />
     <Folder Include="Subscriptions\Ports\Out\" />
   </ItemGroup>

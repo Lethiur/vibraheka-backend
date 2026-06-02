@@ -1,6 +1,8 @@
 using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Stripe.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VibraHeka.Application.Catalog.Commands.AdminActivatePrice;
 using VibraHeka.Application.Catalog.Commands.AdminCreatePrice;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.AdminGetPrices;
@@ -56,6 +58,25 @@ public class PricingController(IMediator mediator) : ControllerBase
         {
             return new BadRequestObjectResult(ResponseEntity.FromError(commandResult.Error));
         } 
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(commandResult.Value));
+    }
+
+    [HttpPost("activate")]
+    [Authorize]
+    [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ActivatePrice([FromBody] ActivateProductPriceRequest request, CancellationToken ct)
+    {
+        Result<Unit> commandResult = await mediator.Send(new AdminActivatePriceCommand(request.SellableItemPriceID, request.SellableItemID), ct);
+
+        if (commandResult.IsFailure)
+        {
+            return new BadRequestObjectResult(ResponseEntity.FromError(commandResult.Error));
+        }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(commandResult.Value));
     }

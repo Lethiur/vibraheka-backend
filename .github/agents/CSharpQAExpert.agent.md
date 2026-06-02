@@ -1,7 +1,7 @@
 ---
 name: CSharpQAExpert
 description: QA Expert para C#/.NET. Único agente que escribe tests. Audita, crea helpers/builders, valida criterios de aceptación y ejecuta el quality gate.
-model: Claude Sonnet 4.6 (copilot)
+model: GPT-5.4 mini (copilot)
 tools: [read_file, file_search, grep_search, apply_patch, get_errors, run_in_terminal, create_file, get_terminal_output, insert_edit_into_file, replace_string_in_file, open_file, list_dir, run_subagent]
 ---
 
