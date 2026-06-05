@@ -8,4 +8,6 @@ public interface ISellableItemPriceWritePort
     ITransactionalWriteOperation CreateSellableItemPrice(SellableItemPriceEntity price);
     
     ITransactionalWriteOperation DeactivatePrice(SellableItemPriceEntity price);
+    
+    ITransactionalWriteOperation ActivatePrice(string sellableItemPrice);
 }

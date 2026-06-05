@@ -358,57 +358,6 @@
         }
       }
     },
-    "/api/v1/catalog/prices": {
-      "get": {
-        "tags": [
-          "Pricing"
-        ],
-        "operationId": "Pricing_GetPrices",
-        "parameters": [
-          {
-            "name": "RefID",
-            "x-originalName": "refID",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/catalog/recordings": {
       "post": {
         "tags": [
@@ -465,6 +414,36 @@
           "Recording"
         ],
         "operationId": "Recording_GetAllRecordings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/all": {
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetAllRecordingsAdmin",
         "responses": {
           "200": {
             "description": "",
@@ -567,6 +546,116 @@
             "x-position": 1
           }
         ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/deactivate": {
+      "patch": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_DeactivateRecording",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/activate": {
+      "patch": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_ActivateRecording",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "204": {
             "description": ""
@@ -955,6 +1044,116 @@
         }
       }
     },
+    "/api/v1/events/deactivate": {
+      "patch": {
+        "tags": [
+          "Event"
+        ],
+        "operationId": "Event_DeActivateEvent",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/activate": {
+      "patch": {
+        "tags": [
+          "Event"
+        ],
+        "operationId": "Event_ActivateEvent",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/settings/ChangeTemplate": {
       "patch": {
         "tags": [
@@ -1291,6 +1490,159 @@
           }
         }
       }
+    },
+    "/api/v1/catalog/prices": {
+      "get": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_GetPrices",
+        "parameters": [
+          {
+            "name": "RefID",
+            "x-originalName": "refID",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_CreatePrice",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductPriceRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/prices/activate": {
+      "post": {
+        "tags": [
+          "Pricing"
+        ],
+        "operationId": "Pricing_ActivatePrice",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateProductPriceRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1524,7 +1876,7 @@
       },
       "CurrencyIsoCode": {
         "type": "string",
-        "description": "Currency codes as stated by the ISO 4217 standard",
+        "description": "",
         "x-enumNames": [
           "ALL",
           "DZD",
@@ -1910,6 +2262,34 @@
           "USN",
           "USS",
           "XXX"
+        ]
+      },
+      "ModifyProductVisibilityRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "productID": {
+            "type": "string"
+          },
+          "productType": {
+            "$ref": "#/components/schemas/ProductType"
+          }
+        }
+      },
+      "ProductType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "DigitalRecording",
+          "Therapy",
+          "SubscriptionPlan",
+          "Event"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
         ]
       },
       "EditTemplateNameRequest": {
@@ -2117,6 +2497,69 @@
           "quantity": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateProductPriceRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellableItemID": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PriceKind"
+          },
+          "billingInterval": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BillingInterval"
+              }
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyIsoCode"
+          }
+        }
+      },
+      "PriceKind": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "OneTime",
+          "Recurring"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "BillingInterval": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Monthly",
+          "Yearly"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "ActivateProductPriceRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellableItemPriceID": {
+            "type": "string"
+          },
+          "sellableItemID": {
+            "type": "string"
           }
         }
       }

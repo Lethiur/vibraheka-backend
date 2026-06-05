@@ -2,7 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;

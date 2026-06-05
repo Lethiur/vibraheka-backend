@@ -4,5 +4,6 @@ public enum ProductType
 {
     DigitalRecording,
     Therapy,
-    SubscriptionPlan
+    SubscriptionPlan,
+    Event
 }

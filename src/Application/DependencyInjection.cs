@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Application.Catalog.UseCases;
+using VibraHeka.Application.Catalog.Services;
 using VibraHeka.Application.Common.Behaviours;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Catalog.Ports.In;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssemblyContaining<RegisterUserCommand>();
+        services.AddTransient<ISellableItemPriceService, SellableItemPriceService>();
         services.AddSingleton<IRegisterSellableItemPort, RegisterSellableProductUseCase>();
         return services;
     }

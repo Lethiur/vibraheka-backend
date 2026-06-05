@@ -1,6 +1,6 @@
 using Infrastructure.Persistence.Catalog.Models;
 using Riok.Mapperly.Abstractions;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 
 namespace Infrastructure.Persistence.Catalog.Mappers;
 

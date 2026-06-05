@@ -2,11 +2,11 @@
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Ports.Out;
 

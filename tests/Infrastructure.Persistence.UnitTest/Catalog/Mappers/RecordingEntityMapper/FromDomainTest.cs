@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using Infrastructure.Persistence.Catalog.Models;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 

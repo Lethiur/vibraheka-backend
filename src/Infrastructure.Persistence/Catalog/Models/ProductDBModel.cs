@@ -1,7 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using ProductType = VibraHeka.Domain.Catalog.Enums.ProductType;
 
 namespace Infrastructure.Persistence.Catalog.Models;
 

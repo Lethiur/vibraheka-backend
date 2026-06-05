@@ -2,8 +2,10 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
+using VibraHeka.Application.Catalog.Models;
+using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Exceptions;
 

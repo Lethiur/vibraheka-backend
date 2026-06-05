@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Recordings.Entities;
+using MediatR;
+using VibraHeka.Domain.Catalog.Entities;
 
 namespace Infrastructure.Persistence.Catalog.Repositories;
 
@@ -12,4 +13,8 @@ public interface IRecordingRepository
     Task<Result<RecordingEntity>> GetByIdAsync(string recordingId, CancellationToken cancellationToken);
 
     Task<Result> DeleteRecordingAsync(RecordingEntity recording, CancellationToken cancellationToken);
+    
+    Task<Result<Unit>> DeactivateRecording(string recordingId, CancellationToken cancellationToken);
+    
+    Task<Result<Unit>> ActivateRecording(string recordingId, CancellationToken cancellationToken);
 }

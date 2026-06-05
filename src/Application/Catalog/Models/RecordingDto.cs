@@ -1,7 +1,7 @@
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 
-namespace VibraHeka.Application.Recordings.Queries.GetAllRecordings;
+namespace VibraHeka.Application.Catalog.Models;
 
 public record RecordingDto(
     string Id,

@@ -1,7 +1,7 @@
 ---
 name: ProductOwner
 description: Product Owner para analizar peticiones de chat, convertirlas en tareas de desarrollo y delegar ejecucion tecnica en CSharpExpert o CSharpQAExpert segun el tipo de tarea.
-model: GPT-5.3-Codex (copilot)
+model: GPT-5.4 mini (copilot)
 tools: [read_file, file_search, grep_search, run_subagent, web, read, create_file, insert_edit_into_file]
 ---
 

@@ -23,7 +23,6 @@ public class SellableItemPriceWriteAdapter(
 
     public ITransactionalWriteOperation DeactivatePrice(SellableItemPriceEntity price)
     {
-        SellableItemPriceDBModel model = Mapper.FromDomain(price);
         ITransactWrite<SellableItemPriceDBModel> transaction =
             Context.CreateTransactWrite<SellableItemPriceDBModel>();
         
@@ -36,11 +35,34 @@ public class SellableItemPriceWriteAdapter(
             },
             ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
             {
-                [":false"] = "0"
+                [":false"] = new Primitive("0", true)
             }
         };
         
-        transaction.AddSaveItem(hashKey:model.SellableItemPriceID, conditionExpression: null, updateExpression: expression);
+        transaction.AddSaveItem(hashKey:price.SellableItemPriceID, conditionExpression: null, updateExpression: expression);
+        
+        return new DynamoTransactionalWriteOperation(transaction);
+    }
+
+    public ITransactionalWriteOperation ActivatePrice(string sellableItemPrice)
+    {
+        ITransactWrite<SellableItemPriceDBModel> transaction =
+            Context.CreateTransactWrite<SellableItemPriceDBModel>();
+        
+        Expression expression = new()
+        {
+            ExpressionStatement = "SET #isActive = :true",
+            ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                ["#isActive"] = nameof(SellableItemPriceEntity.IsActive)
+            },
+            ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
+            {
+                [":true"] = new Primitive("1", true)
+            }
+        };
+        
+        transaction.AddSaveItem(hashKey:sellableItemPrice, conditionExpression: null, updateExpression: expression);
         
         return new DynamoTransactionalWriteOperation(transaction);
     }

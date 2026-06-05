@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Recordings.Errors;
 
@@ -271,7 +272,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(RecordingErrors.NotFound));
+                Result.Failure<RecordingEntity>(RecordingErrors.NotFound));
 
         // When: the handler processes the query
         Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
@@ -318,7 +319,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(genericError));
+                Result.Failure<RecordingEntity>(genericError));
 
         // When: the handler processes the query
         Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
@@ -414,7 +415,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
         RegistryPortMock
             .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                Result.Failure<Domain.Recordings.Entities.RecordingEntity>(RecordingErrors.NotFound));
+                Result.Failure<RecordingEntity>(RecordingErrors.NotFound));
 
         // When: the handler processes the query
         Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
