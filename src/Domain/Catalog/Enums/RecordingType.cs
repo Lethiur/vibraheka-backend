@@ -4,5 +4,6 @@ public enum RecordingType
 {
     Meditacion,
     Masterclass,
-    Taller
+    Taller,
+    Constellation
 }
