@@ -12,6 +12,10 @@ public interface IEventRepositoryPort
 
     Task<Result<List<EventEntity>>> GetEventsAsync(DateTimeOffset startDate, DateTimeOffset endDate, CancellationToken token);
 
+    Task<Result<Unit>> DeactivateEventAsync(string eventId, CancellationToken token);
+    
+    Task<Result<Unit>> ActivateEventAsync(string eventId, CancellationToken token);
+    
     Task<Result<Unit>> DeleteEventAsync(String eventId, CancellationToken token);
     Task<Result<UserEventRegistration>> RegisterAttendeeAsync(RegisterAttendeeModel model, CancellationToken token);
     Task<Result<Unit>> UnRegisterAttendeeAsync(UnRegisterAttendeeModel model, CancellationToken token);
