@@ -1,7 +1,7 @@
 using Infrastructure.Persistence.Catalog.Adapters;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Moq;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Persistence.Repository;
 

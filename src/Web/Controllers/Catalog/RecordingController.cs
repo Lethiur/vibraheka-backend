@@ -1,11 +1,17 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VibraHeka.Application.Catalog.Commands.AdminActivateProduct;
+using VibraHeka.Application.Catalog.Commands.AdminDeactivateProduct;
+using VibraHeka.Application.Catalog.Models;
+using VibraHeka.Application.Catalog.Queries.AdminGetRecordings;
+using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
 using VibraHeka.Application.Recordings.Entities;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
@@ -73,6 +79,27 @@ public class RecordingController(IMediator mediator)
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
     }
+    
+    /// <summary>
+    /// Returns all available recordings.
+    /// </summary>
+    /// <returns>List of recordings.</returns>
+    [HttpGet("all")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetAllRecordingsAdmin()
+    {
+        Result<IEnumerable<RecordingEntity>> result = await mediator.Send(new AdminGetRecordingsQuery());
+
+        if (result.IsFailure)
+        {
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
 
     /// <summary>
     /// Returns a temporary download URL for the specified recording.
@@ -127,7 +154,50 @@ public class RecordingController(IMediator mediator)
 
             return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
         }
+        return new NoContentResult();
+    }
 
+    [HttpPatch("deactivate")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeactivateRecording([FromBody] ModifyProductVisibilityRequest request, CancellationToken ct)
+    {
+        AdminDeActivateProductCommand command = new(request.ProductType, request.ProductID);
+        Result<Unit> result = await mediator.Send(command, ct);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == RecordingErrors.NotFound)
+                return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new NoContentResult();
+    }
+    
+    [HttpPatch("activate")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ActivateRecording([FromBody] ModifyProductVisibilityRequest request, CancellationToken ct)
+    {
+        AdminActivateProductCommand command = new(request.ProductType, request.ProductID);
+        Result<Unit> result = await mediator.Send(command, ct);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == RecordingErrors.NotFound)
+                return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
         return new NoContentResult();
     }
 }

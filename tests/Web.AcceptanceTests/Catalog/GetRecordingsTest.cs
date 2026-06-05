@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using NUnit.Framework;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;

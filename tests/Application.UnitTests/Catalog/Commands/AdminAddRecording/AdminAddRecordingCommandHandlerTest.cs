@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
@@ -23,7 +24,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
         string expectedUploadUrl = "https://bucket.s3.amazonaws.com/recordings/id/file.mp4?X-Amz-Signature=abc";
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success("saved"));
 
         StoragePortMock
@@ -43,7 +44,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<Domain.Recordings.Entities.RecordingEntity>(e =>
+                It.Is<RecordingEntity>(e =>
                     e.Name == command.Name &&
                     e.Description == command.Description &&
                     e.RecordingType == command.Type &&
@@ -77,7 +78,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
         string registryError = RecordingErrors.UploadFailed;
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<string>(registryError));
 
         // When: the handler processes the command
@@ -91,7 +92,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
+                It.Is<RecordingEntity>(e => e.Name == command.Name),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveRecording to be called once even on failure");
@@ -120,7 +121,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
         string storageError = RecordingErrors.UrlGenerationFailed;
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success("saved"));
 
         StoragePortMock
@@ -138,7 +139,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
+                It.Is<RecordingEntity>(e => e.Name == command.Name),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveRecording to be called once");
@@ -165,11 +166,11 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
     {
         // Given: a valid command
         AdminAddRecordingCommand command = BuildValidCommand();
-        Domain.Recordings.Entities.RecordingEntity? capturedEntity = null;
+        RecordingEntity? capturedEntity = null;
 
         RegistryPortMock
-            .Setup(x => x.SaveRecording(It.IsAny<Domain.Recordings.Entities.RecordingEntity>(), It.IsAny<CancellationToken>()))
-            .Callback<Domain.Recordings.Entities.RecordingEntity, CancellationToken>((e, _) => capturedEntity = e)
+            .Setup(x => x.SaveRecording(It.IsAny<RecordingEntity>(), It.IsAny<CancellationToken>()))
+            .Callback<RecordingEntity, CancellationToken>((e, _) => capturedEntity = e)
             .ReturnsAsync(Result.Success("saved"));
 
         StoragePortMock
@@ -187,7 +188,7 @@ public sealed class AdminAddRecordingCommandHandlerTest : GenericAdminAddRecordi
 
         RegistryPortMock.Verify(
             x => x.SaveRecording(
-                It.Is<Domain.Recordings.Entities.RecordingEntity>(e => e.Name == command.Name),
+                It.Is<RecordingEntity>(e => e.Name == command.Name),
                 It.Is<CancellationToken>(ct => ct == CancellationToken.None)),
             Times.Once,
             "Expected SaveRecording to be called once with the correct entity");

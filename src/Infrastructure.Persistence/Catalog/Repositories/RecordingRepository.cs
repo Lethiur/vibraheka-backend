@@ -1,12 +1,16 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
@@ -43,5 +47,39 @@ public class RecordingRepository(
         RecordingDBModel model = mapper.FromDomain(recording);
         Result<Unit> result = await Delete(model, cancellationToken);
         return result.IsSuccess ? Result.Success() : Result.Failure(result.Error);
+    }
+
+    public Task<Result<Unit>> DeactivateRecording(string recordingId, CancellationToken cancellationToken)
+    {
+        Dictionary<string, AttributeValue> key = new()
+        {
+            { nameof(RecordingDBModel.Id), new AttributeValue { S = recordingId } }
+        };
+
+        DynamoExpression update = new()
+        {
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "IsActive" },
+            AttributeValues = { { ":status", new AttributeValue { N = "0" } } }
+        };
+
+        return UpdateAsync(key, update, null, cancellationToken);
+    }
+
+    public Task<Result<Unit>> ActivateRecording(string recordingId, CancellationToken cancellationToken)
+    {
+        Dictionary<string, AttributeValue> key = new()
+        {
+            { nameof(RecordingDBModel.Id), new AttributeValue { S = recordingId } }
+        };
+
+        DynamoExpression update = new()
+        {
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "IsActive" },
+            AttributeValues = { { ":status", new AttributeValue { N = "1" } } }
+        };
+
+        return UpdateAsync(key, update, null, cancellationToken);
     }
 }

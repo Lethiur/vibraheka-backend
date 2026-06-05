@@ -24,6 +24,16 @@ public class EventAdapter(EventRepository repository) : IEventRepositoryPort
         return repository.GetEventsFromDateAsync(startDate, endDate, token);
     }
 
+    public Task<Result<Unit>> DeactivateEventAsync(string eventId, CancellationToken token)
+    {
+        return repository.DeactivateEventAsync(eventId, token);
+    }
+
+    public Task<Result<Unit>> ActivateEventAsync(string eventId, CancellationToken token)
+    {
+        return repository.ActivateEventAsync(eventId, token);
+    }
+
     public Task<Result<Unit>> DeleteEventAsync(string eventId, CancellationToken token)
     {
         throw new NotImplementedException();

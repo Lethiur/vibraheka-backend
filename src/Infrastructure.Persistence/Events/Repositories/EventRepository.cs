@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Events.Mappers;
 using Infrastructure.Persistence.Events.Models;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Events.Entities;
 using VibraHeka.Infrastructure;
@@ -22,6 +23,40 @@ public class EventRepository(
     public Task<Result<EventEntity>> SaveEventAsync(EventEntity entity, CancellationToken cancellationToken)
     {
         return Save(mapper.FromDomain(entity), cancellationToken).Map(_ => entity);
+    }
+
+    public Task<Result<Unit>> DeactivateEventAsync(string eventId, CancellationToken cancellationToken)
+    {
+        Dictionary<string, AttributeValue> key = new()
+        {
+            { nameof(EventEntity.EventID), new AttributeValue { S = eventId } }
+        };
+
+        DynamoExpression update = new()
+        {
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "IsActive" },
+            AttributeValues = { { ":status", new AttributeValue { N = "0" } } }
+        };
+
+        return UpdateAsync(key, update, null, cancellationToken);
+    }
+
+    public Task<Result<Unit>> ActivateEventAsync(string eventId, CancellationToken cancellationToken)
+    {
+        Dictionary<string, AttributeValue> key = new()
+        {
+            { nameof(EventEntity.EventID), new AttributeValue { S = eventId } }
+        };
+
+        DynamoExpression update = new()
+        {
+            Expression = "set #status = :status",
+            AttributeNames = { ["#status"] = "IsActive" },
+            AttributeValues = { { ":status", new AttributeValue { N = "1" } } }
+        };
+
+        return UpdateAsync(key, update, null, cancellationToken);
     }
 
     public Task<Result<List<EventEntity>>> GetEventsFromDateAsync(DateTimeOffset startDate, DateTimeOffset endDate,

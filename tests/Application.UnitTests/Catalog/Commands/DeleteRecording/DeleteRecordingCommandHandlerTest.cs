@@ -4,7 +4,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
-using VibraHeka.Domain.Recordings.Entities;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.DeleteRecording;

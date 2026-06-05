@@ -1,7 +1,6 @@
-using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 
-namespace VibraHeka.Domain.Recordings.Entities;
+namespace VibraHeka.Domain.Catalog.Entities;
 
 public class RecordingEntity : ProductEntity
 {

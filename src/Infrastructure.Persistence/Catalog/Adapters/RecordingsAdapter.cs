@@ -1,7 +1,11 @@
+using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Repositories;
-using VibraHeka.Domain.Recordings.Entities;
+using MediatR;
+using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace Infrastructure.Persistence.Catalog.Adapters;
@@ -26,5 +30,15 @@ public class RecordingsAdapter(IRecordingRepository repository) : IRecordingRegi
     public Task<Result> DeleteRecordingAsync(RecordingEntity recording, CancellationToken cancellationToken)
     {
         return repository.DeleteRecordingAsync(recording, cancellationToken);
+    }
+
+    public Task<Result<Unit>> DeactivateRecordingAsync(string recordingId, CancellationToken cancellationToken)
+    {
+        return repository.DeactivateRecording(recordingId, cancellationToken);
+    }
+
+    public Task<Result<Unit>> ActivateRecordingAsync(string recordingId, CancellationToken cancellationToken)
+    {
+        return repository.ActivateRecording(recordingId, cancellationToken);
     }
 }

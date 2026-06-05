@@ -41861,9 +41861,9 @@ var require_package3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js
+// node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.9_472619de6737c5b08445ad034d1011d9/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js
 var require_dist_cjs57 = __commonJS({
-  "node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js"(exports2) {
+  "node_modules/.pnpm/@aws-sdk+dynamodb-codec@3.9_472619de6737c5b08445ad034d1011d9/node_modules/@aws-sdk/dynamodb-codec/dist-cjs/index.js"(exports2) {
     "use strict";
     var protocols = (init_protocols2(), __toCommonJS(protocols_exports2));
     var schema = (init_schema(), __toCommonJS(schema_exports));
@@ -46997,9 +46997,9 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@aws-sdk+util-dynamodb@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js
+// node_modules/.pnpm/@aws-sdk+util-dynamodb@3.94_49d242376f2a4488405e0a19a9e6fb81/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js
 var require_dist_cjs60 = __commonJS({
-  "node_modules/.pnpm/@aws-sdk+util-dynamodb@3.943.0_@aws-sdk+client-dynamodb@3.943.0/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js"(exports2) {
+  "node_modules/.pnpm/@aws-sdk+util-dynamodb@3.94_49d242376f2a4488405e0a19a9e6fb81/node_modules/@aws-sdk/util-dynamodb/dist-cjs/index.js"(exports2) {
     "use strict";
     var NumberValue = class _NumberValue {
       value;

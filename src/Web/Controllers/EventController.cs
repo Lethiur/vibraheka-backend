@@ -2,11 +2,14 @@ using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using VibraHeka.Application.Catalog.Commands.AdminActivateProduct;
+using VibraHeka.Application.Catalog.Commands.AdminDeactivateProduct;
 using VibraHeka.Application.Events.Commands.AdminCreateEvent;
 using VibraHeka.Application.Events.Models;
 using VibraHeka.Application.Events.Queries.GetEvents;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Events.Entities;
+using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
 using VibraHeka.Web.Mappers;
 
@@ -55,6 +58,50 @@ public class EventController(IMediator mediator, CreateEventMapper mapper)
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+    }
+    
+    [HttpPatch("deactivate")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeActivateEvent([FromBody] ModifyProductVisibilityRequest request, CancellationToken ct)
+    {
+        AdminDeActivateProductCommand command = new(request.ProductType, request.ProductID);
+        Result<Unit> result = await mediator.Send(command, ct);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == RecordingErrors.NotFound)
+                return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new NoContentResult();
+    }
+    
+    [HttpPatch("activate")]
+    [Authorize]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ActivateEvent([FromBody] ModifyProductVisibilityRequest request, CancellationToken ct)
+    {
+        AdminActivateProductCommand command = new(request.ProductType, request.ProductID);
+        Result<Unit> result = await mediator.Send(command, ct);
+        
+        if (result.IsFailure)
+        {
+            if (result.Error == RecordingErrors.NotFound)
+                return new NotFoundObjectResult(ResponseEntity.FromError(result.Error));
+
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+        return new NoContentResult();
     }
 
 }

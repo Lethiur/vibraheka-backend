@@ -3,9 +3,9 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.In;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Recordings.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Ports.Out;
 
