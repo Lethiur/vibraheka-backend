@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using NMoneys;
 using VibraHeka.Application.Common.Interfaces;
 using VibraHeka.Application.Events.Models;

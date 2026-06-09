@@ -42,7 +42,7 @@ public class RegisterSellableProductUseCase(
     ICurrentUserService currentUserService,
     IAtomicWriteStore transactionStore) : IRegisterSellableItemPort
 {
-    public async Task<Result<Unit>> RegisterSellableItemAsync(ProductEntity entity, Money price, PriceKind kind,
+    public async Task<Result<Unit>> RegisterSellableItemAsync(ProductEntity entity, Money price, PriceKind kind, BillingInterval? interval,
         CancellationToken cancellationToken)
     {
         SellableItemEntity sellableItemEntity = new()
@@ -58,19 +58,20 @@ public class RegisterSellableProductUseCase(
             LastModifiedBy = currentUserService.UserId,
         };
 
-        SellableItemPriceEntity sellableItemPriceEntity = new SellableItemPriceEntity()
+        SellableItemPriceEntity sellableItemPriceEntity = new()
         {
             Amount = price,
             SellableItemPriceID = Guid.NewGuid().ToString(),
             Kind = kind,
             SellableItemID = sellableItemEntity.SellableItemID,
+            BillingInterval = interval,
             Created = DateTime.UtcNow,
             CreatedBy = currentUserService.UserId,
             LastModified = DateTime.UtcNow,
             LastModifiedBy = currentUserService.UserId,
         };
 
-        (bool _, bool isFailure, ProductGatewayCreatedResponseModel? value, string? error) =
+        (bool _, bool isFailure, ProductGatewayCreatedResponseModel value, string? _) =
             await productCreationWritePort.CreateProductInGatewayAsync(entity, sellableItemPriceEntity,
                 cancellationToken);
 

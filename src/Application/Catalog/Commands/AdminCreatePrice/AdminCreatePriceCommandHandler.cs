@@ -63,6 +63,6 @@ public class AdminCreatePriceCommandHandler(
         sellableItemPriceEntity.ExternalPriceID = gatewayResponse.ProductGatewayPriceID;
         productCreationBatch.Add(sellableItemPriceWritePort.CreateSellableItemPrice(sellableItemPriceEntity));
 
-        return await writeStore.CommitAsync(productCreationBatch, cancellationToken).Map((_) => sellableItemPriceEntity.SellableItemPriceID);
+        return await writeStore.CommitAsync(productCreationBatch, cancellationToken).Map(_ => sellableItemPriceEntity.SellableItemPriceID);
     }
 }

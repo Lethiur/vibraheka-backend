@@ -1,6 +1,6 @@
-namespace VibraHeka.Domain.Catalog.Entities;
+﻿namespace VibraHeka.Domain.Catalog.Entities;
 
-public class SubscriptionPlanEntity : ProductEntity
+public class SubscriptionPlan : ProductEntity
 {
     public string SubscriptionPlanID { get => ID; set => ID = value; }
     public bool IncludesFullCatalog { get; set; }

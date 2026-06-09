@@ -1,10 +1,12 @@
 using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Stripe.Client;
+using Infrastructure.Rest.Client.Stripe.Enums;
 using Infrastructure.Rest.Client.Stripe.Models;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Ports.Out;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace Infrastructure.Rest.Client.Stripe.Adapter;
 
@@ -38,13 +40,22 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
         CancellationToken cancellationToken)
     {
         Logger.LogInformation("Creating product and price in Stripe gateway {ProductID}", productEntity.ID);
-        CreateProductAndPriceRequest request = new CreateProductAndPriceRequest()
+
+        PaymentRecurringOptions? options = priceEntity.BillingInterval switch
+        {
+            BillingInterval.Monthly => PaymentRecurringOptions.Monthly,
+            BillingInterval.Yearly => PaymentRecurringOptions.Yearly,
+            _ => null
+        };
+
+        CreateProductAndPriceRequest request = new()
         {
             Name = productEntity.Name,
             Description = productEntity.Description,
             Currency = priceEntity.Amount.CurrencyCode.ToString().ToLowerInvariant(),
             PriceInCents = priceEntity.Amount.MinorIntegralAmount,
-            Metadata = new Dictionary<string, string>()
+            PaymentRecurringOptions = options,
+            Metadata = new Dictionary<string, string>
             {
                 { "ProductID", productEntity.ID }, { "SellableItemID", priceEntity.SellableItemID }
             },
@@ -83,7 +94,7 @@ public class CatalogAdapter(StripeAPIClient Client, ILogger<CatalogAdapter> Logg
             Currency = price.Amount.CurrencyCode.ToString().ToLowerInvariant(),
             PriceInCents = price.Amount.MinorIntegralAmount,
             ProductID = price.ExternalProductID,
-            Metadata = new Dictionary<string, string>()
+            Metadata = new Dictionary<string, string>
             {
                 { "SellableItemID", price.SellableItemID }, { "SellableItemPriceID", price.SellableItemPriceID }
             },

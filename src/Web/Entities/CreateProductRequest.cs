@@ -6,7 +6,7 @@ namespace VibraHeka.Web.Entities;
 /// <summary>
 /// Represents the payload required to create a new product in the catalog.
 /// </summary>
-public sealed class CreateProductRequest
+public class CreateProductRequest
 {
     /// <summary>
     /// The display name of the product.

@@ -51,7 +51,7 @@ public sealed class AdminAddRecordingCommandHandler(
 
         Result<Unit> productRegistrationResult =
             await SellableItemPort.RegisterSellableItemAsync(entity, new Money(request.Price, request.CurrencyCode),
-                PriceKind.OneTime, cancellationToken);
+                PriceKind.OneTime, null, cancellationToken);
 
         if (productRegistrationResult.IsFailure)
         {

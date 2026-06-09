@@ -59,7 +59,7 @@ public class CreateEventCommandHandler(
         };
 
         (bool _, bool sellableItemRegistrationFailure) = await sellableItemPort.RegisterSellableItemAsync(entity,
-            new Money(request.Price, request.CurrencyCode), PriceKind.OneTime, cancellationToken);
+            new Money(request.Price, request.CurrencyCode), PriceKind.OneTime, null, cancellationToken);
 
         if (sellableItemRegistrationFailure)
         {

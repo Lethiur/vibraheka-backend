@@ -3,14 +3,12 @@ using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 namespace Infrastructure.Persistence.Catalog.Models;
 
 [DynamoDBTable("SubscriptionPlans")]
-public class SubscriptionPlanDBModel : BaseAuditableDBModel
+public class SubscriptionPlanDBModel : ProductDBModel
 {
     [DynamoDBHashKey]
-    public string SubscriptionPlanID { get; set; } = string.Empty;
-    [DynamoDBProperty]
-    public string Name { get; set; } = string.Empty;
+    public string SubscriptionPlanID { get => ID; set => ID = value; }
+    
     [DynamoDBProperty]
     public bool IncludesFullCatalog { get; set; }
-    [DynamoDBProperty]
-    public bool IsActive { get; set; }
+    
 }

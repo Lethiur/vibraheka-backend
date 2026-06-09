@@ -24,6 +24,7 @@ public interface IRegisterSellableItemPort
     /// <param name="kind">
     ///     The kind of price, which can be one-time or recurring, as defined by the PriceKind enum.
     /// </param>
+    /// <param name="interval">The interval of the price</param>
     /// <param name="cancellationToken">
     ///     A token to monitor for cancellation requests during the operation.
     /// </param>
@@ -31,5 +32,5 @@ public interface IRegisterSellableItemPort
     /// A Result object containing Unit on success or an error in case of failure.
     /// </returns>
     public Task<Result<Unit>> RegisterSellableItemAsync(ProductEntity entity, Money price,
-        PriceKind kind, CancellationToken cancellationToken);
+        PriceKind kind, BillingInterval? interval, CancellationToken cancellationToken);
 }

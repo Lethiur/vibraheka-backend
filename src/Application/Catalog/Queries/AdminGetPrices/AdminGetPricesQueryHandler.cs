@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Catalog.Models;
-using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Catalog.Ports.Out;
 
 namespace VibraHeka.Application.Catalog.Queries.AdminGetPrices;

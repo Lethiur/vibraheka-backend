@@ -59,7 +59,7 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
         try
         {
             ProductService productService = new();
-            ProductCreateOptions productCreateOptions = new ProductCreateOptions()
+            ProductCreateOptions productCreateOptions = new()
             {
                 Name = request.Name, Description = request.Description, Metadata = request.Metadata
             };
@@ -70,7 +70,8 @@ public class StripeAPIClient(ILogger<StripeAPIClient> logger)
                 Currency = request.Currency,
                 Metadata = request.Metadata,
                 PriceInCents = request.PriceInCents,
-                ProductID = product.Id
+                ProductID = product.Id,
+                PaymentRecurringOptions = request.PaymentRecurringOptions
             };
             
             return await AddPriceToProduct(priceCreateOptions, token)

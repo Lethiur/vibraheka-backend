@@ -19,9 +19,6 @@ using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
 using VibraHeka.Domain.Recordings.Ports.Out;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.Repository;
-using RecordingEntityMapper = Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper;
 
 namespace Infrastructure.Persistence;
 
@@ -54,7 +51,6 @@ public static class DependencyInjection
         services.AddSingleton<IOrderLinePort, OrderAdapter>();
         services.AddSingleton<ISellableItemWritePort, SellableItemWriteAdapter>();
         services.AddSingleton<ISellableItemPriceWritePort, SellableItemPriceWriteAdapter>();
-        services.AddSingleton<ISubscriptionPlanWritePort, SubscriptionPlanWriteAdapter>();
         services.AddSingleton<ISellableItemPort, SellableItemAdapter>();
         services.AddSingleton<ISellableItemPricePort, SellableItemPriceAdapter>();
         services.AddSingleton<IOrderWritePort, OrderWriteAdapter>();
@@ -62,6 +58,7 @@ public static class DependencyInjection
         services.AddSingleton<IPaymentAttemptWritePort, PaymentAttemptWriteAdapter>();
         services.AddSingleton<IRecordingRegistryPort, RecordingsAdapter>();
         services.AddSingleton<IEventRepositoryPort, EventAdapter>();
+        services.AddSingleton<ISubscriptionPlanPort, SubscriptionPlanAdapter>();
     }
 
     private static void AttachRepositories(this IServiceCollection services)
@@ -71,6 +68,7 @@ public static class DependencyInjection
         services.AddSingleton<ISellableItemRepository, SellableItemRepository>();
         services.AddSingleton<ISellableItemPriceRepository, SellableItemPriceRepository>();
         services.AddSingleton<IRecordingRepository, RecordingRepository>();
+        services.AddSingleton<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
         services.AddSingleton<EventRepository>();
     }
 }

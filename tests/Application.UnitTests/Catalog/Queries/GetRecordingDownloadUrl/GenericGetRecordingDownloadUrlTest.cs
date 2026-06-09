@@ -9,6 +9,7 @@ using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Domain.Recordings.Ports.Out;
+using SubscriptionEntity = VibraHeka.Domain.Entities.SubscriptionEntity;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 

@@ -9,14 +9,13 @@ using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
 using VibraHeka.Application.Recordings.Entities;
-using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
 
-namespace VibraHeka.Web.Controllers;
+namespace VibraHeka.Web.Controllers.Catalog;
 
 [ApiController]
 [Route("api/v1/catalog/recordings")]
