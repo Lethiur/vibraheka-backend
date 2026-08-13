@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="NSwag.AspNetCore" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" />
     <PackageReference Include="NSwag.MSBuild">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,15 +32,54 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\api\specification.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\appsettings.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\appsettings.Test.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\ClientApp\package-lock.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.deps.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.staticwebassets.endpoints.json" />
+    <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.staticwebassets.runtime.json" />
   </ItemGroup>
+
+  <ItemGroup>
+    <NSwagConfigs Include="$(ProjectDir)Contracts\**\*.nswag" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Generated\" />
+  </ItemGroup>
+  
 
   <!-- Auto-generated Open API specification and Angular TypeScript clients -->
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
+  <Target Name="CleanGeneratedOpenApi" BeforeTargets="GenerateOpenApiControllers">
+    <RemoveDir Directories="$(ProjectDir)Generated" />
+  </Target>
+  
+  <Target Name="GenerateOpenApiClients" BeforeTargets="CoreCompile">
+
+    <Message
+      Importance="High"
+      Text="NSwag configs found: @(NSwagConfigs)"
+    />
+
+    <Exec
+      ConsoleToMSBuild="true"
+      ContinueOnError="true"
+      Command="$(NSwagExe_Net100) run &quot;%(NSwagConfigs.FullPath)&quot; /variables:Configuration=$(Configuration)"
+      WorkingDirectory="$(ProjectDir)" />
+    <Message Text="Generated OpenAPI clients for %(NSwagConfigs.Identity)" Importance="high" />
+    <ItemGroup>
+      <Compile Include="$(ProjectDir)Generated\**\*.cs" />
+    </ItemGroup>
+  </Target>
+  
   <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' And '$(SkipNSwag)' != 'True' ">
-    <Exec ConsoleToMSBuild="true" ContinueOnError="true" WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net100) run config.nswag /variables:Configuration=$(Configuration)">
+    <Exec ConsoleToMSBuild="true" ContinueOnError="true"  EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net100) run config.nswag /variables:Configuration=$(Configuration)">
       <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode" />
       <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" />
     </Exec>

@@ -358,341 +358,6 @@
         }
       }
     },
-    "/api/v1/catalog/recordings": {
-      "post": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_UploadRecording",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UploadRecordingRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_GetAllRecordings",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/catalog/recordings/all": {
-      "get": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_GetAllRecordingsAdmin",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/catalog/recordings/{recordingId}/download-url": {
-      "get": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_GetDownloadUrl",
-        "parameters": [
-          {
-            "name": "recordingId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseEntity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/catalog/recordings/{recordingId}": {
-      "delete": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_DeleteRecording",
-        "parameters": [
-          {
-            "name": "recordingId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/catalog/recordings/deactivate": {
-      "patch": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_DeactivateRecording",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/catalog/recordings/activate": {
-      "patch": {
-        "tags": [
-          "Recording"
-        ],
-        "operationId": "Recording_ActivateRecording",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/email-templates": {
       "get": {
         "tags": [
@@ -1643,6 +1308,431 @@
           }
         }
       }
+    },
+    "/api/v1/catalog/recordings": {
+      "post": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_UploadRecording",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRecordingRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetAllRecordings",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/all": {
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetAllRecordingsAdmin",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/{recordingId}/download-url": {
+      "get": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_GetDownloadUrl",
+        "parameters": [
+          {
+            "name": "recordingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/{recordingId}": {
+      "delete": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_DeleteRecording",
+        "parameters": [
+          {
+            "name": "recordingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/deactivate": {
+      "patch": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_DeactivateRecording",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/recordings/activate": {
+      "patch": {
+        "tags": [
+          "Recording"
+        ],
+        "operationId": "Recording_ActivateRecording",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModifyProductVisibilityRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/subscriptions": {
+      "get": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "operationId": "SubscriptionPlan_GetAllSubscriptionPlan",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "operationId": "SubscriptionPlan_CreateSubscriptionPlan",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionPlanRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEntity"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1805,37 +1895,38 @@
           }
         }
       },
-      "ResponseEntity": {
+      "EditTemplateNameRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "success": {
-            "type": "boolean"
+          "templateID": {
+            "type": "string"
           },
-          "errorCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "content": {
-            "nullable": true
+          "newTemplateName": {
+            "type": "string"
           }
         }
       },
-      "UploadRecordingRequest": {
+      "CreateEventRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {
+          "eventName": {
             "type": "string"
           },
-          "description": {
+          "eventDescription": {
             "type": "string"
           },
-          "tier": {
-            "$ref": "#/components/schemas/RecordingTier"
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
           },
-          "type": {
-            "$ref": "#/components/schemas/RecordingType"
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventTimezone": {
+            "type": "string"
           },
           "price": {
             "type": "number",
@@ -1845,34 +1936,6 @@
             "$ref": "#/components/schemas/CurrencyIsoCode"
           }
         }
-      },
-      "RecordingTier": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Free",
-          "Premium",
-          "DiscountForMembers"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
-      },
-      "RecordingType": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Meditacion",
-          "Masterclass",
-          "Taller"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
       },
       "CurrencyIsoCode": {
         "type": "string",
@@ -2292,48 +2355,6 @@
           3
         ]
       },
-      "EditTemplateNameRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "templateID": {
-            "type": "string"
-          },
-          "newTemplateName": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateEventRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "eventName": {
-            "type": "string"
-          },
-          "eventDescription": {
-            "type": "string"
-          },
-          "eventDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "duration": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "eventTimezone": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currencyCode": {
-            "$ref": "#/components/schemas/CurrencyIsoCode"
-          }
-        }
-      },
       "ChangeTemplateForActionCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2466,6 +2487,22 @@
           }
         }
       },
+      "ResponseEntity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "nullable": true
+          }
+        }
+      },
       "CreateOrderRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -2560,6 +2597,96 @@
           },
           "sellableItemID": {
             "type": "string"
+          }
+        }
+      },
+      "UploadRecordingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RecordingTier"
+          },
+          "type": {
+            "$ref": "#/components/schemas/RecordingType"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currencyCode": {
+            "$ref": "#/components/schemas/CurrencyIsoCode"
+          }
+        }
+      },
+      "RecordingTier": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Free",
+          "Premium",
+          "DiscountForMembers"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "RecordingType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Meditacion",
+          "Masterclass",
+          "Taller",
+          "Constellation"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "CreateSubscriptionPlanRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CreateProductRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "billingInterval": {
+                "$ref": "#/components/schemas/BillingInterval"
+              }
+            }
+          }
+        ]
+      },
+      "CreateProductRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currencyCode": {
+            "$ref": "#/components/schemas/CurrencyIsoCode"
           }
         }
       }

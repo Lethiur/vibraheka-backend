@@ -1,0 +1,11 @@
+﻿type: object
+description: Response for reactivating a subscription
+
+required:
+  - success
+
+properties:
+  success:
+    type: boolean
+    description: Indicates whether the subscription was successfully reactivated
+    example: true

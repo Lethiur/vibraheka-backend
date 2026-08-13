@@ -1,0 +1,38 @@
+﻿type: object
+description: Response for creating a subscription
+
+required:
+  - success
+
+properties:
+  success:
+    type: boolean
+    description: Indicates whether the subscription was successful
+    example: true
+
+  content:
+    type: object
+    description: Additional content related to the subscription response
+    required: 
+      - url
+      - paymentSessionId
+      - internalPaymentId
+      - expiresAt
+    properties:
+      url:
+        type: string
+        description: A URL providing the checkout to pay the subscription
+        example: "https://example.com/subscription/12345"
+      paymentSessionId:
+        type: string
+        description: The payment session ID for the subscription
+        example: "sess_1234567890"
+      internalPaymentId:
+        type: string
+        description: The internal payment ID for the subscription
+        example: "pay_0987654321"
+      expiresAt:
+        type: string
+        format: date-time
+        description: The expiration date and time of the subscription
+        example: "2024-12-31T23:59:59Z"

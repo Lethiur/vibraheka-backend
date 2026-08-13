@@ -620,484 +620,6 @@ export class AuthClient implements IAuthClient {
     }
 }
 
-export interface IRecordingClient {
-    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity>;
-    recording_GetAllRecordings(): Observable<ResponseEntity>;
-    recording_GetAllRecordingsAdmin(): Observable<ResponseEntity>;
-    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity>;
-    recording_DeleteRecording(recordingId: string): Observable<void>;
-    recording_DeactivateRecording(request: ModifyProductVisibilityRequest): Observable<void>;
-    recording_ActivateRecording(request: ModifyProductVisibilityRequest): Observable<void>;
-}
-
-@Injectable({
-    providedIn: 'root'
-})
-export class RecordingClient implements IRecordingClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_UploadRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_UploadRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_UploadRecording(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_GetAllRecordings(): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_GetAllRecordings(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_GetAllRecordings(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_GetAllRecordings(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_GetAllRecordingsAdmin(): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings/all";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_GetAllRecordingsAdmin(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_GetAllRecordingsAdmin(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_GetAllRecordingsAdmin(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}/download-url";
-        if (recordingId === undefined || recordingId === null)
-            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
-        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_GetDownloadUrl(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_GetDownloadUrl(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ResponseEntity>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ResponseEntity>;
-        }));
-    }
-
-    protected processRecording_GetDownloadUrl(response: HttpResponseBase): Observable<ResponseEntity> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseEntity.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_DeleteRecording(recordingId: string): Observable<void> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}";
-        if (recordingId === undefined || recordingId === null)
-            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
-        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_DeleteRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_DeleteRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRecording_DeleteRecording(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_DeactivateRecording(request: ModifyProductVisibilityRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings/deactivate";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_DeactivateRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_DeactivateRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRecording_DeactivateRecording(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    recording_ActivateRecording(request: ModifyProductVisibilityRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/v1/catalog/recordings/activate";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRecording_ActivateRecording(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRecording_ActivateRecording(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRecording_ActivateRecording(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
 export interface IEmailTemplateClient {
     emailTemplate_GetTemplates(): Observable<FileResponse>;
     emailTemplate_CreateNewEmailTemplate(templateName: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
@@ -1978,11 +1500,11 @@ export class SettingsClient implements ISettingsClient {
 }
 
 export interface ISubscriptionClient {
-    subscription_Subscribe(): Observable<FileResponse>;
+    subscription_Subscribe(): Observable<CreateSubscriptionResponse>;
     subscription_GetSubscriptionDetails(): Observable<FileResponse>;
     subscription_UpdateSubscription(): Observable<FileResponse>;
-    subscription_ReactivateSubscription(): Observable<FileResponse>;
-    subscription_GetSubscriptionPortal(): Observable<FileResponse>;
+    subscription_ReactivateSubscription(): Observable<ReactivateSubscriptionResponse>;
+    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsResponse>;
 }
 
 @Injectable({
@@ -1998,7 +1520,7 @@ export class SubscriptionClient implements ISubscriptionClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    subscription_Subscribe(): Observable<FileResponse> {
+    subscription_Subscribe(): Observable<CreateSubscriptionResponse> {
         let url_ = this.baseUrl + "/api/v1/subscriptions";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2006,7 +1528,7 @@ export class SubscriptionClient implements ISubscriptionClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             })
         };
 
@@ -2017,31 +1539,34 @@ export class SubscriptionClient implements ISubscriptionClient {
                 try {
                     return this.processSubscription_Subscribe(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
+                    return _observableThrow(e) as any as Observable<CreateSubscriptionResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
+                return _observableThrow(response_) as any as Observable<CreateSubscriptionResponse>;
         }));
     }
 
-    protected processSubscription_Subscribe(response: HttpResponseBase): Observable<FileResponse> {
+    protected processSubscription_Subscribe(response: HttpResponseBase): Observable<CreateSubscriptionResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateSubscriptionResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2154,7 +1679,7 @@ export class SubscriptionClient implements ISubscriptionClient {
         return _observableOf(null as any);
     }
 
-    subscription_ReactivateSubscription(): Observable<FileResponse> {
+    subscription_ReactivateSubscription(): Observable<ReactivateSubscriptionResponse> {
         let url_ = this.baseUrl + "/api/v1/subscriptions/reactivate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2162,42 +1687,45 @@ export class SubscriptionClient implements ISubscriptionClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             })
         };
 
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processSubscription_ReactivateSubscription(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
                     return this.processSubscription_ReactivateSubscription(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
+                    return _observableThrow(e) as any as Observable<ReactivateSubscriptionResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
+                return _observableThrow(response_) as any as Observable<ReactivateSubscriptionResponse>;
         }));
     }
 
-    protected processSubscription_ReactivateSubscription(response: HttpResponseBase): Observable<FileResponse> {
+    protected processSubscription_ReactivateSubscription(response: HttpResponseBase): Observable<ReactivateSubscriptionResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReactivateSubscriptionResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2206,7 +1734,7 @@ export class SubscriptionClient implements ISubscriptionClient {
         return _observableOf(null as any);
     }
 
-    subscription_GetSubscriptionPortal(): Observable<FileResponse> {
+    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsResponse> {
         let url_ = this.baseUrl + "/api/v1/subscriptions/details";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2214,7 +1742,7 @@ export class SubscriptionClient implements ISubscriptionClient {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             })
         };
 
@@ -2225,31 +1753,34 @@ export class SubscriptionClient implements ISubscriptionClient {
                 try {
                     return this.processSubscription_GetSubscriptionPortal(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
+                    return _observableThrow(e) as any as Observable<GetSubscriptionDetailsResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
+                return _observableThrow(response_) as any as Observable<GetSubscriptionDetailsResponse>;
         }));
     }
 
-    protected processSubscription_GetSubscriptionPortal(response: HttpResponseBase): Observable<FileResponse> {
+    protected processSubscription_GetSubscriptionPortal(response: HttpResponseBase): Observable<GetSubscriptionDetailsResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetSubscriptionDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2782,6 +2313,631 @@ export class PricingClient implements IPricingClient {
     }
 }
 
+export interface IRecordingClient {
+    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity>;
+    recording_GetAllRecordings(): Observable<ResponseEntity>;
+    recording_GetAllRecordingsAdmin(): Observable<ResponseEntity>;
+    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity>;
+    recording_DeleteRecording(recordingId: string): Observable<void>;
+    recording_DeactivateRecording(request: ModifyProductVisibilityRequest): Observable<void>;
+    recording_ActivateRecording(request: ModifyProductVisibilityRequest): Observable<void>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RecordingClient implements IRecordingClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    recording_UploadRecording(request: UploadRecordingRequest): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_UploadRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_UploadRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_UploadRecording(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetAllRecordings(): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetAllRecordings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetAllRecordings(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetAllRecordings(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetAllRecordingsAdmin(): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/all";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetAllRecordingsAdmin(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetAllRecordingsAdmin(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetAllRecordingsAdmin(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_GetDownloadUrl(recordingId: string): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}/download-url";
+        if (recordingId === undefined || recordingId === null)
+            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
+        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_GetDownloadUrl(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_GetDownloadUrl(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processRecording_GetDownloadUrl(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_DeleteRecording(recordingId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/{recordingId}";
+        if (recordingId === undefined || recordingId === null)
+            throw new globalThis.Error("The parameter 'recordingId' must be defined.");
+        url_ = url_.replace("{recordingId}", encodeURIComponent("" + recordingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_DeleteRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_DeleteRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecording_DeleteRecording(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_DeactivateRecording(request: ModifyProductVisibilityRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/deactivate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_DeactivateRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_DeactivateRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecording_DeactivateRecording(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    recording_ActivateRecording(request: ModifyProductVisibilityRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/catalog/recordings/activate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecording_ActivateRecording(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecording_ActivateRecording(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecording_ActivateRecording(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface ISubscriptionPlanClient {
+    subscriptionPlan_GetAllSubscriptionPlan(): Observable<ResponseEntity>;
+    subscriptionPlan_CreateSubscriptionPlan(request: CreateSubscriptionPlanRequest): Observable<ResponseEntity>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class SubscriptionPlanClient implements ISubscriptionPlanClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    subscriptionPlan_GetAllSubscriptionPlan(): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/subscriptions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubscriptionPlan_GetAllSubscriptionPlan(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubscriptionPlan_GetAllSubscriptionPlan(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processSubscriptionPlan_GetAllSubscriptionPlan(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    subscriptionPlan_CreateSubscriptionPlan(request: CreateSubscriptionPlanRequest): Observable<ResponseEntity> {
+        let url_ = this.baseUrl + "/api/v1/catalog/subscriptions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubscriptionPlan_CreateSubscriptionPlan(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubscriptionPlan_CreateSubscriptionPlan(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResponseEntity>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResponseEntity>;
+        }));
+    }
+
+    protected processSubscriptionPlan_CreateSubscriptionPlan(response: HttpResponseBase): Observable<ResponseEntity> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseEntity.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export class UserDTO implements IUserDTO {
     id?: string;
     email?: string;
@@ -3210,12 +3366,11 @@ export interface IChangeAuthenticatedPasswordCommand {
     newPasswordConfirmation?: string;
 }
 
-export class ResponseEntity implements IResponseEntity {
-    success?: boolean;
-    errorCode?: string | undefined;
-    content?: any | undefined;
+export class EditTemplateNameRequest implements IEditTemplateNameRequest {
+    templateID?: string;
+    newTemplateName?: string;
 
-    constructor(data?: IResponseEntity) {
+    constructor(data?: IEditTemplateNameRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3226,43 +3381,41 @@ export class ResponseEntity implements IResponseEntity {
 
     init(_data?: any) {
         if (_data) {
-            this.success = _data["success"];
-            this.errorCode = _data["errorCode"];
-            this.content = _data["content"];
+            this.templateID = _data["templateID"];
+            this.newTemplateName = _data["newTemplateName"];
         }
     }
 
-    static fromJS(data: any): ResponseEntity {
+    static fromJS(data: any): EditTemplateNameRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new ResponseEntity();
+        let result = new EditTemplateNameRequest();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["success"] = this.success;
-        data["errorCode"] = this.errorCode;
-        data["content"] = this.content;
+        data["templateID"] = this.templateID;
+        data["newTemplateName"] = this.newTemplateName;
         return data;
     }
 }
 
-export interface IResponseEntity {
-    success?: boolean;
-    errorCode?: string | undefined;
-    content?: any | undefined;
+export interface IEditTemplateNameRequest {
+    templateID?: string;
+    newTemplateName?: string;
 }
 
-export class UploadRecordingRequest implements IUploadRecordingRequest {
-    name?: string;
-    description?: string;
-    tier?: RecordingTier;
-    type?: RecordingType;
+export class CreateEventRequest implements ICreateEventRequest {
+    eventName?: string;
+    eventDescription?: string;
+    eventDate?: Date;
+    duration?: number;
+    eventTimezone?: string;
     price?: number;
     currencyCode?: CurrencyIsoCode;
 
-    constructor(data?: IUploadRecordingRequest) {
+    constructor(data?: ICreateEventRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3273,53 +3426,44 @@ export class UploadRecordingRequest implements IUploadRecordingRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.tier = _data["tier"];
-            this.type = _data["type"];
+            this.eventName = _data["eventName"];
+            this.eventDescription = _data["eventDescription"];
+            this.eventDate = _data["eventDate"] ? new Date(_data["eventDate"].toString()) : undefined as any;
+            this.duration = _data["duration"];
+            this.eventTimezone = _data["eventTimezone"];
             this.price = _data["price"];
             this.currencyCode = _data["currencyCode"];
         }
     }
 
-    static fromJS(data: any): UploadRecordingRequest {
+    static fromJS(data: any): CreateEventRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new UploadRecordingRequest();
+        let result = new CreateEventRequest();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["tier"] = this.tier;
-        data["type"] = this.type;
+        data["eventName"] = this.eventName;
+        data["eventDescription"] = this.eventDescription;
+        data["eventDate"] = this.eventDate ? this.eventDate.toISOString() : undefined as any;
+        data["duration"] = this.duration;
+        data["eventTimezone"] = this.eventTimezone;
         data["price"] = this.price;
         data["currencyCode"] = this.currencyCode;
         return data;
     }
 }
 
-export interface IUploadRecordingRequest {
-    name?: string;
-    description?: string;
-    tier?: RecordingTier;
-    type?: RecordingType;
+export interface ICreateEventRequest {
+    eventName?: string;
+    eventDescription?: string;
+    eventDate?: Date;
+    duration?: number;
+    eventTimezone?: string;
     price?: number;
     currencyCode?: CurrencyIsoCode;
-}
-
-export enum RecordingTier {
-    Free = 0,
-    Premium = 1,
-    DiscountForMembers = 2,
-}
-
-export enum RecordingType {
-    Meditacion = 0,
-    Masterclass = 1,
-    Taller = 2,
 }
 
 export enum CurrencyIsoCode {
@@ -3563,106 +3707,6 @@ export enum ProductType {
     Event = 3,
 }
 
-export class EditTemplateNameRequest implements IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
-
-    constructor(data?: IEditTemplateNameRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.templateID = _data["templateID"];
-            this.newTemplateName = _data["newTemplateName"];
-        }
-    }
-
-    static fromJS(data: any): EditTemplateNameRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new EditTemplateNameRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["templateID"] = this.templateID;
-        data["newTemplateName"] = this.newTemplateName;
-        return data;
-    }
-}
-
-export interface IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
-}
-
-export class CreateEventRequest implements ICreateEventRequest {
-    eventName?: string;
-    eventDescription?: string;
-    eventDate?: Date;
-    duration?: number;
-    eventTimezone?: string;
-    price?: number;
-    currencyCode?: CurrencyIsoCode;
-
-    constructor(data?: ICreateEventRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.eventName = _data["eventName"];
-            this.eventDescription = _data["eventDescription"];
-            this.eventDate = _data["eventDate"] ? new Date(_data["eventDate"].toString()) : undefined as any;
-            this.duration = _data["duration"];
-            this.eventTimezone = _data["eventTimezone"];
-            this.price = _data["price"];
-            this.currencyCode = _data["currencyCode"];
-        }
-    }
-
-    static fromJS(data: any): CreateEventRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateEventRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["eventName"] = this.eventName;
-        data["eventDescription"] = this.eventDescription;
-        data["eventDate"] = this.eventDate ? this.eventDate.toISOString() : undefined as any;
-        data["duration"] = this.duration;
-        data["eventTimezone"] = this.eventTimezone;
-        data["price"] = this.price;
-        data["currencyCode"] = this.currencyCode;
-        return data;
-    }
-}
-
-export interface ICreateEventRequest {
-    eventName?: string;
-    eventDescription?: string;
-    eventDate?: Date;
-    duration?: number;
-    eventTimezone?: string;
-    price?: number;
-    currencyCode?: CurrencyIsoCode;
-}
-
 export class ChangeTemplateForActionCommand implements IChangeTemplateForActionCommand {
     templateID?: string;
     actionType?: ActionType;
@@ -3714,6 +3758,350 @@ export enum ActionType {
     SubscriptionCancelled = 7,
     SubscriptionReactivated = 8,
     ForgotPasswordCompleted = 9,
+}
+
+export class CreateSubscriptionResponse implements ICreateSubscriptionResponse {
+    success?: boolean;
+    content?: Content | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateSubscriptionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.content = _data["content"] ? Content.fromJS(_data["content"]) : undefined as any;
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateSubscriptionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSubscriptionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["content"] = this.content ? this.content.toJSON() : undefined as any;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface ICreateSubscriptionResponse {
+    success?: boolean;
+    content?: Content | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class Content implements IContent {
+    url!: string;
+    paymentSessionId!: string;
+    internalPaymentId!: string;
+    expiresAt!: Date;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IContent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.url = _data["url"];
+            this.paymentSessionId = _data["paymentSessionId"];
+            this.internalPaymentId = _data["internalPaymentId"];
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : undefined as any;
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): Content {
+        data = typeof data === 'object' ? data : {};
+        let result = new Content();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["url"] = this.url;
+        data["paymentSessionId"] = this.paymentSessionId;
+        data["internalPaymentId"] = this.internalPaymentId;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : undefined as any;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IContent {
+    url: string;
+    paymentSessionId: string;
+    internalPaymentId: string;
+    expiresAt: Date;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class BadRequestResponse implements IBadRequestResponse {
+    success?: boolean;
+    errorCode?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IBadRequestResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.errorCode = _data["errorCode"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): BadRequestResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new BadRequestResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["errorCode"] = this.errorCode;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IBadRequestResponse {
+    success?: boolean;
+    errorCode?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class ReactivateSubscriptionResponse implements IReactivateSubscriptionResponse {
+    success?: boolean;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IReactivateSubscriptionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): ReactivateSubscriptionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReactivateSubscriptionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IReactivateSubscriptionResponse {
+    success?: boolean;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsResponse {
+    success?: boolean;
+    content?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IGetSubscriptionDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.success = _data["success"];
+            this.content = _data["content"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): GetSubscriptionDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetSubscriptionDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["success"] = this.success;
+        data["content"] = this.content;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IGetSubscriptionDetailsResponse {
+    success?: boolean;
+    content?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
 }
 
 export abstract class BaseAuditableEntity implements IBaseAuditableEntity {
@@ -3875,6 +4263,50 @@ export class GetCodeQuery implements IGetCodeQuery {
 
 export interface IGetCodeQuery {
     userName?: string;
+}
+
+export class ResponseEntity implements IResponseEntity {
+    success?: boolean;
+    errorCode?: string | undefined;
+    content?: any | undefined;
+
+    constructor(data?: IResponseEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            this.errorCode = _data["errorCode"];
+            this.content = _data["content"];
+        }
+    }
+
+    static fromJS(data: any): ResponseEntity {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResponseEntity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["errorCode"] = this.errorCode;
+        data["content"] = this.content;
+        return data;
+    }
+}
+
+export interface IResponseEntity {
+    success?: boolean;
+    errorCode?: string | undefined;
+    content?: any | undefined;
 }
 
 export class CreateOrderRequest implements ICreateOrderRequest {
@@ -4073,6 +4505,156 @@ export class ActivateProductPriceRequest implements IActivateProductPriceRequest
 export interface IActivateProductPriceRequest {
     sellableItemPriceID?: string;
     sellableItemID?: string;
+}
+
+export class UploadRecordingRequest implements IUploadRecordingRequest {
+    name?: string;
+    description?: string;
+    tier?: RecordingTier;
+    type?: RecordingType;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+
+    constructor(data?: IUploadRecordingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.tier = _data["tier"];
+            this.type = _data["type"];
+            this.price = _data["price"];
+            this.currencyCode = _data["currencyCode"];
+        }
+    }
+
+    static fromJS(data: any): UploadRecordingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UploadRecordingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["tier"] = this.tier;
+        data["type"] = this.type;
+        data["price"] = this.price;
+        data["currencyCode"] = this.currencyCode;
+        return data;
+    }
+}
+
+export interface IUploadRecordingRequest {
+    name?: string;
+    description?: string;
+    tier?: RecordingTier;
+    type?: RecordingType;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+}
+
+export enum RecordingTier {
+    Free = 0,
+    Premium = 1,
+    DiscountForMembers = 2,
+}
+
+export enum RecordingType {
+    Meditacion = 0,
+    Masterclass = 1,
+    Taller = 2,
+    Constellation = 3,
+}
+
+export class CreateProductRequest implements ICreateProductRequest {
+    name?: string;
+    description?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+
+    constructor(data?: ICreateProductRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.currencyCode = _data["currencyCode"];
+        }
+    }
+
+    static fromJS(data: any): CreateProductRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProductRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["currencyCode"] = this.currencyCode;
+        return data;
+    }
+}
+
+export interface ICreateProductRequest {
+    name?: string;
+    description?: string;
+    price?: number;
+    currencyCode?: CurrencyIsoCode;
+}
+
+export class CreateSubscriptionPlanRequest extends CreateProductRequest implements ICreateSubscriptionPlanRequest {
+    billingInterval?: BillingInterval;
+
+    constructor(data?: ICreateSubscriptionPlanRequest) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.billingInterval = _data["billingInterval"];
+        }
+    }
+
+    static override fromJS(data: any): CreateSubscriptionPlanRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSubscriptionPlanRequest();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["billingInterval"] = this.billingInterval;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ICreateSubscriptionPlanRequest extends ICreateProductRequest {
+    billingInterval?: BillingInterval;
 }
 
 export interface FileParameter {

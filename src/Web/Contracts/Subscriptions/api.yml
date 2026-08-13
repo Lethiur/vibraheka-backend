@@ -1,0 +1,105 @@
+﻿openapi: 3.0.3
+
+info:
+  title: VibraHeka API - Subscriptions API
+  version: 1.0.0
+  description: API for managing subscriptions
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: Subscriptions
+    description: Operations related to subscriptions
+servers:
+  - url: /api/v1/subscriptions
+    description: local Server server
+
+paths:
+  /:
+    put:
+      operationId: Subscribe
+      summary: Subscribe to a plan
+      description: Hola hamijo
+      responses:
+        '200':
+          description: Subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreateSubscriptionResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+    get:
+      tags:
+        - Status Operations
+      operationId: GetSubscriptionStatus
+      summary: Get subscription status
+      description: Retrieves the current status of the subscription
+      responses:
+        '200':
+          description: Subscription status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetSubscriptionDetails.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  
+  /reactivate:
+    put:
+      tags:
+        - Status Operations
+      operationId: ReactivateSubscription
+      summary: Reactivate a subscription
+      description: Reactivates a previously canceled subscription
+      responses:
+        '200':
+          description: Subscription reactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/ReactivateSubscriptionResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /details:
+    get:
+      tags:
+        - Status Operations
+      operationId: GetSubscriptionPortal
+      summary: Get subscription details
+      description: Retrieves the details of the current subscription
+      responses:
+        '200':
+          description: Subscription details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetSubscriptionDetailsPortal.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+      
+  
