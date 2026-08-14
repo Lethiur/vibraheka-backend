@@ -14,15 +14,10 @@ properties:
     type: object
     description: The subscription details
     properties:
-      startDate:
-        type: string
-        format: date-time
-        description: The unique identifier for the subscription
-        example: "sub_1234567890"
       status:
-        type: string
-        description: The current status of the subscription
-        example: "active"
+        $ref: "../Enums/OrderStatus.yml#/components/schemas/OrderStatus"
+      SubscriptionStatus:
+        $ref: "../Enums/SubscriptionStatus.yml#/components/schemas/SubscriptionStatus"
       plan:
         type: string
         description: The plan associated with the subscription

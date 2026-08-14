@@ -25,6 +25,8 @@ servers:
 paths:
   /:
     put:
+      tags:
+        - Subscriptions
       operationId: Subscribe
       summary: Subscribe to a plan
       description: Hola hamijo
@@ -43,7 +45,7 @@ paths:
                 $ref: '../Common/Response/BadRequestResponse.yml'
     get:
       tags:
-        - Status Operations
+        - Subscriptions
       operationId: GetSubscriptionStatus
       summary: Get subscription status
       description: Retrieves the current status of the subscription
@@ -60,9 +62,28 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+    patch: 
+      tags:
+        - Subscriptions
+      operationId: CancelSubscription
+      summary: Cancel a subscription
+      description: Cancels the current subscription
+      responses:
+        '200':
+          description: Subscription canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/VoidResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
   
   /reactivate:
-    put:
+    patch:
       tags:
         - Status Operations
       operationId: ReactivateSubscription
@@ -74,7 +95,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Components/Responses/ReactivateSubscriptionResponse.yml'
+                $ref: '../Common/Response/VoidResponse.yml'
         '400':
           description: Bad request
           content:

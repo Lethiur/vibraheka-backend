@@ -48,7 +48,22 @@ public class SubscriptionController(
         return new OkObjectResult(ResponseEntity.FromSuccess(mapper.ToDetailsDTO(result.Value)));
     }
 
-    public override async Task<ActionResult<ReactivateSubscriptionResponse>> ReactivateSubscription()
+    public override async Task<ActionResult<VoidResponse>> CancelSubscription()
+    {
+        CancelSubscriptionCommand command = new();
+
+        Result<Unit> result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            logger.LogError("Subscription cancellation failed: {Error}", result.Error);
+            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+        }
+
+        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+    }
+
+    public override async Task<ActionResult<VoidResponse>> ReactivateSubscription()
     {
         ReactivateSubscriptionCommand command = new();
         Result<Unit> result = await mediator.Send(command);
@@ -73,23 +88,5 @@ public class SubscriptionController(
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
-    }
-
-    [HttpPatch]
-    [Authorize]
-    [Produces("application/json")]
-    public async Task<IActionResult> UpdateSubscription()
-    {
-        CancelSubscriptionCommand command = new();
-
-        Result<Unit> result = await mediator.Send(command);
-
-        if (result.IsFailure)
-        {
-            logger.LogError("Subscription cancellation failed: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
-        }
-
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
     }
 }

@@ -1,5 +1,5 @@
 ﻿type: object
-description: Response for creating a subscription
+description: Object sent as payload when the response resulted in a 400
 
 required:
   - success

@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Generated\" />
+    <Folder Include="Contracts\Modules\Users\" />
   </ItemGroup>
   
 
@@ -74,7 +74,7 @@
       WorkingDirectory="$(ProjectDir)" />
     <Message Text="Generated OpenAPI clients for %(NSwagConfigs.Identity)" Importance="high" />
     <ItemGroup>
-      <Compile Include="$(ProjectDir)Generated\**\*.cs" />
+      <Compile Include="$(ProjectDir)Generated\**\*.cs" Exclude="@(Compile)"/>
     </ItemGroup>
   </Target>
   
