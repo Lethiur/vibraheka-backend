@@ -1501,10 +1501,10 @@ export class SettingsClient implements ISettingsClient {
 
 export interface ISubscriptionClient {
     subscription_Subscribe(): Observable<CreateSubscriptionResponse>;
-    subscription_GetSubscriptionDetails(): Observable<FileResponse>;
-    subscription_UpdateSubscription(): Observable<FileResponse>;
-    subscription_ReactivateSubscription(): Observable<ReactivateSubscriptionResponse>;
-    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsResponse>;
+    subscription_GetSubscriptionStatus(): Observable<GetSubscriptionDetails>;
+    subscription_CancelSubscription(): Observable<void>;
+    subscription_ReactivateSubscription(): Observable<void>;
+    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsPortal>;
 }
 
 @Injectable({
@@ -1575,112 +1575,8 @@ export class SubscriptionClient implements ISubscriptionClient {
         return _observableOf(null as any);
     }
 
-    subscription_GetSubscriptionDetails(): Observable<FileResponse> {
+    subscription_GetSubscriptionStatus(): Observable<GetSubscriptionDetails> {
         let url_ = this.baseUrl + "/api/v1/subscriptions";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSubscription_GetSubscriptionDetails(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSubscription_GetSubscriptionDetails(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processSubscription_GetSubscriptionDetails(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    subscription_UpdateSubscription(): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/subscriptions";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSubscription_UpdateSubscription(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSubscription_UpdateSubscription(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processSubscription_UpdateSubscription(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    subscription_ReactivateSubscription(): Observable<ReactivateSubscriptionResponse> {
-        let url_ = this.baseUrl + "/api/v1/subscriptions/reactivate";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1691,21 +1587,21 @@ export class SubscriptionClient implements ISubscriptionClient {
             })
         };
 
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSubscription_ReactivateSubscription(response_);
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubscription_GetSubscriptionStatus(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processSubscription_ReactivateSubscription(response_ as any);
+                    return this.processSubscription_GetSubscriptionStatus(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<ReactivateSubscriptionResponse>;
+                    return _observableThrow(e) as any as Observable<GetSubscriptionDetails>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<ReactivateSubscriptionResponse>;
+                return _observableThrow(response_) as any as Observable<GetSubscriptionDetails>;
         }));
     }
 
-    protected processSubscription_ReactivateSubscription(response: HttpResponseBase): Observable<ReactivateSubscriptionResponse> {
+    protected processSubscription_GetSubscriptionStatus(response: HttpResponseBase): Observable<GetSubscriptionDetails> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1716,7 +1612,7 @@ export class SubscriptionClient implements ISubscriptionClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ReactivateSubscriptionResponse.fromJS(resultData200);
+            result200 = GetSubscriptionDetails.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1734,7 +1630,109 @@ export class SubscriptionClient implements ISubscriptionClient {
         return _observableOf(null as any);
     }
 
-    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsResponse> {
+    subscription_CancelSubscription(): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/subscriptions";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubscription_CancelSubscription(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubscription_CancelSubscription(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSubscription_CancelSubscription(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    subscription_ReactivateSubscription(): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/subscriptions/reactivate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubscription_ReactivateSubscription(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubscription_ReactivateSubscription(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSubscription_ReactivateSubscription(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    subscription_GetSubscriptionPortal(): Observable<GetSubscriptionDetailsPortal> {
         let url_ = this.baseUrl + "/api/v1/subscriptions/details";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1753,14 +1751,14 @@ export class SubscriptionClient implements ISubscriptionClient {
                 try {
                     return this.processSubscription_GetSubscriptionPortal(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<GetSubscriptionDetailsResponse>;
+                    return _observableThrow(e) as any as Observable<GetSubscriptionDetailsPortal>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<GetSubscriptionDetailsResponse>;
+                return _observableThrow(response_) as any as Observable<GetSubscriptionDetailsPortal>;
         }));
     }
 
-    protected processSubscription_GetSubscriptionPortal(response: HttpResponseBase): Observable<GetSubscriptionDetailsResponse> {
+    protected processSubscription_GetSubscriptionPortal(response: HttpResponseBase): Observable<GetSubscriptionDetailsPortal> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1771,7 +1769,7 @@ export class SubscriptionClient implements ISubscriptionClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = GetSubscriptionDetailsResponse.fromJS(resultData200);
+            result200 = GetSubscriptionDetailsPortal.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -3761,8 +3759,8 @@ export enum ActionType {
 }
 
 export class CreateSubscriptionResponse implements ICreateSubscriptionResponse {
-    success?: boolean;
-    content?: Content | undefined;
+    url!: string;
+    expiresAt!: Date;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
@@ -3782,8 +3780,8 @@ export class CreateSubscriptionResponse implements ICreateSubscriptionResponse {
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.success = _data["success"];
-            this.content = _data["content"] ? Content.fromJS(_data["content"]) : undefined as any;
+            this.url = _data["url"];
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : undefined as any;
             if (_data["additionalProperties"]) {
                 this.additionalProperties = {} as any;
                 for (let key in _data["additionalProperties"]) {
@@ -3807,81 +3805,7 @@ export class CreateSubscriptionResponse implements ICreateSubscriptionResponse {
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["success"] = this.success;
-        data["content"] = this.content ? this.content.toJSON() : undefined as any;
-        if (this.additionalProperties) {
-            data["additionalProperties"] = {};
-            for (let key in this.additionalProperties) {
-                if (this.additionalProperties.hasOwnProperty(key))
-                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
-            }
-        }
-        return data;
-    }
-}
-
-export interface ICreateSubscriptionResponse {
-    success?: boolean;
-    content?: Content | undefined;
-    additionalProperties?: { [key: string]: any; } | undefined;
-
-    [key: string]: any;
-}
-
-export class Content implements IContent {
-    url!: string;
-    paymentSessionId!: string;
-    internalPaymentId!: string;
-    expiresAt!: Date;
-    additionalProperties?: { [key: string]: any; } | undefined;
-
-    [key: string]: any;
-
-    constructor(data?: IContent) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.url = _data["url"];
-            this.paymentSessionId = _data["paymentSessionId"];
-            this.internalPaymentId = _data["internalPaymentId"];
-            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : undefined as any;
-            if (_data["additionalProperties"]) {
-                this.additionalProperties = {} as any;
-                for (let key in _data["additionalProperties"]) {
-                    if (_data["additionalProperties"].hasOwnProperty(key))
-                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
-                }
-            }
-        }
-    }
-
-    static fromJS(data: any): Content {
-        data = typeof data === 'object' ? data : {};
-        let result = new Content();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
         data["url"] = this.url;
-        data["paymentSessionId"] = this.paymentSessionId;
-        data["internalPaymentId"] = this.internalPaymentId;
         data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : undefined as any;
         if (this.additionalProperties) {
             data["additionalProperties"] = {};
@@ -3894,10 +3818,8 @@ export class Content implements IContent {
     }
 }
 
-export interface IContent {
+export interface ICreateSubscriptionResponse {
     url: string;
-    paymentSessionId: string;
-    internalPaymentId: string;
     expiresAt: Date;
     additionalProperties?: { [key: string]: any; } | undefined;
 
@@ -3905,8 +3827,7 @@ export interface IContent {
 }
 
 export class BadRequestResponse implements IBadRequestResponse {
-    success?: boolean;
-    errorCode?: string | undefined;
+    errorCode!: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
@@ -3926,7 +3847,6 @@ export class BadRequestResponse implements IBadRequestResponse {
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.success = _data["success"];
             this.errorCode = _data["errorCode"];
             if (_data["additionalProperties"]) {
                 this.additionalProperties = {} as any;
@@ -3951,7 +3871,6 @@ export class BadRequestResponse implements IBadRequestResponse {
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["success"] = this.success;
         data["errorCode"] = this.errorCode;
         if (this.additionalProperties) {
             data["additionalProperties"] = {};
@@ -3965,20 +3884,24 @@ export class BadRequestResponse implements IBadRequestResponse {
 }
 
 export interface IBadRequestResponse {
-    success?: boolean;
-    errorCode?: string | undefined;
+    errorCode: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
 }
 
-export class ReactivateSubscriptionResponse implements IReactivateSubscriptionResponse {
-    success?: boolean;
+export class GetSubscriptionDetails implements IGetSubscriptionDetails {
+    status!: OrderStatus;
+    subscriptionStatus!: SubscriptionStatus;
+    startDate!: Date;
+    endDate!: Date;
+    checkoutSessionUrl!: string;
+    checkoutSessionExpiresAt!: Date;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
 
-    constructor(data?: IReactivateSubscriptionResponse) {
+    constructor(data?: IGetSubscriptionDetails) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3993,7 +3916,12 @@ export class ReactivateSubscriptionResponse implements IReactivateSubscriptionRe
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.success = _data["success"];
+            this.status = _data["status"];
+            this.subscriptionStatus = _data["subscriptionStatus"];
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : undefined as any;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : undefined as any;
+            this.checkoutSessionUrl = _data["checkoutSessionUrl"];
+            this.checkoutSessionExpiresAt = _data["checkoutSessionExpiresAt"] ? new Date(_data["checkoutSessionExpiresAt"].toString()) : undefined as any;
             if (_data["additionalProperties"]) {
                 this.additionalProperties = {} as any;
                 for (let key in _data["additionalProperties"]) {
@@ -4004,9 +3932,9 @@ export class ReactivateSubscriptionResponse implements IReactivateSubscriptionRe
         }
     }
 
-    static fromJS(data: any): ReactivateSubscriptionResponse {
+    static fromJS(data: any): GetSubscriptionDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new ReactivateSubscriptionResponse();
+        let result = new GetSubscriptionDetails();
         result.init(data);
         return result;
     }
@@ -4017,7 +3945,12 @@ export class ReactivateSubscriptionResponse implements IReactivateSubscriptionRe
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["success"] = this.success;
+        data["status"] = this.status;
+        data["subscriptionStatus"] = this.subscriptionStatus;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : undefined as any;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : undefined as any;
+        data["checkoutSessionUrl"] = this.checkoutSessionUrl;
+        data["checkoutSessionExpiresAt"] = this.checkoutSessionExpiresAt ? this.checkoutSessionExpiresAt.toISOString() : undefined as any;
         if (this.additionalProperties) {
             data["additionalProperties"] = {};
             for (let key in this.additionalProperties) {
@@ -4029,21 +3962,44 @@ export class ReactivateSubscriptionResponse implements IReactivateSubscriptionRe
     }
 }
 
-export interface IReactivateSubscriptionResponse {
-    success?: boolean;
+export interface IGetSubscriptionDetails {
+    status: OrderStatus;
+    subscriptionStatus: SubscriptionStatus;
+    startDate: Date;
+    endDate: Date;
+    checkoutSessionUrl: string;
+    checkoutSessionExpiresAt: Date;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
 }
 
-export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsResponse {
-    success?: boolean;
-    content?: string | undefined;
+export enum OrderStatus {
+    Draft = "draft",
+    PendingPayment = "pendingPayment",
+    Paid = "Paid",
+    PartiallyRefunded = "PartiallyRefunded",
+    Refunded = "Refunded",
+    Cancelled = "Cancelled",
+    Failed = "Failed",
+}
+
+export enum SubscriptionStatus {
+    Created = "created",
+    Active = "active",
+    ToBeCancelled = "toBeCancelled",
+    Cancelled = "cancelled",
+    Inactive = "inactive",
+    Trailing = "trailing",
+}
+
+export class GetSubscriptionDetailsPortal implements IGetSubscriptionDetailsPortal {
+    url!: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
 
-    constructor(data?: IGetSubscriptionDetailsResponse) {
+    constructor(data?: IGetSubscriptionDetailsPortal) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4058,8 +4014,7 @@ export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsRe
                 if (_data.hasOwnProperty(property))
                     this[property] = _data[property];
             }
-            this.success = _data["success"];
-            this.content = _data["content"];
+            this.url = _data["url"];
             if (_data["additionalProperties"]) {
                 this.additionalProperties = {} as any;
                 for (let key in _data["additionalProperties"]) {
@@ -4070,9 +4025,9 @@ export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsRe
         }
     }
 
-    static fromJS(data: any): GetSubscriptionDetailsResponse {
+    static fromJS(data: any): GetSubscriptionDetailsPortal {
         data = typeof data === 'object' ? data : {};
-        let result = new GetSubscriptionDetailsResponse();
+        let result = new GetSubscriptionDetailsPortal();
         result.init(data);
         return result;
     }
@@ -4083,8 +4038,7 @@ export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsRe
             if (this.hasOwnProperty(property))
                 data[property] = this[property];
         }
-        data["success"] = this.success;
-        data["content"] = this.content;
+        data["url"] = this.url;
         if (this.additionalProperties) {
             data["additionalProperties"] = {};
             for (let key in this.additionalProperties) {
@@ -4096,9 +4050,8 @@ export class GetSubscriptionDetailsResponse implements IGetSubscriptionDetailsRe
     }
 }
 
-export interface IGetSubscriptionDetailsResponse {
-    success?: boolean;
-    content?: string | undefined;
+export interface IGetSubscriptionDetailsPortal {
+    url: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;

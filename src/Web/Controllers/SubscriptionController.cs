@@ -27,28 +27,29 @@ public class SubscriptionController(
         if (result.IsFailure)
         {
             logger.LogError("Subscription creation failed: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            BadRequestResponse badRequestResponse = new() { ErrorCode = result.Error };
+            return new BadRequestObjectResult(badRequestResponse);
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(checkoutMapper.toDTO(result.Value)));
+        return new OkObjectResult(checkoutMapper.toDTO(result.Value));
     }
 
     public async override Task<ActionResult<GetSubscriptionDetails>> GetSubscriptionStatus()
     {
         GetSubscriptionDetailsQuery query = new();
-
         Result<SubscriptionEntity> result = await mediator.Send(query);
 
         if (result.IsFailure)
         {
             logger.LogError("Failed to retrieve subscription details: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            BadRequestResponse badRequestResponse = new() { ErrorCode = result.Error };
+            return new BadRequestObjectResult(badRequestResponse);
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(mapper.ToDetailsDTO(result.Value)));
+        return new OkObjectResult(mapper.ToDetailsDTO(result.Value));
     }
 
-    public override async Task<ActionResult<VoidResponse>> CancelSubscription()
+    public override async Task<IActionResult> CancelSubscription()
     {
         CancelSubscriptionCommand command = new();
 
@@ -57,23 +58,25 @@ public class SubscriptionController(
         if (result.IsFailure)
         {
             logger.LogError("Subscription cancellation failed: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            BadRequestResponse badRequestResponse = new() { ErrorCode = result.Error };
+            return new BadRequestObjectResult(badRequestResponse);
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        return new NoContentResult();
     }
 
-    public override async Task<ActionResult<VoidResponse>> ReactivateSubscription()
+    public override async Task<IActionResult> ReactivateSubscription()
     {
         ReactivateSubscriptionCommand command = new();
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
             logger.LogError("Subscription reactivation failed: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            BadRequestResponse badRequestResponse = new() { ErrorCode = result.Error };
+            return new BadRequestObjectResult(badRequestResponse);
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        return new NoContentResult();
     }
 
 
@@ -84,7 +87,8 @@ public class SubscriptionController(
         if (result.IsFailure)
         {
             logger.LogError("Failed to retrieve subscription details: {Error}", result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            BadRequestResponse badRequestResponse = new() { ErrorCode = result.Error };
+            return new BadRequestObjectResult(badRequestResponse);
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));

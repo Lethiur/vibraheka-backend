@@ -14,8 +14,8 @@
       "generateModelValidationAttributes": true,
       "generateDtoTypes": true,
       "useActionResultType": true,
-      "templateDirectory" : "../Templates",
-      "output": "../../Generated/SubscriptionsController.cs"
+      "templateDirectory" : "../../Templates",
+      "output": "../../../Generated/SubscriptionsController.cs"
     }
   }
 }

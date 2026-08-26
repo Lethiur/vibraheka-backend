@@ -62,19 +62,15 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-    patch: 
+    patch:
       tags:
         - Subscriptions
       operationId: CancelSubscription
       summary: Cancel a subscription
       description: Cancels the current subscription
       responses:
-        '200':
+        '204':
           description: Subscription canceled successfully
-          content:
-            application/json:
-              schema:
-                $ref: '../Common/Response/VoidResponse.yml'
         '400':
           description: Bad request
           content:
@@ -85,17 +81,13 @@ paths:
   /reactivate:
     patch:
       tags:
-        - Status Operations
+        - Subscriptions
       operationId: ReactivateSubscription
       summary: Reactivate a subscription
       description: Reactivates a previously canceled subscription
       responses:
-        '200':
+        '204':
           description: Subscription reactivated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '../Common/Response/VoidResponse.yml'
         '400':
           description: Bad request
           content:
@@ -105,7 +97,7 @@ paths:
   /details:
     get:
       tags:
-        - Status Operations
+        - Subscriptions
       operationId: GetSubscriptionPortal
       summary: Get subscription details
       description: Retrieves the details of the current subscription

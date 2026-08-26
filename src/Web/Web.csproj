@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <Folder Include="Contracts\Modules\Users\" />
+    <Folder Include="Generated\" />
   </ItemGroup>
   
 
