@@ -1,5 +1,6 @@
 using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Domain.Commerce.Entities;
 

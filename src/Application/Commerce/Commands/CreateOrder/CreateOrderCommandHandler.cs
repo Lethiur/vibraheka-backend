@@ -1,18 +1,18 @@
 using CSharpFunctionalExtensions;
 using VibraHeka.Application.Abstractions.Transactions;
-using VibraHeka.Application.Commerce.Factories;
 using VibraHeka.Application.Commerce.Models;
 using VibraHeka.Application.Commerce.Ports.Out;
-using VibraHeka.Application.Payments.Models;
 using VibraHeka.Application.Payments.Ports.Out;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Errors;
+using VibraHeka.Domain.Commerce.Factories;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Orders.Services;
 using VibraHeka.Domain.Payments.Entities;
+using VibraHeka.Domain.Payments.Models;
 using VibraHeka.Domain.Payments.Ports.Out;
+using VibraHeka.Domain.Payments.Services;
 
 namespace VibraHeka.Application.Commerce.Commands.CreateOrder;
 

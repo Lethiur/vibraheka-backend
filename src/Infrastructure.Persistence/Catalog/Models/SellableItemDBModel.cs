@@ -1,7 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using SellableItemType = VibraHeka.Domain.Catalog.Entities.SellableItemType;
+using SellableItemType = VibraHeka.Domain.Catalog.Enums.SellableItemType;
 namespace Infrastructure.Persistence.Catalog.Models;
 
 [DynamoDBTable("Catalog-SellableItems")]

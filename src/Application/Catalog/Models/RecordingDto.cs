@@ -1,5 +1,5 @@
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Application.Catalog.Models;
 

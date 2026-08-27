@@ -1,11 +1,11 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Admin.Queries.GetAllTherapists;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
+using VibraHeka.Application.Users.Queries.AdminGetTherapists;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Web.Controllers;
 

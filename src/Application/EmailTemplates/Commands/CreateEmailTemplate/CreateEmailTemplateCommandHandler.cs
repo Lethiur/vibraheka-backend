@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;

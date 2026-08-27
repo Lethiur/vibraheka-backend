@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Subscriptions.Commands;
+using VibraHeka.Application.Subscriptions.Commands.AddSubscription;
 using VibraHeka.Application.Subscriptions.Commands.CancelSubscription;
 using VibraHeka.Application.Subscriptions.Commands.ReactivateSubscription;
 using VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;

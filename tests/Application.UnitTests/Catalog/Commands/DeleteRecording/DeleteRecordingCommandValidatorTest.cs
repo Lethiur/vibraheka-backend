@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
-using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Application.Catalog.Commands.DeleteRecording;
+using VibraHeka.Domain.Catalog.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.DeleteRecording;
 

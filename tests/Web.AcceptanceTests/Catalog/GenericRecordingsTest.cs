@@ -1,15 +1,15 @@
 using CSharpFunctionalExtensions;
 using NMoneys;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Commerce.Enums;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Recordings.Enums;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Entities;
+using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 
-namespace VibraHeka.Web.AcceptanceTests.Recordings;
+namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
 /// <summary>
 /// Helpers para construir cuerpos de petición JSON de grabaciones.

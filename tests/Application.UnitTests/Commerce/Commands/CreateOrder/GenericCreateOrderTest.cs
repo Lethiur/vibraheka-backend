@@ -11,9 +11,9 @@ using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Orders.Services;
 using VibraHeka.Domain.Payments.Entities;
 using VibraHeka.Domain.Payments.Ports.Out;
+using VibraHeka.Domain.Payments.Services;
 
 namespace VibraHeka.Application.UnitTests.Commerce.Commands.CreateOrder;
 

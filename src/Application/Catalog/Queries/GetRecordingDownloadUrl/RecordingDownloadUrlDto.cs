@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+﻿namespace VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 
 public sealed record RecordingDownloadUrlDto(string DownloadUrl);
 

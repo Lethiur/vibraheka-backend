@@ -6,8 +6,8 @@ using NUnit.Framework;
 using VibraHeka.Application.Subscriptions.Commands;
 using VibraHeka.Application.Subscriptions.Commands.AddSubscription;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 

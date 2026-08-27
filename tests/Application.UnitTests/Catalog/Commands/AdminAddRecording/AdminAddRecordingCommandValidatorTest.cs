@@ -3,11 +3,11 @@ using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NMoneys;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
-using VibraHeka.Domain.Recordings.Enums;
-using VibraHeka.Domain.Recordings.Errors;
-using static VibraHeka.Domain.Recordings.Enums.RecordingTier;
-using static VibraHeka.Domain.Recordings.Enums.RecordingType;
+using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
+using VibraHeka.Domain.Catalog.Enums;
+using VibraHeka.Domain.Catalog.Errors;
+using static VibraHeka.Domain.Catalog.Enums.RecordingTier;
+using static VibraHeka.Domain.Catalog.Enums.RecordingType;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 
@@ -131,7 +131,7 @@ public sealed class AdminAddRecordingCommandValidatorTest : GenericAdminAddRecor
             Description: "Descripcion valida",
             Price: 0m,
             CurrencyCode: CurrencyIsoCode.AED,
-            Type: (Domain.Recordings.Enums.RecordingType)999);
+            Type: (RecordingType)999);
 
         // When: validating the command
         TestValidationResult<AdminAddRecordingCommand> result = Validator.TestValidate(command);

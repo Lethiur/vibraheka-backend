@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Infrastructure.Persistence.Converters;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 

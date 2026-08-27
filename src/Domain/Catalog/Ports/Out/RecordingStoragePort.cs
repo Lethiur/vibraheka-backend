@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
 
-namespace VibraHeka.Domain.Recordings.Ports.Out;
+namespace VibraHeka.Domain.Catalog.Ports.Out;
 
 public interface IRecordingStoragePort
 {

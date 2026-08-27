@@ -1,6 +1,6 @@
-using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Domain.Catalog.Errors;
 
-namespace VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
+namespace VibraHeka.Application.Catalog.Commands.AdminAddRecording;
 
 public class AdminAddRecordingCommandValidator : AbstractValidator<AdminAddRecordingCommand>
 {

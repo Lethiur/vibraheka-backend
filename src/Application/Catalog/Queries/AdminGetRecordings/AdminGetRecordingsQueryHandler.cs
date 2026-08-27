@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Catalog.Ports.Out;
 
 namespace VibraHeka.Application.Catalog.Queries.AdminGetRecordings;
 

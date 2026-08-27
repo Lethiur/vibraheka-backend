@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Recordings.Errors;
+namespace VibraHeka.Domain.Catalog.Errors;
 
 public static class RecordingErrors
 {

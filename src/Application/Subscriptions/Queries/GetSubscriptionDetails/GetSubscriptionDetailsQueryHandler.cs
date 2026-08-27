@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Subscriptions.Queries.GetSubscriptionDetails;

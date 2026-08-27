@@ -1,6 +1,6 @@
-﻿using VibraHeka.Domain.Recordings.Errors;
+﻿using VibraHeka.Domain.Catalog.Errors;
 
-namespace VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+namespace VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 
 public sealed class GetRecordingDownloadUrlQueryValidator
     : AbstractValidator<GetRecordingDownloadUrlQuery>

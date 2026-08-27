@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using NMoneys;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Web.Entities;
 

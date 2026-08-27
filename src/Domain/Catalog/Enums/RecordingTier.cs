@@ -1,4 +1,4 @@
-﻿namespace VibraHeka.Domain.Recordings.Enums;
+﻿namespace VibraHeka.Domain.Catalog.Enums;
 
 public enum RecordingTier
 {

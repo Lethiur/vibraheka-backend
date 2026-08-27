@@ -3,10 +3,10 @@ using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Recordings.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 

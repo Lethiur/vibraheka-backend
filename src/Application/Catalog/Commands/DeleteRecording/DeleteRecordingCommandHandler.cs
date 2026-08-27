@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Catalog.Ports.Out;
 
-namespace VibraHeka.Application.Recordings.Commnands.DeleteRecording;
+namespace VibraHeka.Application.Catalog.Commands.DeleteRecording;
 
 public class DeleteRecordingCommandHandler(
     IRecordingRegistryPort RegistryPort,

@@ -1,8 +1,8 @@
 using Amazon.S3;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Recordings.Errors;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Catalog.Errors;
+using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Infrastructure.Entities;
 
 namespace VibraHeka.Infrastructure.Persistence.S3;

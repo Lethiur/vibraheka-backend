@@ -2,12 +2,11 @@
 using System.Net.Http.Headers;
 using NUnit.Framework;
 using VibraHeka.Application.Catalog.Models;
-using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
-namespace VibraHeka.Web.AcceptanceTests.Recordings;
+namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
 [TestFixture]
 public sealed class GetRecordingsTest : GenericRecordingsTest

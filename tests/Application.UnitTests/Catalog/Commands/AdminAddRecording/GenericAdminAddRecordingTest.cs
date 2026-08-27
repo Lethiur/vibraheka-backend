@@ -2,12 +2,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
-using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.In;
+using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Recordings.Enums;
-using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 

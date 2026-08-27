@@ -1,6 +1,6 @@
 using NMoneys;
-using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 

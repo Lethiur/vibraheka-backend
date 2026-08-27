@@ -6,7 +6,7 @@ using VibraHeka.Application.Users.Commands.UpdateUserProfile;
 using VibraHeka.Application.Users.Queries.GetProfile;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Web.Controllers;
 

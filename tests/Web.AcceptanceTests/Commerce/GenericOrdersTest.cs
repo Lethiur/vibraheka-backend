@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CSharpFunctionalExtensions;
 using NMoneys;
-using VibraHeka.Application.Recordings.Entities;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.Out;

@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Common.Enums;
+using VibraHeka.Domain.Catalog.Enums;
+using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Recordings.Enums;
-using VibraHeka.Domain.Recordings.Ports.Out;
 using SubscriptionEntity = VibraHeka.Domain.Entities.SubscriptionEntity;
+using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 

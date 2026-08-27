@@ -1,8 +1,8 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using CSharpFunctionalExtensions;
 using MediatR;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.Repository;

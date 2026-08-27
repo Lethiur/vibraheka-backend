@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
-using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;

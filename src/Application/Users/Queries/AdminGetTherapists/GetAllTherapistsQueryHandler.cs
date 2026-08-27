@@ -2,7 +2,7 @@
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Application.Admin.Queries.GetAllTherapists;
+namespace VibraHeka.Application.Users.Queries.AdminGetTherapists;
 
 /// <summary>
 /// Handles the execution of the <see cref="GetAllTherapistsQuery"/>, retrieving a list of all users with the role of a therapist.

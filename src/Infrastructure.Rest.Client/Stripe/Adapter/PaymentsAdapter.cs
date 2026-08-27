@@ -2,10 +2,10 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Rest.Client.Stripe.Client;
 using Infrastructure.Rest.Client.Stripe.Mappers;
 using Infrastructure.Rest.Client.Stripe.Models;
-using VibraHeka.Application.Payments.Models;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Payments.Entities;
 using VibraHeka.Domain.Payments.Enums;
+using VibraHeka.Domain.Payments.Models;
 using VibraHeka.Domain.Payments.Ports.Out;
 
 namespace Infrastructure.Rest.Client.Stripe.Adapter;

@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using NanoidDotNet;
 using NMoneys;
 using VibraHeka.Application.Events.Models;
 using VibraHeka.Domain.Catalog.Enums;
@@ -27,12 +26,12 @@ public class CreateEventCommandHandler(
         {
             Name = request.EventName,
             Duration = request.Duration,
-            EventPassword = await Nanoid.GenerateAsync(size: 10),
+            EventPassword = Guid.NewGuid().ToString(),
             EventTimezone = request.EventTimezone,
             StartDate = request.EventDate
         };
 
-        (bool isSuccess, bool isFailure, CreateEventResult value, string error) =
+        (bool _, bool isFailure, CreateEventResult value, string error) =
             await meetingPort.ScheduleMeetingAsync(model, cancellationToken);
 
         if (isFailure)

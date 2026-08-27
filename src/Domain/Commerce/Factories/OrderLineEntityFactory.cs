@@ -1,8 +1,9 @@
 using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Commerce.Entities;
 
-namespace VibraHeka.Application.Commerce.Factories;
+namespace VibraHeka.Domain.Commerce.Factories;
 
 public static class OrderLineEntityFactory
 {

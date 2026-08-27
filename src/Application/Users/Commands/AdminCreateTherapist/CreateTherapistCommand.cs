@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 

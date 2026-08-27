@@ -2,7 +2,7 @@
 using MediatR;
 using VibraHeka.Domain.Entities;
 
-namespace VibraHeka.Domain.Common.Interfaces.Orders;
+namespace VibraHeka.Domain.Common.Interfaces.Subscription;
 
 public interface ISubscriptionService
 {

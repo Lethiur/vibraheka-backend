@@ -1,6 +1,6 @@
 using NMoneys;
-using VibraHeka.Application.Commerce.Factories;
 using VibraHeka.Domain.Commerce.Entities;
+using VibraHeka.Domain.Commerce.Factories;
 
 namespace VibraHeka.Domain.UnitTests.Commerce.Entities.OrderEntity.AddLine;
 

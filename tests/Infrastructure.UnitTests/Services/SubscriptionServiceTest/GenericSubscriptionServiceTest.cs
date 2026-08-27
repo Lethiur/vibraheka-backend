@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
-using VibraHeka.Domain.Common.Interfaces.Orders;
 using VibraHeka.Domain.Common.Interfaces.Payments;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Infrastructure.Services;
 

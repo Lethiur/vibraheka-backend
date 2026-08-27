@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Commnands.DeleteRecording;
+using VibraHeka.Application.Catalog.Commands.DeleteRecording;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Catalog.Ports.Out;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.DeleteRecording;
 

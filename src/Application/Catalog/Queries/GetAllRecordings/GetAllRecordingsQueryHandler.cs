@@ -1,10 +1,9 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Catalog.Models;
-using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Catalog.Ports.Out;
 
-namespace VibraHeka.Application.Recordings.Queries.GetAllRecordings;
+namespace VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 
 public class GetAllRecordingsQueryHandler(
     IRecordingRegistryPort RegistryPort,

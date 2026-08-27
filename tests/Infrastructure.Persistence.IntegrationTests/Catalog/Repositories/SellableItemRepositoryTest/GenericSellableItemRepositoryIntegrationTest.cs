@@ -3,6 +3,7 @@ using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace Infrastructure.Persistence.IntegrationTests.Catalog.Repositories.SellableItemRepositoryTest;
 
@@ -52,7 +53,7 @@ public abstract class GenericSellableItemRepositoryIntegrationTest : TestBase
             ReferenceID = referenceId,
             Name = _faker.Commerce.ProductName(),
             IsActive = true,
-            Type = VibraHeka.Domain.Catalog.Entities.SellableItemType.Product,
+            Type = SellableItemType.Product,
             Created = DateTimeOffset.UtcNow,
             CreatedBy = "integration-test",
             LastModified = DateTimeOffset.UtcNow,

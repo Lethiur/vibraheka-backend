@@ -2,7 +2,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using VibraHeka.Domain.Catalog.Entities;
 
-namespace VibraHeka.Domain.Recordings.Ports.Out;
+namespace VibraHeka.Domain.Catalog.Ports.Out;
 
 public interface IRecordingRegistryPort
 {

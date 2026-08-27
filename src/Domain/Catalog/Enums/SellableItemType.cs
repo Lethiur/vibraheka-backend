@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Catalog.Entities;
+namespace VibraHeka.Domain.Catalog.Enums;
 
 public enum SellableItemType
 {

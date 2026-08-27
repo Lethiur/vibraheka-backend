@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Entities;

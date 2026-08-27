@@ -3,7 +3,7 @@ using NMoneys;
 using NUnit.Framework;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
-using OrderFactoryClass = VibraHeka.Application.Commerce.Factories.OrderFactory;
+using OrderFactoryClass = VibraHeka.Domain.Commerce.Factories.OrderFactory;
 
 namespace VibraHeka.Domain.UnitTests.Commerce.Factories.OrderFactory.ForUser;
 

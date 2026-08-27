@@ -1,6 +1,6 @@
 using VibraHeka.Domain.Commerce.Entities;
 
-namespace VibraHeka.Application.Payments.Models;
+namespace VibraHeka.Domain.Payments.Models;
 
 public class CheckoutOrderModel
 {

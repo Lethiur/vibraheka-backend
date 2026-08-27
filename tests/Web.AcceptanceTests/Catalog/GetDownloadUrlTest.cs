@@ -4,17 +4,17 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CSharpFunctionalExtensions;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Entities;
-using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Application.Catalog.Models;
+using VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
-namespace VibraHeka.Web.AcceptanceTests.Recordings;
+namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
 [TestFixture]
 public sealed class GetDownloadUrlTest : GenericRecordingsTest

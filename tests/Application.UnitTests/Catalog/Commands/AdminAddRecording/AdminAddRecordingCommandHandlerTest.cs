@@ -2,10 +2,10 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
-using VibraHeka.Application.Recordings.Entities;
+using VibraHeka.Application.Catalog.Commands.AdminAddRecording;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Domain.Catalog.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Commands.AdminAddRecording;
 

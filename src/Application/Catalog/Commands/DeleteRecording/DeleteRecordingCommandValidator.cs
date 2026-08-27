@@ -1,6 +1,6 @@
-﻿using VibraHeka.Domain.Recordings.Errors;
+﻿using VibraHeka.Domain.Catalog.Errors;
 
-namespace VibraHeka.Application.Recordings.Commnands.DeleteRecording;
+namespace VibraHeka.Application.Catalog.Commands.DeleteRecording;
 
 public class DeleteRecordingCommandValidator : AbstractValidator<DeleteRecordingCommand>
 {

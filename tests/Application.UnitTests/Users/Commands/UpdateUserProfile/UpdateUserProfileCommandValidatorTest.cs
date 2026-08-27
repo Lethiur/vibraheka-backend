@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.UpdateUserProfile;
 

@@ -18,7 +18,6 @@ using VibraHeka.Application.Payments.Ports.Out;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Commerce.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
-using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace Infrastructure.Persistence;
 

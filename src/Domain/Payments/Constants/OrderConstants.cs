@@ -1,4 +1,4 @@
-namespace VibraHeka.Domain.Orders.Constants;
+namespace VibraHeka.Domain.Payments.Constants;
 
 public static class OrderConstants
 {
