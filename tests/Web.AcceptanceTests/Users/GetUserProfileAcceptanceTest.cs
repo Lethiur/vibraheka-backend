@@ -4,8 +4,8 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.DTO.User;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Users;
 
 namespace VibraHeka.Web.AcceptanceTests.Users;
 

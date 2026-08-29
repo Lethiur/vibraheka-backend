@@ -1,5 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
+
 namespace Infrastructure.Persistence.Catalog.Models;
 
 [DynamoDBTable("SubscriptionPlans")]

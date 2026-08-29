@@ -2,12 +2,10 @@
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.UpdateUserProfileCommandTest;
 
@@ -31,7 +29,7 @@ public class UpdateUserProfileCommandHandlerTest
     public async Task ShouldUpdateUserWhenDataIsValid()
     {
         // Given
-        UserDTO data = new()
+        UserEntity data = new()
         {
             Id = "updater-id",
             Email = "user@test.com",
@@ -46,44 +44,10 @@ public class UpdateUserProfileCommandHandlerTest
             .ReturnsAsync(Result.Success(Unit.Value));
 
         // When
-        Result<Unit> result = await _handler.Handle(new UpdateUserProfileCommand(data), CancellationToken.None);
+        Result<Unit> result = await _handler.Handle(new UpdateUserProfileCommand(data.Email, data.FirstName, data.MiddleName, data.LastName, data.PhoneNumber, data.Bio, string.Empty, data.PhoneNumber), CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
-    }
-
-    [Test]
-    public async Task ShouldReturnNotAuthorizedWhenDataIsNull()
-    {
-        // Given
-        UpdateUserProfileCommand command = new(null!);
-
-        // When
-        Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
-
-        // Then
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-    }
-
-    [Test]
-    public async Task ShouldReturnNotAuthorizedWhenTryingToUpdateAnotherUser()
-    {
-        // Given
-        UserDTO data = new()
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "other@test.com",
-            FirstName = "Other"
-        };
-
-        // When
-        Result<Unit> result = await _handler.Handle(new UpdateUserProfileCommand(data), CancellationToken.None);
-
-        // Then
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
 

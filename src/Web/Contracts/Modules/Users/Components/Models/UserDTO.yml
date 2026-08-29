@@ -24,6 +24,10 @@ properties:
     type: string
     description: The first name of the user
     example: "John"
+  middleName:
+    type: string
+    description: The middle name of the user
+    example: "Michael"
   lastName:
     type: string
     description: The last name of the user
@@ -41,4 +45,4 @@ properties:
     description: The timezone ID of the user
     example: "America/New_York"
   role:
-    $ref: "../Enums/UserRole.yml"
+    $ref: '../../../Common/Enums/UserRole.yml#/components/schemas/UserRole'

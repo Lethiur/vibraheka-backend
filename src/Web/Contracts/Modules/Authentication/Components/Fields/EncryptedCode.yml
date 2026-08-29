@@ -1,0 +1,4 @@
+type: string
+description: The encrypted verification code sent to the user's email
+example: "U2FsdGVkX1+5Q2VydGlmaWNhdGlvbkNvZGU="
+minLength: 10

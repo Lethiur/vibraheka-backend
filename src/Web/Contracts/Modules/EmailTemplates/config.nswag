@@ -1,0 +1,21 @@
+﻿{
+  "runtime": "Net100",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "./api.yml"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpController": {
+      "className": "IEmailTemplatesController",
+      "controllerStyle": "Abstract",
+      "namespace": "VibraHeka.Web.EmailTemplates",
+      "generateController": true,
+      "generateModelValidationAttributes": true,
+      "generateDtoTypes": true,
+      "useActionResultType": true,
+      "templateDirectory" : "../../Templates",
+      "output": "../../../Generated/EmailTemplatesController.cs"
+    }
+  }
+}

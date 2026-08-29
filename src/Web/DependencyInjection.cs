@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VibraHeka.Web.Controllers.Auth;
+using VibraHeka.Web.Controllers.Users;
 using VibraHeka.Web.Mappers;
+using SubscriptionMapper = VibraHeka.Web.Controllers.Subscriptions.SubscriptionMapper;
 
 namespace VibraHeka.Web;
 
@@ -10,7 +13,8 @@ public static class DependencyInjection
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddSingleton<SubscriptionMapper>();
-        builder.Services.AddSingleton<CreateSubscriptionMapper>();
+        builder.Services.AddSingleton<AuthMapper>();
+        builder.Services.AddSingleton<UserMapper>();
         builder.Services.AddSingleton<OrderRequestMapper>();
         builder.Services.AddSingleton<CreateEventMapper>();
 

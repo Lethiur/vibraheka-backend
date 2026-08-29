@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using MediatR;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 

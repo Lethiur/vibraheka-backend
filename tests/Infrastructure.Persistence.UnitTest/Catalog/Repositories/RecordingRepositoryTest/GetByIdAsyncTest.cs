@@ -6,7 +6,6 @@ using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.RecordingRepositoryTest;
 

@@ -1,14 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Admin.Queries.GetAllTherapists;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
+using VibraHeka.Application.Users.Queries.AdminGetTherapists;
 using VibraHeka.Application.Users.Queries.GetProfile;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Exceptions;
-using VibraHeka.Web.Mappers;
 using VibraHeka.Web.Users;
 
 namespace VibraHeka.Web.Controllers.Users;
@@ -16,6 +12,11 @@ namespace VibraHeka.Web.Controllers.Users;
 
 public class UserController(IMediator mediator, ILogger<UserController> Logger, UserMapper Mapper) : IUserController
 {
+    /// <summary>
+    /// Retrieves the details of a user based on the provided user ID.
+    /// </summary>
+    /// <param name="id">The ID of the user whose details are to be retrieved.</param>
+    /// <returns>An <see cref="ActionResult{UserDTO}"/> containing the user details if successful, or an error response if the operation fails.</returns>
     public override async Task<ActionResult<UserDTO>> GetUserDetails(string id)
     {
         Logger.Log(LogLevel.Information, "Getting user profile for user with ID {UserID}", id);
@@ -25,16 +26,18 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger, 
         if (result.IsFailure)
         {
             Logger.LogError("Failed to execute Change Template For Action because {Error}", result.Error);
-            return result.Error switch
-            {
-                ProfileErrors.InvalidProfileID => new NotFoundResult(),
-                _ => new BadRequestObjectResult(result.Error)
-            };
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
         return new OkObjectResult(ResponseEntity.FromSuccess(Mapper.ToUserDto(result.Value)));
     }
 
+    /// <summary>
+    /// Updates the user profile with the provided information.
+    /// </summary>
+    /// <param name="body">The request object containing the updated user profile information.</param>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the update operation.
+    /// A successful response returns a 204 No Content status, while a failure response returns a 400 Bad Request with error details.</returns>
     public override async Task<IActionResult> UpdateUserProfile(UpdateProfileRequest body)
     {
         UpdateUserProfileCommand command = Mapper.ToUpdateProfileCommand(body);
@@ -42,7 +45,7 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger, 
 
         if (result.IsFailure)
         {
-            return new BadRequestObjectResult(result.Error);
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
         return new NoContentResult();
@@ -64,13 +67,8 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger, 
 
         if (result.IsFailure)
         {
-            switch (result.Error)
-            {
-                case UserErrors.NotAuthorized:
-                    return new UnauthorizedResult();
-                default:
-                    return new BadRequestObjectResult(result.Error);
-            }
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
+
         }
         return new OkObjectResult(result.Value);
     }
@@ -89,11 +87,8 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger, 
 
         if (result.IsFailure)
         {
-            return result.Error switch
-            {
-                UserErrors.NotAuthorized => new UnauthorizedResult(),
-                _ => new BadRequestObjectResult(result.Error)
-            };
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
+
         }
         return new OkObjectResult(result.Value.Select(Mapper.ToUserDto).ToList());
     }

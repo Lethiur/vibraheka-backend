@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Repositories;
 using MediatR;
-using VibraHeka.Application.Catalog.Ports.Out;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
 

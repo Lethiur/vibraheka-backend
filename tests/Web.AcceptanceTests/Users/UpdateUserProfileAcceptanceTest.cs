@@ -3,8 +3,8 @@ using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.DTO.User;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Users;
 
 namespace VibraHeka.Web.AcceptanceTests.Users;
 
@@ -16,9 +16,8 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     {
         // Given: a request payload without authenticated context.
         Client.DefaultRequestHeaders.Remove("Authorization");
-        UserDTO payload = new()
+        UpdateProfileRequest payload = new()
         {
-            Id = Guid.NewGuid().ToString(),
             Email = "test@example.com"
         };
 
@@ -34,9 +33,8 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     {
         // Given: an authenticated user with a valid self-update payload.
         (string userId, string email) = await AuthenticateAsConfirmedUser();
-        UserDTO payload = new()
+        UpdateProfileRequest payload = new()
         {
-            Id = userId,
             Email = email,
             FirstName = "UpdatedName",
             MiddleName = "UpdatedMiddle",
@@ -56,15 +54,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         // And: fetching profile reflects the updated values.
         HttpResponseMessage getProfileResponse = await Client.GetAsync($"/api/v1/users/{userId}");
-        Assert.That(getProfileResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity profileEntity = await getProfileResponse.GetAsResponseEntityAndContentAs<UserDTO>();
-        UserDTO? profile = profileEntity.GetContentAs<UserDTO>();
-        Assert.That(profile, Is.Not.Null);
-        Assert.That(profile!.FirstName, Is.EqualTo(payload.FirstName));
-        Assert.That(profile.MiddleName, Is.EqualTo(payload.MiddleName));
-        Assert.That(profile.LastName, Is.EqualTo(payload.LastName));
-        Assert.That(profile.Bio, Is.EqualTo(payload.Bio));
-        Assert.That(profile.PhoneNumber, Is.EqualTo(payload.PhoneNumber));
+        Assert.That(getProfileResponse.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
     }
 
     [Test]

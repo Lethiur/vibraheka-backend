@@ -1,7 +1,6 @@
 ﻿using FluentValidation.Results;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
-using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.UpdateUserProfileCommandTest;
 
@@ -20,12 +19,18 @@ public class UpdateUserProfileCommandValidatorTest
     public async Task ShouldPassValidationWhenDataIsValid()
     {
         // Given
-        UpdateUserProfileCommand command = new(new UserDTO
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "valid@test.com",
-            FirstName = "John"
-        });
+        UpdateUserProfileCommand command = new(
+        
+            
+             "valid@test.com",
+             "John",
+                "Middle",
+                "Doe",
+                "+34911111222",
+                "Bio",
+                string.Empty,
+                "Europe/Madrid"
+        );
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -38,11 +43,16 @@ public class UpdateUserProfileCommandValidatorTest
     public async Task ShouldFailValidationWhenEmailIsInvalid()
     {
         // Given
-        UpdateUserProfileCommand command = new(new UserDTO
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "invalid-email"
-        });
+        UpdateUserProfileCommand command = new(
+            "invalid-email",
+            "John",
+            "Middle",
+            "Doe",
+            "+34911111222",
+            "Bio",
+            string.Empty,
+            "Europe/Madrid"
+        );
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);

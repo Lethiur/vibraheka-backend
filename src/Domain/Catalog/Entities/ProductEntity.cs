@@ -1,5 +1,3 @@
-using VibraHeka.Domain.Catalog.Enums;
-
 namespace VibraHeka.Domain.Catalog.Entities;
 
 /// <summary>

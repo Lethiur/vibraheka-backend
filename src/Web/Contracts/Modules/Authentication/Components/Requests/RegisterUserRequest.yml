@@ -1,0 +1,29 @@
+type: object
+description: User registration request
+
+required: 
+  - email
+  - password
+  - timezoneID
+
+properties:
+  email:
+    $ref: '../../../Common/Fields/Email.yml'
+  password:
+    $ref: '../../../Common/Fields/Password.yml'
+  firstName:
+    type: string
+    description: The first name of the user
+    example: "John"
+  middleName:
+    type: string
+    description: The middle name of the user
+    example: "A."
+  lastName:
+    type: string
+    description: The last name of the user
+    example: "Doe"
+  timezoneID:
+    type: string
+    description: The timezone ID of the user
+    example: "America/New_York"

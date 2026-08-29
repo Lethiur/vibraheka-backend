@@ -1,0 +1,5 @@
+type: string
+minLength: 3
+pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+description: The email address of the user
+example: "test@test.com"

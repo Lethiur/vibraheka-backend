@@ -1,10 +1,8 @@
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Repositories;
 using MediatR;
-using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
-using VibraHeka.Infrastructure.Exceptions;
 
 namespace Infrastructure.Persistence.Catalog.Adapters;
 

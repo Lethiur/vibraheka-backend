@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using Infrastructure.Rest.Client.Stripe.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Catalog.Commands.AdminActivatePrice;

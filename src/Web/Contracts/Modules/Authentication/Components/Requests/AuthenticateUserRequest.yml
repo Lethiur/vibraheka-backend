@@ -1,0 +1,15 @@
+type: object
+description: Authentication request for a user
+
+required:
+  - email
+  - password
+
+properties:
+  email:
+    $ref: '../../../Common/Fields/Email.yml'
+    description: The email address of the user
+  password:
+    $ref: '../../../Common/Fields/Password.yml'
+    description: The password of the user
+    

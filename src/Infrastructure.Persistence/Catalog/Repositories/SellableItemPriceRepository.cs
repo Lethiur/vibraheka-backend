@@ -1,12 +1,9 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
-using MediatR;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Application.Common.Extensions.Results;
 using VibraHeka.Domain.Catalog.Entities;

@@ -51,7 +51,7 @@ public class RegisterUserCommandHandler(IUserService user, IUserRepository users
                 LastName = request.LastName,
                 Created = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
-                TimezoneID = request.TimeZone
+                TimezoneID = request.TimeZoneID
             };
 
             Result<string> addAsync = await users.AddAsync(newUserEntity);

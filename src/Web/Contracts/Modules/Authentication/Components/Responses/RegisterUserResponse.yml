@@ -1,0 +1,12 @@
+type: object
+description: User registration response
+
+properties:
+  userId:
+    type: string
+    description: The ID of the newly registered user
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  needsConfirmation:
+    type: boolean
+    description: Indicates whether the user needs to confirm their email address
+    example: true

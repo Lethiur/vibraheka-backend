@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
-using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.CreateTherapistCommandTest;
 
@@ -22,7 +21,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith", Bio = "  ASDFASDF", LastName = "Test", MiddleName = "Test", PhoneNumber = "6359875", TimezoneID = "Europe/Madrid" });
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "  ASDFASDF", "Test", "Test", "6359875", string.Empty, "Europe/Madrid");
 
 
         // When
@@ -39,7 +38,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenEmailIsInvalid(string email)
     {
         // Given
-        CreateTherapistCommand command = new(new UserDTO() { Email = email, FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new(email, "Dr. Smith", "  ASDFASDF", "Test", "Test", "6359875", string.Empty, "Europe/Madrid");
 
 
         // When
@@ -60,7 +59,7 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldHaveErrorWhenNameIsInvalid(string name)
     {
         // Given
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name });
+        CreateTherapistCommand command = new("test@therapist.com", name, "  ASDFASDF", "Test", "Test", "6359875", string.Empty, "Europe/Madrid");
 
 
         // When

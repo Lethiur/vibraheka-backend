@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Mappers;
@@ -9,7 +8,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Errors;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.Repository;

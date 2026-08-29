@@ -1,0 +1,10 @@
+type: object
+description: User verification request
+
+required:
+  - encryptedCode
+
+properties:
+  encryptedCode:
+    $ref: '..//Fields/EncryptedCode.yml'
+    description: The encrypted verification code sent to the user's email for account verification

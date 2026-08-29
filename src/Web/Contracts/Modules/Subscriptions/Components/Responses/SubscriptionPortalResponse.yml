@@ -1,4 +1,4 @@
-﻿type: object
+type: object
 description: Response for creating a subscription
 
 required:

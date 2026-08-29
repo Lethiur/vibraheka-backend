@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Catalog.Commands.AdminActivateProduct;
 using VibraHeka.Application.Catalog.Commands.AdminDeactivateProduct;

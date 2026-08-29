@@ -44,7 +44,7 @@ public class RegisterUserCommandHandlerTest
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.UserId, Is.EqualTo(cognitoId));
-        Assert.That(result.Value.needsConfirmation, Is.True);
+        Assert.That(result.Value.NeedsConfirmation, Is.True);
 
         _userRepositoryMock.Verify(x => x.AddAsync(It.Is<UserEntity>(u =>
             u.Id == cognitoId &&

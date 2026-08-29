@@ -5,7 +5,6 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
-using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Repositories.SellableItemRepositoryTest;

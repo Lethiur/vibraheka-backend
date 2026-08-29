@@ -1,0 +1,14 @@
+type: object
+description: User authentication response upon successful login
+
+properties:
+  accessToken:
+    type: string
+    description: The access token for the authenticated user
+    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+  refreshToken:
+    type: string
+    description: The refresh token for obtaining new access tokens
+    example: "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4="
+  role:
+    $ref: '../../../Common/Enums/UserRole.yml#/components/schemas/UserRole'

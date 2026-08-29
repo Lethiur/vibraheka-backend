@@ -1,4 +1,4 @@
-﻿openapi: 3.0.3
+﻿openapi: 3.1.0
 
 info:
   title: VibraHeka API - Subscriptions API
@@ -36,7 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Components/Models/SubscriptionCreationDetailsDTO.yml'
+                $ref: './Components/Responses/SubscriptionResponse.yml'
         '400':
           description: Bad request
           content:
@@ -55,7 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Components/Models/SubscriptionEntityDTO.yml'
+                $ref: './Components/Responses/SubscriptionDetailsResponse.yml'
         '400':
           description: Bad request
           content:
@@ -77,22 +77,6 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-    patch:
-      tags:
-        - Subscriptions
-      operationId: CancelSubscription
-      summary: Cancel a subscription
-      description: Cancels the current subscription
-      responses:
-        '204':
-          description: Subscription canceled successfully
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '../Common/Response/BadRequestResponse.yml'
-  
   /reactivate:
     patch:
       tags:
@@ -122,7 +106,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './Components/Models/SubscriptionPortalDTO.yml'
+                $ref: './Components/Responses/SubscriptionPortalResponse.yml'
         '400':
           description: Bad request
           content:

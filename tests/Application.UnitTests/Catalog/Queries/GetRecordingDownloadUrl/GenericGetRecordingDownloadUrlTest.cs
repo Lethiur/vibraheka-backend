@@ -7,7 +7,6 @@ using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.Subscription;
-using VibraHeka.Domain.Entities;
 using SubscriptionEntity = VibraHeka.Domain.Entities.SubscriptionEntity;
 using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 

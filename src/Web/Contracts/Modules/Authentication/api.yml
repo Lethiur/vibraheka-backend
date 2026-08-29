@@ -1,0 +1,214 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Authentication API
+  version: 1.0.0
+  description: API for managing authentication
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Authentication
+    description: Operations related to authentication
+servers:
+  - url: /api/v1/auth
+    description: local Server server
+
+paths:
+  /register:
+    put:
+      tags:
+        - Authentication
+      operationId: RegisterUser
+      summary: Register a new user within the system
+      description: Registers a new user within the system
+      requestBody:
+        required: true
+        description: The user registration details
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/RegisterUserRequest.yml'
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/RegisterUserResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /verify:
+    patch:
+      tags:
+        - Authentication
+      operationId: VerifyUser
+      summary: Verify user email
+      description: Verifies the email address of the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/VerifyUserRequest.yml'
+      responses:
+        '204':
+          description: User verified correctly
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /authenticate:
+    post:
+      tags:
+        - Authentication
+      operationId: AuthenticateUser
+      summary: Authenticate a user
+      description: Authenticates a user and returns a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/AuthenticateUserRequest.yml'
+      responses:
+        200:
+          description: User authenticated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/AuthenticateUserResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /resend-confirmation-code:
+    post:
+      tags:
+        - Authentication
+      operationId: ResendConfirmationCode
+      summary: Resend confirmation code to user email
+      description: Resends the confirmation code to the user's email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ResendConfirmationCodeRequest.yml'
+      responses:
+        '204':
+          description: Confirmation code resent successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /reset-password:
+    post:
+      tags:
+        - Authentication
+      operationId: ResetPassword
+      summary: Request password reset
+      description: Sends a password reset link to the user's email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ResetPasswordRequest.yml'
+      responses:
+        '204':
+          description: Password reset link sent successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  
+  /reset-password/confirm:
+    post:
+      tags:
+        - Authentication
+      operationId: ConfirmResetPassword
+      summary: Confirm password reset
+      description: Confirms the password reset using the provided token and new password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ConfirmResetPasswordRequest.yml'
+      responses:
+        '204':
+          description: Password reset confirmed successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  
+  /refresh-token:
+    post:
+      tags:
+        - Authentication
+      operationId: RefreshToken
+      summary: Refresh JWT token
+      description: Refreshes the JWT token for the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/RefreshTokenRequest.yml'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/RefreshTokenResponse.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  
+  /change-password:
+    patch:
+      tags:
+        - Authentication
+      operationId: ChangePassword
+      summary: Change user password
+      description: Changes the password for the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ChangePasswordRequest.yml'
+      responses:
+        '204':
+          description: Password changed successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'

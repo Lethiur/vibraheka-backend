@@ -4,9 +4,6 @@ using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
-using VibraHeka.Infrastructure.Mappers;
-using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
-using VibraHeka.Infrastructure.Persistence.Repository;
 using RecordingEntityMapper = Infrastructure.Persistence.Catalog.Mappers.RecordingEntityMapper;
 
 namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.RecordingRepositoryTest;
