@@ -1,0 +1,37 @@
+﻿type: object
+description: Response for creating a subscription
+
+
+required:
+  - status
+  - subscriptionStatus
+  - startDate
+  - endDate
+  - checkoutSessionUrl
+  - checkoutSessionExpiresAt
+
+properties:
+  status:
+    $ref: "../Enums/OrderStatus.yml#/components/schemas/OrderStatus"
+  subscriptionStatus:
+    $ref: "../Enums/SubscriptionStatus.yml#/components/schemas/SubscriptionStatus"
+  startDate:
+    type: string
+    format: date-time
+    description: The start date of the subscription
+    example: "2024-01-01T00:00:00Z"
+  endDate:
+    type: string
+    format: date-time
+    description: The end date of the subscription, if applicable
+    example: "2024-12-31T23:59:59Z"
+  checkoutSessionUrl:
+    type: string
+    format: url
+    description: The url to perform the subscription checkout
+    default: ''
+    example: "http://check.out"
+  checkoutSessionExpiresAt:
+    type: string
+    format: date
+    default: '1970-01-01'

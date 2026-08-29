@@ -77,6 +77,21 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+    patch:
+      tags:
+        - Subscriptions
+      operationId: CancelSubscription
+      summary: Cancel a subscription
+      description: Cancels the current subscription
+      responses:
+        '204':
+          description: Subscription canceled successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
   
   /reactivate:
     patch:

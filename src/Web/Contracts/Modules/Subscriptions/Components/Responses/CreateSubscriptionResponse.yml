@@ -1,0 +1,17 @@
+﻿type: object
+description: Response for creating a subscription
+
+required:
+  - url
+  - expiresAt
+
+properties:
+  url:
+    type: string
+    description: A URL providing the checkout to pay the subscription
+    example: "https://example.com/subscription/12345"
+  expiresAt:
+    type: string
+    format: date-time
+    description: The expiration date and time of the subscription
+    example: "2024-12-31T23:59:59Z"
