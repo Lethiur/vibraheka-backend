@@ -1,13 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Errors;
+using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Common.Interfaces;
-using VibraHeka.Domain.Common.Interfaces.Orders;
-using VibraHeka.Domain.Recordings.Errors;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using SubscriptionEntity = VibraHeka.Domain.Entities.SubscriptionEntity;
 
-namespace VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
+namespace VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 
 public sealed class GetRecordingDownloadUrlQueryHandler(
     IRecordingRegistryPort RegistryPort,

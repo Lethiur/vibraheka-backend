@@ -1,6 +1,6 @@
 ﻿using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
 
-namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+namespace VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 
 public class CreateEmailTemplateCommandValidator : AbstractValidator<CreateEmailTemplateCommand>
 {

@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Entities;
 
 namespace VibraHeka.Application.Users.Queries.GetProfile;
 
-public record GetUserProfileQuery(string UserID) : IRequest<Result<UserDTO>>;
+public record GetUserProfileQuery(string UserID) : IRequest<Result<UserEntity>>;

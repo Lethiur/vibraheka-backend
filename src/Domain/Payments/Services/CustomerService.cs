@@ -5,7 +5,7 @@ using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Payments.Ports.Out;
 
-namespace VibraHeka.Domain.Orders.Services;
+namespace VibraHeka.Domain.Payments.Services;
 
 public class CustomerService(IUserRepository userRepository, IPaymentsPort paymentPort, ILogger<CustomerService> logger)
 {

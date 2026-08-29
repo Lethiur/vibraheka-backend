@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VibraHeka.Domain.Catalog.Services;
-using VibraHeka.Domain.Orders.Services;
+using VibraHeka.Domain.Payments.Services;
 
 namespace VibraHeka.Domain;
 

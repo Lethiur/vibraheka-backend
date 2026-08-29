@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 

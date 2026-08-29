@@ -2,8 +2,6 @@
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
-using VibraHeka.Domain.Models.Results.User;
-
 namespace VibraHeka.Application.UnitTests.Users.Commands.UpdateUserProfile;
 
 [TestFixture]
@@ -21,17 +19,16 @@ public class UpdateUserProfileCommandValidatorTest
     public void ShouldPassValidationWhenCommandIsValid()
     {
         // Given
-        UpdateUserProfileCommand command = new(new UserDTO
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "valid@test.com",
-            FirstName = "John",
-            MiddleName = "M",
-            LastName = "Doe",
-            Bio = "Bio",
-            ProfilePictureUrl = "https://example.com/avatar.jpg",
-            PhoneNumber = "+34911111222"
-        });
+        UpdateUserProfileCommand command = new(
+            Guid.NewGuid().ToString(),
+            "valid@test.com",
+            "John",
+            "M",
+            "Doe",
+            "Bio",
+            "https://example.com/avatar.jpg",
+            "+34911111222"
+        );
 
         // When
         TestValidationResult<UpdateUserProfileCommand> result = _validator.TestValidate(command);
@@ -40,41 +37,27 @@ public class UpdateUserProfileCommandValidatorTest
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    [Test]
-    public void ShouldFailWhenUserIdIsNotGuid()
-    {
-        // Given
-        UpdateUserProfileCommand command = new(new UserDTO
-        {
-            Id = "not-a-guid",
-            Email = "valid@test.com"
-        });
-
-        // When
-        TestValidationResult<UpdateUserProfileCommand> result = _validator.TestValidate(command);
-
-        // Then
-        result.ShouldHaveValidationErrorFor(x => x.NewUserData.Id)
-            .WithErrorMessage("User Id must be a valid GUID.")
-            .WithErrorCode(UserErrors.InvalidUserID);
-    }
 
     [Test]
     public void ShouldFailWhenEmailIsInvalid()
     {
         // Given
-        UpdateUserProfileCommand command = new(new UserDTO
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "invalid-email"
-        });
+        UpdateUserProfileCommand command = new(
+            "invalid-email",
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty
+        );
 
         // When
         TestValidationResult<UpdateUserProfileCommand> result = _validator.TestValidate(command);
 
         // Then
-        result.ShouldHaveValidationErrorFor(x => x.NewUserData.Email)
+        result.ShouldHaveValidationErrorFor(x => x.Email)
             .WithErrorCode(UserErrors.InvalidEmail);
     }
 }
-

@@ -5,7 +5,6 @@ using VibraHeka.Application.Users.Queries.GetProfile;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Queries.GetProfile;
 
@@ -21,7 +20,7 @@ public class GetUserProfileQueryHandlerTest
     {
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _userServiceMock = new Mock<IUserService>();
-        _handler = new GetUserProfileQueryHandler(_currentUserServiceMock.Object, _userServiceMock.Object);
+        _handler = new GetUserProfileQueryHandler( _userServiceMock.Object);
     }
 
     [Test]
@@ -41,7 +40,7 @@ public class GetUserProfileQueryHandlerTest
             }));
 
         // When
-        Result<UserDTO> result = await _handler.Handle(new GetUserProfileQuery(userId), CancellationToken.None);
+        Result<UserEntity> result = await _handler.Handle(new GetUserProfileQuery(userId), CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);
@@ -68,7 +67,7 @@ public class GetUserProfileQueryHandlerTest
             }));
 
         // When
-        Result<UserDTO> result = await _handler.Handle(new GetUserProfileQuery(targetUserId), CancellationToken.None);
+        Result<UserEntity> result = await _handler.Handle(new GetUserProfileQuery(targetUserId), CancellationToken.None);
 
         // Then
         Assert.That(result.IsSuccess, Is.True);

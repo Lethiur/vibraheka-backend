@@ -17,8 +17,8 @@ public interface IUserRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains a <see cref="Result"/> where T is a string
     /// representing the unique identifier of the added user, if successful.
-    /// </returns
-    Task<Result<string>> AddAsync(Entities.UserEntity userEntity);
+    /// </returns>
+    Task<Result<string>> AddAsync(UserEntity userEntity);
 
     /// <summary>
     /// Asynchronously checks if a user exists in the repository by their email address.

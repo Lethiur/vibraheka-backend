@@ -1,5 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Converters;
 
 namespace Infrastructure.Persistence.Catalog.Models;

@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Queries.GetRecordingDownloadUrl;
-using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
+using VibraHeka.Domain.Catalog.Errors;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetRecordingDownloadUrl;
 

@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using FluentValidation.Results;
 using NUnit.Framework;
-using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
+using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 using VibraHeka.Domain.Exceptions;
 
 namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.CreateEmailTemplateTest;

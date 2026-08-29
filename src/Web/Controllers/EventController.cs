@@ -7,9 +7,9 @@ using VibraHeka.Application.Catalog.Commands.AdminDeactivateProduct;
 using VibraHeka.Application.Events.Commands.AdminCreateEvent;
 using VibraHeka.Application.Events.Models;
 using VibraHeka.Application.Events.Queries.GetEvents;
+using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Events.Entities;
-using VibraHeka.Domain.Recordings.Errors;
 using VibraHeka.Web.Entities;
 using VibraHeka.Web.Mappers;
 

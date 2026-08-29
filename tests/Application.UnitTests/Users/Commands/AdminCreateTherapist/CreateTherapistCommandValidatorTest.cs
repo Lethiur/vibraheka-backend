@@ -4,7 +4,6 @@ using FluentValidation.TestHelper;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
-using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
@@ -28,14 +27,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailIsEmptyOrNull(string? email)
     {
         // Given: Command with invalid email
-        CreateTherapistCommand command = new(new UserDTO() { Email = email!, FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty, string.Empty);
 
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for email
-        result.ShouldHaveValidationErrorFor(x => x.TherapistData.Email)
+        result.ShouldHaveValidationErrorFor(x => x.Email)
             .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
@@ -47,14 +47,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailFormatIsInvalid(string email)
     {
         // Given: Command with invalid email format
-        CreateTherapistCommand command = new(new UserDTO() { Email = email, FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty, string.Empty);
 
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for email
-        result.ShouldHaveValidationErrorFor(x => x.TherapistData.Email)
+        result.ShouldHaveValidationErrorFor(x => x.Email)
             .WithErrorMessage(UserErrors.InvalidEmail);
     }
 
@@ -64,13 +65,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenEmailFormatIsValid(string email)
     {
         // Given: Command with valid email format
-        CreateTherapistCommand command = new(new UserDTO() { Email = email, FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty, string.Empty);
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should not have validation error for email
-        result.ShouldNotHaveValidationErrorFor(x => x.TherapistData.Email);
+        result.ShouldNotHaveValidationErrorFor(x => x.Email);
     }
 
     #endregion
@@ -84,14 +87,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenNameIsEmptyOrNull(string? name)
     {
         // Given: Command with invalid name
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name!, MiddleName = "Test", LastName = "Test", Bio = "Test", TimezoneID = "Europe/Madrid", PhoneNumber = "6359875", ProfilePictureUrl = "test" });
+        CreateTherapistCommand command = new("test@therapist.com", name!, string.Empty, string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty);
 
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should have validation error for name
-        result.ShouldHaveValidationErrorFor(x => x.TherapistData.FirstName)
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
             .WithErrorMessage(UserErrors.InvalidFullName);
     }
 
@@ -101,14 +105,15 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenNameIsValid(string name)
     {
         // Given: Command with valid name
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = name });
+        CreateTherapistCommand command = new("test@therapist.com", name, string.Empty, string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty);
 
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
 
         // Then: Should not have validation error for name
-        result.ShouldNotHaveValidationErrorFor(x => x.TherapistData.FirstName);
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
     }
 
     #endregion
@@ -120,16 +125,8 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenAllFieldsAreValid()
     {
         // Given: Command with all valid fields
-        CreateTherapistCommand command = new(new UserDTO()
-        {
-            Email = "test@therapist.com",
-            FirstName = "Dr. Smith",
-            Bio = "  ASDFASDF",
-            LastName = "Test",
-            MiddleName = "Test",
-            PhoneNumber = "6359875",
-            TimezoneID = "Europe/Madrid"
-        });
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "asfdasdf", "Test", "638956444", "Test",
+            "test", "Europe/Madrid");
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
@@ -146,17 +143,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenUrlIsInvalid()
     {
         // Given: A command with an invalid url
-        CreateTherapistCommand command = new(new UserDTO()
-        {
-            Email = "test@therapist.com",
-            FirstName = "Dr. Smith",
-            Bio = "  ASDFASDF",
-            LastName = "Test",
-            MiddleName = "Test",
-            PhoneNumber = "6359875",
-            TimezoneID = "Europe/Madrid",
-            ProfilePictureUrl = "invalid-url"
-        });
+        CreateTherapistCommand command = new(
+            "test@therapist.com",
+            "Dr. Smith",
+            "  ASDFASDF",
+            "Test",
+            "Test",
+            "6359875",
+            "Europe/Madrid",
+            "invalid-url"
+        );
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
@@ -165,7 +161,7 @@ public class CreateTherapistCommandValidatorTest
         Assert.That(result, Is.Not.Null);
         Assert.That(result.IsValid, Is.False);
 
-        result.ShouldHaveValidationErrorFor(x => x.TherapistData.ProfilePictureUrl)
+        result.ShouldHaveValidationErrorFor(x => x.ProfilePictureUrl)
             .WithErrorMessage(UserErrors.InvalidForm);
     }
 
@@ -173,17 +169,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenUrlIsValid()
     {
         // Given: A command with an invalid url
-        CreateTherapistCommand command = new(new UserDTO()
-        {
-            Email = "test@therapist.com",
-            FirstName = "Dr. Smith",
-            Bio = "  ASDFASDF",
-            LastName = "Test",
-            MiddleName = "Test",
-            PhoneNumber = "6359875",
-            TimezoneID = "Europe/Madrid",
-            ProfilePictureUrl = "https://example.com/avatar.png"
-        });
+        CreateTherapistCommand command = new(
+            "test@therapist.com",
+            "Dr. Smith",
+            "  ASDFASDF",
+            "Test",
+            "Test",
+            "6359875",
+            "Europe/Madrid",
+            "https://example.com/avatar.png"
+        );
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
@@ -199,17 +194,16 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailWhenUrlIsTooLong()
     {
         // Given: A command with an invalid url
-        CreateTherapistCommand command = new(new UserDTO()
-        {
-            Email = "test@therapist.com",
-            FirstName = "Dr. Smith",
-            Bio = "  ASDFASDF",
-            LastName = "Test",
-            MiddleName = "Test",
-            PhoneNumber = "6359875",
-            TimezoneID = "Europe/Madrid",
-            ProfilePictureUrl = new string('a', 3001)
-        });
+        CreateTherapistCommand command = new(
+            "test@therapist.com",
+            "Dr. Smith",
+            "  ASDFASDF",
+            "Test",
+            "Test",
+            "6359875",
+            new string('a', 3001),
+            "Europe/Madrid"
+        );
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
@@ -218,9 +212,10 @@ public class CreateTherapistCommandValidatorTest
         Assert.That(result, Is.Not.Null);
         Assert.That(result.IsValid, Is.False);
 
-        result.ShouldHaveValidationErrorFor(x => x.TherapistData.ProfilePictureUrl)
+        result.ShouldHaveValidationErrorFor(x => x.ProfilePictureUrl)
             .WithErrorMessage(UserErrors.InvalidForm);
     }
+
     #endregion
 
     #region Cascade Mode Tests
@@ -230,7 +225,9 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty email
-        CreateTherapistCommand command = new(new UserDTO() { Email = "", FirstName = " " });
+        CreateTherapistCommand command = new(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
+            string.Empty, string.Empty, string.Empty);
+
 
         // When: Validating the command
         TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);

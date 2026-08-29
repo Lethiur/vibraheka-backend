@@ -2,7 +2,7 @@ using NMoneys;
 using VibraHeka.Domain.Commerce.Entities;
 using VibraHeka.Domain.Commerce.Enums;
 
-namespace VibraHeka.Application.Commerce.Factories;
+namespace VibraHeka.Domain.Commerce.Factories;
 
 /// <summary>
 /// A factory class responsible for creating and initializing instances of the <see cref="OrderEntity"/> class.

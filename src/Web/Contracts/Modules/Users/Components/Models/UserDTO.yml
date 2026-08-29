@@ -1,0 +1,44 @@
+﻿type: object
+description: User DTO
+
+required:
+  - id
+  - email
+  - firstName
+  - lastName
+  - role
+  - timezoneID
+  - bio
+  - phoneNumber
+  
+properties:
+  id:
+    type: string
+    description: The unique identifier of the user
+    example: "123e4567-e89b-12d3-a456-426614174000"
+  email:
+    type: string
+    description: The email address of the user
+    example: "user@example.com"
+  firstName:
+    type: string
+    description: The first name of the user
+    example: "John"
+  lastName:
+    type: string
+    description: The last name of the user
+    example: "Doe"
+  bio:
+    type: string
+    description: A short biography of the user
+    example: "Software developer with a passion for open source."
+  phoneNumber:
+    type: string
+    description: The phone number of the user
+    example: "+1234567890"
+  timezoneID:
+    type: string
+    description: The timezone ID of the user
+    example: "America/New_York"
+  role:
+    $ref: "../Enums/UserRole.yml"

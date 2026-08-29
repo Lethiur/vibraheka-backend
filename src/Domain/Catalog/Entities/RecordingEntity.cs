@@ -1,4 +1,4 @@
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Domain.Catalog.Entities;
 

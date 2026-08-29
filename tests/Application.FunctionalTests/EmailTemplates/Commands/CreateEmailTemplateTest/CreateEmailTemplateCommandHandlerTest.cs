@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.EmailTemplates.Commands.CreateEmail;
 using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;

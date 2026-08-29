@@ -4,9 +4,8 @@ using Moq;
 using NUnit.Framework;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
-using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Application.UnitTests.Catalog.Queries.GetAllRecordings;

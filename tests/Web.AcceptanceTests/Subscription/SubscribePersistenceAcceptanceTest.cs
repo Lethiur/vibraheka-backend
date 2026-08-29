@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using NUnit.Framework;
 using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Common.Interfaces.Orders;
+using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;

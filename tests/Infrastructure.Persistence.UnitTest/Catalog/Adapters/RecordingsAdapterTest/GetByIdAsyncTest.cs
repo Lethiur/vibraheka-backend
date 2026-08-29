@@ -2,7 +2,7 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Errors;
+using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Infrastructure.Exceptions;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.RecordingsAdapterTest;

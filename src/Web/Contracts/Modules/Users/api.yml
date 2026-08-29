@@ -1,0 +1,124 @@
+﻿openapi: 3.0.3
+
+info:
+  title: VibraHeka API - Users API
+  version: 1.0.0
+  description: API for managing users
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: Users
+    description: Operations related to users
+servers:
+  - url: /api/v1/users
+    description: local Server server
+
+paths:
+  /{id}:
+    get:
+      tags:
+        - Users
+      operationId: GetUserDetails
+      summary: Get user details
+      description: Retrieves the details of a specific user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Models/UserDTO.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /update-profile:
+    patch:
+      tags:
+        - Users
+      operationId: UpdateUserProfile
+      summary: Update user profile
+      description: Updates the profile information of the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/UpdateProfileRequest.yml'
+      responses:
+        '204':
+          description: User profile updated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /create-therapist:
+    put:
+      tags:
+        - AdminUsers
+      operationId: CreateTherapist
+      summary: Create a new therapist user
+      description: Creates a new therapist user in the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreateTherapistRequest.yml'
+      responses:
+        200:
+          description: Therapist user created successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The ID of the therapist user created
+                example: "123e4567-e89b-12d3-a456-426614174000"   
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+  /therapists:
+    get:
+      tags:
+        - AdminUsers
+      operationId: GetAllTherapists
+      summary: Get all therapist users
+      description: Retrieves a list of all therapist users in the system
+      responses:
+        200:
+          description: List of therapist users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './Components/Models/UserDTO.yml'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'

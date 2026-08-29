@@ -1,0 +1,12 @@
+﻿type: object
+description: Object sent as payload when the response resulted in a 400
+
+required:
+  - errorCode
+
+properties:
+  errorCode:
+    type: string
+    description: Error code if the subscription failed
+    example: "INVALID_EMAIL"
+  

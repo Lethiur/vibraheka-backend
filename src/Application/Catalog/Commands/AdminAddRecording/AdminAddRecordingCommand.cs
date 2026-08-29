@@ -1,10 +1,10 @@
 using CSharpFunctionalExtensions;
 using NMoneys;
+using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Recordings.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 
-namespace VibraHeka.Application.Recordings.Commnands.AdminAddRecording;
+namespace VibraHeka.Application.Catalog.Commands.AdminAddRecording;
 
 public sealed record AdminAddRecordingCommand(
     string Name,

@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Application.Payments.Models;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Payments.Entities;
+using VibraHeka.Domain.Payments.Models;
 
 namespace VibraHeka.Domain.Payments.Ports.Out;
 

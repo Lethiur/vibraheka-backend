@@ -2,7 +2,7 @@ using Infrastructure.Persistence.Catalog.Adapters;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using static VibraHeka.Domain.Catalog.Entities.SellableItemType;
+using static VibraHeka.Domain.Catalog.Enums.SellableItemType;
 using static VibraHeka.Domain.Catalog.Enums.PriceKind;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SellableItemAdapterTest;

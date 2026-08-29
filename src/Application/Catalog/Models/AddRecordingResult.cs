@@ -1,4 +1,4 @@
-namespace VibraHeka.Application.Recordings.Entities;
+namespace VibraHeka.Application.Catalog.Models;
 
 /// <summary>
 /// Result returned after creating a recording entry.

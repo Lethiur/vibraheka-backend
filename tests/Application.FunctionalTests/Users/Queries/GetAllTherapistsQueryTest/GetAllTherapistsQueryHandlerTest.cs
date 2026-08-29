@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Admin.Queries.GetAllTherapists;
+using VibraHeka.Application.Users.Queries.AdminGetTherapists;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 

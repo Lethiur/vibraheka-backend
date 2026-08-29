@@ -2,15 +2,10 @@
 description: Response for creating a subscription
 
 required:
-  - success
+  - url
 
 properties:
-  success:
-    type: boolean
-    description: Indicates whether the subscription was successful
-    example: true
-
-  content:
+  url:
     type: string
     description: The url for the stripe portal
     example: https://example.com/stripe-portal

@@ -2,7 +2,7 @@ using Infrastructure.Persistence.Catalog.Adapters;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Persistence.Repository;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.RecordingsAdapterTest;

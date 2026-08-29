@@ -4,6 +4,7 @@ using Infrastructure.Persistence.Catalog.Mappers;
 using Infrastructure.Persistence.Catalog.Models;
 using Moq;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Adapters.SellableItemWriteAdapterTest;
 
@@ -34,7 +35,7 @@ public abstract class GenericSellableItemWriteAdapterTest
             SellableItemID = "si-unit-write-test-001",
             Name = "Test Sellable Item Write Adapter",
             IsActive = true,
-            Type = VibraHeka.Domain.Catalog.Entities.SellableItemType.Product,
+            Type = SellableItemType.Product,
             ReferenceID = "ref-write-test-001",
         };
 }

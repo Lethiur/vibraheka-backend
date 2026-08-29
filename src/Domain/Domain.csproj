@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BuilderPatternGenerator" />
     <PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
@@ -18,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\DTO\" />
     <Folder Include="Users\Entities\" />
   </ItemGroup>
 

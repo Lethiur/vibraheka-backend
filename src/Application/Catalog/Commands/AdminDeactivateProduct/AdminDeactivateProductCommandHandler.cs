@@ -4,7 +4,6 @@ using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Catalog.Ports.Out;
 using VibraHeka.Domain.Events.Ports.Out;
-using VibraHeka.Domain.Recordings.Ports.Out;
 
 namespace VibraHeka.Application.Catalog.Commands.AdminDeactivateProduct;
 

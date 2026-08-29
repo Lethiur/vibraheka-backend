@@ -28,20 +28,20 @@ public class CreateTherapistCommandHandler(
     public Task<Result<string>> Handle(CreateTherapistCommand request, CancellationToken cancellationToken)
     {
         const string password = "Password123!@#";
-        return CognitService.RegisterUserAsync(request.TherapistData.Email, password, request.TherapistData.FirstName)
-            .Bind(async id =>
+        return CognitService.RegisterUserAsync(request.Email, password, request.FirstName)
+            .Bind(id =>
         {
             UserEntity userEntity = new()
             {
-                FirstName = request.TherapistData.FirstName,
-                Email = request.TherapistData.Email,
-                MiddleName = request.TherapistData.MiddleName,
-                LastName = request.TherapistData.LastName,
-                PhoneNumber = request.TherapistData.PhoneNumber,
-                Bio = request.TherapistData.Bio,
-                ProfilePictureUrl = request.TherapistData.ProfilePictureUrl,
+                FirstName = request.FirstName,
+                Email = request.Email,
+                MiddleName = request.MiddleName,
+                LastName = request.LastName,
+                PhoneNumber = request.PhoneNumber,
+                Bio = request.Bio,
+                ProfilePictureUrl = request.ProfilePictureUrl,
                 Id = id,
-                TimezoneID = request.TherapistData.TimezoneID,
+                TimezoneID = request.TimezoneID,
                 Role = UserRole.Therapist,
                 Created = DateTime.UtcNow,
                 CreatedBy = CurrentUserService.UserId,
@@ -49,7 +49,7 @@ public class CreateTherapistCommandHandler(
                 LastModifiedBy = CurrentUserService.UserId
             };
 
-            return await Repository.AddAsync(userEntity);
+            return Repository.AddAsync(userEntity);
         });
     }
 }

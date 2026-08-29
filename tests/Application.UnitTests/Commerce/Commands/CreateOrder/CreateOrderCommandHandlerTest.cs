@@ -6,11 +6,11 @@ using NUnit.Framework;
 using VibraHeka.Application.Abstractions.Transactions;
 using VibraHeka.Application.Commerce.Commands.CreateOrder;
 using VibraHeka.Application.Commerce.Models;
-using VibraHeka.Application.Payments.Models;
 using VibraHeka.Domain.Commerce.Errors;
 using VibraHeka.Domain.Common.Errors;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Payments.Entities;
+using VibraHeka.Domain.Payments.Models;
 
 namespace VibraHeka.Application.UnitTests.Commerce.Commands.CreateOrder;
 

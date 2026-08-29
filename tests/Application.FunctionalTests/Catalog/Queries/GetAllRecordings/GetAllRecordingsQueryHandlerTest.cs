@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Recordings.Queries.GetAllRecordings;
-using VibraHeka.Domain.Recordings.Ports.Out;
+using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
+using VibraHeka.Domain.Catalog.Ports.Out;
 
 namespace VibraHeka.Application.FunctionalTests.Catalog.Queries.GetAllRecordings;
 

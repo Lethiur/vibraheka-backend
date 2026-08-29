@@ -14,7 +14,7 @@ public class SubscriptionEntity : BaseAuditableEntity
     public DateTimeOffset EndDate { get; set; } = DateTimeOffset.UtcNow;
 
     public string ExternalSubscriptionItemID { get; set; } = string.Empty;
-
+    
     public string ExternalSubscriptionID { get; set; } = string.Empty;
 
     public string ExternalCustomerID { get; set; } = string.Empty;

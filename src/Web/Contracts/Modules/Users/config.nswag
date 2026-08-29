@@ -7,15 +7,15 @@
   },
   "codeGenerators": {
     "openApiToCSharpController": {
-      "className": "ISubscriptionsController",
+      "className": "IUserController",
       "controllerStyle": "Abstract",
-      "namespace": "VibraHeka.Client",
+      "namespace": "VibraHeka.Web.Users",
       "generateController": true,
       "generateModelValidationAttributes": true,
       "generateDtoTypes": true,
       "useActionResultType": true,
-      "templateDirectory" : "../Templates",
-      "output": "../../Generated/SubscriptionsController.cs"
+      "templateDirectory" : "../../Templates",
+      "output": "../../../Generated/UserController.cs"
     }
   }
 }

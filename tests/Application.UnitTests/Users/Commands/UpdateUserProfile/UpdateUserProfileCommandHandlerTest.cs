@@ -7,7 +7,6 @@ using VibraHeka.Application.Users.Commands.UpdateUserProfile;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.UpdateUserProfile;
 
@@ -32,7 +31,7 @@ public class UpdateUserProfileCommandHandlerTest
     public async Task ShouldUpdateUserWhenCommandIsValid()
     {
         // Given
-        UserDTO dto = new()
+        UserEntity dto = new()
         {
             Id = "updater-id",
             Email = "user@test.com",
@@ -56,7 +55,7 @@ public class UpdateUserProfileCommandHandlerTest
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(Unit.Value));
 
-        UpdateUserProfileCommand command = new(dto);
+        UpdateUserProfileCommand command = new(dto.Email, dto.FirstName, dto.MiddleName, dto.LastName, dto.PhoneNumber, dto.Bio, null!, null!);
 
         // When
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
@@ -70,7 +69,7 @@ public class UpdateUserProfileCommandHandlerTest
     public async Task ShouldReturnNotAuthorizedWhenNewUserDataIsNull()
     {
         // Given
-        UpdateUserProfileCommand command = new(null!);
+        UpdateUserProfileCommand command = new(null!, null!, null!, null!, null!, null!, null!, null!);
 
         // When
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
@@ -85,13 +84,13 @@ public class UpdateUserProfileCommandHandlerTest
     public async Task ShouldReturnNotAuthorizedWhenTryingToUpdateAnotherUser()
     {
         // Given
-        UserDTO dto = new()
+        UserEntity dto = new()
         {
             Id = Guid.NewGuid().ToString(),
             Email = "other@test.com",
             FirstName = "Other"
         };
-        UpdateUserProfileCommand command = new(dto);
+        UpdateUserProfileCommand command = new(dto.Email, dto.FirstName, dto.MiddleName, dto.LastName, dto.PhoneNumber, dto.Bio, null!, null!);
 
         // When
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);

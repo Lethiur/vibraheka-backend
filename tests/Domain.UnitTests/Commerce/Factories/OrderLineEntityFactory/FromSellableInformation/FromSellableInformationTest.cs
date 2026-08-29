@@ -2,8 +2,9 @@ using System.ComponentModel;
 using NMoneys;
 using NUnit.Framework;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Commerce.Entities;
-using OrderLineEntityFactoryClass = VibraHeka.Application.Commerce.Factories.OrderLineEntityFactory;
+using OrderLineEntityFactoryClass = VibraHeka.Domain.Commerce.Factories.OrderLineEntityFactory;
 
 namespace VibraHeka.Domain.UnitTests.Commerce.Factories.OrderLineEntityFactory.FromSellableInformation;
 

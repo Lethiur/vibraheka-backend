@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Infrastructure.Persistence.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 
 namespace VibraHeka.Infrastructure.Persistence.UnitTest.Catalog.Mappers.RecordingEntityMapper;

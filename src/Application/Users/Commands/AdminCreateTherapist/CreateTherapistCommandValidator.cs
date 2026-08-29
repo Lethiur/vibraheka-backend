@@ -12,18 +12,14 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
     public CreateTherapistCommandValidator()
     {
         ClassLevelCascadeMode = CascadeMode.Stop;
-
-        RuleFor(x => x.TherapistData)
-            .NotNull()
-            .WithMessage(UserErrors.InvalidForm);
-
-        RuleFor(x => x.TherapistData.Email)
+        
+        RuleFor(x => x.Email)
             .Cascade(CascadeMode.Stop)
             .MaximumLength(320)
             .WithMessage(UserErrors.EmailTooLong)
             .ValidEmail();
 
-        RuleFor(x => x.TherapistData.FirstName)
+        RuleFor(x => x.FirstName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(UserErrors.InvalidFullName)
@@ -34,7 +30,7 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .MaximumLength(100)
             .WithMessage(UserErrors.InvalidFullName);
 
-        RuleFor(x => x.TherapistData.MiddleName)
+        RuleFor(x => x.MiddleName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(UserErrors.InvalidFullName)
@@ -45,7 +41,7 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .MaximumLength(100)
             .WithMessage(UserErrors.InvalidFullName);
 
-        RuleFor(x => x.TherapistData.LastName)
+        RuleFor(x => x.LastName)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(UserErrors.InvalidFullName)
@@ -56,27 +52,27 @@ public class CreateTherapistCommandValidator : AbstractValidator<CreateTherapist
             .MaximumLength(100)
             .WithMessage(UserErrors.InvalidFullName);
 
-        RuleFor(x => x.TherapistData.Bio)
+        RuleFor(x => x.Bio)
             .MaximumLength(1000)
             .WithMessage(UserErrors.InvalidForm);
 
-        RuleFor(x => x.TherapistData.ProfilePictureUrl)
+        RuleFor(x => x.ProfilePictureUrl)
             .Cascade(CascadeMode.Stop)
             .MaximumLength(2048)
             .WithMessage(UserErrors.InvalidForm)
             .ValidURL()
             .WithMessage(UserErrors.InvalidForm)
-            .When(x => !string.IsNullOrWhiteSpace(x.TherapistData.ProfilePictureUrl) && !string.IsNullOrEmpty(x.TherapistData.ProfilePictureUrl));
+            .When(x => !string.IsNullOrWhiteSpace(x.ProfilePictureUrl) && !string.IsNullOrEmpty(x.ProfilePictureUrl));
 
-        RuleFor(x => x.TherapistData.PhoneNumber)
+        RuleFor(x => x.PhoneNumber)
             .Cascade(CascadeMode.Stop)
             .MaximumLength(30)
             .WithMessage(UserErrors.InvalidForm)
             .Matches(@"^\+?[0-9\s\-\(\)]*$")
             .WithMessage(UserErrors.InvalidForm)
-            .When(x => !string.IsNullOrWhiteSpace(x.TherapistData.PhoneNumber) && !string.IsNullOrEmpty(x.TherapistData.PhoneNumber));
+            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber) && !string.IsNullOrEmpty(x.PhoneNumber));
 
-        RuleFor(x => x.TherapistData.TimezoneID)
+        RuleFor(x => x.TimezoneID)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(UserErrors.InvalidForm)

@@ -6,7 +6,6 @@ using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.UnitTests.Users.Commands.AdminCreateTherapist;
 
@@ -41,20 +40,20 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnSuccessWhenTherapistIsCreated()
     {
         // Given: A valid command and an admin user with successful service responses
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
-        string adminId = "admin-id";
-        string cognitoId = "new-cognito-id";
+        CreateTherapistCommand command = new(  "test@therapist.com","Dr. Smith", string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+        const string adminId = "admin-id";
+        const string cognitoId = "new-cognito-id";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
         PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
             .ReturnsAsync(Result.Success(true));
 
-        CognitoServiceMock.Setup(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName))
+        CognitoServiceMock.Setup(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.FirstName))
             .ReturnsAsync(Result.Success(cognitoId));
 
         RepositoryMock.Setup(x => x.AddAsync(It.Is<UserEntity>(u =>
-                u.Email == command.TherapistData.Email &&
-                u.FirstName == command.TherapistData.FirstName &&
+                u.Email == command.Email &&
+                u.FirstName == command.FirstName &&
                 u.Role == UserRole.Therapist &&
                 u.Id == cognitoId)))
             .ReturnsAsync(Result.Success(cognitoId));
@@ -66,7 +65,7 @@ public class CreateTherapistCommandHandlerTests
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(cognitoId));
 
-        CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.TherapistData.Email, It.IsAny<string>(), command.TherapistData.FirstName), Times.Once);
+        CognitoServiceMock.Verify(x => x.RegisterUserAsync(command.Email, It.IsAny<string>(), command.FirstName), Times.Once);
         RepositoryMock.Verify(x => x.AddAsync(It.IsAny<UserEntity>()), Times.Once);
     }
 
@@ -75,10 +74,11 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenCognitoRegistrationFails()
     {
         // Given: An admin user but Cognito registration fails
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new(  "test@therapist.com","Dr. Smith", string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
 
-        string adminId = "admin-id";
-        string errorMessage = "Cognito registration error";
+
+        const string adminId = "admin-id";
+        const string errorMessage = "Cognito registration error";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
         PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))
@@ -102,10 +102,11 @@ public class CreateTherapistCommandHandlerTests
     public async Task ShouldReturnFailureWhenRepositoryFails()
     {
         // Given: Successful Cognito registration but database failure
-        CreateTherapistCommand command = new(new UserDTO() { Email = "test@therapist.com", FirstName = "Dr. Smith" });
+        CreateTherapistCommand command = new(  "test@therapist.com","Dr. Smith", string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
 
-        string adminId = "admin-id";
-        string dbError = "Error saving user to DB";
+
+        const string adminId = "admin-id";
+        const string dbError = "Error saving user to DB";
 
         CurrentUserServiceMock.Setup(x => x.UserId).Returns(adminId);
         PrivilegeServiceMock.Setup(x => x.HasRoleAsync(adminId, UserRole.Admin, CancellationToken.None))

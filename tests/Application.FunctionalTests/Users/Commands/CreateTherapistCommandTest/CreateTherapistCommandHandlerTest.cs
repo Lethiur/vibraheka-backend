@@ -5,7 +5,7 @@ using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 
 namespace VibraHeka.Application.FunctionalTests.Users.Commands.CreateTherapistCommandTest;
 

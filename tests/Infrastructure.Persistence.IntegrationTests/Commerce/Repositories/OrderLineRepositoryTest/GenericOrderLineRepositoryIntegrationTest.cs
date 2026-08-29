@@ -5,6 +5,7 @@ using Infrastructure.Persistence.Commerce.Repositories;
 using Microsoft.Extensions.Logging;
 using NMoneys;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Commerce.Entities;
 
 namespace Infrastructure.Persistence.IntegrationTests.Commerce.Repositories.OrderLineRepositoryTest;

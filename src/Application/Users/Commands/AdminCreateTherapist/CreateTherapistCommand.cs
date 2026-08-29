@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Domain.Models.Results.User;
 
 namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 
@@ -11,4 +10,4 @@ namespace VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 /// This command encapsulates all necessary data required to create a therapist,
 /// such as their email and name. It is processed by a handler to execute the creation logic.
 /// </remarks>
-public record CreateTherapistCommand(UserDTO TherapistData) : IRequest<Result<string>>, IRequireAdmin;
+public record CreateTherapistCommand(string Email, string FirstName, string MiddleName, string LastName, string PhoneNumber, string Bio, string ProfilePictureUrl, string TimezoneID) : IRequest<Result<string>>, IRequireAdmin;

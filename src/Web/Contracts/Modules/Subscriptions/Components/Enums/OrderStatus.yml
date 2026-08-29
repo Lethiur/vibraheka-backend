@@ -1,0 +1,20 @@
+﻿components:
+  schemas:
+    OrderStatus:
+      type: string
+      enum:
+        - draft
+        - pendingPayment
+        - Paid
+        - PartiallyRefunded
+        - Refunded
+        - Cancelled
+        - Failed
+      x-enumNames:
+        - Draft
+        - PendingPayment
+        - Paid
+        - PartiallyRefunded
+        - Refunded
+        - Cancelled
+        - Failed

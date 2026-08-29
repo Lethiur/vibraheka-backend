@@ -3,7 +3,7 @@ using Infrastructure.Persistence.Catalog.Models;
 using Infrastructure.Persistence.Catalog.Repositories;
 using Microsoft.Extensions.Logging;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Recordings.Enums;
+using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Infrastructure.Mappers;
 using VibraHeka.Infrastructure.Persistence.DynamoDB.Models;
 using VibraHeka.Infrastructure.Persistence.Repository;

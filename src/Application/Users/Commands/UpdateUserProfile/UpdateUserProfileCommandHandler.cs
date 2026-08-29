@@ -11,17 +11,17 @@ public class UpdateUserCommandHandler(ICurrentUserService currentUserService, IU
 {
     public Task<Result<Unit>> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
-        return Maybe.From(request.NewUserData)
-            .Where(userDTO => userDTO.Id == currentUserService.UserId)
+        return Maybe.From(request)
             .ToResult(UserErrors.NotAuthorized)
-            .MapTry(UserEntity (userDTO) => new UserEntity(userDTO.Id, userDTO.Email, userDTO.FirstName)
+            .MapTry(command => new UserEntity(currentUserService.UserId!, command.Email, command.FirstName)
             {
-                MiddleName = userDTO.MiddleName,
-                LastName = userDTO.LastName,
-                PhoneNumber = userDTO.PhoneNumber,
-                Bio = userDTO.Bio
+                MiddleName = command.MiddleName,
+                LastName = command.LastName,
+                PhoneNumber = command.PhoneNumber,
+                Bio = command.Bio,
+                TimezoneID = command.TimezoneID,
             })
-            .BindTry(Task<Result<Unit>> (userDTO) => userService.UpdateUserAsync(userDTO, currentUserService.UserId!, cancellationToken));
+            .BindTry(Task<Result<Unit>> (userDto) => userService.UpdateUserAsync(userDto, currentUserService.UserId!, cancellationToken));
 
 
     }

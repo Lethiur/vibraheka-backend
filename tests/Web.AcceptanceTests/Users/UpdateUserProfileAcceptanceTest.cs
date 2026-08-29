@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results.User;
+using VibraHeka.Domain.Models.DTO.User;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Users;
