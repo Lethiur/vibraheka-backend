@@ -1,0 +1,26 @@
+openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Email Templates API
+  version: 1.0.0
+  description: API for managing email templates
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+security:
+  - bearerAuth: [ ]
+    
+servers:
+  - url: /api/v1/email-templates
+    description: local Server server
+    
+tags:
+    - name: AdminEmailTemplates
+      description: Operations related to email templates
+paths:
+  
