@@ -1,4 +1,4 @@
-﻿openapi: 3.0.3
+﻿openapi: 3.1.0
 
 info:
   title: VibraHeka API - Users API
@@ -50,6 +50,10 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
   /update-profile:
     patch:
       tags:
@@ -72,6 +76,10 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
   /create-therapist:
     put:
       tags:
@@ -100,6 +108,10 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
   /therapists:
     get:
       tags:
@@ -122,3 +134,7 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden

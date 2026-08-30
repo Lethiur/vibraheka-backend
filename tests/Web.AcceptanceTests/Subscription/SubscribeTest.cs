@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -40,6 +39,6 @@ public class SubscribeTest : GenericSubscriptionAcceptanceTest
         SubscriptionCreationDTO? checkoutUrl = entity.GetContentAs<SubscriptionCreationDTO>();
 
         Assert.That(entity.Success, Is.True);
-        Assert.That(checkoutUrl!.Url.StartsWith("https://checkout.stripe.com/"), Is.True);
+        Assert.That(checkoutUrl.Url.StartsWith("https://checkout.stripe.com/"), Is.True);
     }
 }

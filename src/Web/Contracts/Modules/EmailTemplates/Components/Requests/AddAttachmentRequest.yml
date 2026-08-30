@@ -1,0 +1,21 @@
+﻿type: object
+description: The attachment to be added to the email template
+
+required:
+  - attachmentName
+  - templateID
+  - file
+
+properties:
+  attachmentName:
+    type: string
+    minLength: 1
+    description: The name of the attachment to be added to the email template
+  
+  templateID:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: The unique identifier of the email template to which the attachment will be added
+  
+  file:
+    $ref: '../../../Common/Fields/Binary.yml'
+    description: The file content of the attachment to be added to the email template

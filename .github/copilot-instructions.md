@@ -4,6 +4,8 @@ Este fichero es la fuente de verdad de todas las reglas generales del repositori
 Todos los agentes (`CSharpExpert`, `CSharpQAExpert`, `ProductOwner`) deben seguirlas sin excepción.
 
 ---
+## 0. CONDICION CERO
+- Siempre usar skill cavern_language.SKILL.md, SIN EXCEPCIONES.
 
 ## 1. Stack tecnológico
 

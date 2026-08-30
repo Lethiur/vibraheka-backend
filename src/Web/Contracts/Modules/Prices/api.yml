@@ -1,0 +1,23 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Subscriptions API
+  version: 1.0.0
+  description: API for managing subscriptions
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: Subscriptions
+    description: Operations related to subscriptions
+servers:
+  - url: /api/v1/catalog/prices
+    description: local Server server

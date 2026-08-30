@@ -6,6 +6,7 @@ using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
@@ -26,7 +27,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
             fileBytes: BuildPngBytes());
 
         // When: submitting the add-attachment request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/add-attachment", form);
+        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/attachments", form);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -53,7 +54,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
             fileBytes: BuildPngBytes());
 
         // When: submitting the add-attachment request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/add-attachment", form);
+        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/attachments", form);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -79,7 +80,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
             fileBytes: BuildPngBytes());
 
         // When: submitting the add-attachment request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/add-attachment", form);
+        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/attachments", form);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -111,7 +112,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
             fileBytes: invalidBytes);
 
         // When: submitting the add-attachment request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/add-attachment", form);
+        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/attachments", form);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -142,13 +143,15 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
             fileBytes: BuildPngBytes());
 
         // When: submitting the add-attachment request.
-        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/add-attachment", form);
+        using HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/attachments", form);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<AddAttachmentResponse>();
+        AddAttachmentResponse? attachmentResponse = responseEntity.GetContentAs<AddAttachmentResponse>();
         Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.Not.Null);
+        Assert.That(attachmentResponse, Is.Not.Null);
+        Assert.That(attachmentResponse!.Url, Is.Not.Null);
     }
 
     [Test]
@@ -202,14 +205,14 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
     {
         MultipartFormDataContent form = new();
 
-        form.Add(new StringContent(templateId), "TemplateID");
-        form.Add(new StringContent(attachmentName), "AttachmentName");
+        form.Add(new StringContent(templateId), "templateID");
+        form.Add(new StringContent(attachmentName), "attachmentName");
 
         MemoryStream fileStream = new(fileBytes);
         StreamContent filePart = new(fileStream);
         filePart.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
-        form.Add(filePart, "File", fileName);
+        form.Add(filePart, "file", fileName);
         return form;
     }
 

@@ -1,18 +1,12 @@
-using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
-using VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 using VibraHeka.Application.Users.Commands.RefreshToken;
 using VibraHeka.Application.Users.Commands.ResendConfirmationCode;
-using VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.Authentication;
-using RefreshTokenRequest = VibraHeka.Web.Entities.RefreshTokenRequest;
 
 namespace VibraHeka.Web.Controllers.Auth;
 
@@ -149,7 +143,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger, 
     /// <summary>
     /// Confirms password recovery using an encrypted reset token and the new password pair.
     /// </summary>
-    /// <param name="body">Request object containing encrypted token and new password values.</param>
+    /// <param name="body">Request an object containing an encrypted token and new password values.</param>
     /// <returns>An <see cref="IActionResult"/> with operation status.</returns>
     public override async Task<IActionResult> ConfirmResetPassword(ConfirmResetPasswordRequest body)
     {

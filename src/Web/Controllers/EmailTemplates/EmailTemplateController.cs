@@ -1,26 +1,24 @@
 ﻿using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
-using VibraHeka.Application.EmailTemplates.Commands.CreateEmailTemplate;
 using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
 using VibraHeka.Application.EmailTemplates.Commands.UpdateTemplateContent;
 using VibraHeka.Application.EmailTemplates.Queries.GetAllEmailTemplates;
 using VibraHeka.Application.EmailTemplates.Queries.GetEmailTemplateURL;
-using VibraHeka.Application.EmailTemplates.Queries.GetTemplateContent;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Web.Entities;
+using VibraHeka.Web.EmailTemplates;
 
-namespace VibraHeka.Web.Controllers;
+namespace VibraHeka.Web.Controllers.EmailTemplates;
 
 /// <summary>
 /// Controller responsible for handling operations related to email templates.
 /// </summary>
-[ApiController]
-[Route("api/v1/email-templates")]
-public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTemplateController> Logger)
+public partial class EmailTemplateController(
+    IMediator mediator,
+    ILogger<EmailTemplateController> Logger,
+    EmailTemplateMapper mapper) : IEmailTemplatesController
 {
     /// <summary>
     /// Retrieves all email templates.
@@ -29,59 +27,44 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     /// An <see cref="IActionResult"/> containing a list of email templates if successful,
     /// or an appropriate error response if the operation fails.
     /// </returns>
-    [HttpGet]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("application/json")]
-    public async Task<IActionResult> GetTemplates()
+    public override async Task<ActionResult<GetTemplatesResponse>> GetAllEmailTemplates()
     {
         Result<IEnumerable<EmailEntity>> result = await mediator.Send(new GetAllEmailTemplatesQuery());
 
         if (result.IsFailure)
         {
             LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value.Select(template => new EmailTemplateResponseDTO()
-        {
-            CreatedAt = template.Created,
-            TemplateID = template.ID,
-            TemplateName = template.Name,
-            LastModified = template.LastModified
-        })));
+
+        return new OkObjectResult(new GetTemplatesResponse { Templates = [.. result.Value.Select(mapper.ToDTO)] });
     }
 
-
     /// <summary>
-    /// Creates a new email template using the provided details in the request.
+    /// Creates a new email template.
     /// </summary>
-    /// <param name="request">
-    /// An instance of <see cref="UploadEmailTemplateRequest"/> containing the name of the template
-    /// and the file to be uploaded.
+    /// <param name="body">
+    /// An object of type <see cref="CreateEmailTemplateRequest"/> containing the name of the template to be created.
     /// </param>
     /// <returns>
-    /// An <see cref="IActionResult"/> indicating success or failure of the operation.
-    /// On success, returns a confirmation of the created template;
-    /// otherwise, an appropriate error response.
+    /// An <see cref="ActionResult{CreateEmailTemplateResponse}"/> containing the ID of the newly created email template
+    /// if the operation is successful, or an error response in case of failure.
     /// </returns>
-    [HttpPut("create")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> CreateNewEmailTemplate([FromForm] UploadEmailTemplateRequest request)
+    public override async Task<ActionResult<CreateEmailTemplateResponse>> CreateEmailTemplate(
+        CreateEmailTemplateRequest body)
     {
-
-        CreateEmailTemplateCommand createEmailTemplateCommand = new(request.File.OpenReadStream(), request.TemplateName);
-        Result<Unit> mediatrResponse = await mediator.Send(createEmailTemplateCommand);
-
-        if (mediatrResponse.IsFailure)
+        CreateTemplateDefinitionCommand command = new(body.Name);
+        Result<string> result = await mediator.Send(command);
+        if (result.IsFailure)
         {
-            LogFailedToCreateNewTemplateBecauseError(Logger, mediatrResponse.Error);
-            return new BadRequestObjectResult(ResponseEntity.FromError(mediatrResponse.Error));
+            LogFailedToCreateTheTeamplateSkeletonBecauseError(Logger, result.Error);
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        LogSuccessfullyCreatedNewTemplateTemplatename(Logger, request.TemplateName);
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        Logger.LogInformation(
+            "Successfully created template skeleton for template {TemplateName} with ID: {TemplateID}", body.Name,
+            result.Value);
+        return new OkObjectResult(new CreateEmailTemplateResponse { TemplateId = mapper.ToGuid(result.Value) });
     }
 
     /// <summary>
@@ -93,186 +76,124 @@ public partial class EmailTemplateController(IMediator mediator, ILogger<EmailTe
     /// <returns>
     /// An <see cref="IActionResult"/> indicating success with an empty response body or an appropriate error response.
     /// </returns>
-    [HttpPut("add-attachment")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> AddAttachmentToTemplate([FromForm] UploadEmailTemplateAttachment request)
+    public override async Task<ActionResult<AddAttachmentResponse>> AddAttachmentToEmailTemplate(string attachmentName,
+        Guid? templateID, IFormFile file)
     {
-        AddAttachmentCommand command = new(request.File.OpenReadStream(), request.TemplateID, request.AttachmentName);
+        AddAttachmentCommand command = new(file.OpenReadStream(), templateID?.ToString() ?? "", attachmentName);
         Result<string> result = await mediator.Send(command);
 
         if (result.IsFailure)
         {
-            LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID, result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
-
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(Logger, templateID?.ToString() ?? "fucked up", result.Error);
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return new OkObjectResult(new AddAttachmentResponse { Url = mapper.ToUri(result.Value) });
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="templateName"></param>
-    /// <returns></returns>
-    [HttpPut("create-skeleton")]
-    [Authorize]
-    [Produces("application/json")]
-    public async Task<IActionResult> CreateTemplateSkeleton([FromQuery(Name = "templateName")] string templateName)
-    {
-        CreateTemplateDefinitionCommand command = new(templateName);
-        Result<string> result = await mediator.Send(command);
-        if (result.IsFailure)
-        {
-            LogFailedToCreateTheTeamplateSkeletonBecauseError(Logger, result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
 
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
-        }
-        Logger.LogInformation("Successfully created template skeleton for template {TemplateName} with ID: {TemplateID}", templateName, result.Value);
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
-    }
     /// <summary>
     /// Updates the name of an existing email template.
     /// </summary>
-    /// <param name="request">
+    /// <param name="body">
     /// An <see cref="EditTemplateNameRequest"/> containing the template ID and the new name to be assigned to the template.
     /// </param>
     /// <returns>
     /// An <see cref="IActionResult"/> indicating whether the operation was successful. Returns an error response if the operation fails,
     /// including an unauthorized result if the caller lacks permissions.
     /// </returns>
-    [HttpPatch("change-name")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("application/json")]
-    public async Task<IActionResult> ChangeTemplateName([FromBody] EditTemplateNameRequest request)
+    public override async Task<IActionResult> ChangeTemplateName(UpdateEmailTemplateNameRequest body)
     {
-        Logger.LogInformation("Changing template name for template with ID '{TemplateID}' to '{NewTemplateName}'", request.TemplateID, request.NewTemplateName);
-        EditTemplateNameCommand command = new(request.TemplateID, request.NewTemplateName);
+        Logger.LogInformation("Changing template name for template with ID '{TemplateID}' to '{NewTemplateName}'",
+            body.TemplateID, body.Name);
+        EditTemplateNameCommand command = new(body.TemplateID.ToString(), body.Name);
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
             Logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}",
-                request.TemplateID, result.Error);
+                body.TemplateID, result.Error);
             if (result.Error == UserErrors.NotAuthorized)
             {
                 return new UnauthorizedResult();
             }
 
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        return new NoContentResult();
     }
 
+
     /// <summary>
-    /// Updates the contents of an existing email template based on the provided request data.
+    /// Updates the content of an email template.
     /// </summary>
-    /// <param name="request">
-    /// An <see cref="EditTemplateNameRequest"/> containing the template ID and the new content details.
+    /// <param name="templateID">
+    /// The unique identifier of the email template to update.
+    /// </param>
+    /// <param name="templateFile">
+    /// The file containing the new content for the email template.
     /// </param>
     /// <returns>
-    /// An <see cref="IActionResult"/> indicating the result of the update operation. Returns a success response if the update is successful,
-    /// a bad request response if the operation fails due to input errors, or an unauthorized response if the user lacks necessary permissions.
+    /// An <see cref="IActionResult"/> that indicates the result of the operation.
+    /// Returns a <see cref="NoContentResult"/> if the update is successful, or a <see cref="BadRequestObjectResult"/> if the operation fails.
     /// </returns>
-    [HttpPatch("change-contents")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> ChangeTemplateContents([FromForm] EditTemplateContentRequest request)
+    public override async Task<IActionResult> UpdateEmailTemplateContent(Guid? templateID, IFormFile templateFile)
     {
-        UpdateTemplateContentCommand command = new(request.TemplateID, request.TemplateFile.OpenReadStream());
+        UpdateTemplateContentCommand command = new(templateID.ToString(), templateFile.OpenReadStream());
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, request.TemplateID,
+            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, templateID?.ToString() ?? "null",
                 result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
-
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
-
-        return new OkObjectResult(ResponseEntity.FromSuccess(""));
+        return new NoContentResult();
     }
+
 
     /// <summary>
     /// Retrieves the download URL for a specified email template.
     /// </summary>
-    /// <param name="templateID">The unique identifier of the email template.</param>
+    /// <param name="templateId">The unique identifier of the email template.</param>
     /// <returns>
     /// An <see cref="IActionResult"/> containing the download URL if successful,
     /// or an appropriate error response if the operation fails.
     /// </returns>
-    [HttpGet("url")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("application/json")]
-    public async Task<IActionResult> GetTemplateUrl([FromQuery(Name = "TemplateID")] string templateID)
+    public override async Task<ActionResult<GetEmailTemplateContentResponse>> GetEmailTemplateContent(string templateId)
     {
-        GetEmailTemplateURLQuery query = new(templateID);
+        GetEmailTemplateURLQuery query = new(templateId);
         Result<string> result = await mediator.Send(query);
         if (result.IsFailure)
         {
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return new OkObjectResult(new GetEmailTemplateContentResponse { Url =  mapper.ToUri(result.Value) });
     }
 
-    /// <summary>
-    /// Retrieves the contents of a specified template.
-    /// </summary>
-    /// <param name="templateID">
-    /// The unique identifier of the template whose contents are to be retrieved.
-    /// </param>
-    /// <returns>
-    /// A string representing the contents of the specified template if found,
-    /// or null if the template does not exist.
-    /// </returns>
-    [HttpGet("contents")]
-    [Authorize]
-    [Produces("application/json")]
-    [Consumes("application/json")]
-    public async Task<IActionResult> GetTemplateContents([FromQuery(Name = "templateID")] string templateID)
-    {
-        GetEmailTemplateContentQuery query = new(templateID);
-        Result<string> result = await mediator.Send(query);
-        if (result.IsFailure)
-        {
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
-        }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
-    }
 
     [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
     static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string Error);
 
     [LoggerMessage(LogLevel.Information, "Successfully created new template {TemplateName}")]
-    static partial void LogSuccessfullyCreatedNewTemplateTemplatename(ILogger<EmailTemplateController> logger, string TemplateName);
+    static partial void LogSuccessfullyCreatedNewTemplateTemplatename(ILogger<EmailTemplateController> logger,
+        string TemplateName);
 
     [LoggerMessage(LogLevel.Error, "Failed to create new template because {Error}")]
     static partial void LogFailedToCreateNewTemplateBecauseError(ILogger<EmailTemplateController> logger, string Error);
 
     [LoggerMessage(LogLevel.Error, "Failed to add attachment to template with ID: {TemplateID} because {Error}")]
-    static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+    static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(
+        ILogger<EmailTemplateController> logger, string TemplateID, string Error);
 
-    [LoggerMessage(LogLevel.Error, "Failed to change template name for template with ID '{TemplateID}' because {Error}")]
-    static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+    [LoggerMessage(LogLevel.Error,
+        "Failed to change template name for template with ID '{TemplateID}' because {Error}")]
+    static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(
+        ILogger<EmailTemplateController> logger, string TemplateID, string Error);
 
     [LoggerMessage(LogLevel.Error, "Failed to create the teamplate skeleton because: {Error}")]
-    static partial void LogFailedToCreateTheTeamplateSkeletonBecauseError(ILogger<EmailTemplateController> logger, string Error);
+    static partial void LogFailedToCreateTheTeamplateSkeletonBecauseError(ILogger<EmailTemplateController> logger,
+        string Error);
+    
 }

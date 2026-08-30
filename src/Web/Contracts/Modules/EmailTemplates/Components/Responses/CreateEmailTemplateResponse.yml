@@ -1,0 +1,8 @@
+﻿type: object
+description: The response containing the ID of the created email template
+
+required:
+  - templateId
+properties:
+  templateId:
+    $ref: '../../../Common/Fields/ID.yml'

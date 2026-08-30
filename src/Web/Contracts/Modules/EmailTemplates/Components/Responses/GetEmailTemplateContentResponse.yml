@@ -1,0 +1,11 @@
+﻿type: object
+description: The template content download info
+
+required:
+  - url
+
+properties: 
+    url:
+      type: string
+      format: uri
+      description: The URL to download the email template content

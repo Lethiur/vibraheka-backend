@@ -8,6 +8,8 @@ using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Authentication;
+using UserRole = VibraHeka.Domain.Entities.UserRole;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -29,14 +31,12 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
 
         // Then: Should return a JWT token
-        ResponseEntity token = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
-        AuthenticationResult? result = token.GetContentAs<AuthenticationResult>();
-        Assert.That(token.Success, Is.True);
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.UserID, Is.Not.Null.And.Not.Empty);
-        Assert.That(result.AccessToken, Is.Not.Null.And.Not.Empty);
-        Assert.That(result.RefreshToken, Is.Not.Null.And.Not.Empty);
-        Assert.That(result!.Role, Is.EqualTo(UserRole.User));
+        AuthenticateUserResponse? token = await response.Content.ReadFromJsonAsync<AuthenticateUserResponse>();
+        
+        Assert.That(token, Is.Not.Null);
+        Assert.That(token!.AccessToken, Is.Not.Null.And.Not.Empty);
+        Assert.That(token.RefreshToken, Is.Not.Null.And.Not.Empty);
+        Assert.That(token.Role, Is.EqualTo(UserRole.User));
     }
 
 
@@ -66,8 +66,9 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
         // And: Check error code
-        ResponseEntity responseObject = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(expectedErrorKeyword));
     }
 
     #endregion
@@ -92,8 +93,8 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
             "Should return BadRequest for unconfirmed users");
 
         // And: The error code should be UserNotConfirmed (E-003)
-        ResponseEntity responseObject = await response.GetAsResponseEntity();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotConfirmed));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.UserNotConfirmed));
     }
 
 
@@ -110,8 +111,8 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: Should return NotFound 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
 
-        ResponseEntity responseObject = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
@@ -130,8 +131,8 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: Should return NotFound (según el switch en tu AuthController para InvalidPassword)
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
 
-        ResponseEntity responseObject = await response.GetAsResponseEntity();
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
     }
 
     #endregion

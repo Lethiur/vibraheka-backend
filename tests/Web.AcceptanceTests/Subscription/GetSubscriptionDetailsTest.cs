@@ -3,7 +3,6 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -58,7 +57,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
 
         Assert.That(entity.Success, Is.True);
         Assert.That(details, Is.Not.Null);
-        Assert.That(details!.CheckoutSessionUrl, Is.Not.Null.And.Not.Empty);
+        Assert.That(details.CheckoutSessionUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(details.CheckoutSessionExpiresAt, Is.GreaterThan(DateTimeOffset.UtcNow.AddHours(-1)));
     }
 }

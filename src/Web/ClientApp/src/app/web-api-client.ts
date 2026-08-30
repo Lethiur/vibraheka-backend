@@ -14,486 +14,6 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
-export interface IEmailTemplateClient {
-    emailTemplate_GetTemplates(): Observable<FileResponse>;
-    emailTemplate_CreateNewEmailTemplate(templateName: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
-    emailTemplate_AddAttachmentToTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse>;
-    emailTemplate_CreateTemplateSkeleton(templateName: string | undefined): Observable<FileResponse>;
-    emailTemplate_ChangeTemplateName(request: EditTemplateNameRequest): Observable<FileResponse>;
-    emailTemplate_ChangeTemplateContents(templateID: string | null | undefined, templateFile: FileParameter | null | undefined): Observable<FileResponse>;
-    emailTemplate_GetTemplateUrl(templateID: string | undefined): Observable<FileResponse>;
-    emailTemplate_GetTemplateContents(templateID: string | undefined): Observable<FileResponse>;
-}
-
-@Injectable({
-    providedIn: 'root'
-})
-export class EmailTemplateClient implements IEmailTemplateClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    emailTemplate_GetTemplates(): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_GetTemplates(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_GetTemplates(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_GetTemplates(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_CreateNewEmailTemplate(templateName: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/create";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (templateName !== null && templateName !== undefined)
-            content_.append("TemplateName", templateName.toString());
-        if (file !== null && file !== undefined)
-            content_.append("File", file.data, file.fileName ? file.fileName : "File");
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_CreateNewEmailTemplate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_CreateNewEmailTemplate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_CreateNewEmailTemplate(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_AddAttachmentToTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/add-attachment";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (attachmentName !== null && attachmentName !== undefined)
-            content_.append("AttachmentName", attachmentName.toString());
-        if (templateID !== null && templateID !== undefined)
-            content_.append("TemplateID", templateID.toString());
-        if (file !== null && file !== undefined)
-            content_.append("File", file.data, file.fileName ? file.fileName : "File");
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_AddAttachmentToTemplate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_AddAttachmentToTemplate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_AddAttachmentToTemplate(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_CreateTemplateSkeleton(templateName: string | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/create-skeleton?";
-        if (templateName === null)
-            throw new globalThis.Error("The parameter 'templateName' cannot be null.");
-        else if (templateName !== undefined)
-            url_ += "templateName=" + encodeURIComponent("" + templateName) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_CreateTemplateSkeleton(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_CreateTemplateSkeleton(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_CreateTemplateSkeleton(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_ChangeTemplateName(request: EditTemplateNameRequest): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/change-name";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_ChangeTemplateName(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_ChangeTemplateName(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_ChangeTemplateName(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_ChangeTemplateContents(templateID: string | null | undefined, templateFile: FileParameter | null | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/change-contents";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (templateID !== null && templateID !== undefined)
-            content_.append("TemplateID", templateID.toString());
-        if (templateFile !== null && templateFile !== undefined)
-            content_.append("TemplateFile", templateFile.data, templateFile.fileName ? templateFile.fileName : "TemplateFile");
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_ChangeTemplateContents(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_ChangeTemplateContents(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_ChangeTemplateContents(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_GetTemplateUrl(templateID: string | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/url?";
-        if (templateID === null)
-            throw new globalThis.Error("The parameter 'templateID' cannot be null.");
-        else if (templateID !== undefined)
-            url_ += "TemplateID=" + encodeURIComponent("" + templateID) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_GetTemplateUrl(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_GetTemplateUrl(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_GetTemplateUrl(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    emailTemplate_GetTemplateContents(templateID: string | undefined): Observable<FileResponse> {
-        let url_ = this.baseUrl + "/api/v1/email-templates/contents?";
-        if (templateID === null)
-            throw new globalThis.Error("The parameter 'templateID' cannot be null.");
-        else if (templateID !== undefined)
-            url_ += "templateID=" + encodeURIComponent("" + templateID) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/octet-stream"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEmailTemplate_GetTemplateContents(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processEmailTemplate_GetTemplateContents(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<FileResponse>;
-        }));
-    }
-
-    protected processEmailTemplate_GetTemplateContents(response: HttpResponseBase): Observable<FileResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
 export interface IEventClient {
     event_CreateEvent(request: CreateEventRequest): Observable<FileResponse>;
     event_GetEvents(from: Date, to: Date): Observable<FileResponse>;
@@ -1037,6 +557,20 @@ export class UserClient implements IUserClient {
             result400 = BadRequestResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1091,6 +625,20 @@ export class UserClient implements IUserClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = BadRequestResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1151,6 +699,20 @@ export class UserClient implements IUserClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = BadRequestResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1213,6 +775,20 @@ export class UserClient implements IUserClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = BadRequestResponse.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1291,6 +867,20 @@ export class SubscriptionClient implements ISubscriptionClient {
             result400 = BadRequestResponse2.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1346,6 +936,20 @@ export class SubscriptionClient implements ISubscriptionClient {
             result400 = BadRequestResponse2.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1397,6 +1001,20 @@ export class SubscriptionClient implements ISubscriptionClient {
             result400 = BadRequestResponse2.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1447,6 +1065,20 @@ export class SubscriptionClient implements ISubscriptionClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = BadRequestResponse2.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1502,6 +1134,477 @@ export class SubscriptionClient implements ISubscriptionClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = BadRequestResponse2.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IEmailTemplateClient {
+    emailTemplate_GetAllEmailTemplates(): Observable<GetTemplatesResponse>;
+    emailTemplate_CreateEmailTemplate(body: CreateEmailTemplateRequest): Observable<CreateEmailTemplateResponse>;
+    emailTemplate_ChangeTemplateName(body: UpdateEmailTemplateNameRequest): Observable<void>;
+    emailTemplate_AddAttachmentToEmailTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<AddAttachmentResponse>;
+    emailTemplate_UpdateEmailTemplateContent(templateID: string | null | undefined, templateFile: FileParameter | null | undefined): Observable<void>;
+    emailTemplate_GetEmailTemplateContent(templateId: string | undefined): Observable<GetEmailTemplateContentResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class EmailTemplateClient implements IEmailTemplateClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    emailTemplate_GetAllEmailTemplates(): Observable<GetTemplatesResponse> {
+        let url_ = this.baseUrl + "/api/v1/email-templates";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_GetAllEmailTemplates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_GetAllEmailTemplates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetTemplatesResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetTemplatesResponse>;
+        }));
+    }
+
+    protected processEmailTemplate_GetAllEmailTemplates(response: HttpResponseBase): Observable<GetTemplatesResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetTemplatesResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_CreateEmailTemplate(body: CreateEmailTemplateRequest): Observable<CreateEmailTemplateResponse> {
+        let url_ = this.baseUrl + "/api/v1/email-templates";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_CreateEmailTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_CreateEmailTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateEmailTemplateResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateEmailTemplateResponse>;
+        }));
+    }
+
+    protected processEmailTemplate_CreateEmailTemplate(response: HttpResponseBase): Observable<CreateEmailTemplateResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateEmailTemplateResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_ChangeTemplateName(body: UpdateEmailTemplateNameRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/email-templates";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_ChangeTemplateName(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_ChangeTemplateName(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processEmailTemplate_ChangeTemplateName(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_AddAttachmentToEmailTemplate(attachmentName: string | null | undefined, templateID: string | null | undefined, file: FileParameter | null | undefined): Observable<AddAttachmentResponse> {
+        let url_ = this.baseUrl + "/api/v1/email-templates/attachments";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (attachmentName !== null && attachmentName !== undefined)
+            content_.append("attachmentName", attachmentName.toString());
+        if (templateID !== null && templateID !== undefined)
+            content_.append("templateID", templateID.toString());
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_AddAttachmentToEmailTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_AddAttachmentToEmailTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AddAttachmentResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AddAttachmentResponse>;
+        }));
+    }
+
+    protected processEmailTemplate_AddAttachmentToEmailTemplate(response: HttpResponseBase): Observable<AddAttachmentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AddAttachmentResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_UpdateEmailTemplateContent(templateID: string | null | undefined, templateFile: FileParameter | null | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/email-templates/content";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (templateID !== null && templateID !== undefined)
+            content_.append("templateID", templateID.toString());
+        if (templateFile !== null && templateFile !== undefined)
+            content_.append("templateFile", templateFile.data, templateFile.fileName ? templateFile.fileName : "templateFile");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_UpdateEmailTemplateContent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_UpdateEmailTemplateContent(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processEmailTemplate_UpdateEmailTemplateContent(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    emailTemplate_GetEmailTemplateContent(templateId: string | undefined): Observable<GetEmailTemplateContentResponse> {
+        let url_ = this.baseUrl + "/api/v1/email-templates/content?";
+        if (templateId === null)
+            throw new globalThis.Error("The parameter 'templateId' cannot be null.");
+        else if (templateId !== undefined)
+            url_ += "templateId=" + encodeURIComponent("" + templateId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmailTemplate_GetEmailTemplateContent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmailTemplate_GetEmailTemplateContent(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetEmailTemplateContentResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetEmailTemplateContentResponse>;
+        }));
+    }
+
+    protected processEmailTemplate_GetEmailTemplateContent(response: HttpResponseBase): Observable<GetEmailTemplateContentResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetEmailTemplateContentResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = BadRequestResponse3.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result403);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2525,7 +2628,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2580,7 +2683,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2639,7 +2742,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2694,7 +2797,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2749,7 +2852,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2808,7 +2911,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2863,7 +2966,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2918,7 +3021,7 @@ export class AuthClient implements IAuthClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = BadRequestResponse3.fromJS(resultData400);
+            result400 = BadRequestResponse4.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2928,46 +3031,6 @@ export class AuthClient implements IAuthClient {
         }
         return _observableOf(null as any);
     }
-}
-
-export class EditTemplateNameRequest implements IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
-
-    constructor(data?: IEditTemplateNameRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.templateID = _data["templateID"];
-            this.newTemplateName = _data["newTemplateName"];
-        }
-    }
-
-    static fromJS(data: any): EditTemplateNameRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new EditTemplateNameRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["templateID"] = this.templateID;
-        data["newTemplateName"] = this.newTemplateName;
-        return data;
-    }
-}
-
-export interface IEditTemplateNameRequest {
-    templateID?: string;
-    newTemplateName?: string;
 }
 
 export class CreateEventRequest implements ICreateEventRequest {
@@ -3030,7 +3093,6 @@ export interface ICreateEventRequest {
     currencyCode?: CurrencyIsoCode;
 }
 
-/** Currency codes as stated by the ISO 4217 standard */
 export enum CurrencyIsoCode {
     ALL = "ALL",
     DZD = "DZD",
@@ -4070,6 +4132,545 @@ export interface ISubscriptionPortalResponse {
     [key: string]: any;
 }
 
+export class GetTemplatesResponse implements IGetTemplatesResponse {
+    templates!: SimpleEmailTemplateDTO[];
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IGetTemplatesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.templates = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            if (Array.isArray(_data["templates"])) {
+                this.templates = [] as any;
+                for (let item of _data["templates"])
+                    this.templates!.push(SimpleEmailTemplateDTO.fromJS(item));
+            }
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): GetTemplatesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTemplatesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        if (Array.isArray(this.templates)) {
+            data["templates"] = [];
+            for (let item of this.templates)
+                data["templates"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IGetTemplatesResponse {
+    templates: SimpleEmailTemplateDTO[];
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class SimpleEmailTemplateDTO implements ISimpleEmailTemplateDTO {
+    id?: string;
+    name?: string | undefined;
+    created?: string | undefined;
+    lastModified?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ISimpleEmailTemplateDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.created = _data["created"];
+            this.lastModified = _data["lastModified"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): SimpleEmailTemplateDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new SimpleEmailTemplateDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["created"] = this.created;
+        data["lastModified"] = this.lastModified;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface ISimpleEmailTemplateDTO {
+    id?: string;
+    name?: string | undefined;
+    created?: string | undefined;
+    lastModified?: string | undefined;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class BadRequestResponse3 implements IBadRequestResponse3 {
+    errorCode!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IBadRequestResponse3) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.errorCode = _data["errorCode"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): BadRequestResponse3 {
+        data = typeof data === 'object' ? data : {};
+        let result = new BadRequestResponse3();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["errorCode"] = this.errorCode;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IBadRequestResponse3 {
+    errorCode: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class CreateEmailTemplateResponse implements ICreateEmailTemplateResponse {
+    templateId!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateEmailTemplateResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.templateId = _data["templateId"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateEmailTemplateResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateEmailTemplateResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["templateId"] = this.templateId;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface ICreateEmailTemplateResponse {
+    templateId: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class CreateEmailTemplateRequest implements ICreateEmailTemplateRequest {
+    name!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: ICreateEmailTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.name = _data["name"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateEmailTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateEmailTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["name"] = this.name;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface ICreateEmailTemplateRequest {
+    name: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class AddAttachmentResponse implements IAddAttachmentResponse {
+    url!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IAddAttachmentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.url = _data["url"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): AddAttachmentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddAttachmentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["url"] = this.url;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IAddAttachmentResponse {
+    url: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class UpdateEmailTemplateNameRequest implements IUpdateEmailTemplateNameRequest {
+    templateID!: string;
+    name!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateEmailTemplateNameRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.templateID = _data["templateID"];
+            this.name = _data["name"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateEmailTemplateNameRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateEmailTemplateNameRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["templateID"] = this.templateID;
+        data["name"] = this.name;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IUpdateEmailTemplateNameRequest {
+    templateID: string;
+    name: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
+export class GetEmailTemplateContentResponse implements IGetEmailTemplateContentResponse {
+    url!: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IGetEmailTemplateContentResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.url = _data["url"];
+            if (_data["additionalProperties"]) {
+                this.additionalProperties = {} as any;
+                for (let key in _data["additionalProperties"]) {
+                    if (_data["additionalProperties"].hasOwnProperty(key))
+                        (this.additionalProperties as any)![key] = _data["additionalProperties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): GetEmailTemplateContentResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetEmailTemplateContentResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["url"] = this.url;
+        if (this.additionalProperties) {
+            data["additionalProperties"] = {};
+            for (let key in this.additionalProperties) {
+                if (this.additionalProperties.hasOwnProperty(key))
+                    (data["additionalProperties"] as any)[key] = (this.additionalProperties as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IGetEmailTemplateContentResponse {
+    url: string;
+    additionalProperties?: { [key: string]: any; } | undefined;
+
+    [key: string]: any;
+}
+
 export class ResponseEntity implements IResponseEntity {
     success?: boolean;
     errorCode?: string | undefined;
@@ -4530,13 +5131,13 @@ export interface IRegisterUserResponse {
     [key: string]: any;
 }
 
-export class BadRequestResponse3 implements IBadRequestResponse3 {
+export class BadRequestResponse4 implements IBadRequestResponse4 {
     errorCode!: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 
     [key: string]: any;
 
-    constructor(data?: IBadRequestResponse3) {
+    constructor(data?: IBadRequestResponse4) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4562,9 +5163,9 @@ export class BadRequestResponse3 implements IBadRequestResponse3 {
         }
     }
 
-    static fromJS(data: any): BadRequestResponse3 {
+    static fromJS(data: any): BadRequestResponse4 {
         data = typeof data === 'object' ? data : {};
-        let result = new BadRequestResponse3();
+        let result = new BadRequestResponse4();
         result.init(data);
         return result;
     }
@@ -4587,7 +5188,7 @@ export class BadRequestResponse3 implements IBadRequestResponse3 {
     }
 }
 
-export interface IBadRequestResponse3 {
+export interface IBadRequestResponse4 {
     errorCode: string;
     additionalProperties?: { [key: string]: any; } | undefined;
 

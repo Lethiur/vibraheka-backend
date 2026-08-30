@@ -8,6 +8,7 @@ using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -46,16 +47,16 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/change-password", command);
 
         // Then: endpoint should return success.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.True);
-
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        
         // And: old password should fail while new password should authenticate successfully.
         AuthenticateUserCommand oldPasswordCommand = new(email, currentPassword);
         HttpResponseMessage oldPasswordResponse = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", oldPasswordCommand);
-        Assert.That(oldPasswordResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        ResponseEntity oldPasswordEntity = await oldPasswordResponse.GetAsResponseEntity();
-        Assert.That(oldPasswordEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        
+        
+        Assert.That(oldPasswordResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        BadRequestResponse? responseObject = await oldPasswordResponse.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
 
         AuthenticateUserCommand newPasswordCommand = new(email, newPassword);
         HttpResponseMessage newPasswordResponse = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", newPasswordCommand);
@@ -79,8 +80,8 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
 
         // Then: validator should reject request.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
     }
 
     [Test]
@@ -100,7 +101,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
 
         // Then: Cognito should reject credentials and endpoint should return unauthorized.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
     }
 }

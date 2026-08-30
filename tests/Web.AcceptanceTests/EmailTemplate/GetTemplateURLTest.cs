@@ -4,8 +4,8 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -18,7 +18,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: request without bearer token.
 
         // When: getting template URL.
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={Guid.NewGuid()}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/content?templateId={Guid.NewGuid()}");
 
         // Then: endpoint should return unauthorized.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -35,27 +35,29 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // And: A template created WITH a file (not a skeleton)
         string templateName = $"FullTemplate-{TheFaker.Random.AlphaNumeric(8)}";
-        using MultipartFormDataContent form = new();
-        form.Add(new StringContent(templateName), "TemplateName");
-        form.Add(new StreamContent(new MemoryStream(System.Text.Encoding.UTF8.GetBytes("<html>Sample</html>"))), "File", "sample.html");
-
-        await Client.PutAsync("/api/v1/email-templates/create", form);
+        CreateEmailTemplateRequest createRequest = new()
+        {
+            Name = templateName
+        };
+        await Client.PutAsJsonAsync("/api/v1/email-templates", createRequest);
 
         // We need to get the ID. We can get all templates to find it.
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        EmailTemplateResponseDTO template = listEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>()!
-            .First(t => t.TemplateName == templateName);
+        ResponseEntity listEntity = await listResponse.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
+        SimpleEmailTemplateDTO template = listEntity.GetContentAs<GetTemplatesResponse>()!.Templates
+            .First(t => t.Name == templateName);
 
         // When: Getting the URL
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={template.TemplateID}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/content?templateId={template.ID}");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity urlEntity = await response.GetAsResponseEntityAndContentAs<string>();
+        ResponseEntity urlEntity = await response.GetAsResponseEntityAndContentAs<GetEmailTemplateContentResponse>();
+        GetEmailTemplateContentResponse? contentResponse = urlEntity.GetContentAs<GetEmailTemplateContentResponse>();
         Assert.That(urlEntity.Success, Is.True);
-        Assert.That(urlEntity.Content, Is.Not.Empty);
-        Assert.That(urlEntity.Content!.ToString()!.StartsWith("http"), Is.True);
+        Assert.That(contentResponse, Is.Not.Null);
+        Assert.That(contentResponse!.Url, Is.Not.Null);
+        Assert.That(contentResponse.Url.ToString().StartsWith("http"), Is.True);
     }
 
     [Test]
@@ -68,7 +70,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Getting a template URL
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={Guid.NewGuid()}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/content?templateId={Guid.NewGuid()}");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -84,7 +86,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Getting URL with invalid ID
-        HttpResponseMessage response = await Client.GetAsync("/api/v1/email-templates/url?TemplateID=not-a-guid");
+        HttpResponseMessage response = await Client.GetAsync("/api/v1/email-templates/content?templateId=not-a-guid");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -102,7 +104,7 @@ public class GetTemplateURLTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Getting URL of a non-existent template
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/url?TemplateID={Guid.NewGuid()}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/email-templates/content?templateId={Guid.NewGuid()}");
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));

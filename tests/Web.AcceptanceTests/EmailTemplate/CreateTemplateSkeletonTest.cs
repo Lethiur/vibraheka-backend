@@ -1,10 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -18,8 +19,11 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         string templateName = $"Skeleton-{TheFaker.Random.AlphaNumeric(8)}";
 
         // When: creating template skeleton.
-        HttpResponseMessage response =
-            await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={templateName}", null);
+        CreateEmailTemplateRequest createRequest = new()
+        {
+            Name = templateName
+        };
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/email-templates", createRequest);
 
         // Then: endpoint should reject unauthenticated access.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -37,20 +41,24 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         string templateName = $"Skeleton-{TheFaker.Random.AlphaNumeric(8)}";
 
         // When: Creating a skeleton
-        HttpResponseMessage response = await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={templateName}", null);
+        CreateEmailTemplateRequest createRequest = new()
+        {
+            Name = templateName
+        };
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/email-templates", createRequest);
 
         // Then: Should return 200 OK and the template ID
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
-        string? templateId = responseEntity.GetContentAs<string>();
+        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<CreateEmailTemplateResponse>();
+        CreateEmailTemplateResponse? createResponse = responseEntity.GetContentAs<CreateEmailTemplateResponse>();
         Assert.That(responseEntity.Success, Is.True);
-        Assert.That(templateId, Is.Not.Null);
+        Assert.That(createResponse, Is.Not.Null);
 
         // Verify the skeleton exists in the summary list (Happy Path check)
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        IEnumerable<EmailTemplateResponseDTO>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        Assert.That(templates!.Any(t => t.TemplateID == templateId && t.TemplateName == templateName), Is.True);
+        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.GetContentAs<GetTemplatesResponse>()!.Templates;
+        Assert.That(templates.Any(t => t.ID == createResponse!.TemplateId && t.Name == templateName), Is.True);
     }
 
     [Test]
@@ -63,7 +71,10 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Creating a skeleton
-        HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/create-skeleton?templateName=Unauthorized", null);
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/email-templates", new CreateEmailTemplateRequest
+        {
+            Name = "Unauthorized"
+        });
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -79,7 +90,10 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Creating a skeleton with a name too short
-        HttpResponseMessage response = await Client.PutAsync("/api/v1/email-templates/create-skeleton?templateName=Ab", null);
+        HttpResponseMessage response = await Client.PutAsJsonAsync("/api/v1/email-templates", new CreateEmailTemplateRequest
+        {
+            Name = "Ab"
+        });
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));

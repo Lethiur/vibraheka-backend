@@ -6,7 +6,7 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -25,7 +25,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         RefreshTokenRequest command = new()
         {
             RefreshToken = authenticationResult.RefreshToken,
-            Username = email
+            Email = email
         };
 
         // When: requesting token refresh through the API.
@@ -54,7 +54,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         RefreshTokenRequest command = new()
         {
             RefreshToken = authenticationResult.RefreshToken,
-            Username = email
+            Email = email
         };
 
         // When: refreshing the session.
@@ -79,7 +79,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         RefreshTokenRequest command = new()
         {
             RefreshToken = "invalid-refresh-token",
-            Username = email
+            Email = email
         };
 
         // When: requesting token refresh.
@@ -106,7 +106,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         RefreshTokenRequest command = new()
         {
             RefreshToken = refreshToken!,
-            Username = email!
+            Email = email!
         };
 
         // When: calling the refresh-token endpoint.

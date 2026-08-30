@@ -23,4 +23,160 @@ tags:
     - name: AdminEmailTemplates
       description: Operations related to email templates
 paths:
-  
+  /:
+    get:
+      tags:
+      - AdminEmailTemplates
+      summary: Get all email templates
+      operationId: getAllEmailTemplates
+      responses:
+        200:
+          description: A list of email templates
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetTemplatesResponse.yml'
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema: 
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+    put:
+        tags:
+         - AdminEmailTemplates
+        summary: Creates a new email template
+        operationId: createEmailTemplate
+        requestBody:
+            required: true
+            content:
+              application/json:
+                  schema:
+                    $ref: './Components/Requests/CreateEmailTemplateRequest.yml'
+        responses:
+            200:
+              description: Email template created successfully
+              content:
+                  application/json:
+                    schema: 
+                        $ref: './Components/Responses/CreateEmailTemplateResponse.yml'
+            400: 
+              description: Bad request
+              content:
+                  application/json:
+                    schema: 
+                        $ref: '../Common/Response/BadRequestResponse.yml'
+            401:
+              description: Unauthorized
+            403:
+              description: Forbidden
+    patch:
+        tags:
+          - AdminEmailTemplates
+        summary: Updates an existing email name
+        operationId: changeTemplateName
+        requestBody:
+            required: true
+            content:
+              application/json:
+                  schema:
+                    $ref: './Components/Requests/UpdateEmailTemplateNameRequest.yml'
+        responses:
+            204:
+              description: Email template updated successfully
+            400: 
+              description: Bad request
+              content:
+                  application/json:
+                    schema: 
+                        $ref: '../Common/Response/BadRequestResponse.yml'
+            401:
+              description: Unauthorized
+            403:
+              description: Forbidden
+  /content:
+    put:
+      tags:
+       - AdminEmailTemplates
+      summary: Updates the content of an email template
+      operationId: updateEmailTemplateContent
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: './Components/Requests/UpdateEmailTemplateContentRequest.yml'
+      responses:
+        204:
+          description: Email template content updated successfully
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema: 
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+    get:
+        tags:
+         - AdminEmailTemplates
+        summary: Get the url to download the email template content
+        operationId: getEmailTemplateContent
+        parameters:
+            - name: templateId
+              in: query
+              required: true
+              schema:
+                  type: string
+        responses:
+            200:
+              description: Email template content retrieved successfully
+              content:
+                  application/json:
+                    schema:
+                        $ref: './Components/Responses/GetEmailTemplateContentResponse.yml'
+            400: 
+              description: Bad request
+              content:
+                  application/json:
+                    schema: 
+                        $ref: '../Common/Response/BadRequestResponse.yml'
+            401:
+              description: Unauthorized
+            403:
+              description: Forbidden
+  /attachments:
+    put:
+      tags:
+       - AdminEmailTemplates
+      summary: Add an attachment to an email template
+      operationId: addAttachmentToEmailTemplate
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: './Components/Requests/AddAttachmentRequest.yml'
+      responses:
+        200:
+          description: Attachment added successfully
+          content: 
+            application/json:
+              schema: 
+                $ref: './Components/Responses/AddAttachmentResponse.yml'
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema: 
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden

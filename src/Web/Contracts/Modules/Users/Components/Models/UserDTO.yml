@@ -13,9 +13,8 @@ required:
   
 properties:
   id:
-    type: string
-    description: The unique identifier of the user
-    example: "123e4567-e89b-12d3-a456-426614174000"
+   $ref: '../../../Common/Fields/ID.yml'
+   description: The unique identifier of the user
   email:
     type: string
     description: The email address of the user

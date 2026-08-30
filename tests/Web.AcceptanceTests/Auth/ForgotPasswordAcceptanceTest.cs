@@ -6,6 +6,7 @@ using VibraHeka.Application.Users.Commands.ConfirmPasswordRecovery;
 using VibraHeka.Application.Users.Commands.StartPasswordRecovery;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -22,10 +23,7 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password", command);
 
         // Then: endpoint returns success to avoid user enumeration
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.EqualTo("If the account exists, a recovery email has been sent."));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
     }
 
     [TestCase("")]
@@ -42,8 +40,8 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
 
         // Then: validation error is returned
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidEmail));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidEmail));
     }
 
     [Test]
@@ -57,8 +55,8 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
 
         // Then: token validation fails with InvalidPasswordResetToken
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
     [Test]
@@ -72,8 +70,8 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
 
         // Then: validator rejects the request with InvalidPasswordResetToken
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
     [Test]
@@ -87,7 +85,7 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
 
         // Then: validator returns invalid password error
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
     }
 }

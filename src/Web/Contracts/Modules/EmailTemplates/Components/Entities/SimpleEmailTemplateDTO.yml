@@ -1,0 +1,17 @@
+type: object
+description: Email template basic info
+
+properties:
+  iD:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: The unique identifier of the email template
+  name:
+    type: string
+    minLength: 3
+    description: The name of the email template
+  created:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The date and time when the email template was created
+  lastModified:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The date and time when the email template was last modified

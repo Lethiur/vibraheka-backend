@@ -3,9 +3,8 @@ description: User profile update request
 
 properties:
   email:
-    type: string
+    $ref: '../../../Common/Fields/Email.yml'
     description: The email address of the user
-    example: "user@example.com"
   firstName:
     type: string
     description: The first name of the user

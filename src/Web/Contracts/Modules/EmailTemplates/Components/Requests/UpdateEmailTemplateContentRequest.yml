@@ -1,0 +1,15 @@
+﻿type: object
+description: Request to update the content of an email template
+required:
+  - templateID
+  - templateFile
+properties:
+  templateID:
+    allOf:
+      - $ref: '../../../Common/Fields/ID.yml'
+    description: "ID of the template to modify."
+  
+  templateFile:
+    allOf:
+      - $ref: '../../../Common/Fields/Binary.yml'
+    description: "File of the template content to upload."

@@ -8,6 +8,7 @@
   "codeGenerators": {
     "openApiToCSharpController": {
       "className": "IEmailTemplatesController",
+      "controllerTarget" : "AspNetCore",
       "controllerStyle": "Abstract",
       "namespace": "VibraHeka.Web.EmailTemplates",
       "generateController": true,
@@ -15,7 +16,14 @@
       "generateDtoTypes": true,
       "useActionResultType": true,
       "templateDirectory" : "../../Templates",
-      "output": "../../../Generated/EmailTemplatesController.cs"
+      "output": "../../../Generated/EmailTemplatesController.cs",
+      "generateComplexTypesForFormData": true,
+      "typeMappers": [
+            {
+              "type": "FileParameter",
+              "customType": "Microsoft.AspNetCore.Http.IFormFile"
+            }
+          ]
     }
   }
 }

@@ -5,8 +5,8 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
+using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -17,10 +17,14 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnUnauthorizedWhenEditingNameWithoutAuthentication()
     {
         // Given: no authenticated admin context.
-        var editRequest = new { TemplateID = Guid.NewGuid().ToString(), NewTemplateName = "NoAuthName" };
+        UpdateEmailTemplateNameRequest editRequest = new()
+        {
+            TemplateID = Guid.NewGuid(),
+            Name = "NoAuthName"
+        };
 
         // When: calling change-name endpoint.
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates", editRequest);
 
         // Then: endpoint returns unauthorized.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -36,25 +40,33 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         string initialName = $"Initial-{TheFaker.Random.AlphaNumeric(8)}";
-        HttpResponseMessage createResponse = await Client.PutAsync($"/api/v1/email-templates/create-skeleton?templateName={initialName}", null);
-        ResponseEntity createEntity = await createResponse.GetAsResponseEntityAndContentAs<string>();
-        string templateId = createEntity.GetContentAs<string>()!;
+        CreateEmailTemplateRequest createRequest = new()
+        {
+            Name = initialName
+        };
+        HttpResponseMessage createResponse = await Client.PutAsJsonAsync("/api/v1/email-templates", createRequest);
+        ResponseEntity createEntity = await createResponse.GetAsResponseEntityAndContentAs<CreateEmailTemplateResponse>();
+        Guid templateId = createEntity.GetContentAs<CreateEmailTemplateResponse>()!.TemplateId;
 
         // When: Changing the name
         string newName = $"Updated-{TheFaker.Random.AlphaNumeric(8)}";
-        var editRequest = new { TemplateID = templateId, NewTemplateName = newName };
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        UpdateEmailTemplateNameRequest editRequest = new()
+        {
+            TemplateID = templateId,
+            Name = newName
+        };
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates", editRequest);
 
         // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         ResponseEntity updateEntity = await response.GetAsResponseEntity();
         Assert.That(updateEntity.Success, Is.True);
 
         // Happy Path check: Verify name updated in the list
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        IEnumerable<EmailTemplateResponseDTO>? templates = listResponseEntity.GetContentAs<IEnumerable<EmailTemplateResponseDTO>>();
-        Assert.That(templates!.Any(t => t.TemplateID == templateId && t.TemplateName == newName), Is.True);
+        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.GetContentAs<GetTemplatesResponse>()!.Templates;
+        Assert.That(templates.Any(t => t.ID == templateId && t.Name == newName), Is.True);
     }
 
     [Test]
@@ -67,8 +79,12 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing a template name
-        var editRequest = new { TemplateID = Guid.NewGuid().ToString(), NewTemplateName = "Unauthorized" };
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        UpdateEmailTemplateNameRequest editRequest = new()
+        {
+            TemplateID = Guid.NewGuid(),
+            Name = "Unauthorized"
+        };
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates", editRequest);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -84,8 +100,12 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name with invalid ID
-        var editRequest = new { TemplateID = "not-a-guid", NewTemplateName = "Valid Name" };
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        using StringContent editRequest = new("{\"templateID\":\"not-a-guid\",\"name\":\"Valid Name\"}", System.Text.Encoding.UTF8, "application/json");
+        HttpRequestMessage requestMessage = new(HttpMethod.Patch, "/api/v1/email-templates")
+        {
+            Content = editRequest
+        };
+        HttpResponseMessage response = await Client.SendAsync(requestMessage);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -103,8 +123,12 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name to a very short name
-        var editRequest = new { TemplateID = Guid.NewGuid().ToString(), NewTemplateName = "Ab" };
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        UpdateEmailTemplateNameRequest editRequest = new()
+        {
+            TemplateID = Guid.NewGuid(),
+            Name = "Ab"
+        };
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates", editRequest);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -122,8 +146,12 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name of a non-existent template
-        var editRequest = new { TemplateID = Guid.NewGuid().ToString(), NewTemplateName = "Valid Name" };
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates/change-name", editRequest);
+        UpdateEmailTemplateNameRequest editRequest = new()
+        {
+            TemplateID = Guid.NewGuid(),
+            Name = "Valid Name"
+        };
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/email-templates", editRequest);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
