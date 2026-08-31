@@ -1,0 +1,7 @@
+﻿type: object
+description: The details of a price
+
+properties:
+  product:
+    $ref: '../Entities/ProductDTO.yml'
+    description: The product associated with the price

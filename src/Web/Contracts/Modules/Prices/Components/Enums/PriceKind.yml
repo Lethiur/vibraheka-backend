@@ -1,0 +1,10 @@
+﻿components:
+  schemas:
+    PriceKind:
+      type: string
+      enum:
+        - oneTime
+        - recurring
+      x-enumNames:
+        - OneTime
+        - Recurring

@@ -58,20 +58,7 @@ public class EmailTemplateStorageService(IEmailTemplateStorageRepository reposit
             .Check(tpl => CheckTemplateExists(tpl, cancellationToken))
             .BindTry(tpl => _repository.GetTemplateUrlAsync(tpl));
     }
-
-    /// <summary>
-    /// Retrieves the content of an email template from the storage repository.
-    /// </summary>
-    /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A result containing the email template content as a string if successful, or an error if the operation fails.</returns>
-    public Task<Result<string>> GetTemplateContent(string templateID, CancellationToken cancellationToken)
-    {
-        return Maybe.From(templateID).ToResult(InvalidTempalteID)
-            .BindTry(tplID => CheckTemplateExists(tplID, cancellationToken))
-            .BindTry(_ => _repository.GetTemplateContent(templateID, cancellationToken));
-    }
-
+    
     /// <summary>
     /// Checks whether a template exists in the storage repository.
     /// </summary>

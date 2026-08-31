@@ -1,0 +1,10 @@
+﻿components:
+  schemas:
+    BillingInterval:
+      type: string
+      enum:
+        - monthly
+        - year
+      x-enumNames:
+        - Monthly
+        - Year

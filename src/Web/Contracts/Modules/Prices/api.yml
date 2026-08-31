@@ -16,8 +16,39 @@ security:
   - bearerAuth: [ ]
 
 tags:
-  - name: Subscriptions
+  - name: Pricing
     description: Operations related to subscriptions
 servers:
   - url: /api/v1/catalog/prices
     description: local Server server
+
+paths:
+  /:
+    put:
+      
+  /{id}:
+    get:
+      tags:
+        - Pricing
+      description: Retrieves the price information for a specific subscription by its ID.
+      operationId: getPriceById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the subscription price to retrieve.
+          schema:
+            $ref: '../Common/Fields/ID.yml'
+      responses: 
+        '200':
+          description: Successful response with the subscription price details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetPriceDetailsResponse.yml'
+        '404':
+          description: Price not found for the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
