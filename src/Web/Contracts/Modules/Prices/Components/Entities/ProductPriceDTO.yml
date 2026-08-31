@@ -9,10 +9,10 @@ properties:
     $ref: '../Common/Fields/ID.yml'
     description: Reference identifier for the related product
   priceKind:
-    $ref: './Enums/PriceKind.yml#/components/schemas/PriceKind'
+    $ref: '../Common/Enums/PriceKind.yml#/components/schemas/PriceKind'
     description: The kind of the price (one-time or recurring)
   billingInterval:
-    $ref: './Enums/BillingInterval.yml#/components/schemas/BillingInterval'
+    $ref: '../Common/Enums/BillingInterval.yml#/components/schemas/BillingInterval'
     description: The billing interval for recurring prices
   isActive:
     type: boolean

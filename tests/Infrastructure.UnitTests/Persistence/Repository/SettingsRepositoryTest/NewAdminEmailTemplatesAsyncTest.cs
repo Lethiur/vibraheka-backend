@@ -15,11 +15,11 @@ public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
     public async Task ShouldUpdateTemplateForNewAdminActions(string templateType)
     {
         // Given
-        const string templateId = "template-id";
+        Guid templateId = Guid.NewGuid();
         string parameterName = GetParameterName(templateType);
         SsmClientMock
             .Setup(x => x.PutParameterAsync(
-                It.Is<PutParameterRequest>(r => r.Name == parameterName && r.Value == templateId),
+                It.Is<PutParameterRequest>(r => r.Name == parameterName && r.Value == templateId.ToString()),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PutParameterResponse());
 
@@ -56,7 +56,7 @@ public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
         Assert.That(result.Value, Is.EqualTo(expectedTemplate));
     }
 
-    private Task<Result<Unit>> UpdateTemplate(string templateType, string templateId)
+    private Task<Result<Unit>> UpdateTemplate(string templateType, Guid templateId)
     {
         return templateType switch
         {
@@ -80,7 +80,7 @@ public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
         };
     }
 
-    private string GetParameterName(string templateType)
+    private static string GetParameterName(string templateType)
     {
         return templateType switch
         {

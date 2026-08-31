@@ -16,7 +16,7 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
     public async Task ShouldUpdateVerificationEmailTemplateSuccessfully()
     {
         // Given: A random email template content
-        string emailTemplate = $"<html><body><h1>Verify your email</h1><p>{_faker.Lorem.Sentence()}</p></body></html>";
+        Guid emailTemplate = Guid.NewGuid();
 
         // When: Updating the template in SSM
         Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, CancellationToken.None);
@@ -26,7 +26,7 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
 
         // And: Verify the value was actually stored in AWS SSM
         GetParameterResponse? response = await SSMClient.GetParameterAsync(new GetParameterRequest { Name = VerificationParameterName });
-        Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate));
+        Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate.ToString()));
     }
 
     [Test]
@@ -34,8 +34,8 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
     public async Task ShouldOverwriteExistingTemplate()
     {
         // Given: An initial template already in SSM
-        await Repository.UpdateVerificationEmailTemplateAsync("initial template", CancellationToken.None);
-        string newTemplate = "updated template " + _faker.Random.Guid();
+        await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
+        Guid newTemplate = Guid.NewGuid();
 
         // When: Updating the same parameter
         Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(newTemplate, CancellationToken.None);
@@ -44,26 +44,13 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
         Assert.That(result.IsSuccess, Is.True);
 
         GetParameterResponse? response = await SSMClient.GetParameterAsync(new GetParameterRequest { Name = VerificationParameterName });
-        Assert.That(response.Parameter.Value, Is.EqualTo(newTemplate));
+        Assert.That(response.Parameter.Value, Is.EqualTo(newTemplate.ToString()));
     }
 
     #endregion
 
     #region UpdateVerificationEmailTemplate - Edge Cases
 
-    [Test]
-    [DisplayName("Should handle very large template content")]
-    public async Task ShouldHandleLargeTemplateContent()
-    {
-        // Given: A large string (SSM Standard parameters support up to 4KB)
-        string largeTemplate = new('A', 3000);
-
-        // When: Updating the template
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(largeTemplate, CancellationToken.None);
-
-        // Then: Should return success if within limits
-        Assert.That(result.IsSuccess, Is.True);
-    }
 
     [Test]
     [DisplayName("Should return generic error when operation is cancelled")]
@@ -71,10 +58,10 @@ public class UpdateVerificationEmailTemplateTest : GenericSettingsRepositoryTest
     {
         // Given: un token de cancelacion ya cancelado.
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         // When: se intenta actualizar con la operacion cancelada.
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template-cancelled", cts.Token);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), cts.Token);
 
         // Then: el repositorio debe mapear al error generico de aplicacion.
         Assert.That(result.IsFailure, Is.True);

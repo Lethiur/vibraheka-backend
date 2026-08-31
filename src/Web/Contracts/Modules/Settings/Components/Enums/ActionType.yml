@@ -1,0 +1,27 @@
+﻿components:
+  schemas:
+    ActionType:
+      type: string
+      enum:
+        - userRegistered
+        - userVerification
+        - requestVerificationCode
+        - passwordReset
+        - subscriptionThankYou
+        - trialEndingSoon
+        - passwordChanged
+        - subscriptionCancelled
+        - subscriptionReactivated
+        - forgotPasswordCompleted
+      x-enumNames:
+        - UserRegistered
+        - UserVerification
+        - RequestVerificationCode
+        - PasswordReset
+        - SubscriptionThankYou
+        - TrialEndingSoon
+        - PasswordChanged
+        - SubscriptionCancelled
+        - SubscriptionReactivated
+        - ForgotPasswordCompleted
+        

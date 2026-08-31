@@ -1,0 +1,7 @@
+﻿type: object
+description: Represents the data transfer object for a subscription plan
+
+properties: 
+  id:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the CREATED subscription plan.

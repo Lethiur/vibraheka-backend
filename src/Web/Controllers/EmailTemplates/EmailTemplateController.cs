@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 using VibraHeka.Application.EmailTemplates.Commands.CreateTemplateDefinition;
 using VibraHeka.Application.EmailTemplates.Commands.EditTemplateName;
@@ -17,7 +16,7 @@ namespace VibraHeka.Web.Controllers.EmailTemplates;
 /// </summary>
 public partial class EmailTemplateController(
     IMediator mediator,
-    ILogger<EmailTemplateController> Logger,
+    ILogger<EmailTemplateController> logger,
     EmailTemplateMapper mapper) : IEmailTemplatesController
 {
     /// <summary>
@@ -33,7 +32,7 @@ public partial class EmailTemplateController(
 
         if (result.IsFailure)
         {
-            LogFailedToGetAllTemplatesBecauseError(Logger, result.Error);
+            LogFailedToGetAllTemplatesBecauseError(logger, result.Error);
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
@@ -57,11 +56,11 @@ public partial class EmailTemplateController(
         Result<string> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            LogFailedToCreateTheTeamplateSkeletonBecauseError(Logger, result.Error);
+            LogFailedToCreateTheTemplateSkeletonBecauseError(logger, result.Error);
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        Logger.LogInformation(
+        logger.LogInformation(
             "Successfully created template skeleton for template {TemplateName} with ID: {TemplateID}", body.Name,
             result.Value);
         return new OkObjectResult(new CreateEmailTemplateResponse { TemplateId = mapper.ToGuid(result.Value) });
@@ -70,21 +69,21 @@ public partial class EmailTemplateController(
     /// <summary>
     /// Adds a new attachment to an existing email template.
     /// </summary>
-    /// <param name="request">
-    /// The attachment details, including file, template ID, and attachment name.
-    /// </param>
+    /// <param name="attachmentName">The name of the attachment to be added to the email template.</param>
+    /// <param name="templateID">The unique identifier of the email template to which the attachment will be added.</param>
+    /// <param name="file">The file to be added as an attachment to the email template.</param>
     /// <returns>
     /// An <see cref="IActionResult"/> indicating success with an empty response body or an appropriate error response.
     /// </returns>
     public override async Task<ActionResult<AddAttachmentResponse>> AddAttachmentToEmailTemplate(string attachmentName,
         Guid? templateID, IFormFile file)
     {
-        AddAttachmentCommand command = new(file.OpenReadStream(), templateID?.ToString() ?? "", attachmentName);
+        AddAttachmentCommand command = new(file.OpenReadStream(), templateID ?? Guid.Empty, attachmentName);
         Result<string> result = await mediator.Send(command);
 
         if (result.IsFailure)
         {
-            LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(Logger, templateID?.ToString() ?? "fucked up", result.Error);
+            LogFailedToAddAttachmentToTemplateWithIdTemplateIdBecauseError(logger, templateID?.ToString() ?? "fucked up", result.Error);
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
@@ -96,7 +95,7 @@ public partial class EmailTemplateController(
     /// Updates the name of an existing email template.
     /// </summary>
     /// <param name="body">
-    /// An <see cref="EditTemplateNameRequest"/> containing the template ID and the new name to be assigned to the template.
+    /// Contains the template ID and the new name to be assigned to the template.
     /// </param>
     /// <returns>
     /// An <see cref="IActionResult"/> indicating whether the operation was successful. Returns an error response if the operation fails,
@@ -104,19 +103,14 @@ public partial class EmailTemplateController(
     /// </returns>
     public override async Task<IActionResult> ChangeTemplateName(UpdateEmailTemplateNameRequest body)
     {
-        Logger.LogInformation("Changing template name for template with ID '{TemplateID}' to '{NewTemplateName}'",
+        logger.LogInformation("Changing template name for template with ID '{TemplateID}' to '{NewTemplateName}'",
             body.TemplateID, body.Name);
-        EditTemplateNameCommand command = new(body.TemplateID.ToString(), body.Name);
+        EditTemplateNameCommand command = new(body.TemplateID, body.Name);
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            Logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}",
+            logger.LogError("Failed to change template name for template with ID '{TemplateID}' because {Error}",
                 body.TemplateID, result.Error);
-            if (result.Error == UserErrors.NotAuthorized)
-            {
-                return new UnauthorizedResult();
-            }
-
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
@@ -139,11 +133,11 @@ public partial class EmailTemplateController(
     /// </returns>
     public override async Task<IActionResult> UpdateEmailTemplateContent(Guid? templateID, IFormFile templateFile)
     {
-        UpdateTemplateContentCommand command = new(templateID.ToString(), templateFile.OpenReadStream());
+        UpdateTemplateContentCommand command = new(templateID ?? Guid.Empty, templateFile.OpenReadStream());
         Result<Unit> result = await mediator.Send(command);
         if (result.IsFailure)
         {
-            LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(Logger, templateID?.ToString() ?? "null",
+            LogFailedToChangeTemplateNameForTemplateWithIdTemplateIdBecauseError(logger, templateID?.ToString() ?? "null",
                 result.Error);
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
@@ -173,27 +167,27 @@ public partial class EmailTemplateController(
 
 
 
-    [LoggerMessage(LogLevel.Error, "Failed to get all templates because {Error}")]
-    static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string Error);
+    [LoggerMessage(LogLevel.Error, "Failed to get all templates because {error}")]
+    static partial void LogFailedToGetAllTemplatesBecauseError(ILogger<EmailTemplateController> logger, string error);
 
-    [LoggerMessage(LogLevel.Information, "Successfully created new template {TemplateName}")]
-    static partial void LogSuccessfullyCreatedNewTemplateTemplatename(ILogger<EmailTemplateController> logger,
-        string TemplateName);
+    [LoggerMessage(LogLevel.Information, "Successfully created new template {templateName}")]
+    static partial void LogSuccessfullyCreatedNewTemplateTemplateName(ILogger<EmailTemplateController> logger,
+        string templateName);
 
-    [LoggerMessage(LogLevel.Error, "Failed to create new template because {Error}")]
-    static partial void LogFailedToCreateNewTemplateBecauseError(ILogger<EmailTemplateController> logger, string Error);
+    [LoggerMessage(LogLevel.Error, "Failed to create new template because {error}")]
+    static partial void LogFailedToCreateNewTemplateBecauseError(ILogger<EmailTemplateController> logger, string error);
 
-    [LoggerMessage(LogLevel.Error, "Failed to add attachment to template with ID: {TemplateID} because {Error}")]
-    static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateidBecauseError(
-        ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+    [LoggerMessage(LogLevel.Error, "Failed to add attachment to template with ID: {templateID} because {error}")]
+    static partial void LogFailedToAddAttachmentToTemplateWithIdTemplateIdBecauseError(
+        ILogger<EmailTemplateController> logger, string templateID, string error);
 
     [LoggerMessage(LogLevel.Error,
-        "Failed to change template name for template with ID '{TemplateID}' because {Error}")]
-    static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateidBecauseError(
-        ILogger<EmailTemplateController> logger, string TemplateID, string Error);
+        "Failed to change template name for template with ID '{templateID}' because {error}")]
+    static partial void LogFailedToChangeTemplateNameForTemplateWithIdTemplateIdBecauseError(
+        ILogger<EmailTemplateController> logger, string templateID, string error);
 
-    [LoggerMessage(LogLevel.Error, "Failed to create the teamplate skeleton because: {Error}")]
-    static partial void LogFailedToCreateTheTeamplateSkeletonBecauseError(ILogger<EmailTemplateController> logger,
-        string Error);
+    [LoggerMessage(LogLevel.Error, "Failed to create the template skeleton because: {error}")]
+    static partial void LogFailedToCreateTheTemplateSkeletonBecauseError(ILogger<EmailTemplateController> logger,
+        string error);
     
 }

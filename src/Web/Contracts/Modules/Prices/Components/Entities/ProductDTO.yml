@@ -18,9 +18,9 @@ properties:
     example: true
     default: false
   productType:
-    $ref: './Enums/ProductType.yml#/components/schemas/ProductType'
+    $ref: '../Common/Enums/ProductType.yml#/components/schemas/ProductType'
     description: The type of the product
-  prices: 
+  prices:
     type: array
     description: List of prices associated with the product
     items:

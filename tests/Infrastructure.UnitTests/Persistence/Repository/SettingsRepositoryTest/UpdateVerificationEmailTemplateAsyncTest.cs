@@ -21,7 +21,7 @@ public class UpdateVerificationEmailTemplateAsyncTest : GenericSettingsRepositor
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PutParameterResponse());
 
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(emailTemplate, CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
@@ -33,7 +33,7 @@ public class UpdateVerificationEmailTemplateAsyncTest : GenericSettingsRepositor
         SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ParameterLimitExceededException("Limit reached"));
 
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template", CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureConfigErrors.ParameterLimitExceeded));
@@ -45,7 +45,7 @@ public class UpdateVerificationEmailTemplateAsyncTest : GenericSettingsRepositor
         SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TooManyUpdatesException("Too many updates"));
 
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template", CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureConfigErrors.TooManyUpdates));
@@ -57,7 +57,7 @@ public class UpdateVerificationEmailTemplateAsyncTest : GenericSettingsRepositor
         SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new AmazonSimpleSystemsManagementException("Access denied"));
 
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template", CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureConfigErrors.AccessDenied));
@@ -69,7 +69,7 @@ public class UpdateVerificationEmailTemplateAsyncTest : GenericSettingsRepositor
         SsmClientMock.Setup(x => x.PutParameterAsync(It.IsAny<PutParameterRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Unexpected error"));
 
-        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync("template", CancellationToken.None);
+        Result<Unit> result = await Repository.UpdateVerificationEmailTemplateAsync(Guid.NewGuid(), CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(AppErrors.GenericError));

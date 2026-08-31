@@ -17,7 +17,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldReturnTemplateWhenIdExists()
     {
         // Given: A template already exists in DynamoDB
-        string templateId = Guid.NewGuid().ToString();
+        Guid templateId = Guid.NewGuid();
         string expectedPath = $"templates/{_faker.System.FileName("html")}";
 
         await SeedTemplate(templateId, expectedPath);
@@ -27,7 +27,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
 
         // Then: Should return success and match the seeded data
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.ID, Is.EqualTo(templateId));
+        Assert.That(result.Value.ID, Is.EqualTo(templateId.ToString()));
         Assert.That(result.Value.Path, Is.EqualTo(expectedPath));
     }
 
@@ -40,7 +40,7 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
     public async Task ShouldReturnFailureWhenIdDoesNotExist()
     {
         // Given: A non-existent ID
-        string nonExistentId = "non-existent-id-" + Guid.NewGuid();
+        Guid nonExistentId = Guid.NewGuid();
 
         // When: Trying to retrieve it
         Result<EmailEntity> result = await Repository.GetTemplateByID(nonExistentId, CancellationToken.None);
@@ -54,14 +54,14 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
     [DisplayName("Should return generic persistence error when operation is cancelled")]
     public async Task ShouldReturnGenericPersistenceErrorWhenOperationIsCancelled()
     {
-        // Given: un token de cancelacion cancelado.
+        // Given: Canceled token
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
-        // When: se intenta recuperar plantilla con la operacion cancelada.
-        Result<EmailEntity> result = await Repository.GetTemplateByID(Guid.NewGuid().ToString("N"), cts.Token);
+        // When: trying to retrieve template with canceled operation
+        Result<EmailEntity> result = await Repository.GetTemplateByID(Guid.NewGuid(), cts.Token);
 
-        // Then: el repositorio debe mapear a error general de persistencia.
+        // Then: repository should map to generic persistence error
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(GenericPersistenceErrors.GeneralError));
     }
@@ -70,13 +70,12 @@ public class GetTemplateByIDTest : GenericEmailTemplateRepositoryIntegrationTest
 
     #region Helper Methods
 
-    private async Task SeedTemplate(string id, string path)
+    private async Task SeedTemplate(Guid id, string path)
     {
         EmailTemplateDBModel model = new()
         {
-            TemplateID = id,
+            TemplateID = id.ToString(),
             Path = path,
-            // Agregamos fechas para evitar el error de DateTimeOffset si el modelo las requiere
             Created = DateTimeOffset.UtcNow,
             LastModified = DateTimeOffset.UtcNow
         };

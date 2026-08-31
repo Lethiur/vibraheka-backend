@@ -25,10 +25,10 @@ public class SettingsService(
     /// <param name="emailTemplate">The new email template to be used for verification.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Result{Unit}"/> indicating whether the operation succeeded.</returns>
-    public async Task<Result<Unit>> ChangeEmailForVerificationAsync(string emailTemplate,
+    public async Task<Result<Unit>> ChangeEmailForVerificationAsync(Guid emailTemplate,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(emailTemplate))
+        if (emailTemplate == Guid.Empty)
         {
             return Result.Failure<Unit>(SettingsErrors.InvalidVerificationEmailTemplate);
         }
@@ -55,10 +55,10 @@ public class SettingsService(
     /// <param name="emailTemplate">The new email template to be used after password changes.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Result{Unit}"/> indicating whether the operation succeeded.</returns>
-    public async Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(string emailTemplate,
+    public async Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(emailTemplate))
+        if (emailTemplate == Guid.Empty)
         {
             return Result.Failure<Unit>(SettingsErrors.InvalidRecoverPasswordEmailTemplate);
         }
@@ -79,7 +79,7 @@ public class SettingsService(
         }
     }
 
-    public Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -89,7 +89,7 @@ public class SettingsService(
             "Error while updating the user welcome email template");
     }
 
-    public Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -99,7 +99,7 @@ public class SettingsService(
             "Error while updating the subscription thank-you email template");
     }
 
-    public Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -109,7 +109,7 @@ public class SettingsService(
             "Error while updating the trial ending soon email template");
     }
 
-    public Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -119,7 +119,7 @@ public class SettingsService(
             "Error while updating the trial ending soon email template");
     }
 
-    public Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -129,7 +129,8 @@ public class SettingsService(
             "Error while updating the trial ending soon email template");
     }
 
-    public Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(Guid emailTemplate,
+        CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -139,7 +140,7 @@ public class SettingsService(
             "Error while updating the password changed email template");
     }
 
-    public Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken)
+    public Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync(
             emailTemplate,
@@ -235,12 +236,13 @@ public class SettingsService(
             SettingsErrors.GenericError);
     }
 
-
-
     /// <summary>
     /// Retrieves all templates used for actions.
     /// </summary>
-    /// <returns>A <see cref="Result{IEnumerable{TemplateForActionEntity}}"/> containing available templates.</returns>
+    /// <returns>A <see>
+    ///         <cref>Result{IEnumerable{TemplateForActionEntity}}</cref>
+    ///     </see>
+    ///     containing available templates.</returns>
     public Result<IEnumerable<TemplateForActionEntity>> GetAllTemplatesForActions()
     {
         AppSettingsEntity appSettings = appSettingsMonitor.CurrentValue;
@@ -330,13 +332,13 @@ public class SettingsService(
     }
 
     private async Task<Result<Unit>> UpdateTemplateAsync(
-        string templateId,
+        Guid templateId,
         string invalidTemplateError,
         Func<CancellationToken, Task<Result<Unit>>> repositoryCall,
         CancellationToken cancellationToken,
         string logOnException)
     {
-        if (string.IsNullOrWhiteSpace(templateId))
+        if (templateId == Guid.Empty)
         {
             return Result.Failure<Unit>(invalidTemplateError);
         }
@@ -355,7 +357,7 @@ public class SettingsService(
         }
     }
 
-    private async Task<Result<string>> GetTemplateAsync(
+    private static async Task<Result<string>> GetTemplateAsync(
         CancellationToken cancellationToken,
         Func<Task<Result<string>>> repositoryCall,
         string fallbackError)

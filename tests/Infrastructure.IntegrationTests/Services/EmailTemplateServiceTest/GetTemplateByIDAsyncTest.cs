@@ -13,13 +13,13 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
 
     [Test]
     [DisplayName("Should retrieve email template from DynamoDB when valid ID is provided")]
-    public async Task ShouldRetrieveEmailTemplateFromDynamoDBWhenValidIdProvided()
+    public async Task ShouldRetrieveEmailTemplateFromDynamoDbWhenValidIdProvided()
     {
         // Given: A template persisted in the DynamoDB table
-        string templateId = $"test-template-{Guid.NewGuid()}";
+        Guid templateId = Guid.NewGuid();
         EmailTemplateDBModel expectedTemplate = new()
         {
-            TemplateID = templateId,
+            TemplateID = templateId.ToString(),
             Path = "Integration Test Subject"
         };
 
@@ -30,7 +30,7 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
 
         // Then: The operation should be successful and match the saved data
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.ID, Is.EqualTo(templateId));
+        Assert.That(result.Value.ID, Is.EqualTo(templateId.ToString()));
         Assert.That(result.Value.Path, Is.EqualTo(expectedTemplate.Path));
     }
 
@@ -38,14 +38,11 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
     [DisplayName("Should return failure when template ID does not exist in DynamoDB")]
     public async Task ShouldReturnFailureWhenTemplateIdDoesNotExist()
     {
-        // Given: An ID that is not in the table
-        string nonExistentId = "non-existent-id-123";
-
+        
         // When: Retrieving the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(nonExistentId, CancellationToken.None);
+        Result<EmailEntity> result = await _service.GetTemplateByID(Guid.NewGuid(), CancellationToken.None);
 
         // Then: Should return success with null or failure depending on repository implementation
-        // Basándonos en GenericDynamoRepository, si LoadAsync devuelve null, suele devolverse success(null)
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
@@ -54,27 +51,11 @@ public class GetTemplateByIDAsyncTest : GenericEmailTemplateServiceTest
     [DisplayName("Should return InvalidTemplateID error without calling DB when ID is whitespace")]
     public async Task ShouldReturnInvalidTemplateIdErrorWhenIdIsWhitespace()
     {
-        // Given: An invalid ID string
-        const string invalidId = "   ";
 
         // When: Retrieving the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId, CancellationToken.None);
+        Result<EmailEntity> result = await _service.GetTemplateByID(Guid.Empty, CancellationToken.None);
 
         // Then: The service validation should catch it before repository
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
-    }
-
-    [Test]
-    [DisplayName("Should return InvalidTemplateID when ID is null")]
-    public async Task ShouldReturnInvalidTemplateIdErrorWhenIdIsNull()
-    {
-        // Given: un template id nulo.
-
-        // When: se consulta una plantilla con id nulo.
-        Result<EmailEntity> result = await _service.GetTemplateByID(null!, CancellationToken.None);
-
-        // Then: debe fallar por id invalido.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }

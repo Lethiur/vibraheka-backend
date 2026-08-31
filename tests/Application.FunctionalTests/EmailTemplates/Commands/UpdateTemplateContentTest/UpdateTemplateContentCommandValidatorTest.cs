@@ -23,7 +23,7 @@ public class UpdateTemplateContentCommandValidatorTest
     {
         // Given
         MemoryStream stream = new(Encoding.UTF8.GetBytes("{\"test\":\"content\"}"));
-        UpdateTemplateContentCommand command = new(Guid.NewGuid().ToString(), stream);
+        UpdateTemplateContentCommand command = new(Guid.NewGuid(), stream);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -32,15 +32,13 @@ public class UpdateTemplateContentCommandValidatorTest
         Assert.That(result.IsValid, Is.True);
     }
 
-    [TestCase("", Description = "Empty ID")]
-    [TestCase(null!, Description = "Null ID")]
-    [TestCase("invalid-guid", Description = "Invalid GUID format")]
+    [Test]
     [Description("Given a command with invalid TemplateID, when validating, then it should fail with InvalidTempalteID error")]
-    public async Task ShouldFailValidationWhenTemplateIdIsInvalid(string templateId)
+    public async Task ShouldFailValidationWhenTemplateIdIsInvalid()
     {
         // Given
         MemoryStream stream = new(Encoding.UTF8.GetBytes("{}"));
-        UpdateTemplateContentCommand command = new(templateId, stream);
+        UpdateTemplateContentCommand command = new(Guid.Empty, stream);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -58,7 +56,7 @@ public class UpdateTemplateContentCommandValidatorTest
     public async Task ShouldFailValidationWhenStreamIsNull()
     {
         // Given
-        UpdateTemplateContentCommand command = new(Guid.NewGuid().ToString(), null!);
+        UpdateTemplateContentCommand command = new(Guid.NewGuid(), null!);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -72,8 +70,8 @@ public class UpdateTemplateContentCommandValidatorTest
     public async Task ShouldFailValidationWhenStreamIsEmpty()
     {
         // Given
-        MemoryStream stream = new(Array.Empty<byte>());
-        UpdateTemplateContentCommand command = new(Guid.NewGuid().ToString(), stream);
+        MemoryStream stream = new([]);
+        UpdateTemplateContentCommand command = new(Guid.NewGuid(), stream);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);

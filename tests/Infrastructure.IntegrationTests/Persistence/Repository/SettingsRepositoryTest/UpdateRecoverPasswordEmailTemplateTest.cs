@@ -12,10 +12,10 @@ public class UpdateRecoverPasswordEmailTemplateTest : GenericSettingsRepositoryT
     {
         // Given: un token de cancelacion ya cancelado.
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         // When: se intenta actualizar el template de recover password con operacion cancelada.
-        Result<Unit> result = await Repository.UpdateRecoverPasswordEmailTemplateAsync("template-cancelled", cts.Token);
+        Result<Unit> result = await Repository.UpdateRecoverPasswordEmailTemplateAsync(Guid.NewGuid(), cts.Token);
 
         // Then: el repositorio debe mapear al error generico.
         Assert.That(result.IsFailure, Is.True);

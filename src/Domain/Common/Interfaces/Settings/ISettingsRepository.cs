@@ -13,88 +13,88 @@ public interface ISettingsRepository
     /// Updates the verification email template in the settings repository.
     /// </summary>
     /// <param name="emailTemplate">
-    /// The verification email template to be updated.
+    ///     The verification email template to be updated.
     /// </param>
-    /// <param name="token">The cancellation token to listen for cancellations</param>
+    /// <param name="cancellationToken">The cancellation token to listen for cancellations</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// the success or failure of the operation.
     /// </returns>
-    Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the password changed email template in the settings repository.
     /// </summary>
     /// <param name="emailTemplate">
-    /// The password changed email template to be updated.
+    ///     The password changed email template to be updated.
     /// </param>
-    /// <param name="token">The cancellation token to listen for cancellations.</param>
+    /// <param name="cancellationToken">The cancellation token to listen for cancellations.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// the success or failure of the operation.
     /// </returns>
-    Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the welcome email template for newly registered users.
     /// </summary>
-    Task<Result<Unit>> UpdateUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateUserWelcomeEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the subscription thank-you email template.
     /// </summary>
-    Task<Result<Unit>> UpdateSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateSubscriptionThankYouEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the subscription cancelled email template in the settings repository.
     /// </summary>
     /// <param name="emailTemplate">
-    /// The subscription cancelled email template to be updated.
+    ///     The subscription cancelled email template to be updated.
     /// </param>
-    /// <param name="token">The cancellation token to monitor for cancellation requests.</param>
+    /// <param name="cancellationToken">The cancellation token to monitor for cancellation requests.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// whether the operation succeeded or failed.
     /// </returns>
-    Task<Result<Unit>> UpdateSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateSubscriptionCancelledEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the email template for reactivated subscription notifications in the settings repository.
     /// </summary>
     /// <param name="emailTemplate">
-    /// The email template to be updated for reactivated subscription notifications.
+    ///     The email template to be updated for reactivated subscription notifications.
     /// </param>
-    /// <param name="token">The cancellation token to monitor for cancellation requests.</param>
+    /// <param name="cancellationToken">The cancellation token to monitor for cancellation requests.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// whether the operation was successful or encountered an error.
     /// </returns>
-    Task<Result<Unit>> UpdateSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateSubscriptionReActivatedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the trial-ending-soon email template.
     /// </summary>
-    Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the password-changed confirmation email template.
     /// </summary>
-    Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the "forgot password completed" email template in the settings repository.
     /// </summary>
     /// <param name="emailTemplate">
-    /// The "forgot password completed" email template to be updated.
+    ///     The "forgot password completed" email template to be updated.
     /// </param>
-    /// <param name="token">
-    /// The cancellation token to listen for cancellations.
+    /// <param name="cancellationToken">
+    ///     The cancellation token to listen for cancellations.
     /// </param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating
     /// the success or failure of the operation.
     /// </returns>
-    Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken token);
+    Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves the verification email template from the settings repository.
@@ -137,7 +137,6 @@ public interface ISettingsRepository
     /// <summary>
     /// Retrieves the subscription cancellation email template from the settings repository.
     /// </summary>
-    /// <param name="token">The cancellation token to listen for cancellations.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a string representing
     /// the subscription cancellation email template.
@@ -147,7 +146,6 @@ public interface ISettingsRepository
     /// <summary>
     /// Retrieves the email template used for sending notifications when a subscription is reactivated.
     /// </summary>
-    /// <param name="token">The cancellation token to listen for cancellations.</param>
     /// <returns>
     /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a <see cref="Result{EmailTemplate}"/>
     /// that includes the email template details if the operation is successful.

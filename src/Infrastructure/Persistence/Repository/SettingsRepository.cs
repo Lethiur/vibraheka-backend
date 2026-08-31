@@ -23,7 +23,7 @@ public class SettingsRepository(
     /// <param name="emailTemplate">The email template to be stored as a parameter in AWS Systems Manager.</param>
     /// <param name="cancellationToken">The cancellation token to listen for cancellations.</param>
     /// <returns>A <see cref="Result{T}"/> indicating the success or failure of the operation.</returns>
-    public Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(string emailTemplate,
+    public Task<Result<Unit>> UpdateVerificationEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync("VerificationEmailTemplate", emailTemplate, cancellationToken);
@@ -35,45 +35,47 @@ public class SettingsRepository(
     /// <param name="emailTemplate">The email template to be stored as a parameter in AWS Systems Manager.</param>
     /// <param name="cancellationToken">The cancellation token to listen for cancellations.</param>
     /// <returns>A <see cref="Result{T}"/> indicating the success or failure of the operation.</returns>
-    public Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(string emailTemplate,
+    public Task<Result<Unit>> UpdateRecoverPasswordEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken)
     {
         return UpdateTemplateAsync("RecoverPasswordEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateUserWelcomeEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("UserWelcomeEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("UserWelcomeEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateSubscriptionThankYouEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("SubscriptionThankYouEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("SubscriptionThankYouEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateSubscriptionCancelledEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateSubscriptionCancelledEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("SubscriptionCancelledEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("SubscriptionCancelledEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateSubscriptionReActivatedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateSubscriptionReActivatedEmailTemplateAsync(Guid emailTemplate,
+        CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("SubscriptionReactivatedEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("SubscriptionReactivatedEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateTrialEndingSoonEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("TrialEndingSoonEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("TrialEndingSoonEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdatePasswordChangedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("PasswordChangedEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("PasswordChangedEmailTemplate", emailTemplate, cancellationToken);
     }
 
-    public Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(string emailTemplate, CancellationToken token)
+    public Task<Result<Unit>> UpdateForgotPasswordCompletedEmailTemplateAsync(Guid emailTemplate,
+        CancellationToken cancellationToken)
     {
-        return UpdateTemplateAsync("ForgotPasswordCompletedEmailTemplate", emailTemplate, token);
+        return UpdateTemplateAsync("ForgotPasswordCompletedEmailTemplate", emailTemplate, cancellationToken);
     }
 
     /// <summary>
@@ -124,7 +126,7 @@ public class SettingsRepository(
         throw new NotImplementedException();
     }
 
-    private async Task<Result<Unit>> UpdateTemplateAsync(string parameterName, string templateId, CancellationToken cancellationToken)
+    private async Task<Result<Unit>> UpdateTemplateAsync(string parameterName, Guid templateId, CancellationToken cancellationToken)
     {
         string fullName = BuildParameterName(parameterName);
         try
@@ -133,7 +135,7 @@ public class SettingsRepository(
                 new PutParameterRequest
                 {
                     Name = fullName,
-                    Value = templateId,
+                    Value = templateId.ToString(),
                     Type = ParameterType.String,
                     Overwrite = true
                 }, cancellationToken);

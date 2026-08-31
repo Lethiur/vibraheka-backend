@@ -39,7 +39,7 @@ public class ChangeTemplateCommandHandlerTest
     public async Task ShouldHandleInvalidUserID()
     {
         currentUserServiceMock.Setup(x => x.UserId).Returns(string.Empty);
-        ChangeTemplateForActionCommand command = new("1", ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid(), ActionType.UserVerification);
 
         Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
@@ -51,10 +51,10 @@ public class ChangeTemplateCommandHandlerTest
     public async Task ShouldReturnFailureIfTemplateDoesNotExist()
     {
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
-        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None))
+        emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>("Template not found"));
 
-        ChangeTemplateForActionCommand command = new("99", ActionType.UserVerification);
+        ChangeTemplateForActionCommand command = new(Guid.NewGuid(), ActionType.UserVerification);
         Result<Unit> result = await handler.Handle(command, CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
@@ -64,7 +64,7 @@ public class ChangeTemplateCommandHandlerTest
     [Test]
     public async Task ShouldCallVerificationSettingsServiceBranch()
     {
-        const string templateId = "1";
+        Guid templateId = Guid.NewGuid();
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));
@@ -76,13 +76,13 @@ public class ChangeTemplateCommandHandlerTest
 
         Assert.That(result.IsSuccess, Is.True);
         settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
-        settingsServiceMock.Verify(x => x.ChangeRecoverPasswordEmailTemplateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        settingsServiceMock.Verify(x => x.ChangeRecoverPasswordEmailTemplateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
     public async Task ShouldCallPasswordResetSettingsServiceBranch()
     {
-        const string templateId = "1";
+        Guid templateId = Guid.NewGuid();
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));
@@ -94,13 +94,13 @@ public class ChangeTemplateCommandHandlerTest
 
         Assert.That(result.IsSuccess, Is.True);
         settingsServiceMock.Verify(x => x.ChangeRecoverPasswordEmailTemplateAsync(templateId, It.IsAny<CancellationToken>()), Times.Once);
-        settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        settingsServiceMock.Verify(x => x.ChangeEmailForVerificationAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
     public async Task ShouldReturnInvalidActionErrorIfActionIsInvalid()
     {
-        const string templateId = "1";
+        Guid templateId = Guid.NewGuid();
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));
@@ -120,7 +120,7 @@ public class ChangeTemplateCommandHandlerTest
     public async Task ShouldHandleNewAdminTemplateActions(ActionType actionType)
     {
         // Given
-        const string templateId = "1";
+        Guid templateId = Guid.NewGuid();
         currentUserServiceMock.Setup(x => x.UserId).Returns("admin-123");
         emailTemplatesServiceMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(new EmailEntity()));

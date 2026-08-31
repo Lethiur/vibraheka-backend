@@ -1,0 +1,23 @@
+﻿type: object
+description: Represents the data transfer object for a subscription plan
+
+properties: 
+  id:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the CREATED subscription plan.
+  name:
+    type: string
+    minLength: 3
+    description: The name of the subscription plan.
+  description:
+    type: string
+    description: A brief description of the subscription plan.
+    minLength: 3
+  isActive:
+    type: boolean
+    description: Indicates whether the subscription plan is active or not.
+  includesFullCatalog:
+    type: boolean
+    description: Indicates whether the subscription plan includes access to the full catalog of recordings or not.
+  
+ 

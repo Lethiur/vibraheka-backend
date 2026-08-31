@@ -1,0 +1,10 @@
+﻿type: object
+description: Template for action DTO
+
+properties:
+  id:
+    $ref: '../../../Common/Entities/Id.yml'
+    description: The unique identifier of the template for action DTO
+  actionType:
+    $ref: './Enums/ActionType.yml/#components/schemas/ActionType'
+    description: The action type of the template for action DTO

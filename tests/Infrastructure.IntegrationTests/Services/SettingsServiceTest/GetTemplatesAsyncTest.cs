@@ -14,22 +14,22 @@ public class GetTemplatesAsyncTest : GenericSettingsServiceTest
     public async Task ShouldGetVerificationTemplateAfterUpdate()
     {
         // Given: un template de verificacion previamente actualizado en SSM.
-        string expectedTemplate = $"verification-template-{_faker.Random.Guid()}";
-        await _service.ChangeEmailForVerificationAsync(expectedTemplate, CancellationToken.None);
+        Guid expectedTemplate = _faker.Random.Guid();
+        await _service.ChangeEmailForVerificationAsync(_faker.Random.Guid(), CancellationToken.None);
 
         // When: se consulta el template de verificacion.
         Result<string> result = await _service.GetVerificationEmailTemplateAsync(CancellationToken.None);
 
         // Then: debe devolverse el valor actualizado.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(expectedTemplate));
+        Assert.That(result.Value, Is.EqualTo(expectedTemplate.ToString()));
     }
 
     [Test]
     public async Task ShouldGetRecoverPasswordEmailTemplateAfterUpdate()
     {
         // Given: un template de recuperacion previamente actualizado en SSM.
-        string expectedTemplate = $"password-template-{_faker.Random.Guid()}";
+        Guid expectedTemplate = _faker.Random.Guid();
         await _service.ChangeRecoverPasswordEmailTemplateAsync(expectedTemplate, CancellationToken.None);
 
         // When: se consulta el template de recuperacion.
@@ -37,7 +37,7 @@ public class GetTemplatesAsyncTest : GenericSettingsServiceTest
 
         // Then: debe devolverse el valor actualizado.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(expectedTemplate));
+        Assert.That(result.Value, Is.EqualTo(expectedTemplate.ToString()));
     }
 
     [Test]

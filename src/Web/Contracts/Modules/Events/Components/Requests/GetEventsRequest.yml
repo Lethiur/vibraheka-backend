@@ -1,0 +1,11 @@
+﻿type: object
+description: Request to get events
+
+properties:
+  from:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The start date for filtering events. Only events occurring on or after this date will be included in the response.
+  to:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The end date for filtering events. Only events occurring on or before this date will be included in the response.
+  

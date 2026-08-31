@@ -14,7 +14,7 @@ public class NewAdminTemplatesAsyncTest : GenericSettingsServiceTest
     public async Task ShouldUpdateNewAdminTemplatesSuccessfully(string templateType)
     {
         // Given
-        const string templateId = "template-123";
+        Guid templateId = Guid.NewGuid();
         SetupUpdateSuccess(templateType, templateId);
 
         // When
@@ -33,7 +33,7 @@ public class NewAdminTemplatesAsyncTest : GenericSettingsServiceTest
         // Given
 
         // When
-        Result<Unit> result = await UpdateTemplate(templateType, "   ");
+        Result<Unit> result = await UpdateTemplate(templateType, Guid.Empty);
 
         // Then
         Assert.That(result.IsFailure, Is.True);
@@ -57,7 +57,7 @@ public class NewAdminTemplatesAsyncTest : GenericSettingsServiceTest
         Assert.That(result.Value, Is.EqualTo(expectedTemplate));
     }
 
-    private void SetupUpdateSuccess(string templateType, string templateId)
+    private void SetupUpdateSuccess(string templateType, Guid templateId)
     {
         switch (templateType)
         {
@@ -107,7 +107,7 @@ public class NewAdminTemplatesAsyncTest : GenericSettingsServiceTest
         }
     }
 
-    private Task<Result<Unit>> UpdateTemplate(string templateType, string templateId)
+    private Task<Result<Unit>> UpdateTemplate(string templateType, Guid templateId)
     {
         return templateType switch
         {

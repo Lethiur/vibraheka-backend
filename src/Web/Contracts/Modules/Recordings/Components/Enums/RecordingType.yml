@@ -1,0 +1,14 @@
+﻿components:
+  schemas:
+    RecordingType:
+      type: string
+      enum:
+        - meditacion
+        - masterclass
+        - taller
+        - constellation
+      x-enumNames:
+        - Meditacion
+        - Masterclass
+        - Taller
+        - Constellation

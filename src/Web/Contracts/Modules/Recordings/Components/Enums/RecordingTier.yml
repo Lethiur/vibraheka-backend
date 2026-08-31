@@ -1,0 +1,12 @@
+﻿components:
+  schemas:
+    RecordingTier:
+      type: string
+      enum:
+        - free
+        - premium
+        - discountForMembers
+      x-enumNames:
+        - Free
+        - Premium
+        - DiscountForMembers

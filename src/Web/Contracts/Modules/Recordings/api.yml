@@ -1,0 +1,165 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Recordings API
+  version: 1.0.0
+  description: API for managing Recordings
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: AdminRecordings
+    description: Operations related to Recordings
+
+servers:
+  - url: /api/v1/catalog/recordings
+    description: local Server
+
+paths:
+  /:
+    put:
+      tags:
+        - AdminRecordings
+      description: Updates the recording information for a specific recording.
+      operationId: createRecording
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreateRecordingRequest.yml'
+      responses:
+        '200':
+          description: Successful response with the updated recording details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreateRecordingResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the recording.
+        '404':
+          description: Recording not found to create this recording on
+    get:
+      tags:
+        - AdminRecordings
+      description: Retrieves a list of recordings with optional filtering and pagination.
+      operationId: getRecordings
+      responses:
+        '200':
+          description: Successful response with a list of recordings.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetRecordingsResponse.yml'
+        '400':
+          description: Bad request due to invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        '401':
+          description: Unauthorized. The user is not authenticated.
+        '403':
+          description: Forbidden. The user does not have permission to view the recordings.
+    patch:
+      tags:
+        - AdminRecordings
+      description: Modifies the visibility of the recording for a specific recording.
+      operationId: updateRecording
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ModifyRecordingVisibilityRequest.yml'
+      responses:
+        '204':
+          description: Successful response with the updated recording details.
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the recording.
+        '404':
+          description: Recording not found to update this recording on
+  /{recordingId}/download-url:
+    get:
+      tags:
+        - AdminRecordings
+      description: Retrieves the download URL for a specific recording by its ID.
+      operationId: getRecordingDownloadUrl
+      parameters:
+        - name: recordingId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the recording to retrieve.
+      responses:
+        '200':
+          description: Successful response with the recording details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetRecordingDownloadUrlResponse.yml'
+        '400':
+          description: Bad request due to invalid recording ID.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        '401':
+          description: Unauthorized. The user is not authenticated.
+        '403':
+          description: Forbidden. The user does not have permission to view the recording.
+        '404':
+          description: Recording not found with the specified ID.
+  /{recordingId}:
+    delete:
+      tags:
+        - AdminRecordings
+      description: Deletes a specific recording by its ID.
+      operationId: deleteRecording
+      parameters:
+        - name: recordingId
+          in: path
+          required: true
+          schema:
+            $ref: '../Common/Fields/Id.yml'
+          description: The unique identifier of the recording to delete.
+      responses:
+        '204':
+          description: Successful response indicating the recording was deleted.
+        '400':
+          description: Bad request due to invalid recording ID.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        '401':
+          description: Unauthorized. The user is not authenticated.
+        '403':
+          description: Forbidden. The user does not have permission to delete the recording.
+        '404':
+          description: Recording not found with the specified ID.

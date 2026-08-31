@@ -1,0 +1,11 @@
+﻿type: object
+description: Represents the data transfer object for a recording
+
+properties:
+  id:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the CREATED recording.
+  uploadUrl:
+    type: string
+    format: uri
+    description: The URL where the recording can be uploaded.

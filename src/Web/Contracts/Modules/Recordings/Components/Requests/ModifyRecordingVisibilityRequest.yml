@@ -1,0 +1,15 @@
+﻿type: object
+description: Request object for modifying recording visibility.
+
+required:
+  - recordingId
+  - visible
+  - 
+fields:
+  recordingId:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the recording whose visibility is to be modified.
+  visible:
+    type: boolean
+    description: The new visibility status for the recording.
+  

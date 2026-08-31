@@ -14,38 +14,38 @@ public class GetVerificationEmailTemplateAsyncTest : GenericSettingsRepositoryTe
     [Test]
     public async Task ShouldOverwriteExistingParameterWhenUpdating()
     {
-        // Given: un parametro inicial y luego un valor actualizado para verificacion.
-        string firstTemplate = "First Template";
-        string secondTemplate = "Second Template (Updated)";
+        // Given: an initial parameter and then an updated value for verification.
+        Guid firstTemplate = Guid.NewGuid();
+        Guid secondTemplate = Guid.NewGuid();
 
         await SSMClient.PutParameterAsync(new PutParameterRequest
         {
             Name = VerificationParameterName,
-            Value = firstTemplate,
+            Value = firstTemplate.ToString(),
             Type = ParameterType.String,
             Overwrite = true
         });
 
-        // When: se actualiza y luego se consulta el parametro.
+        // When: updating and then retrieving the parameter.
         Result<Unit> updateResult =
             await Repository.UpdateVerificationEmailTemplateAsync(secondTemplate, CancellationToken.None);
         Result<string> getResult = await Repository.GetVerificationEmailTemplateAsync();
 
-        // Then: debe persistirse y devolverse el nuevo valor.
+        // Then: should persist and return the new value.
         Assert.That(updateResult.IsSuccess, Is.True);
-        Assert.That(getResult.Value, Is.EqualTo(secondTemplate));
+        Assert.That(getResult.Value, Is.EqualTo(secondTemplate.ToString()));
     }
 
     [Test]
     public async Task ShouldReturnParameterNotFoundWhenVerificationParameterDoesNotExist()
     {
-        // Given: un repositorio apuntando a namespace aleatorio sin parametros creados.
+        // Given: a repository pointing to a random namespace with no parameters created.
         SettingsRepository repository = new(SSMClient, BuildConfigWithRandomNamespace(), CreateTestLogger<SettingsRepository>());
 
-        // When: se intenta leer el template de verificacion inexistente.
+        // When: trying to read the non-existent verification template.
         Result<string> result = await repository.GetVerificationEmailTemplateAsync();
 
-        // Then: debe devolverse el error de parametro no encontrado.
+        // Then: should return the parameter not found error.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(InfrastructureConfigErrors.ParameterNotFound));
     }

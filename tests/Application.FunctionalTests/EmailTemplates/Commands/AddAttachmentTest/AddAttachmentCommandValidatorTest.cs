@@ -22,11 +22,11 @@ public class AddAttachmentCommandValidatorTests
             .SetName("ShouldPassValidationWhenStreamIsJpeg");
         yield return new TestCaseData(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A })
             .SetName("ShouldPassValidationWhenStreamIsPng");
-        yield return new TestCaseData(new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 })
+        yield return new TestCaseData("GIF89a"u8.ToArray())
             .SetName("ShouldPassValidationWhenStreamIsGif");
-        yield return new TestCaseData(new byte[] { 0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50 })
+        yield return new TestCaseData("RIFF\0\0\0\0WEBP"u8.ToArray())
             .SetName("ShouldPassValidationWhenStreamIsWebp");
-        yield return new TestCaseData(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32 })
+        yield return new TestCaseData("\0\0\0\0ftypmp42"u8.ToArray())
             .SetName("ShouldPassValidationWhenStreamIsMp4");
         yield return new TestCaseData(new byte[] { 0x1A, 0x45, 0xDF, 0xA3, 0x93, 0x42 })
             .SetName("ShouldPassValidationWhenStreamIsMkv");
@@ -45,7 +45,7 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsNull()
     {
         // Given: a null stream to verify validation rejects missing files.
-        AddAttachmentCommand command = new(null!, "template-123", "file.png");
+        AddAttachmentCommand command = new(null!, Guid.NewGuid(), "file.png");
 
         // When: validating the command.
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -63,7 +63,7 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldFailValidationWhenFileStreamIsEmpty()
     {
         // Given: an empty stream to verify validation rejects empty files.
-        AddAttachmentCommand command = new(new MemoryStream(Array.Empty<byte>()), "template-123", "file.png");
+        AddAttachmentCommand command = new(new MemoryStream(Array.Empty<byte>()), Guid.NewGuid(), "file.png");
 
         // When: validating the command.
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -81,7 +81,7 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldPassValidationWhenMediaIsValid(byte[] bytes)
     {
         // Given: a valid media header to verify validation accepts it.
-        AddAttachmentCommand command = new(new MemoryStream(bytes), "template-123", "file.bin");
+        AddAttachmentCommand command = new(new MemoryStream(bytes), Guid.NewGuid(), "file.bin");
 
         // When: validating the command.
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -96,7 +96,7 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldFailValidationWhenMediaIsInvalid(byte[] bytes)
     {
         // Given: a non-media stream to verify validation rejects it.
-        AddAttachmentCommand command = new(new MemoryStream(bytes), "template-123", "file.bin");
+        AddAttachmentCommand command = new(new MemoryStream(bytes), Guid.NewGuid(), "file.bin");
 
         // When: validating the command.
         ValidationResult result = await Validator.ValidateAsync(command);
@@ -114,9 +114,9 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldRestoreStreamPositionAfterValidation()
     {
         // Given: a valid media stream with a non-zero position to verify the position is restored.
-        MemoryStream stream = new(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00 });
+        MemoryStream stream = new([.. "‰PNG\r\n\u001A\n\0"u8]);
         stream.Position = 4;
-        AddAttachmentCommand command = new(stream, "template-123", "file.png");
+        AddAttachmentCommand command = new(stream, Guid.NewGuid(), "file.png");
 
         // When: validating the command.
         ValidationResult result = await Validator.ValidateAsync(command);

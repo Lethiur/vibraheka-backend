@@ -17,8 +17,8 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     public async Task ShouldReturnEmailTemplateWhenExists()
     {
         // Given: A valid template ID and a template in DynamoDB
-        const string templateId = "welcome-template";
-        EmailTemplateDBModel template = new() { TemplateID = templateId, Path = "Welcome" };
+        Guid templateId = Guid.NewGuid();
+        EmailTemplateDBModel template = new() { TemplateID = templateId.ToString(), Path = "Welcome" };
 
         _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ReturnsAsync(template);
@@ -37,7 +37,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     public async Task ShouldFailureWithNullWhenNotFound()
     {
         // Given: An ID that is not in DynamoDB
-        const string templateId = "missing-template";
+        Guid templateId = Guid.NewGuid();
         _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ReturnsAsync((EmailTemplateDBModel)null!);
 
@@ -54,7 +54,7 @@ public class GetTemplateByIDAsync : GenericEmailTemplateRepositoryTest
     public async Task ShouldReturnFailureWhenExceptionOccurs()
     {
         // Given: A database error
-        const string templateId = "any-id";
+        Guid templateId = Guid.NewGuid();
         _contextMock.Setup(x => x.LoadAsync<EmailTemplateDBModel>(templateId, None))
             .ThrowsAsync(new Exception("DynamoDB error"));
 

@@ -1,0 +1,7 @@
+﻿type: object
+description: Response containing the download URL for a recording.
+
+properties:
+  downloadUrl:
+    type: string
+    description: The URL to download the recording.

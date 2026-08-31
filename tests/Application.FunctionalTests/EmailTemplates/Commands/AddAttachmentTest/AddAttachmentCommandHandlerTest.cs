@@ -14,7 +14,7 @@ namespace VibraHeka.Application.FunctionalTests.EmailTemplates.Commands.AddAttac
 public class AddAttachmentCommandHandlerTest
 {
     private const string DefaultUserId = "user-123";
-    private const string DefaultTemplateId = "template-123";
+    private static readonly Guid DefaultTemplateId = Guid.NewGuid();
     private const string DefaultAttachmentName = "file.pdf";
     private const string DefaultAttachmentUrl = "https://cdn.example.com/attachments/file.pdf";
     private static readonly CancellationToken NoCancellation = CancellationToken.None;
@@ -43,15 +43,15 @@ public class AddAttachmentCommandHandlerTest
         return new MemoryStream(Encoding.UTF8.GetBytes(content));
     }
 
-    private static AddAttachmentCommand CreateCommand(Stream stream, string templateId = DefaultTemplateId,
+    private static AddAttachmentCommand CreateCommand(Stream stream, Guid templateId = default,
         string attachmentName = DefaultAttachmentName)
     {
         return new AddAttachmentCommand(stream, templateId, attachmentName);
     }
 
-    private static EmailEntity CreateTemplateEntity(string templateId = DefaultTemplateId)
+    private static EmailEntity CreateTemplateEntity(Guid templateId = default)
     {
-        return new EmailEntity { ID = templateId };
+        return new EmailEntity { ID = templateId.ToString() };
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class AddAttachmentCommandHandlerTest
     public async Task ShouldReturnTemplateNotFoundWhenTemplateIsNull()
     {
         // Given: a valid admin user but missing template to verify template not found error.
-        AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId, DefaultAttachmentName);
+        AddAttachmentCommand command = CreateCommand(new MemoryStream(), DefaultTemplateId);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))

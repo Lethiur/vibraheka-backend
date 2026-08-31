@@ -15,7 +15,7 @@ public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTe
     public async Task ShouldUpdateRecoverPasswordEmailTemplateSuccessfully()
     {
         // Given: un template valido para recuperar password.
-        string emailTemplate = $"<html><body>Password Changed {_faker.Random.Guid()}</body></html>";
+        Guid emailTemplate = Guid.NewGuid();
 
         // When: se actualiza el parametro en SSM.
         Result<Unit> result = await Repository.UpdateRecoverPasswordEmailTemplateAsync(emailTemplate, CancellationToken.None);
@@ -28,18 +28,18 @@ public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTe
             Name = RecoverPasswordParameterName
         });
 
-        Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate));
+        Assert.That(response.Parameter.Value, Is.EqualTo(emailTemplate.ToString()));
     }
 
     [Test]
     public async Task ShouldGetRecoverPasswordEmailTemplateSuccessfully()
     {
         // Given: un template existente para recover password.
-        string expectedTemplate = $"password-template-{_faker.Random.Guid()}";
+        Guid expectedTemplate = Guid.NewGuid();
         await SSMClient.PutParameterAsync(new PutParameterRequest
         {
             Name = RecoverPasswordParameterName,
-            Value = expectedTemplate,
+            Value = expectedTemplate.ToString(),
             Type = ParameterType.String,
             Overwrite = true
         });
@@ -49,7 +49,7 @@ public class RecoverPasswordEmailTemplateAsyncTest : GenericSettingsRepositoryTe
 
         // Then: debe devolverse el valor guardado.
         Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value, Is.EqualTo(expectedTemplate));
+        Assert.That(result.Value, Is.EqualTo(expectedTemplate.ToString()));
     }
 
     [Test]

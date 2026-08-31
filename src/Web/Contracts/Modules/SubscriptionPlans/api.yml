@@ -1,0 +1,81 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Subscription Plans API
+  version: 1.0.0
+  description: API for managing Subscription Plans
+
+tags:
+  - name: AdminSubscriptionPlans
+    description: Operations related to Subscription Plans
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+servers:
+  - url: /api/v1/catalog/subscriptions
+    description: local Server
+
+paths:
+  /:
+    put:
+      tags:
+        - AdminSubscriptionPlans
+      description: Updates the subscription plan information for a specific subscription plan.
+      operationId: createSubscriptionPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreateSubscriptionPlanRequest.yml'
+      responses:
+        '200':
+          description: Successful response with the updated subscription plan details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreateSubscriptionPlanResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the subscription plan.
+        '404':
+          description: Subscription plan not found to create this subscription plan on
+    get:
+      tags:
+        - AdminSubscriptionPlans
+      operationId: getSubscriptionPlans
+      description: Retrieves a list of subscription plans.
+      responses:
+        '200':
+          description: Successful response with the updated subscription plan details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetSubscriptionPlanRequest.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the subscription plan.
+        '404':
+          description: Subscription plan not found to create this subscription plan on

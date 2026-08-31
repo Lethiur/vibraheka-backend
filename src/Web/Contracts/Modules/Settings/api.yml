@@ -1,0 +1,69 @@
+﻿openapi: 3.1.0
+
+info:
+  title: Admin Settings API
+  version: 1.0.0
+  description: API for managing Admin Settings
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+servers:
+  - url: /api/v1/admin/settings
+    description: local Server
+
+paths:
+  /:
+    patch:
+      tags:
+        - AdminSettings
+      description: Updates the admin settings.
+      operationId: updateAdminSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/UpdateTemplateForActionRequest.yml'
+      responses:
+        204:
+          description: Successful response with the updated admin settings.
+        400:
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the admin settings.
+    get:
+      tags:
+        - AdminSettings
+      description: Retrieves the current admin settings.
+      operationId: getAdminSettings
+      responses:
+        200:
+          description: Successful response with the current admin settings.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetTemplateResponse.yml'
+        400:
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to access the admin settings.

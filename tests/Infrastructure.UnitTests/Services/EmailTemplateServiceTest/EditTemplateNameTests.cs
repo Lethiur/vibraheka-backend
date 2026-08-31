@@ -27,13 +27,13 @@ public class EditTemplateNameTests
     public async Task ShouldUpdateTemplateNameAndCallRepositorySaveWhenTemplateExists()
     {
         // Given
-        const string templateId = "template-1";
+        Guid templateId = Guid.NewGuid();
         const string newName = "New Name";
         DateTimeOffset initialLastModified = DateTimeOffset.UtcNow.AddDays(-1);
 
         EmailEntity template = new()
         {
-            ID = templateId,
+            ID = templateId.ToString(),
             Name = "Old Name",
             Path = "path",
             LastModified = initialLastModified
@@ -56,7 +56,7 @@ public class EditTemplateNameTests
         // Then
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(savedEntity, Is.Not.Null);
-        Assert.That(savedEntity!.ID, Is.EqualTo(templateId));
+        Assert.That(savedEntity!.ID, Is.EqualTo(templateId.ToString()));
         Assert.That(savedEntity.Name, Is.EqualTo(newName));
         Assert.That(savedEntity.LastModified, Is.GreaterThan(initialLastModified));
 
@@ -65,18 +65,15 @@ public class EditTemplateNameTests
     }
 
     [Test]
-    [DisplayName("Should return InvalidTempalteID and not call repository when template id is invalid")]
-    [TestCase(null!)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task ShouldReturnInvalidTemplateIdAndNotCallRepositoryWhenTemplateIdIsInvalid(string invalidTemplateId)
+    [DisplayName("Should return InvalidTemplateID and not call repository when template id is invalid")]
+    public async Task ShouldReturnInvalidTemplateIdAndNotCallRepositoryWhenTemplateIdIsInvalid()
     {
-        Result<Unit> result = await _service.EditTemplateName(invalidTemplateId, "New Name", CancellationToken.None);
+        Result<Unit> result = await _service.EditTemplateName(Guid.Empty, "New Name", CancellationToken.None);
 
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
 
-        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None), Times.Never);
+        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<Guid>(), CancellationToken.None), Times.Never);
         _repositoryMock.Verify(x => x.SaveTemplate(It.IsAny<EmailEntity>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -85,7 +82,7 @@ public class EditTemplateNameTests
     public async Task ShouldReturnTemplateNotFoundWhenRepositoryReturnsNullTemplate()
     {
         // Given
-        const string templateId = "missing-template";
+        Guid templateId = Guid.NewGuid();
 
         _repositoryMock
             .Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
@@ -104,11 +101,11 @@ public class EditTemplateNameTests
     [Test]
     public async Task ShouldHandleExceptionFromRepository()
     {
-        const string templateId = "template-err";
+        Guid templateId = Guid.NewGuid();
         // Given: Some mocking
         EmailEntity template = new()
         {
-            ID = templateId,
+            ID = templateId.ToString(),
             Name = "Old Name",
             Path = "path",
         };
@@ -134,7 +131,7 @@ public class EditTemplateNameTests
     public async Task ShouldPropagateRepositoryFailureAndNotCallSave()
     {
         // Given
-        const string templateId = "template-err";
+        Guid templateId = Guid.NewGuid();
         const string repositoryError = "some-error";
 
         _repositoryMock

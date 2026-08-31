@@ -17,14 +17,14 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
     public async Task ShouldUpdateTemplateNameAndLastModifiedWhenTemplateExists()
     {
         // Given
-        string templateId = $"test-template-{Guid.NewGuid()}";
+        Guid templateId = Guid.NewGuid();
         DateTimeOffset initialLastModified = DateTimeOffset.UtcNow.AddDays(-1);
         string initialName = $"initial-{Guid.NewGuid()}";
         string newName = $"renamed-{Guid.NewGuid()}";
 
         EmailTemplateDBModel persisted = new()
         {
-            TemplateID = templateId,
+            TemplateID = templateId.ToString(),
             Path = "Integration Test Path",
             Name = initialName,
             Created = DateTimeOffset.UtcNow.AddDays(-2),
@@ -45,26 +45,11 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
     }
 
     [Test]
-    [DisplayName("Should return InvalidTempalteID when template id is whitespace")]
+    [DisplayName("Should return InvalidTemplateID when template id is whitespace")]
     public async Task ShouldReturnInvalidTemplateIdWhenTemplateIdIsWhitespace()
     {
-        Result<Unit> result = await _service.EditTemplateName("   ", "any-name", CancellationToken.None);
+        Result<Unit> result = await _service.EditTemplateName(Guid.Empty, "any-name", CancellationToken.None);
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
-    }
-
-    [TestCase(null)]
-    [TestCase("")]
-    [DisplayName("Should return InvalidTempalteID when template id is null or empty")]
-    public async Task ShouldReturnInvalidTemplateIdWhenTemplateIdIsNullOrEmpty(string? invalidTemplateId)
-    {
-        // Given: un template id invalido (null o vacio).
-
-        // When: se intenta editar el nombre con id invalido.
-        Result<Unit> result = await _service.EditTemplateName(invalidTemplateId!, "any-name", CancellationToken.None);
-
-        // Then: debe devolverse el error de id invalido.
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }
@@ -73,7 +58,7 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
     [DisplayName("Should return TemplateNotFound when template does not exist")]
     public async Task ShouldReturnTemplateNotFoundWhenTemplateDoesNotExist()
     {
-        string nonExistentId = $"non-existent-{Guid.NewGuid()}";
+        Guid nonExistentId = Guid.NewGuid();
 
         Result<Unit> result = await _service.EditTemplateName(nonExistentId, "new-name", CancellationToken.None);
 
@@ -81,7 +66,7 @@ public class EditTemplateNameTests : GenericEmailTemplateServiceTest
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
 
-    private async Task<EmailEntity> WaitForUpdatedTemplate(string templateId, string expectedName, TimeSpan timeout)
+    private async Task<EmailEntity> WaitForUpdatedTemplate(Guid templateId, string expectedName, TimeSpan timeout)
     {
         DateTimeOffset start = DateTimeOffset.UtcNow;
         while (DateTimeOffset.UtcNow - start < timeout)

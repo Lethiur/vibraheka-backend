@@ -27,8 +27,8 @@ public class GetTemplateByIDTest
     public async Task ShouldReturnEmailTemplateWhenValidIdProvided()
     {
         // Given: A valid template ID and a template in the repository
-        const string templateId = "welcome-email";
-        EmailEntity template = new() { ID = templateId, Path = "Welcome!" };
+        Guid templateId = Guid.NewGuid();
+        EmailEntity template = new() { ID = templateId.ToString(), Path = "Welcome!" };
 
         _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Success(template));
@@ -44,20 +44,17 @@ public class GetTemplateByIDTest
 
     [Test]
     [DisplayName("Should return InvalidTemplateID error when ID is null or whitespace")]
-    [TestCase(null!)]
-    [TestCase("")]
-    [TestCase("   ")]
-    public async Task ShouldReturnInvalidTemplateIdWhenIdIsInvalid(string invalidId)
+    public async Task ShouldReturnInvalidTemplateIdWhenIdIsInvalid()
     {
         // Given: An invalid template ID
 
         // When: Getting the template
-        Result<EmailEntity> result = await _service.GetTemplateByID(invalidId, CancellationToken.None);
+        Result<EmailEntity> result = await _service.GetTemplateByID(Guid.Empty, CancellationToken.None);
 
         // Then: Should fail with InvalidTemplateID error without calling the repository
         Assert.That(result.IsFailure, Is.True);
         Assert.That(result.Error, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
-        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None), Times.Never);
+        _repositoryMock.Verify(x => x.GetTemplateByID(It.IsAny<Guid>(), CancellationToken.None), Times.Never);
     }
 
     [Test]
@@ -65,7 +62,7 @@ public class GetTemplateByIDTest
     public async Task ShouldReturnRepositoryErrorWhenTemplateNotFound()
     {
         // Given: A valid ID but the repository cannot find the template
-        const string templateId = "non-existent";
+        Guid templateId = Guid.NewGuid();
         const string repoError = "Template not found in DB";
 
         _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
@@ -83,7 +80,7 @@ public class GetTemplateByIDTest
     public async Task ShouldMapTheErrorFromTheRepository()
     {
         // Given: A valid ID but the repository cannot find the template
-        const string templateId = "non-existent";
+        Guid templateId = Guid.NewGuid();
 
         _repositoryMock.Setup(x => x.GetTemplateByID(templateId, CancellationToken.None))
             .ReturnsAsync(Result.Failure<EmailEntity>(GenericPersistenceErrors.NoRecordsFound));
@@ -99,11 +96,11 @@ public class GetTemplateByIDTest
     [Test]
     public async Task ShouldBeAbleToHandleExceptionsFromTheRepository()
     {
-        _repositoryMock.Setup(x => x.GetTemplateByID(It.IsAny<string>(), CancellationToken.None))
+        _repositoryMock.Setup(x => x.GetTemplateByID(It.IsAny<Guid>(), CancellationToken.None))
             .ThrowsAsync(new DataException("Database error"));
 
         // When: Getting the template
-        Result<EmailEntity> result = await _service.GetTemplateByID("TEST", CancellationToken.None);
+        Result<EmailEntity> result = await _service.GetTemplateByID(Guid.NewGuid(), CancellationToken.None);
 
         // Then: Should propagate the failure from the repository
         Assert.That(result.IsFailure, Is.True);

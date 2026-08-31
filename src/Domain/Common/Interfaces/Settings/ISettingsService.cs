@@ -19,7 +19,7 @@ public interface ISettingsService
     /// <param name="cancellationToken">The cancellation token used to stop the task</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation,
     /// including potential error details.</returns>
-    Task<Result<Unit>> ChangeEmailForVerificationAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeEmailForVerificationAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the email template used when a password has been changed.
@@ -27,17 +27,17 @@ public interface ISettingsService
     /// <param name="emailTemplate">The new email template to be used after password changes.</param>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation.</returns>
-    Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeRecoverPasswordEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the welcome email template sent to newly registered users.
     /// </summary>
-    Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeUserWelcomeEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the subscription thank-you email template.
     /// </summary>
-    Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeSubscriptionThankYouEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the email template used for notifying users about subscription cancellations.
@@ -46,7 +46,7 @@ public interface ISettingsService
     /// <param name="emailTemplate">The new email template to be used for subscription cancellation notifications.</param>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{Unit}</c> representing the outcome of the operation, including any error details if applicable.</returns>
-    Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(string emailTemplate,
+    Task<Result<Unit>> ChangeSubscriptionCancelledEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -56,18 +56,18 @@ public interface ISettingsService
     /// <param name="emailTemplate">The new email template to be used for subscription reactivation notifications.</param>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation, including potential error details.</returns>
-    Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(string emailTemplate,
+    Task<Result<Unit>> ChangeSubscriptionReActivatedEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the trial-ending-soon email template.
     /// </summary>
-    Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangeTrialEndingSoonEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates the password-changed confirmation email template.
     /// </summary>
-    Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(string emailTemplate, CancellationToken cancellationToken);
+    Task<Result<Unit>> ChangePasswordChangedEmailTemplateAsync(Guid emailTemplate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves the email template used for verification.
@@ -136,6 +136,6 @@ public interface ISettingsService
     /// <param name="emailTemplate">The identifier of the new email template to be used for the completion of a password reset process.</param>
     /// <param name="cancellationToken">The cancellation token used to stop the task.</param>
     /// <returns>A <c>Result{Unit}</c> indicating the success or failure of the operation, including potential error details.</returns>
-    Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(string emailTemplate,
+    Task<Result<Unit>> ChangeForgotPasswordCompletedEmailTemplateAsync(Guid emailTemplate,
         CancellationToken cancellationToken);
 }

@@ -23,7 +23,7 @@ public class EditTemplateNameCommandHandlerTest
     [Test]
     public async Task ShouldReturnSuccessWhenServiceSucceeds()
     {
-        EditTemplateNameCommand command = new("template-1", "New Name");
+        EditTemplateNameCommand command = new(Guid.NewGuid(), "New Name");
         _templatesServiceMock
             .Setup(x => x.EditTemplateName(command.TemplateID, command.NewTemplateName, CancellationToken.None))
             .ReturnsAsync(Result.Success(Unit.Value));
@@ -39,7 +39,7 @@ public class EditTemplateNameCommandHandlerTest
     [Test]
     public async Task ShouldReturnFailureWhenServiceFails()
     {
-        EditTemplateNameCommand command = new("template-1", "New Name");
+        EditTemplateNameCommand command = new(Guid.NewGuid(), "New Name");
         _templatesServiceMock
             .Setup(x => x.EditTemplateName(command.TemplateID, command.NewTemplateName, CancellationToken.None))
             .ReturnsAsync(Result.Failure<Unit>("ET-FAIL"));

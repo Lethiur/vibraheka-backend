@@ -28,11 +28,12 @@ public class EmailTemplateRepository(IDynamoDBContext context, IAmazonDynamoDB c
     /// Retrieves an email template entity by its unique identifier.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A <c>Task</c> representing the asynchronous operation. The task result contains a <c>Result</c> object which is successful if the template exists, returning the corresponding <c>EmailEntity</c>; otherwise, it contains an error.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <c>templateID</c> is null or empty.</exception>
-    public Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken token)
+    public Task<Result<EmailEntity>> GetTemplateByID(Guid templateID, CancellationToken cancellationToken)
     {
-        return FindByID(templateID, token)
+        return FindByID(templateID.ToString(), cancellationToken)
             .Ensure(model => model != null, EmailTemplateErrors.TemplateNotFound)
             .Map(model => model.ToDomain())
             .MapError(error =>
@@ -52,9 +53,9 @@ public class EmailTemplateRepository(IDynamoDBContext context, IAmazonDynamoDB c
     /// <returns>A <c>Task</c> representing the asynchronous operation.
     /// The task result contains a <c>Result</c> object indicating the success or failure of the operation.</returns>
     /// <exception cref="NotImplementedException">Thrown if the method is not yet implemented.</exception>
-    public async Task<Result<Unit>> SaveTemplate(EmailEntity template, CancellationToken token)
+    public async Task<Result<Unit>> SaveTemplate(EmailEntity template, CancellationToken cancellationToken)
     {
-        return await Save(EmailTemplateDBModel.FromDomain(template), token);
+        return await Save(EmailTemplateDBModel.FromDomain(template), cancellationToken);
     }
 
     /// <summary>

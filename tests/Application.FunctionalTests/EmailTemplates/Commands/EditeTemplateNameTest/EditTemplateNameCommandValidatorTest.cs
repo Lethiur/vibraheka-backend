@@ -21,7 +21,7 @@ public class EditTemplateNameCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsValid()
     {
         // Given
-        EditTemplateNameCommand command = new(Guid.NewGuid().ToString(), "New Template Name");
+        EditTemplateNameCommand command = new(Guid.NewGuid(), "New Template Name");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -29,15 +29,14 @@ public class EditTemplateNameCommandValidatorTest
         // Then
         Assert.That(result.IsValid, Is.True);
     }
+    
 
-    [TestCase("", Description = "Empty ID")]
-    [TestCase(null!, Description = "Null ID")]
-    [TestCase("not-a-guid", Description = "Invalid GUID format")]
+    [Test]
     [Description("Given a command with invalid TemplateID, when validating, then it should fail with InvalidTempalteID error")]
-    public async Task ShouldFailValidationWhenTemplateIdIsInvalid(string templateId)
+    public async Task ShouldFailValidationWhenTemplateIdIsInvalid()
     {
         // Given
-        EditTemplateNameCommand command = new(templateId, "Valid Name");
+        EditTemplateNameCommand command = new(Guid.Empty, "Valid Name");
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
@@ -57,7 +56,7 @@ public class EditTemplateNameCommandValidatorTest
     public async Task ShouldFailValidationWhenNewTemplateNameIsInvalid(string newName)
     {
         // Given
-        EditTemplateNameCommand command = new(Guid.NewGuid().ToString(), newName);
+        EditTemplateNameCommand command = new(Guid.NewGuid(), newName);
 
         // When
         ValidationResult result = await _validator.ValidateAsync(command);

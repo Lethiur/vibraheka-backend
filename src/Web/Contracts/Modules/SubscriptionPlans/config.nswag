@@ -1,0 +1,21 @@
+﻿{
+  "runtime": "Net100",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "./api.yml"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpController": {
+      "className": "ISubscriptionPlanController",
+      "controllerStyle": "Abstract",
+      "namespace": "VibraHeka.Web.Catalog.Subscriptions.Controllers",
+      "generateController": true,
+      "generateModelValidationAttributes": true,
+      "generateDtoTypes": true,
+      "useActionResultType": true,
+      "templateDirectory" : "../../Templates",
+      "output": "../../../Generated/SubscriptionPlanController.cs"
+    }
+  }
+}

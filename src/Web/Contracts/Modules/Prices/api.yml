@@ -1,9 +1,9 @@
 ﻿openapi: 3.1.0
 
 info:
-  title: VibraHeka API - Subscriptions API
+  title: VibraHeka API - Pricing API
   version: 1.0.0
-  description: API for managing subscriptions
+  description: API for managing Prices
 
 components:
   securitySchemes:
@@ -16,16 +16,49 @@ security:
   - bearerAuth: [ ]
 
 tags:
-  - name: Pricing
-    description: Operations related to subscriptions
+  - name: AdminPricing
+    description: Operations related to Prices
+    
 servers:
   - url: /api/v1/catalog/prices
-    description: local Server server
+    description: local Server
 
 paths:
   /:
     put:
-      
+      tags:
+        - Pricing
+      description: Updates the price information for a specific subscription.
+      operationId: updatePrice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreatePriceRequest.yml'
+      responses:
+        '200':
+          description: Successful response with the updated subscription price details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreatePriceResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the price.
+        '404':
+          description: Product not found to create this price on
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
   /{id}:
     get:
       tags:
@@ -39,16 +72,54 @@ paths:
           description: The ID of the subscription price to retrieve.
           schema:
             $ref: '../Common/Fields/ID.yml'
-      responses: 
+      responses:
         '200':
           description: Successful response with the subscription price details.
           content:
             application/json:
               schema:
-                $ref: './Components/Responses/GetPriceDetailsResponse.yml'
+                $ref: './Components/Responses/CreatePriceResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the price.
         '404':
           description: Price not found for the given ID.
           content:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
+  /activate:
+    patch:
+      tags:
+        - Pricing
+      description: Activates a specific subscription price.
+      operationId: activatePrice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ActivatePriceRequest.yml'
+      responses:
+        '204':
+          description: Successful response indicating the price has been activated.
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to activate the price.
+        '404':
+          description: Price or product not found for the given IDs.
+        

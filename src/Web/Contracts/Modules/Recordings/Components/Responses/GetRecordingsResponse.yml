@@ -1,0 +1,9 @@
+﻿type: object
+description: An array of recordings
+
+properties:
+  recordings:
+    type: array
+    description: A list of recordings.
+    items:
+      $ref: '../Entities/RecordingDTO.yml'

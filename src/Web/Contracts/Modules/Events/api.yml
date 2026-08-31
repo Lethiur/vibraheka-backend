@@ -1,0 +1,107 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Events Admin API
+  version: 1.0.0
+  description: API for managing events
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+servers:
+  - url: /api/v1/events
+    description: local Server
+
+paths:
+  /:
+    put:
+      tags:
+        - AdminEvents
+      description: Updates the event information for a specific event.
+      operationId: updateEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreateEventRequest.yml'
+      responses:
+        '200':
+          description: Successful response with the updated event details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreateEventResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to update the event.
+        '404':
+          description: Event not found to update this event on
+    post:
+      tags:
+        - AdminEvents
+      description: Creates a new event.
+      operationId: createEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/GetEventsRequest.yml'
+      responses:
+        '201':
+          description: Successful response with the created event details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetEventsResponse.yml'
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to create an event.
+  /change-visibility:
+    patch:
+      tags:
+        - AdminEvents
+      description: Changes the visibility of an event.
+      operationId: changeEventVisibility
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/ModifyEventVisibilityRequest.yml'
+      responses:
+        '204':
+          description: Successful response with no content.
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to change the visibility of the event.
+        

@@ -7,13 +7,14 @@ namespace VibraHeka.Infrastructure.IntegrationTests.Persistence.Repository.Setti
 [TestFixture]
 public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
 {
-    [TestCase("welcome-template", "UserWelcome")]
-    [TestCase("subscription-thank-you-template", "SubscriptionThankYou")]
-    [TestCase("trial-ending-soon-template", "TrialEndingSoon")]
-    [TestCase("password-changed-template", "PasswordChanged")]
-    public async Task ShouldUpdateAndGetNewAdminManagedTemplates(string templateValue, string templateType)
+    [TestCase( "UserWelcome")]
+    [TestCase("SubscriptionThankYou")]
+    [TestCase("TrialEndingSoon")]
+    [TestCase("PasswordChanged")]
+    public async Task ShouldUpdateAndGetNewAdminManagedTemplates(string templateType)
     {
         // Given: a value and one of the new admin-managed template slots.
+        Guid templateValue = Guid.NewGuid();
         string parameterName = GetParameterName(templateType);
 
         // When: saving template through repository.
@@ -25,15 +26,15 @@ public class NewAdminEmailTemplatesAsyncTest : GenericSettingsRepositoryTest
         {
             Name = parameterName
         });
-        Assert.That(rawResponse.Parameter.Value, Is.EqualTo(templateValue));
+        Assert.That(rawResponse.Parameter.Value, Is.EqualTo(templateValue.ToString()));
 
         // And: getting template through repository returns same value.
         Result<string> getResult = await GetTemplate(templateType);
         Assert.That(getResult.IsSuccess, Is.True);
-        Assert.That(getResult.Value, Is.EqualTo(templateValue));
+        Assert.That(getResult.Value, Is.EqualTo(templateValue.ToString()));
     }
 
-    private Task<Result<Unit>> SaveTemplate(string templateType, string templateValue)
+    private Task<Result<Unit>> SaveTemplate(string templateType, Guid templateValue)
     {
         return templateType switch
         {

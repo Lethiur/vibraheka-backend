@@ -27,9 +27,9 @@ public class UpdateTemplateContentCommandHandlerTest
     [Test]
     public async Task ShouldSaveTemplateContentWhenTemplateExists()
     {
-        const string templateId = "template-123";
-        EmailEntity templateEntity = new() { ID = templateId };
-        using MemoryStream stream = new(Encoding.UTF8.GetBytes("new-content"));
+        Guid templateId = Guid.NewGuid();
+        EmailEntity templateEntity = new() { ID = templateId.ToString() };
+        using MemoryStream stream = new([.. "new-content"u8]);
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
@@ -37,21 +37,21 @@ public class UpdateTemplateContentCommandHandlerTest
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock
-            .Setup(x => x.SaveTemplate(templateId, stream, CancellationToken.None))
+            .Setup(x => x.SaveTemplate(templateId.ToString(), stream, CancellationToken.None))
             .ReturnsAsync(Result.Success("url"));
 
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value, Is.EqualTo(Unit.Value));
-        _storageServiceMock.Verify(x => x.SaveTemplate(templateId, stream, CancellationToken.None), Times.Once);
+        _storageServiceMock.Verify(x => x.SaveTemplate(templateId.ToString(), stream, CancellationToken.None), Times.Once);
     }
 
     [Test]
     public async Task ShouldReturnFailureWhenTemplateServiceFails()
     {
-        const string templateId = "template-123";
-        using MemoryStream stream = new(Encoding.UTF8.GetBytes("new-content"));
+        Guid templateId = Guid.Empty;
+        using MemoryStream stream = new([.. "new-content"u8]);
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
@@ -68,9 +68,9 @@ public class UpdateTemplateContentCommandHandlerTest
     [Test]
     public async Task ShouldReturnFailureWhenStorageSaveFails()
     {
-        const string templateId = "template-123";
-        EmailEntity templateEntity = new() { ID = templateId };
-        using MemoryStream stream = new(Encoding.UTF8.GetBytes("new-content"));
+        Guid templateId = Guid.NewGuid();
+        EmailEntity templateEntity = new() { ID = templateId.ToString() };
+        using MemoryStream stream = new([.. "new-content"u8]);
         UpdateTemplateContentCommand command = new(templateId, stream);
 
         _templatesServiceMock
@@ -78,7 +78,7 @@ public class UpdateTemplateContentCommandHandlerTest
             .ReturnsAsync(Result.Success(templateEntity));
 
         _storageServiceMock
-            .Setup(x => x.SaveTemplate(templateId, stream, CancellationToken.None))
+            .Setup(x => x.SaveTemplate(templateId.ToString(), stream, CancellationToken.None))
             .ReturnsAsync(Result.Failure<string>("S3-FAIL"));
 
         Result<Unit> result = await _handler.Handle(command, CancellationToken.None);

@@ -7,7 +7,6 @@ public class EditTemplateNameCommandValidator : AbstractValidator<EditTemplateNa
 {
     public EditTemplateNameCommandValidator()
     {
-        RuleFor(x => x.TemplateID).ValidTemplateID();
         RuleFor(x => x.NewTemplateName).NotEmpty().WithMessage(EmailTemplateErrors.InvalidTemplateName)
             .NotNull().WithMessage(EmailTemplateErrors.InvalidTemplateName)
             .MinimumLength(3).WithMessage(EmailTemplateErrors.InvalidTemplateName);

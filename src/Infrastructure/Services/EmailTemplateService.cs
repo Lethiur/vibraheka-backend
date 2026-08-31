@@ -16,15 +16,15 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// Retrieves an email template by its unique identifier.
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to retrieve.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{EmailEntity}"/> object
     /// wrapping the email template if found, or an error if the operation fails.</returns>
-    public Task<Result<EmailEntity>> GetTemplateByID(string templateID, CancellationToken cancellationToken)
+    public Task<Result<EmailEntity>> GetTemplateByID(Guid templateID, CancellationToken cancellationToken)
     {
         return Maybe.From(templateID)
-            .Where(tid => !string.IsNullOrWhiteSpace(tid))
+            .Where(tid => tid != Guid.Empty)
             .ToResult(EmailTemplateErrors.InvalidTempalteID)
             .BindTry(async id => await EmailTemplateRepository.GetTemplateByID(id, cancellationToken))
-            .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound)
             .MapError(error =>
             {
                 return error switch
@@ -49,14 +49,14 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// Saves a new or updated email template to the repository.
     /// </summary>
     /// <param name="emailTemplate">The email template entity to save.</param>
-    /// <param name="token">The token to preemptively cancel the task if needed</param>
+    /// <param name="cancellationToken">The token to preemptively cancel the task if needed</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{String}"/> object
     /// wrapping the identifier of the saved email template if successful, or an error if the operation fails.</returns>
-    public async Task<Result<string>> SaveEmailTemplate(EmailEntity emailTemplate, CancellationToken token)
+    public async Task<Result<string>> SaveEmailTemplate(EmailEntity emailTemplate, CancellationToken cancellationToken)
     {
         return await Maybe.From(emailTemplate)
             .ToResult(EmailTemplateErrors.InvalidTemplateEntity)
-            .BindTry(tpl => EmailTemplateRepository.SaveTemplate(tpl, token)
+            .BindTry(tpl => EmailTemplateRepository.SaveTemplate(tpl, cancellationToken)
                 .Map(_ => emailTemplate.ID));
     }
 
@@ -65,23 +65,21 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
     /// </summary>
     /// <param name="templateID">The unique identifier of the email template to be updated.</param>
     /// <param name="newTemplateName">The new name to assign to the email template.</param>
-    /// <param name="token">A cancellation token that can be used to cancel the operation.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains a <see cref="Result{Unit}"/> indicating success or failure of the operation.</returns>
-    public Task<Result<Unit>> EditTemplateName(string templateID, string newTemplateName, CancellationToken token)
+    public Task<Result<Unit>> EditTemplateName(Guid templateID, string newTemplateName, CancellationToken cancellationToken)
     {
         return
             Maybe.From(templateID)
                 .ToResult(EmailTemplateErrors.InvalidTempalteID)
-                .Ensure(id => !string.IsNullOrWhiteSpace(id), EmailTemplateErrors.InvalidTempalteID)
-                .Ensure(id => !string.IsNullOrEmpty(id), EmailTemplateErrors.InvalidTempalteID)
-                .BindTry(template => EmailTemplateRepository.GetTemplateByID(template, token))
+                .BindTry(template => EmailTemplateRepository.GetTemplateByID(template, cancellationToken))
                 .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound)
                 .TapTry(entity =>
                 {
                     entity.Name = newTemplateName;
                     entity.LastModified = DateTime.UtcNow;
                 })
-                .BindTry(entity => EmailTemplateRepository.SaveTemplate(entity, token))
+                .BindTry(entity => EmailTemplateRepository.SaveTemplate(entity, cancellationToken))
                 .Map(_ => Unit.Value);
     }
 }

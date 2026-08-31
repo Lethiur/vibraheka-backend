@@ -10,5 +10,5 @@ namespace VibraHeka.Application.EmailTemplates.Commands.AddAttachment;
 /// The command includes the necessary data to perform the attachment operation, such as the file stream of the attachment,
 /// the unique identifier for the email template, and the name of the attachment.
 /// </remarks>
-public record AddAttachmentCommand(Stream FileStream, string TemplateId, string AttachmentName)
+public record AddAttachmentCommand(Stream FileStream, Guid TemplateId, string AttachmentName)
     : IRequest<Result<string>>, IRequireAdmin;

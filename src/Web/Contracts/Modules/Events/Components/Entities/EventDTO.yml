@@ -1,0 +1,39 @@
+﻿type: object
+description: DTO for event entity.
+
+properties:
+  id:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the event.
+  name:
+    type: string
+    minLength: 3
+    description: The name of the recording.
+  description:
+    type: string
+    description: A brief description of the event.
+    minLength: 3
+  isActive: 
+    type: boolean
+    description: Indicates whether the event is active or not.
+    default: false
+  duration:
+    type: integer
+    description: The duration of the event in minutes.
+    minimum: 1
+  password:
+    type: string
+    description: The password required to access the event.
+    minLength: 6
+  timezone:
+    type: string
+    description: The timezone of the event.
+    minLength: 3
+    example: "America/New_York"
+  status:
+    $ref: '../Enums/EventStatus.yml'
+    description: The status of the event.
+  link:
+    type: string
+    description: The link to access the event.
+    format: uri

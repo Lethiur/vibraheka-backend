@@ -18,4 +18,4 @@ namespace VibraHeka.Application.Settings.Commands.ChangeTemplateForAction;
 /// This command is typically used to update configuration or settings
 /// within the application that tie templates to specific user actions.
 /// </remarks>
-public record ChangeTemplateForActionCommand(string TemplateID, ActionType ActionType) : IRequest<Result<Unit>>, IRequireAdmin;
+public record ChangeTemplateForActionCommand(Guid TemplateID, ActionType ActionType) : IRequest<Result<Unit>>, IRequireAdmin;

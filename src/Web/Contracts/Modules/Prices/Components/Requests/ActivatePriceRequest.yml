@@ -1,0 +1,14 @@
+﻿type: object
+description: Request to activate a price
+
+required:
+  - priceId
+  - productId
+
+properties:
+  priceId:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: The ID of the price to activate
+  productId:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: The ID of the product to activate the price for

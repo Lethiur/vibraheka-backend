@@ -1,0 +1,10 @@
+﻿type: object
+description: The response for getting events.
+
+properties:
+  events:
+    type: array
+    description: A list of events.
+    items:
+      $ref: '../Entities/EventDTO.yml'
+        
