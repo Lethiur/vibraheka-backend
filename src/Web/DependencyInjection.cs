@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Web.Controllers.Auth;
+using VibraHeka.Web.Controllers.Catalog.Pricing;
+using VibraHeka.Web.Controllers.Catalog.Recordings;
+using VibraHeka.Web.Controllers.EmailTemplates;
 using VibraHeka.Web.Controllers.Users;
 using VibraHeka.Web.Mappers;
 using SubscriptionMapper = VibraHeka.Web.Controllers.Subscriptions.SubscriptionMapper;
@@ -16,7 +19,10 @@ public static class DependencyInjection
         builder.Services.AddSingleton<AuthMapper>();
         builder.Services.AddSingleton<UserMapper>();
         builder.Services.AddSingleton<OrderRequestMapper>();
-        builder.Services.AddSingleton<CreateEventMapper>();
+        builder.Services.AddSingleton<PricingMapper>();
+        builder.Services.AddSingleton<RecordingMapper>();
+        builder.Services.AddSingleton<EmailTemplateMapper>();
+        
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);

@@ -43,10 +43,9 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         if (exception is UnauthorizedException)
         {
             context.Response.StatusCode = 401;
-            return context.Response.WriteAsJsonAsync(ResponseEntity.FromError("Unauthorized"));
         }
 
         context.Response.StatusCode = 400;
-        return context.Response.WriteAsJsonAsync(ResponseEntity.FromError(exception.Message));
+        return Task.CompletedTask;
     }
 }
