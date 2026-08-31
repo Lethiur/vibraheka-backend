@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
 using Bogus;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
@@ -7,6 +8,8 @@ using VibraHeka.Domain.Common.Interfaces;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -23,13 +26,11 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
 
 
         // When: Resending the confirmation code
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
+        HttpResponseMessage response = await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+            new ResendConfirmationCodeRequest { Email = email });
 
         // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.EqualTo("Confirmation code resent successfully"));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
     }
 
     [Test]
@@ -40,19 +41,20 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         string email = faker.Internet.Email();
         await RegisterUser(faker.Person.FullName, email, "Password123@");
 
-        HttpResponseMessage firstResponse =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
-        Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        
+        HttpResponseMessage firstResponse = await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+            new ResendConfirmationCodeRequest { Email = email });
+        Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
 
         // When: the same user requests another code immediately (within 1 minute cooldown).
         HttpResponseMessage secondResponse =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
+            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+                new ResendConfirmationCodeRequest { Email = email });
 
         // Then: endpoint should reject by cooldown policy.
         Assert.That(secondResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity secondEntity = await secondResponse.GetAsResponseEntity();
-        Assert.That(secondEntity.Success, Is.False);
-        Assert.That(secondEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
+        BadRequestResponse responseEntity = await secondResponse.ParseContentAsync<BadRequestResponse>();
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
     }
 
     [Test]
@@ -64,31 +66,34 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         await RegisterUser(faker.Person.FullName, email, "Password123@");
 
         HttpResponseMessage firstResponse =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
+            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+                new ResendConfirmationCodeRequest { Email = email });
         Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
         HttpResponseMessage blockedResponse =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
+            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+                new ResendConfirmationCodeRequest { Email = email });
         Assert.That(blockedResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
         IUserService userService = GetObjectFromFactory<IUserService>();
         IActionLogRepository actionLogRepository = GetObjectFromFactory<IActionLogRepository>();
         string userId = (await userService.GetUserID(email, CancellationToken.None)).Value;
-        await actionLogRepository.SaveActionLog(new ActionLogEntity
-        {
-            ID = userId,
-            Action = ActionType.RequestVerificationCode,
-            Timestamp = DateTimeOffset.UtcNow.AddMinutes(-2)
-        }, CancellationToken.None);
+        await actionLogRepository.SaveActionLog(
+            new ActionLogEntity
+            {
+                ID = userId,
+                Action = ActionType.RequestVerificationCode,
+                Timestamp = DateTimeOffset.UtcNow.AddMinutes(-2)
+            }, CancellationToken.None);
 
         // When: requesting resend again after moving the action timestamp outside cooldown.
         HttpResponseMessage responseAfterCooldown =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
+            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
+                new ResendConfirmationCodeRequest { Email = email });
 
         // Then: endpoint should allow the action again.
-        Assert.That(responseAfterCooldown.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await responseAfterCooldown.GetAsResponseEntityAndContentAs<string>();
-        Assert.That(responseEntity.Success, Is.True);
+        Assert.That(responseAfterCooldown.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        
     }
 
     [Test]
@@ -102,8 +107,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.False);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
@@ -120,7 +124,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
 
         // Then: validator should map to invalid email error code.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidEmail));
     }
 }

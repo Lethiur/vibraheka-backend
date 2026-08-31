@@ -12,7 +12,6 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
@@ -20,7 +19,6 @@ namespace VibraHeka.Web.AcceptanceTests.Catalog;
 public sealed class GetDownloadUrlTest : GenericRecordingsTest
 {
     private const string RecordingsBaseEndpoint = "/api/v1/catalog/recordings";
-    private static readonly HttpClient S3Client = new();
     private const string UploadEndpoint = RecordingsBaseEndpoint;
 
     private static string BuildDownloadUrlEndpoint(string recordingId) =>

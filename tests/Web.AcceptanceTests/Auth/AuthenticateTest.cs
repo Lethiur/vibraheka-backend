@@ -5,8 +5,6 @@ using Bogus;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Authentication;
 using UserRole = VibraHeka.Domain.Entities.UserRole;

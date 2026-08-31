@@ -5,7 +5,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
 using VibraHeka.Application.Users.Commands.ChangeAuthenticatedPassword;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Authentication;
@@ -38,7 +37,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         const string newPassword = "NewPassword123@";
 
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, currentPassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         ChangeAuthenticatedPasswordCommand command = new(currentPassword, newPassword, newPassword);
@@ -70,7 +69,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         string email = TheFaker.Internet.Email();
         const string currentPassword = "Password123@";
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, currentPassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         ChangeAuthenticatedPasswordCommand command = new(currentPassword, "NewPassword123@", "DifferentPassword123@");
@@ -91,7 +90,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         string email = TheFaker.Internet.Email();
         const string currentPassword = "Password123@";
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, currentPassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         ChangeAuthenticatedPasswordCommand command = new("WrongCurrent123@", "NewPassword123@", "NewPassword123@");

@@ -1,12 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using NUnit.Framework;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -21,7 +20,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         string username = TheFaker.Internet.UserName();
 
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // When: requesting all templates.
@@ -30,12 +29,10 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity responseEntity =
-            await response.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
-        GetTemplatesResponse? templatesResponse = responseEntity.GetContentAs<GetTemplatesResponse>();
-        IEnumerable<SimpleEmailTemplateDTO> templates = templatesResponse!.Templates;
+        GetTemplatesResponse responseEntity = await response.ParseContentAsync<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = responseEntity.Templates;
 
-        Assert.That(responseEntity.Success, Is.True);
+        
         Assert.That(templates, Is.Not.Null);
         foreach (SimpleEmailTemplateDTO template in templates)
         {
@@ -49,7 +46,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // And: A newly created template
@@ -64,8 +61,8 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         HttpResponseMessage response = await Client.GetAsync("/api/v1/email-templates");
 
         // Then: The list should contain the new template
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
-        IEnumerable<SimpleEmailTemplateDTO> templates = responseEntity.GetContentAs<GetTemplatesResponse>()!.Templates;
+        GetTemplatesResponse responseEntity = await response.ParseContentAsync<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = responseEntity.Templates;
 
         Assert.That(templates, Is.Not.Null);
         Assert.That(templates.Any(t => t.Name == templateName), Is.True);
@@ -79,7 +76,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         string username = TheFaker.Internet.UserName();
 
         await RegisterAndConfirmUser(username, email, ThePassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // When: requesting all templates.

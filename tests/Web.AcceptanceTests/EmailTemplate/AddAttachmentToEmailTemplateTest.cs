@@ -5,9 +5,11 @@ using NUnit.Framework;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using BadRequestResponse = VibraHeka.Web.EmailTemplates.BadRequestResponse;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -43,7 +45,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         await InsertTemplateInDatabase(templateId);
         await RegisterAndConfirmUser(username, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         using MultipartFormDataContent form = CreateAttachmentForm(
@@ -69,7 +71,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
         string templateId = Guid.NewGuid().ToString("N");
 
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         using MultipartFormDataContent form = CreateAttachmentForm(
@@ -85,8 +87,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.False);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
 
@@ -100,7 +101,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         await InsertTemplateInDatabase(templateId);
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         byte[] invalidBytes = Encoding.UTF8.GetBytes("not-an-image-or-video");
@@ -117,8 +118,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.False);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.InvalidAttachmentContent));
     }
 
@@ -132,7 +132,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         await InsertTemplateInDatabase(templateId);
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         using MultipartFormDataContent form = CreateAttachmentForm(
@@ -147,11 +147,9 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<AddAttachmentResponse>();
-        AddAttachmentResponse? attachmentResponse = responseEntity.GetContentAs<AddAttachmentResponse>();
-        Assert.That(responseEntity.Success, Is.True);
+        AddAttachmentResponse attachmentResponse = await response.ParseContentAsync<AddAttachmentResponse>();
         Assert.That(attachmentResponse, Is.Not.Null);
-        Assert.That(attachmentResponse!.Url, Is.Not.Null);
+        Assert.That(attachmentResponse.Url, Is.Not.Null);
     }
 
     [Test]
@@ -164,7 +162,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         await InsertTemplateInDatabase(templateId);
         await RegisterAndConfirmAdmin(username, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         using MultipartFormDataContent form = CreateAttachmentForm(
@@ -179,9 +177,8 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.Not.Null);
+        AddAttachmentResponse attachmentResponse = await response.ParseContentAsync<AddAttachmentResponse>();
+        Assert.That(attachmentResponse.Url, Is.Not.Null);
     }
 
     private async Task InsertTemplateInDatabase(string templateId)
@@ -218,11 +215,11 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
 
     private static byte[] BuildPngBytes()
     {
-        return new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00 };
+        return [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00];
     }
 
     private static byte[] BuildMp4Bytes()
     {
-        return new byte[] { 0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32 };
+        return [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x70, 0x34, 0x32];
     }
 }

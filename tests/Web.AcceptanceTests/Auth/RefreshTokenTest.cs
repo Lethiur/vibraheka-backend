@@ -3,9 +3,8 @@ using System.Net;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
 using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
@@ -20,7 +19,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: a registered and confirmed user with a valid refresh token from login.
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authenticationResult = await AuthenticateUser(email, ThePassword);
 
         RefreshTokenRequest command = new()
         {
@@ -33,41 +32,14 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: endpoint should return a new access token.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
-        string? refreshedAccessToken = responseEntity.GetContentAs<string>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(refreshedAccessToken, Is.Not.Null.And.Not.Empty);
+        RefreshTokenResponse responseEntity = await response.ParseContentAsync<RefreshTokenResponse>();
+        
+        Assert.That(responseEntity.AccessToken, Is.Not.Null.And.Not.Empty);
 
         // And: The tokens should be different
-        Assert.That(refreshedAccessToken, Is.Not.EqualTo(authenticationResult.AccessToken));
+        Assert.That(responseEntity.AccessToken, Is.Not.EqualTo(authenticationResult.AccessToken));
     }
-
-    [Test]
-    [DisplayName("Should return a different JWT than the one obtained during login when refresh succeeds")]
-    public async Task ShouldReturnDifferentJwtThanTheOneObtainedDuringLoginWhenRefreshSucceeds()
-    {
-        // Given: a registered and confirmed user with tokens from a successful login.
-        string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
-
-        RefreshTokenRequest command = new()
-        {
-            RefreshToken = authenticationResult.RefreshToken,
-            Email = email
-        };
-
-        // When: refreshing the session.
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/refresh-token", command);
-
-        // Then: the returned JWT should not be the same access token produced by login.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<string>();
-        string? refreshedAccessToken = responseEntity.GetContentAs<string>();
-        Assert.That(refreshedAccessToken, Is.Not.Null.And.Not.Empty);
-        Assert.That(refreshedAccessToken, Is.Not.EqualTo(authenticationResult.AccessToken));
-    }
-
+    
     [Test]
     [DisplayName("Should return bad request when refresh token is invalid")]
     public async Task ShouldReturnBadRequestWhenRefreshTokenIsInvalid()
@@ -87,7 +59,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: API should reject the request.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
     }
 
@@ -114,7 +86,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: validator or service should reject it with a domain error.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(expectedErrorCode));
     }
 }

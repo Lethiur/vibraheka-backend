@@ -7,7 +7,6 @@ using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
 

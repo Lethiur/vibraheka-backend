@@ -1,7 +1,7 @@
 using System.Net;
 using NUnit.Framework;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Subscriptions;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -32,8 +32,6 @@ public class GetSubscriptionPortalDetailsTest : GenericSubscriptionAcceptanceTes
 
         // Then: the endpoint should return a mapped bad request error.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
     }
 
     [Test]
@@ -50,11 +48,9 @@ public class GetSubscriptionPortalDetailsTest : GenericSubscriptionAcceptanceTes
         // Then: the endpoint should return a valid portal url.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<string>();
-        string? portalUrl = entity.GetContentAs<string>();
-
-        Assert.That(entity.Success, Is.True);
-        Assert.That(portalUrl, Is.Not.Null.And.Not.Empty);
-        Assert.That(portalUrl!.StartsWith("https://billing.stripe.com/"), Is.True);
+        SubscriptionPortalResponse entity = await response.ParseContentAsync<SubscriptionPortalResponse>();
+        
+        Assert.That(entity.Url, Is.Not.Null.And.Not.Empty);
+        Assert.That(entity.Url.StartsWith("https://billing.stripe.com/"), Is.True);
     }
 }

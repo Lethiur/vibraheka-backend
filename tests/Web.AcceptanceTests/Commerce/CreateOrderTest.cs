@@ -5,7 +5,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Commerce.Models;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Commerce;
 

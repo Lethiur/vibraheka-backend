@@ -1,8 +1,8 @@
 using System.Net;
+using System.Net.Http.Json;
 using NUnit.Framework;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Subscriptions;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -33,9 +33,8 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
 
         // Then: error mapping should be NoSubscriptionFound.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
-        Assert.That(entity.ErrorCode, Is.EqualTo(SubscriptionErrors.NoSubscriptionFound));
+        BadRequestResponse? entity = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        Assert.That(entity!.ErrorCode, Is.EqualTo(SubscriptionErrors.NoSubscriptionFound));
     }
 
     [Test]
@@ -52,12 +51,8 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
         // Then: the details DTO should be returned successfully.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<SubscriptionDetailsDTO>();
-        SubscriptionDetailsDTO? details = entity.GetContentAs<SubscriptionDetailsDTO>();
-
-        Assert.That(entity.Success, Is.True);
-        Assert.That(details, Is.Not.Null);
-        Assert.That(details.CheckoutSessionUrl, Is.Not.Null.And.Not.Empty);
-        Assert.That(details.CheckoutSessionExpiresAt, Is.GreaterThan(DateTimeOffset.UtcNow.AddHours(-1)));
+        SubscriptionDetailsResponse? entity = await response.Content.ReadFromJsonAsync<SubscriptionDetailsResponse>();
+        Assert.That(entity.CheckoutSessionUrl, Is.Not.Null.And.Not.Empty);
+        Assert.That(entity.CheckoutSessionExpiresAt, Is.GreaterThan(DateTimeOffset.UtcNow.AddHours(-1)));
     }
 }

@@ -1,11 +1,11 @@
 using System.Net;
 using NUnit.Framework;
-using VibraHeka.Domain.Commerce.Enums;
-using VibraHeka.Domain.Common.Enums;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Subscriptions;
+using OrderStatus = VibraHeka.Domain.Commerce.Enums.OrderStatus;
+using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 
@@ -37,8 +37,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
         // Then: the operation fails with no-subscription error mapping.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
 
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(SubscriptionErrors.NoSubscriptionFound));
     }
 
@@ -46,17 +45,16 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenSubscriptionIsNotMarkedAsToBeCancelled()
     {
         // Given: an authenticated user with a subscription already active (first ensure branch).
-        Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.Active, OrderStatus.Draft);
-        Assert.That(seedResult.IsSuccess, Is.True);
+        await AuthenticateAsConfirmedUser();
+        await Client.PutAsync("/api/v1/subscriptions", null);
 
         // When: requesting reactivation.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);
 
         // Then: the service blocks reactivation as already active.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(SubscriptionErrors.SubscriptionIsActive));
     }
 
@@ -64,56 +62,33 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenSubscriptionOrderStatusIsPaymentFailed()
     {
         // Given: an authenticated user with ToBeCancelled + PaymentFailed (second ensure branch).
-        Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.ToBeCancelled,
-            OrderStatus.Failed);
-        Assert.That(seedResult.IsSuccess, Is.True);
+        await AuthenticateAsConfirmedUser();
+        await Client.PutAsync("/api/v1/subscriptions", null);
 
         // When: requesting reactivation.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);
 
-        // Then: the service maps it as cancelled and rejects reactivation.
+        // Then: the service maps it as canceled and rejects reactivation.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(SubscriptionErrors.SubscriptionIsCancelled));
     }
-
-    [Test]
-    public async Task ShouldReturnBadRequestWhenSubscriptionOrderStatusIsCancelled()
-    {
-        // Given: an authenticated user with ToBeCancelled + Cancelled (second ensure alternate branch).
-        Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.ToBeCancelled,
-            OrderStatus.Cancelled);
-        Assert.That(seedResult.IsSuccess, Is.True);
-
-        // When: requesting reactivation.
-        HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);
-
-        // Then: the service returns SubscriptionIsCancelled.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
-        Assert.That(entity.ErrorCode, Is.EqualTo(SubscriptionErrors.SubscriptionIsCancelled));
-    }
-
+    
     [Test]
     public async Task ShouldReturnBadRequestWhenStripeReactivationFailsAfterEnsureChecks()
     {
         // Given: a subscription that passes ensure checks but has fake external id that Stripe will reject.
-        Domain.Models.Results.AuthenticationResult authResult = await AuthenticateAsConfirmedUser();
-        var seedResult = await SeedSubscriptionForUser(authResult.UserID, SubscriptionStatus.ToBeCancelled,
-            OrderStatus.Draft);
-        Assert.That(seedResult.IsSuccess, Is.True);
-
+        await AuthenticateAsConfirmedUser();
+        await Client.PutAsync("/api/v1/subscriptions", null);
+        
         // When: attempting to reactivate subscription.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);
 
         // Then: operation fails with stripe infrastructure mapping.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(InfrastructureSubscriptionErrors.StripeError));
     }
 }

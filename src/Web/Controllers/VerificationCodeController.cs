@@ -20,9 +20,9 @@ public class VerificationCodeController(IMediator mediator)
 
         if (!id.IsFailure)
         {
-            return new OkObjectResult(ResponseEntity.FromSuccess(id.Value));
+            return new OkObjectResult(id.Value);
         }
-        return new BadRequestObjectResult(ResponseEntity.FromError(id.Error));
+        return new BadRequestObjectResult(id.Error);
     }
 }
 #endif

@@ -2,10 +2,12 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using static VibraHeka.Domain.Exceptions.EmailTemplateErrors;
+using BadRequestResponse = VibraHeka.Web.EmailTemplates.BadRequestResponse;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -35,7 +37,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         string templateName = $"Skeleton-{TheFaker.Random.AlphaNumeric(8)}";
@@ -49,16 +51,14 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then: Should return 200 OK and the template ID
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<CreateEmailTemplateResponse>();
-        CreateEmailTemplateResponse? createResponse = responseEntity.GetContentAs<CreateEmailTemplateResponse>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(createResponse, Is.Not.Null);
+        CreateEmailTemplateResponse responseEntity = await response.ParseContentAsync<CreateEmailTemplateResponse>();
+        Assert.That(responseEntity, Is.Not.Null);
 
         // Verify the skeleton exists in the summary list (Happy Path check)
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
-        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.GetContentAs<GetTemplatesResponse>()!.Templates;
-        Assert.That(templates.Any(t => t.ID == createResponse!.TemplateId && t.Name == templateName), Is.True);
+        GetTemplatesResponse listResponseEntity = await listResponse.ParseContentAsync<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.Templates;
+        Assert.That(templates.Any(t => t.ID == responseEntity.TemplateId && t.Name == templateName), Is.True);
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: A non-admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Creating a skeleton
@@ -86,7 +86,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Creating a skeleton with a name too short
@@ -97,7 +97,7 @@ public class CreateTemplateSkeletonTest : GenericAcceptanceTest<VibraHekaProgram
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(Domain.Exceptions.EmailTemplateErrors.InvalidTemplateName));
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(InvalidTemplateName));
     }
 }

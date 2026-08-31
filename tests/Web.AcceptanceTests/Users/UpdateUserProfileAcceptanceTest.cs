@@ -1,10 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 using VibraHeka.Web.Users;
+using BadRequestResponse = VibraHeka.Web.Users.BadRequestResponse;
 
 namespace VibraHeka.Web.AcceptanceTests.Users;
 
@@ -32,10 +34,12 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldUpdateUserProfileWhenAuthenticatedAndPayloadIsValid()
     {
         // Given: an authenticated user with a valid self-update payload.
-        (string userId, string email) = await AuthenticateAsConfirmedUser();
+        AuthenticateUserResponse authenticateAsConfirmedUser = await AuthenticateAsConfirmedUser();
+        
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(authenticateAsConfirmedUser.AccessToken);
         UpdateProfileRequest payload = new()
         {
-            Email = email,
             FirstName = "UpdatedName",
             MiddleName = "UpdatedMiddle",
             LastName = "UpdatedLast",
@@ -47,14 +51,14 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload);
 
         // Then: endpoint returns successful update.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.True);
-
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        
         // And: fetching profile reflects the updated values.
-        HttpResponseMessage getProfileResponse = await Client.GetAsync($"/api/v1/users/{userId}");
-        Assert.That(getProfileResponse.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        HttpResponseMessage getProfileResponse = await Client.GetAsync($"/api/v1/users/{jwtSecurityToken.Subject}");
+        getProfileResponse.EnsureSuccessStatusCode();
+        UserDTO updatedProfile = await getProfileResponse.ParseContentAsync<UserDTO>();
+        
+        Assert.That(updatedProfile.FirstName, Is.EqualTo(payload.FirstName));
     }
 
     [Test]
@@ -64,7 +68,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
         await AuthenticateAsConfirmedUser();
         UserDTO payload = new()
         {
-            Id = "not-a-guid",
+            Id = Guid.Parse("not-a-guid"),
             Email = "invalid-email"
         };
 
@@ -73,9 +77,8 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         // Then: validation fails and returns bad request.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
+        Assert.That(entity.ErrorCode, Is.EqualTo(UserErrors.InvalidUserID ));
     }
 
     [Test]
@@ -88,7 +91,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         UserDTO payload = new()
         {
-            Id = secondUserId,
+            Id = Guid.Parse(secondUserId),
             Email = secondUserEmail,
             FirstName = "ShouldNot",
             LastName = "Update"
@@ -99,8 +102,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         // Then: endpoint rejects with not-authorized error.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
     }
 }

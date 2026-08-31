@@ -1,11 +1,14 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using CSharpFunctionalExtensions;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 using VibraHeka.Web.Users;
+using BadRequestResponse = VibraHeka.Web.Users.BadRequestResponse;
 
 namespace VibraHeka.Web.AcceptanceTests.Users;
 
@@ -30,20 +33,21 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldReturnUserProfileWhenAuthenticated()
     {
         // Given: a confirmed and authenticated user.
-        (string userId, _) = await AuthenticateAsConfirmedUser();
+        AuthenticateUserResponse authenticateAsConfirmedUser = await AuthenticateAsConfirmedUser();
+        
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(authenticateAsConfirmedUser.AccessToken);
 
         // When: requesting own profile.
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/users/{userId}");
+        HttpResponseMessage response = await Client.GetAsync($"/api/v1/users/{jwtSecurityToken.Subject}");
 
         // Then: profile payload should be returned successfully.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<UserDTO>();
-        UserDTO? dto = entity.GetContentAs<UserDTO>();
+        UserDTO entity = await response.ParseContentAsync<UserDTO>();
 
-        Assert.That(entity.Success, Is.True);
-        Assert.That(dto, Is.Not.Null);
-        Assert.That(dto!.Id, Is.EqualTo(userId));
+        Assert.That(entity, Is.Not.Null);
+        Assert.That(entity.Id, Is.EqualTo(jwtSecurityToken.Subject));
     }
 
     [Test]
@@ -58,8 +62,7 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         // Then: service should map the miss to repository user-not-found error.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity entity = await response.GetAsResponseEntity();
-        Assert.That(entity.Success, Is.False);
+        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(entity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
@@ -84,11 +87,10 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
 
         // Then: endpoint returns profile but hides phone number for non-owner.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        ResponseEntity entity = await response.GetAsResponseEntityAndContentAs<UserDTO>();
-        UserDTO? dto = entity.GetContentAs<UserDTO>();
-
-        Assert.That(dto, Is.Not.Null);
-        Assert.That(dto!.Id, Is.EqualTo(targetId));
-        Assert.That(dto.PhoneNumber, Is.Null.Or.Empty);
+        UserDTO entity = await response.ParseContentAsync<UserDTO>();
+        
+        Assert.That(entity, Is.Not.Null);
+        Assert.That(entity.Id, Is.EqualTo(targetId));
+        Assert.That(entity.PhoneNumber, Is.Null.Or.Empty);
     }
 }

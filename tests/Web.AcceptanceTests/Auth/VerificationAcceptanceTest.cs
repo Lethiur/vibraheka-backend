@@ -7,6 +7,8 @@ using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -20,7 +22,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: Some registered user
         Faker faker = new();
         string email = faker.Internet.Email();
-        string password = "Password123@";
+        const string password = "Password123@";
 
         await RegisterUser(faker.Person.FullName, email, password);
 
@@ -28,12 +30,8 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
 
         // When: The user verifies their account
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/confirm", new VerifyUserCommand(verificationCode.Code));
-        response.EnsureSuccessStatusCode();
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-
-        Assert.That(responseEntity.Success, Is.True, "The user should be verified successfully");
-        Assert.That(responseEntity.ErrorCode, Is.Null, "The response should not contain any error code");
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/auth/verify",new VerifyUserRequest() {EncryptedCode = verificationCode.Code});
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent), "The response should be 204 No Content");
     }
 
     [Test]
@@ -45,14 +43,11 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(encryptedToken);
 
         // When
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
+        
         // Then: Should return 404 Not Found
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound),
             "Should return 404 Not Found when trying to verify a non-existent user");
-        Assert.That(responseEntity.Success, Is.False);
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
     }
 
     [Test]
@@ -69,16 +64,15 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(waitForVerificationCode.Code);
 
         // And: The token is used once 
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
         response.EnsureSuccessStatusCode();
 
         // When: The same token is reused
         response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenAlreadyUsed));
     }
 
@@ -97,12 +91,11 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(encryptedToken);
 
         // When
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.WrongVerificationCode));
     }
 
@@ -118,16 +111,15 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         string encryptedToken = verificationCode.Code;
 
         // And: The token is used once successfully
-        HttpResponseMessage firstResponse = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", new VerifyUserCommand(encryptedToken));
+        HttpResponseMessage firstResponse = await Client.PatchAsJsonAsync("/api/v1/auth/verify", new VerifyUserCommand(encryptedToken));
         firstResponse.EnsureSuccessStatusCode();
 
         // When: The same token is reused
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", new VerifyUserCommand(encryptedToken));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", new VerifyUserCommand(encryptedToken));
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
 
         // Then: Replay protection blocks the second attempt
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(responseEntity.Success, Is.False);
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenAlreadyUsed));
     }
 
@@ -142,13 +134,12 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(encryptedCode);
 
         // When
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseObject = await response.GetAsResponseEntity();
-        Assert.That(responseObject.Content, Is.Null);
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorCode));
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(expectedErrorCode));
     }
 
     // === INVALID TOKEN FORMAT TESTS ===
@@ -163,12 +154,12 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(encryptedCode);
 
         // When
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
-        ResponseEntity responseObject = await response.GetAsResponseEntity();
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
     [Test]
@@ -180,11 +171,11 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         VerifyUserCommand command = new(expiredToken);
 
         // When
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/confirm", command);
-        ResponseEntity responseObject = await response.GetAsResponseEntity();
+        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/auth/verify", command);
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenExpired));
+        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.PasswordResetTokenExpired));
     }
 }

@@ -17,8 +17,10 @@ using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Application.Users.Queries.GetCode;
 using VibraHeka.Domain.Common.Interfaces.User;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Infrastructure.Entities;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using UserRole = VibraHeka.Domain.Entities.UserRole;
 
 namespace VibraHeka.Web.AcceptanceTests.Generic;
 
@@ -78,13 +80,21 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         DateTime startTime = DateTime.UtcNow;
         while (DateTime.UtcNow - startTime < timeout)
         {
-            HttpResponseMessage response =
-                await Client.PostAsJsonAsync($"api/v1/auth/verification-code", new GetCodeQuery(itemId));
-            ResponseEntity asResponseEntityAndContentAs =
-                await response.GetAsResponseEntityAndContentAs<VerificationCodeEntity>();
-            VerificationCodeEntity? registerUserResponse =
-                asResponseEntityAndContentAs.GetContentAs<VerificationCodeEntity>();
-            if (registerUserResponse != null) return registerUserResponse;
+            try
+            {
+                HttpResponseMessage response =
+                    await Client.PostAsJsonAsync($"api/v1/auth/verification-code", new GetCodeQuery(itemId));
+                VerificationCodeEntity asResponseEntityAndContentAs =
+                    await response.ParseContentAsync<VerificationCodeEntity>();
+            
+                 return asResponseEntityAndContentAs;    
+                    
+            } catch (Exception ex)
+            {
+                // Log the exception if needed
+                Console.WriteLine($"Exception while waiting for verification code: {ex.Message}");
+            }
+            
 
             await Task.Delay(500); // Wait before retrying
         }
@@ -105,11 +115,9 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
                 new RegisterUserCommand(email, password, username, "TEST", "TEST", "Europe/Madrid"));
 
-        ResponseEntity asResponseEntityAndContentAs =
-            await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
-        UserRegistrationResult? registerUserResponse =
-            asResponseEntityAndContentAs.GetContentAs<UserRegistrationResult>();
-        return registerUserResponse!.UserId;
+        RegisterUserResponse asResponseEntityAndContentAs = await postAsJsonAsync.ParseContentAsync<RegisterUserResponse>();
+        
+        return asResponseEntityAndContentAs.UserId;
     }
 
     /// <summary>
@@ -158,9 +166,9 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="username">The username of the user to be registered.</param>
     /// <param name="email">The email address of the user, which will also receive the verification code.</param>
     /// <param name="password">The password for the user's account.</param>
-    /// <returns>An instance of <c>AuthenticationResult</c> containing the user's authentication information, including tokens and roles.</returns>
+    /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the user's authentication information, including tokens and roles.</returns>
     /// <exception cref="HttpRequestException">Thrown when the confirmation or authentication process encounters an HTTP error.</exception>
-    protected async Task<AuthenticationResult> RegisterConfirmAndLogin(string username, string email, string password)
+    protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string username, string email, string password)
     {
         await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
@@ -178,14 +186,13 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="password">The password associated with the user's account.</param>
     /// <returns>An instance of <c>AuthenticationResult</c> containing the user ID, access token, and refresh token.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authentication result is null, indicating a failure to authenticate the user.</exception>
-    protected async Task<AuthenticationResult> AuthenticateUser(string email, string password)
+    protected async Task<AuthenticateUserResponse> AuthenticateUser(string email, string password)
     {
         AuthenticateUserCommand command = new(email, password);
         HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
-        ResponseEntity token = await response.GetAsResponseEntityAndContentAs<AuthenticationResult>();
-        AuthenticationResult? result = token.GetContentAs<AuthenticationResult>();
-        Assert.That(result, Is.Not.Null);
-        return result ?? throw new InvalidOperationException("Authentication result was null.");
+        AuthenticateUserResponse token = await response.ParseContentAsync<AuthenticateUserResponse>();
+        Assert.That(token, Is.Not.Null);
+        return token ?? throw new InvalidOperationException("Authentication result was null.");
     }
 
     /// <summary>
@@ -229,6 +236,12 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         return user.GetValueOrDefault();
     }
 
+    /// <summary>
+    /// Retrieves an instance of the specified type from the underlying service factory.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to retrieve from the factory. Must not be null.</typeparam>
+    /// <returns>An instance of the requested type <c>T</c> resolved from the service provider.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the requested type <c>T</c> is not registered in the service provider.</exception>
     protected T GetObjectFromFactory<T>() where T : notnull
     {
         IServiceScope scope = Factory.Services.CreateScope();
@@ -274,22 +287,19 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
         return $"v1.{base64Url}";
     }
-
-    protected static MultipartFormDataContent CreateValidMultipartForm(string templateName, string fileName,
-        string fileContent)
+    
+    protected async Task<AuthenticateUserResponse> AuthenticateAsConfirmedUser()
     {
-        MultipartFormDataContent form = new();
+        // Given
+        string email = TheFaker.Internet.Email();
+        string username = TheFaker.Person.FullName;
+        await RegisterAndConfirmUser(username, email, ThePassword);
 
-        form.Add(new StringContent(templateName, Encoding.UTF8), "TemplateName");
+        // When
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
 
-        byte[] bytes = Encoding.UTF8.GetBytes(fileContent);
-        MemoryStream fileStream = new(bytes);
-
-        StreamContent filePart = new(fileStream);
-        filePart.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-        form.Add(filePart, "File", fileName);
-
-        return form;
+        // Then
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+        return authResult;
     }
 }

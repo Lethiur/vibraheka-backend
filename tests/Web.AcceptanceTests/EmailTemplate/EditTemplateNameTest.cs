@@ -2,11 +2,13 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Exceptions;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.EmailTemplates;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using BadRequestResponse = VibraHeka.Web.EmailTemplates.BadRequestResponse;
 
 namespace VibraHeka.Web.AcceptanceTests.EmailTemplate;
 
@@ -36,7 +38,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An admin user and an existing template skeleton
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         string initialName = $"Initial-{TheFaker.Random.AlphaNumeric(8)}";
@@ -45,8 +47,8 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
             Name = initialName
         };
         HttpResponseMessage createResponse = await Client.PutAsJsonAsync("/api/v1/email-templates", createRequest);
-        ResponseEntity createEntity = await createResponse.GetAsResponseEntityAndContentAs<CreateEmailTemplateResponse>();
-        Guid templateId = createEntity.GetContentAs<CreateEmailTemplateResponse>()!.TemplateId;
+        CreateEmailTemplateResponse createEntity = await createResponse.ParseContentAsync<CreateEmailTemplateResponse>();
+        Guid templateId = createEntity.TemplateId;
 
         // When: Changing the name
         string newName = $"Updated-{TheFaker.Random.AlphaNumeric(8)}";
@@ -59,13 +61,12 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-        ResponseEntity updateEntity = await response.GetAsResponseEntity();
-        Assert.That(updateEntity.Success, Is.True);
+
 
         // Happy Path check: Verify name updated in the list
         HttpResponseMessage listResponse = await Client.GetAsync("/api/v1/email-templates");
-        ResponseEntity listResponseEntity = await listResponse.GetAsResponseEntityAndContentAs<GetTemplatesResponse>();
-        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.GetContentAs<GetTemplatesResponse>()!.Templates;
+        GetTemplatesResponse listResponseEntity = await listResponse.ParseContentAsync<GetTemplatesResponse>();
+        IEnumerable<SimpleEmailTemplateDTO> templates = listResponseEntity.Templates;
         Assert.That(templates.Any(t => t.ID == templateId && t.Name == newName), Is.True);
     }
 
@@ -75,7 +76,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A non-admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmUser(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing a template name
@@ -96,7 +97,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name with invalid ID
@@ -109,7 +110,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.InvalidTempalteID));
     }
 
@@ -119,7 +120,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name to a very short name
@@ -132,7 +133,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.InvalidTemplateName));
     }
 
@@ -142,7 +143,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An admin user
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Internet.UserName(), email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
         // When: Changing name of a non-existent template
@@ -155,7 +156,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
+        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseEntity.ErrorCode, Is.EqualTo(EmailTemplateErrors.TemplateNotFound));
     }
 }

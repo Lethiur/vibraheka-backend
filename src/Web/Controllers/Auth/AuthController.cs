@@ -126,7 +126,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger, 
     /// <param name="body">The request object containing the refresh token and username for authentication.</param>
     /// <returns>An <see cref="IActionResult"/> representing the result of the token refresh process.
     /// Success response contains the new access token, while failure response contains error details.</returns>
-    public override async Task<ActionResult<RefreshTokenResponse>> RefreshToken(Authentication.RefreshTokenRequest body)
+    public override async Task<ActionResult<RefreshTokenResponse>> RefreshToken(RefreshTokenRequest body)
     {
         RefreshTokenCommand command = authMapper.ToCommand(body);
         Result<string> result = await mediator.Send(command);

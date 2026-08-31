@@ -8,8 +8,9 @@ using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
@@ -29,14 +30,14 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: HTTP and payload should represent a successful registration.
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK), "The status code should be OK");
-        ResponseEntity responseEntity = await postAsJsonAsync.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
-        UserRegistrationResult? result = responseEntity.GetContentAs<UserRegistrationResult>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.UserId, Is.Not.Null.And.Not.Empty);
+        RegisterUserResponse responseEntity = await postAsJsonAsync.ParseContentAsync<RegisterUserResponse>();
+        
+        
+        Assert.That(responseEntity, Is.Not.Null);
+        Assert.That(responseEntity.UserId, Is.Not.Null.And.Not.Empty);
 
         // And: the user should be retrievable from persistence by returned id.
-        UserEntity persistedUser = await CheckForUser(result.UserId);
+        UserEntity persistedUser = await CheckForUser(responseEntity.UserId);
         Assert.That(persistedUser, Is.Not.Null);
         Assert.That(persistedUser.Email, Is.EqualTo(email));
     }
@@ -89,11 +90,8 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: Should return BadRequest
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "The status code should be BadRequest");
 
-        // And: The response should contain the expected error message
-        string responseContent = await response.Content.ReadAsStringAsync();
 
-        ResponseEntity responseObject = JsonConvert.DeserializeObject<ResponseEntity>(responseContent) ?? throw new DataException("The response content could not be deserialized to a ResponseEntity object.");
-        Assert.That(responseObject.Content, Is.Null, $"The response should contain the error keyword '{expectedErrorKeyword}'. Actual response: {responseContent}");
+        BadRequestResponse responseObject = await response.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseObject.ErrorCode, Is.EqualTo(expectedErrorKeyword));
     }
 
@@ -112,11 +110,10 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: First registration should succeed
         Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK), "First registration should succeed");
-        ResponseEntity firstResponseEntity = await firstResponse.GetAsResponseEntityAndContentAs<UserRegistrationResult>();
-        Assert.That(firstResponseEntity.Success, Is.True);
-        UserRegistrationResult? firstUser = firstResponseEntity.GetContentAs<UserRegistrationResult>();
-        Assert.That(firstUser, Is.Not.Null);
-        Assert.That(firstUser!.UserId, Is.Not.Null.And.Not.Empty);
+        RegisterUserResponse firstResponseEntity = await firstResponse.ParseContentAsync<RegisterUserResponse>();
+        
+        Assert.That(firstResponseEntity, Is.Not.Null);
+        Assert.That(firstResponseEntity.UserId, Is.Not.Null.And.Not.Empty);
 
         // When: We try to register the same email again
         HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", duplicateCommand);

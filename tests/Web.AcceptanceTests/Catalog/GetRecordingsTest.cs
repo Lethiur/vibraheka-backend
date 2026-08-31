@@ -4,7 +4,6 @@ using NUnit.Framework;
 using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Web.AcceptanceTests.Generic;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
 

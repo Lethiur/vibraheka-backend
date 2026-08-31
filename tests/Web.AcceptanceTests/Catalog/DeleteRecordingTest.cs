@@ -7,7 +7,7 @@ using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Errors;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
-using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
@@ -55,7 +55,7 @@ public sealed class DeleteRecordingTest : GenericRecordingsTest
         // Given: an authenticated admin and a recording ID with an invalid GUID format
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult auth = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
@@ -149,7 +149,7 @@ public sealed class DeleteRecordingTest : GenericRecordingsTest
             $"Expected a non-empty recording result after upload but got: '{result}'");
 
         // When: deleting the uploaded recording
-        HttpResponseMessage response = await Client.DeleteAsync(BuildDeleteEndpoint(result!.RecordingId!));
+        HttpResponseMessage response = await Client.DeleteAsync(BuildDeleteEndpoint(result.RecordingId));
 
         // Then: the response should be 204 NoContent with no body
         Assert.That(
