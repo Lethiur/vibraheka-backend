@@ -40,6 +40,7 @@
     <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.runtimeconfig.json" />
     <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.staticwebassets.endpoints.json" />
     <_ContentIncludedByDefault Remove="artifacts\tmpbuild\debug\VibraHeka.Web.staticwebassets.runtime.json" />
+    <_ContentIncludedByDefault Remove="wwwroot\api\specification.yaml" />
   </ItemGroup>
 
   <ItemGroup>

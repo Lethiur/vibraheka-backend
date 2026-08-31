@@ -11,12 +11,10 @@ namespace VibraHeka.Web.Controllers.Users;
 [Mapper]
 public partial class UserMapper
 {
-    [MapperIgnoreSource(nameof(UpdateProfileRequest.AdditionalProperties))]
     public partial UpdateUserProfileCommand ToUpdateProfileCommand(UpdateProfileRequest request);
     
     [MapValue(nameof(CreateTherapistCommand.Bio), "")]
     [MapValue(nameof(CreateTherapistCommand.ProfilePictureUrl), "")]
-    [MapperIgnoreSource(nameof(CreateTherapistRequest.AdditionalProperties))]
     public partial CreateTherapistCommand ToCreateTherapistCommand(CreateTherapistRequest request);
     
     [MapEnum(EnumMappingStrategy.ByValue)]
@@ -29,7 +27,6 @@ public partial class UserMapper
     [MapperIgnoreSource(nameof(UserEntity.CreatedBy))]
     [MapperIgnoreSource(nameof(UserEntity.LastModified))]
     [MapperIgnoreSource(nameof(UserEntity.LastModifiedBy))]
-    [MapperIgnoreTarget(nameof(UserDTO.AdditionalProperties))]
     public partial UserDTO ToUserDto(UserEntity entity);
     
     
