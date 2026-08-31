@@ -153,12 +153,7 @@ public class AuthController(IMediator mediator, ILogger<AuthController> Logger, 
         if (result.IsFailure)
         {
             Logger.LogWarning("Password recovery confirmation failed with error {Error}", result.Error);
-
-            return result.Error switch
-            {
-                UserErrors.UserNotFound => new NotFoundObjectResult(ResponseEntity.FromError(result.Error)),
-                _ => new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error })
-            };
+            return BadRequest(new BadRequestResponse { ErrorCode = result.Error });
         }
 
         return new NoContentResult();
