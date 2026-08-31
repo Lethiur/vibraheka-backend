@@ -1,6 +1,6 @@
 ﻿type: object
 description: Response containing info related to a created price
-
+additionalProperties: false
 properties:
   priceId:
     $ref: '../../../Common/Fields/ID.yml'

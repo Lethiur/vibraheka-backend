@@ -7,18 +7,18 @@
   },
   "codeGenerators": {
     "openApiToCSharpController": {
-      "className": "ISubscriptionsController",
+      "className": "IEventsController",
       "controllerStyle": "Abstract",
+      "namespace": "VibraHeka.Web.Events",
+      "generateController": true,
       "useCancellationToken": true,
       "generateEnums" : true,
       "generateNullableReferenceTypes": true,
-      "namespace": "VibraHeka.Web.Subscriptions",
-      "generateController": true,
       "generateModelValidationAttributes": true,
       "generateDtoTypes": true,
       "useActionResultType": true,
       "templateDirectory" : "../../Templates",
-      "output": "../../../Generated/SubscriptionsController.cs"
+      "output": "../../../Generated/EventsController.cs"
     }
   }
 }

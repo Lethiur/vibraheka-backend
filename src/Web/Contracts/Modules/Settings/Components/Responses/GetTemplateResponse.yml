@@ -1,9 +1,9 @@
 ﻿type: object
 description: Get template response
-
+additionalProperties: false
 properties:
   templateList:
     type: array
     description: The template for action DTO
     items:
-      $ref: './Entities/TemplateForActionDTO.yml'
+      $ref: '../Entities/TemplateForActionDTO.yml'

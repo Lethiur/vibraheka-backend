@@ -1,6 +1,6 @@
 ﻿type: object
 description: The response for creating an event.
-
+additionalProperties: false
 properties:
   event:
     $ref: '../Entities/EventDTO.yml'

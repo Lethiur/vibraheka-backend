@@ -9,6 +9,9 @@
     "openApiToCSharpController": {
       "className": "ISettingsController",
       "controllerStyle": "Abstract",
+      "useCancellationToken": true,
+      "generateEnums" : true,
+      "generateNullableReferenceTypes": true,
       "namespace": "VibraHeka.Web.Settings.Controllers",
       "generateController": true,
       "generateModelValidationAttributes": true,

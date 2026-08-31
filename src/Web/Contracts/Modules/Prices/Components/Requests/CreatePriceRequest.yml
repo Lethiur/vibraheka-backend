@@ -6,7 +6,7 @@ required:
   - amount
   - currency
   - active
-
+additionalProperties: false
 properties:
   productId:
     $ref: '../../../Common/Fields/ID.yml'

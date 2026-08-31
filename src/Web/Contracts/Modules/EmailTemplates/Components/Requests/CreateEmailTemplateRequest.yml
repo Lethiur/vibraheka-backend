@@ -3,7 +3,7 @@ description: request to create an email template
 
 required:
   - name
-
+additionalProperties: false
 properties:
   name:
     type: string

@@ -5,5 +5,5 @@ using VibraHeka.Domain.Catalog.Enums;
 
 namespace VibraHeka.Application.Catalog.Commands.AdminCreatePrice;
 
-public record AdminCreatePriceCommand(string SellableItemID, decimal Price, CurrencyIsoCode Currency, bool SetToActive, BillingInterval? Interval)
+public record AdminCreatePriceCommand(string SellableItemID, float Price, CurrencyIsoCode Currency, bool SetToActive, BillingInterval? Interval)
     : IRequireAdmin, IRequest<Result<string>>;

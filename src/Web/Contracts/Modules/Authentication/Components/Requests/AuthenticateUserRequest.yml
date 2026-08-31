@@ -4,7 +4,7 @@ description: Authentication request for a user
 required:
   - email
   - password
-
+additionalProperties: false
 properties:
   email:
     $ref: '../../../Common/Fields/Email.yml'

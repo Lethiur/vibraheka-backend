@@ -1,6 +1,6 @@
 ﻿type: object
 description: DTO for recording entity.
-
+additionalProperties: false
 properties:
   id:
     $ref: '../../../Common/Fields/Id.yml'
@@ -14,8 +14,6 @@ properties:
     description: A brief description of the recording.
     minLength: 3
   type:
-    $ref: '../Enums/RecordingType.yml'
-    description: The type of the recording.
+    $ref: '../Enums/RecordingType.yml#/components/schemas/RecordingType'
   tier:
-    $ref: '../Enums/RecordingTier.yml'
-    description: The tier of the recording.
+    $ref: '../Enums/RecordingTier.yml#/components/schemas/RecordingTier'

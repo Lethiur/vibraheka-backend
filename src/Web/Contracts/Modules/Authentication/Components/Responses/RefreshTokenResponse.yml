@@ -1,6 +1,7 @@
 type: object
 description: Response with the new tokens after a successful refresh token request
 
+additionalProperties: false
 properties: 
   accessToken:
     type: string

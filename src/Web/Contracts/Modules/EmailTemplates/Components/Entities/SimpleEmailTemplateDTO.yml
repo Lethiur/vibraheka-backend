@@ -1,6 +1,6 @@
 type: object
 description: Email template basic info
-
+additionalProperties: false
 properties:
   iD:
     $ref: '../../../Common/Fields/ID.yml'

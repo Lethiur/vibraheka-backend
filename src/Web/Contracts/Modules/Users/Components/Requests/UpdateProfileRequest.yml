@@ -1,6 +1,6 @@
 ﻿type: object
 description: User profile update request
-
+additionalProperties: false
 properties:
   email:
     $ref: '../../../Common/Fields/Email.yml'

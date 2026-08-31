@@ -1,0 +1,9 @@
+type: object
+description: DTO for extended recording entity.
+additionalProperties: false
+properties:
+  recordings:
+    type: array
+    items:
+      $ref: '../Entities/ExtendedRecordingDTO.yml'
+    description: A list of extended recording entities.

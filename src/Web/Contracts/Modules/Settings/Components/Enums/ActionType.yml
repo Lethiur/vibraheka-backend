@@ -1,6 +1,6 @@
 ﻿components:
   schemas:
-    ActionType:
+    actionType:
       type: string
       enum:
         - userRegistered

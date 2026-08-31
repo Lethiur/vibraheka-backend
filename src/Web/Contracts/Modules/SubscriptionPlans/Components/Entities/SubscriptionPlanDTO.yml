@@ -1,6 +1,6 @@
 ﻿type: object
 description: Represents the data transfer object for a subscription plan
-
+additionalProperties: false
 properties: 
   id:
     $ref: '../../../Common/Fields/Id.yml'

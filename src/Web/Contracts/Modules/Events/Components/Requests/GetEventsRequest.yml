@@ -1,6 +1,6 @@
 ﻿type: object
 description: Request to get events
-
+additionalProperties: false
 properties:
   from:
     $ref: '../../../Common/Fields/Date.yml'

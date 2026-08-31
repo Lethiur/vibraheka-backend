@@ -23,7 +23,7 @@ tags:
     - name: AdminEmailTemplates
       description: Operations related to email templates
 paths:
-  /:
+  /admin:
     get:
       tags:
       - AdminEmailTemplates
@@ -98,7 +98,7 @@ paths:
               description: Unauthorized
             403:
               description: Forbidden
-  /content:
+  /admin/content:
     put:
       tags:
        - AdminEmailTemplates
@@ -151,7 +151,7 @@ paths:
               description: Unauthorized
             403:
               description: Forbidden
-  /attachments:
+  /admin/attachments:
     put:
       tags:
        - AdminEmailTemplates

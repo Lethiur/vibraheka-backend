@@ -46,7 +46,6 @@ public abstract partial class {{ Class }} : Microsoft.AspNetCore.Mvc.ControllerB
 /// <param name="{{ parameter.VariableName }}">{{ parameter.Description | csharpdocs }}</param>
 {%         endif -%}
 {%     endfor -%}
-public abstract {{ operation.ResultType }} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if operation.Consumes contains "multipart/form-data" %}[Microsoft.AspNetCore.Mvc.FromForm] {% endif %}{{ parameter.Type | replace: "FileParameter", "Microsoft.AspNetCore.Http.IFormFile" }} {{ parameter.VariableName }}{% if parameter.IsLast == false %}, {% endif %}{% endfor %});
-
+public abstract {{ operation.ResultType }} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[Microsoft.AspNetCore.Mvc.FromBody] {% endif %}{% if parameter.IsPath %}[Microsoft.AspNetCore.Mvc.FromRoute] {% endif %}{% if parameter.IsQuery %}[Microsoft.AspNetCore.Mvc.FromQuery] {% endif %}{% if parameter.IsHeader %}[Microsoft.AspNetCore.Mvc.FromHeader] {% endif %}{% if parameter.IsForm %}[Microsoft.AspNetCore.Mvc.FromForm] {% endif %}{{ parameter.Type | replace: "FileParameter", "Microsoft.AspNetCore.Http.IFormFile" }} {{ parameter.VariableName }}{% if parameter.IsLast == false %}, {% endif %}{% endfor %}{% if UseCancellationToken %}{% if operation.Parameters.size > 0 %}, {% endif %}System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken){% endif %});
 {% endfor -%}
 }

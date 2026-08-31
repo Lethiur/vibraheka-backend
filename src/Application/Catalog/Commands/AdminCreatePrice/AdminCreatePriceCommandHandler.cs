@@ -1,3 +1,4 @@
+using System.Globalization;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using NMoneys;
@@ -36,7 +37,7 @@ public class AdminCreatePriceCommandHandler(
         SellableItemPriceEntity sellableItemPriceEntity = new()
         {
             SellableItemPriceID = Guid.NewGuid().ToString(),
-            Amount = new Money(request.Price, request.Currency),
+            Amount = new Money(decimal.Parse(request.Price.ToString(CultureInfo.InvariantCulture)), request.Currency),
             SellableItemID = request.SellableItemID,
             BillingInterval = request.Interval,
             IsActive = request.SetToActive,

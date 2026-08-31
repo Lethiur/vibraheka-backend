@@ -24,7 +24,7 @@ servers:
     description: local Server
 
 paths:
-  /:
+  /admin:
     put:
       tags:
         - AdminSubscriptionPlans

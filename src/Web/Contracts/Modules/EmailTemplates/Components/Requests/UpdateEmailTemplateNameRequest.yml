@@ -4,7 +4,7 @@ description: Request to update email template name
 required:
   - templateID
   - name
-
+additionalProperties: false
 properties:
   templateID:
     $ref: '../../../Common/Fields/ID.yml'

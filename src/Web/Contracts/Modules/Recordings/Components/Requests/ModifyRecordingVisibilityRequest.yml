@@ -4,8 +4,9 @@ description: Request object for modifying recording visibility.
 required:
   - recordingId
   - visible
-  - 
-fields:
+  
+additionalProperties: false
+properties:
   recordingId:
     $ref: '../../../Common/Fields/Id.yml'
     description: The unique identifier of the recording whose visibility is to be modified.

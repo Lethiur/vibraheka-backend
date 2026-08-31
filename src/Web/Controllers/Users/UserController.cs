@@ -29,7 +29,7 @@ public class UserController(IMediator mediator, ILogger<UserController> Logger, 
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(Mapper.ToUserDto(result.Value)));
+        return new OkObjectResult(Mapper.ToUserDto(result.Value));
     }
 
     /// <summary>

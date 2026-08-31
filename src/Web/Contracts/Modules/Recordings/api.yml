@@ -18,18 +18,20 @@ security:
 tags:
   - name: AdminRecordings
     description: Operations related to Recordings
+  - name: Recordings
+    description: Operations related to Recordings
 
 servers:
   - url: /api/v1/catalog/recordings
     description: local Server
 
 paths:
-  /:
+  /admin:
     put:
       tags:
         - AdminRecordings
       description: Updates the recording information for a specific recording.
-      operationId: createRecording
+      operationId: adminCreateRecording
       requestBody:
         required: true
         content:
@@ -59,14 +61,14 @@ paths:
       tags:
         - AdminRecordings
       description: Retrieves a list of recordings with optional filtering and pagination.
-      operationId: getRecordings
+      operationId: adminGetRecordings
       responses:
         '200':
           description: Successful response with a list of recordings.
           content:
             application/json:
               schema:
-                $ref: './Components/Responses/GetRecordingsResponse.yml'
+                $ref: './Components/Responses/AdminGetRecordingResponse.yml'
         '400':
           description: Bad request due to invalid query parameters.
           content:
@@ -81,7 +83,7 @@ paths:
       tags:
         - AdminRecordings
       description: Modifies the visibility of the recording for a specific recording.
-      operationId: updateRecording
+      operationId: adminUpdateRecording
       requestBody:
         required: true
         content:
@@ -114,7 +116,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            $ref: '../Common/Fields/Id.yml'
           description: The unique identifier of the recording to retrieve.
       responses:
         '200':
@@ -135,12 +137,12 @@ paths:
           description: Forbidden. The user does not have permission to view the recording.
         '404':
           description: Recording not found with the specified ID.
-  /{recordingId}:
+  /admin/{recordingId}:
     delete:
       tags:
         - AdminRecordings
       description: Deletes a specific recording by its ID.
-      operationId: deleteRecording
+      operationId: adminDeleteRecording
       parameters:
         - name: recordingId
           in: path
@@ -163,3 +165,26 @@ paths:
           description: Forbidden. The user does not have permission to delete the recording.
         '404':
           description: Recording not found with the specified ID.
+  /all:
+    get:
+      tags:
+        - Recordings
+      description: Retrieves a list of all recordings with optional filtering and pagination.
+      operationId: getAllRecordings
+      responses:
+        '200':
+          description: Successful response with a list of all recordings.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/GetRecordingsResponse.yml'
+        '400':
+          description: Bad request due to invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        '401':
+          description: Unauthorized. The user is not authenticated.
+        '403':
+          description: Forbidden. The user does not have permission to view the recordings.

@@ -1,6 +1,6 @@
 ﻿type: object
 description: DTO for event entity.
-
+additionalProperties: false
 properties:
   id:
     $ref: '../../../Common/Fields/Id.yml'

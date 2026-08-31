@@ -20,7 +20,7 @@ servers:
     description: local Server
 
 paths:
-  /:
+  /admin:
     put:
       tags:
         - AdminEvents
@@ -79,7 +79,7 @@ paths:
           description: Unauthorized. The user is not authenticated.
         403:
           description: Forbidden. The user does not have permission to create an event.
-  /change-visibility:
+  /admin/change-visibility:
     patch:
       tags:
         - AdminEvents

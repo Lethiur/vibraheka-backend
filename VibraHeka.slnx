@@ -19,6 +19,7 @@
     <Project Path="src/Infrastructure.Persistence/Infrastructure.Persistence.csproj" />
     <Project Path="src/Infrastructure.Rest.Client/Infrastructure.Rest.Client.csproj" />
   </Folder>
+  <Folder Name="/src/Lambdas/" />
   <Folder Name="/tests/">
     <Project Path="tests/Application.FunctionalTests/Application.FunctionalTests.csproj" />
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />

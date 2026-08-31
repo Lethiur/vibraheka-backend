@@ -3,7 +3,7 @@ description: User verification request
 
 required:
   - encryptedCode
-
+additionalProperties: false
 properties:
   encryptedCode:
     $ref: '..//Fields/EncryptedCode.yml'

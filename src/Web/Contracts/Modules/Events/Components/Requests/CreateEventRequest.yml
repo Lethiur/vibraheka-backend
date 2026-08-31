@@ -1,6 +1,6 @@
 ﻿type: object
 description: Request body for creating an event
-
+additionalProperties: false
 properties:
   name:
     type: string
@@ -22,7 +22,7 @@ properties:
     description: The duration of the event in minutes
     minimum: 0
   currencyCode:
-    $ref: '../../../Common/Enums/CurrencyCode.yml/#components/schemas/CurrencyCode'
+    $ref: '../../../Common/Fields/CurrencyCode.yml'
     description: The currency code of the event price
   timezone:
     type: string

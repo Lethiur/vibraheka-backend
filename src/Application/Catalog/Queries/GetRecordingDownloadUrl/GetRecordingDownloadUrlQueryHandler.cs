@@ -15,9 +15,9 @@ public sealed class GetRecordingDownloadUrlQueryHandler(
     ISubscriptionService SubscriptionService,
     IRecordingStoragePort StoragePort,
     ILogger<GetRecordingDownloadUrlQueryHandler> Logger)
-    : IRequestHandler<GetRecordingDownloadUrlQuery, Result<RecordingDownloadUrlDto>>
+    : IRequestHandler<GetRecordingDownloadUrlQuery, Result<string>>
 {
-    public async Task<Result<RecordingDownloadUrlDto>> Handle(
+    public async Task<Result<string>> Handle(
         GetRecordingDownloadUrlQuery request,
         CancellationToken cancellationToken)
     {
@@ -32,19 +32,18 @@ public sealed class GetRecordingDownloadUrlQueryHandler(
             if (subscriptionForUser.IsFailure)
             {
                 Logger.LogWarning("Failed to resolve download URL for recording {RecordingId}: {Error}", request.RecordingId, subscriptionForUser.Error);
-                return Result.Failure<RecordingDownloadUrlDto>(subscriptionForUser.Error);
+                return Result.Failure<string>(subscriptionForUser.Error);
             }
 
             if (!subscriptionForUser.Value.IsActive())
             {
                 Logger.LogWarning("Failed to resolve download URL for recording {RecordingId}: {Error}", request.RecordingId, RecordingErrors.OnlyForSubscribers);
-                return Result.Failure<RecordingDownloadUrlDto>(RecordingErrors.OnlyForSubscribers);
+                return Result.Failure<string>(RecordingErrors.OnlyForSubscribers);
             }
         }
 
         return await recordingRecordResult
             .Bind(recording => StoragePort.GetDownloadUrlAsync(recording.RecordingID, cancellationToken))
-            .Map(url => new RecordingDownloadUrlDto(url))
             .Tap(_ => Logger.LogInformation(
                 "Download URL resolved for recording {RecordingId}", request.RecordingId))
             .TapError(error => Logger.LogWarning(

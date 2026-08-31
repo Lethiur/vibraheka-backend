@@ -1,12 +1,12 @@
 ﻿type: object
 description: Represents the data transfer object for a product
-
+additionalProperties: false
 properties:
   id:
-    $ref: '../Common/Fields/ID.yml'
+    $ref: '../../../Common/Fields/ID.yml'
     description: Unique identifier for the product entry
   referenceID:
-    $ref: '../Common/Fields/ID.yml'
+    $ref: '../../../Common/Fields/ID.yml'
     description: Reference identifier for the related entity
   name:
     type: string
@@ -18,7 +18,7 @@ properties:
     example: true
     default: false
   productType:
-    $ref: '../Common/Enums/ProductType.yml#/components/schemas/ProductType'
+    $ref: '../../../Common/Enums/ProductType.yml#/components/schemas/ProductType'
     description: The type of the product
   prices:
     type: array

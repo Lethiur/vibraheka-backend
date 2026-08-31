@@ -4,11 +4,11 @@ description: Update template for action request
 required:
     - actionType
     - templateId
-
+additionalProperties: false
 properties:
   actionType:
-    $ref: './Enums/ActionType.yml/#components/schemas/ActionType'
+    $ref: '../Enums/ActionType.yml#/components/schemas/actionType'
     description: The action type of the template for action DTO
   templateId:
-    $ref: '../../../Common/Entities/Id.yml'
+    $ref: '../../../Common/Fields/Id.yml'
     description: The unique identifier of the template for action DTO

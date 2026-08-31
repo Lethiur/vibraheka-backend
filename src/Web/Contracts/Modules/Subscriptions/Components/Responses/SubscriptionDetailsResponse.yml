@@ -9,7 +9,7 @@ required:
   - endDate
   - checkoutSessionUrl
   - checkoutSessionExpiresAt
-
+additionalProperties: false
 properties:
   status:
     $ref: "../Enums/OrderStatus.yml#/components/schemas/OrderStatus"

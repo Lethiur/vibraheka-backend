@@ -80,7 +80,7 @@ paths:
           description: Unauthorized
         403:
           description: Forbidden
-  /create-therapist:
+  /admin/create-therapist:
     put:
       tags:
         - AdminUsers
@@ -112,7 +112,7 @@ paths:
           description: Unauthorized
         403:
           description: Forbidden
-  /therapists:
+  /admin/therapists:
     get:
       tags:
         - AdminUsers

@@ -7,7 +7,9 @@ required:
   - price
   - currency
   - tier
-
+  - type
+  
+additionalProperties: false
 properties:
   name:
     type: string
@@ -19,12 +21,14 @@ properties:
     minLength: 3
   price:
     type: number
-    format: float
+    format: decimal
     description: The price of the recording.
     minimum: 0
   currency:
     $ref: '../../../Common/Fields/CurrencyCode.yml'
     description: The currency code for the price of the recording.
   tier:
-    $ref: '../Enums/RecordingTier.yml'
-    description: The tier of the recording.
+    $ref: '../Enums/RecordingTier.yml#/components/schemas/RecordingTier'
+  type:
+    $ref: '../Enums/RecordingType.yml#/components/schemas/RecordingType'
+    

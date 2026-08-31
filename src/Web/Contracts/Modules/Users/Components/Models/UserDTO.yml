@@ -10,7 +10,7 @@ required:
   - timezoneID
   - bio
   - phoneNumber
-  
+additionalProperties: false
 properties:
   id:
    $ref: '../../../Common/Fields/ID.yml'

@@ -1,6 +1,7 @@
 type: object
 description: User authentication response upon successful login
 
+additionalProperties: false
 properties:
   accessToken:
     type: string

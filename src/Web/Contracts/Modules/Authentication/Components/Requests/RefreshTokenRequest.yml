@@ -4,7 +4,7 @@ description: User refresh token request
 required: 
   - refreshToken
   - userName
-
+additionalProperties: false
 properties: 
     refreshToken:
         type: string

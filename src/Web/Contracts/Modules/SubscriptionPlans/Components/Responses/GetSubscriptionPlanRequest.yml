@@ -1,6 +1,6 @@
 ﻿type: object
 description: Represents the request object for getting a subscription plan
-
+additionalProperties: false
 properties:
   plans:
     type: array

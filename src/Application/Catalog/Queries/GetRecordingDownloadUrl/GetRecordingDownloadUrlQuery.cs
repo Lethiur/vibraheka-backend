@@ -3,5 +3,5 @@
 namespace VibraHeka.Application.Catalog.Queries.GetRecordingDownloadUrl;
 
 public sealed record GetRecordingDownloadUrlQuery(string RecordingId)
-    : IRequest<Result<RecordingDownloadUrlDto>>;
+    : IRequest<Result<string>>;
 

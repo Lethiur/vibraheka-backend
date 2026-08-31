@@ -1,6 +1,7 @@
 ﻿components:
   schemas:
     RecordingTier:
+      title: RecordingTier
       type: string
       enum:
         - free

@@ -20,7 +20,7 @@ servers:
     description: local Server
 
 paths:
-  /:
+  /admin:
     patch:
       tags:
         - AdminSettings

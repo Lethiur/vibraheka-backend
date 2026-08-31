@@ -1,6 +1,6 @@
 ﻿type: object
 description: An array of recordings
-
+additionalProperties: false
 properties:
   recordings:
     type: array

@@ -5,7 +5,7 @@ required:
   - email
   - password
   - timezoneID
-
+additionalProperties: false
 properties:
   email:
     $ref: '../../../Common/Fields/Email.yml'

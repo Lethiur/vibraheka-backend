@@ -4,7 +4,7 @@ description: Request object for modifying recording visibility.
 required:
   - eventId
   - visible
-
+additionalProperties: false
 fields:
   eventId:
     $ref: '../../../Common/Fields/Id.yml'

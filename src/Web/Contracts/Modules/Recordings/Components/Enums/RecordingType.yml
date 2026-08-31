@@ -1,6 +1,8 @@
 ﻿components:
   schemas:
     RecordingType:
+      title: RecordingType
+      additionalProperties: false
       type: string
       enum:
         - meditacion

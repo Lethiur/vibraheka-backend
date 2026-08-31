@@ -3,7 +3,7 @@ description: Object sent as payload when the response resulted in a 400
 
 required:
   - errorCode
-
+additionalProperties: false
 properties:
   errorCode:
     type: string

@@ -3,6 +3,8 @@ description: Request to update the content of an email template
 required:
   - templateID
   - templateFile
+
+additionalProperties: false
 properties:
   templateID:
     allOf:

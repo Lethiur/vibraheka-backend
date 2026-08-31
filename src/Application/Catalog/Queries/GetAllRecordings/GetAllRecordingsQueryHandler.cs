@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
-using VibraHeka.Application.Catalog.Models;
+using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
 
 namespace VibraHeka.Application.Catalog.Queries.GetAllRecordings;
@@ -8,9 +8,9 @@ namespace VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 public class GetAllRecordingsQueryHandler(
     IRecordingRegistryPort RegistryPort,
     ILogger<GetAllRecordingsQueryHandler> Logger)
-    : IRequestHandler<GetAllRecordingsQuery, Result<IEnumerable<RecordingDto>>>
+    : IRequestHandler<GetAllRecordingsQuery, Result<IEnumerable<RecordingEntity>>>
 {
-    public async Task<Result<IEnumerable<RecordingDto>>> Handle(
+    public async Task<Result<IEnumerable<RecordingEntity>>> Handle(
         GetAllRecordingsQuery request,
         CancellationToken cancellationToken)
     {
@@ -18,7 +18,7 @@ public class GetAllRecordingsQueryHandler(
 
         return await RegistryPort
             .GetAllAsync(cancellationToken)
-            .Map(recordings => recordings.Where(entity => entity.IsActive).Select(RecordingDto.FromDomain))
+            .Map(recordings => recordings.Where(entity => entity.IsActive))
             .Tap(_ => Logger.LogInformation("Successfully retrieved all recordings"))
             .TapError(error => Logger.LogWarning("Failed to retrieve recordings: {Error}", error));
     }

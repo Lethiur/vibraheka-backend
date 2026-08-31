@@ -9,6 +9,9 @@
     "openApiToCSharpController": {
       "className": "IPricingController",
       "controllerStyle": "Abstract",
+      "useCancellationToken": true,
+      "controllerBaseClass": "Microsoft.AspNetCore.Mvc.ControllerBase",
+      "targetFramework": "AspNetCore",
       "namespace": "VibraHeka.Web.Catalog.Pricing.Controllers",
       "generateController": true,
       "generateModelValidationAttributes": true,

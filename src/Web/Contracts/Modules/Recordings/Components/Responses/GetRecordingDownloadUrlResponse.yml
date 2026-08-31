@@ -1,6 +1,6 @@
 ﻿type: object
 description: Response containing the download URL for a recording.
-
+additionalProperties: false
 properties:
   downloadUrl:
     type: string

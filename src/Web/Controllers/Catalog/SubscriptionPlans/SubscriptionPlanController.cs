@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Catalog.Commands.AdminAddSubscriptionPlan;
 using VibraHeka.Application.Catalog.Queries.AdminGetAllSubscriptionPlans;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Web.Entities;
 
-namespace VibraHeka.Web.Controllers.Catalog;
+namespace VibraHeka.Web.Controllers.Catalog.SubscriptionPlans;
 
 [ApiController]
 [Route("api/v1/catalog/subscriptions")]

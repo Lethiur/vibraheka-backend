@@ -4,7 +4,7 @@ description: Response for creating a subscription
 required:
   - url
   - expiresAt
-
+additionalProperties: false
 properties:
   url:
     type: string

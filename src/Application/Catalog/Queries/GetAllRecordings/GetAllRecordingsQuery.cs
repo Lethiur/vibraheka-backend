@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Application.Catalog.Models;
+using VibraHeka.Domain.Catalog.Entities;
 
 namespace VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 
-public record GetAllRecordingsQuery : IRequest<Result<IEnumerable<RecordingDto>>>;
+public record GetAllRecordingsQuery : IRequest<Result<IEnumerable<RecordingEntity>>>;

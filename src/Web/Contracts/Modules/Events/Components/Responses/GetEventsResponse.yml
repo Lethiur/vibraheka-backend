@@ -1,6 +1,6 @@
 ﻿type: object
 description: The response for getting events.
-
+additionalProperties: false
 properties:
   events:
     type: array

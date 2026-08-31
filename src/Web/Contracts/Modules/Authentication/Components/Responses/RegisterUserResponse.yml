@@ -1,6 +1,7 @@
 type: object
 description: User registration response
 
+additionalProperties: false
 properties:
   userId:
     type: string

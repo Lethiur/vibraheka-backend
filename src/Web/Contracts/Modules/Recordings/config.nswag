@@ -9,6 +9,9 @@
     "openApiToCSharpController": {
       "className": "IRecordingController",
       "controllerStyle": "Abstract",
+      "useCancellationToken": true,
+      "generateEnums" : true,
+      "generateNullableReferenceTypes": true,
       "namespace": "VibraHeka.Web.Catalog.Recordings.Controllers",
       "generateController": true,
       "generateModelValidationAttributes": true,

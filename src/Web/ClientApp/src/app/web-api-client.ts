@@ -3093,6 +3093,7 @@ export interface ICreateEventRequest {
     currencyCode?: CurrencyIsoCode;
 }
 
+/** Currency codes as stated by the ISO 4217 standard */
 export enum CurrencyIsoCode {
     ALL = "ALL",
     DZD = "DZD",

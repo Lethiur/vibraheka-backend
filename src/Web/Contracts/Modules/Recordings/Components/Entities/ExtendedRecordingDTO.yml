@@ -1,0 +1,18 @@
+description: DTO for extended recording entity.
+allOf:
+  # 1. Hereda todas las propiedades del base
+  - $ref: './RecordingDTO.yml'
+  
+  # 2. Define el objeto con las nuevas propiedades extendidas
+  - type: object
+    additionalProperties: false
+    properties:
+      createdAt:
+        $ref: '../../../Common/Fields/Date.yml'
+        description: The date and time when the recording was created.
+      lastModifiedAt:
+        $ref: '../../../Common/Fields/Date.yml'
+        description: The date and time when the recording was last modified.
+      isActive:
+        type: boolean
+        description: Indicates whether the recording is currently active.

@@ -7,7 +7,7 @@ required:
   - price
   - currency
   - tier
-
+additionalProperties: false
 properties:
   name:
     type: string
