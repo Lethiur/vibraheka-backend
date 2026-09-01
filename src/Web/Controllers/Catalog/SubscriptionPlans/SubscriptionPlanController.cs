@@ -54,7 +54,7 @@ public class SubscriptionPlanController(IMediator mediator, SubscriptionPlanMapp
         CreateSubscriptionPlanRequest body,
         CancellationToken cancellationToken = default)
     {
-        Result<string> result = await mediator.Send(mapper.ToCommand(request), cancellationToken);
+        Result<string> result = await mediator.Send(mapper.ToCommand(body), cancellationToken);
 
         if (result.IsFailure)
         {
