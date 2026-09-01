@@ -54,7 +54,7 @@ paths:
           description: Unauthorized
         403:
           description: Forbidden
-  /update-profile:
+  /:
     patch:
       tags:
         - Users

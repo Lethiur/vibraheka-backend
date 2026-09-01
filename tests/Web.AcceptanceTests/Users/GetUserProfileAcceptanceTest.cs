@@ -60,23 +60,20 @@ public class GetUserProfileAcceptanceTest : GenericUserAcceptanceTest
         // Given: two confirmed users and authentication as the first user.
         await AuthenticateAsNewUser();
         string targetEmail = TheFaker.Internet.Email();
-        string targetId = await RegisterAndConfirmUser(targetEmail, ThePassword);
+        string targetId = await RegisterAndConfirmUser(targetEmail);
 
+        
         IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
-        Result<UserEntity> targetResult = await userRepository.GetByIdAsync(targetId, CancellationToken.None);
-        Assert.That(targetResult.IsSuccess, Is.True);
-
-        UserEntity targetUser = targetResult.Value;
+        (bool isSuccess, _, UserEntity targetUser) = await userRepository.GetByIdAsync(targetId, CancellationToken.None);
+        Assert.That(isSuccess, Is.True);
         targetUser.PhoneNumber = "+34911111222";
         await userRepository.AddAsync(targetUser);
 
         // When: requesting profile of another existing user.
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/users/{targetId}");
+        UserDTO entity = await PerformGetUserProfile(Guid.Parse(targetId));
+
 
         // Then: endpoint returns profile but hides phone number for non-owner.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        UserDTO entity = await response.ParseContentAsync<UserDTO>();
-        
         Assert.That(entity, Is.Not.Null);
         Assert.That(entity.Id, Is.EqualTo(targetId));
         Assert.That(entity.PhoneNumber, Is.Null.Or.Empty);

@@ -235,6 +235,7 @@ public class UserService(
     /// Retrieves the unique user identifier (User ID) associated with the specified email address from the Cognito user pool.
     /// </summary>
     /// <param name="email">The email address of the user whose User ID is to be retrieved.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Result{T}"/> containing the User ID if the operation is successful; otherwise, an error result.</returns>
     public async Task<Result<string>> GetUserID(string email, CancellationToken cancellationToken)
     {
@@ -256,6 +257,7 @@ public class UserService(
     /// Retrieves a user from the database by their unique identifier.
     /// </summary>
     /// <param name="userID">The unique identifier of the user to retrieve.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>A user object containing the user's details, or null if no user is found with the specified identifier.</returns>
     public Task<Result<UserEntity>> GetUserByID(string userID, CancellationToken cancellationToken)
     {
@@ -364,7 +366,7 @@ public class UserService(
     /// <typeparam name="T">The type of the result that the operation will return in case of success.</typeparam>
     /// <param name="ex">The exception thrown during the execution of an operation in the Cognito service.</param>
     /// <returns>A <see cref="Result{T}"/> containing the appropriate error mapped from the exception, or a fallback error for unexpected exceptions.</returns>
-    protected virtual Result<T> MapCognitoException<T>(Exception ex)
+    private Result<T> MapCognitoException<T>(Exception ex)
     {
         // Map common Cognito exceptions to your domain/application error strings.
         // Add/remove cases as you discover them.

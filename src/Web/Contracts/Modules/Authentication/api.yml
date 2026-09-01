@@ -187,8 +187,10 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-  /change-password:
+  /:
     patch:
+      security:
+        - bearerAuth: []
       tags:
         - Authentication
       operationId: ChangePassword

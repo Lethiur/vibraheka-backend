@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Users;
 
@@ -9,6 +10,7 @@ public abstract class GenericUserAcceptanceTest : GenericAcceptanceTest<VibraHek
     private const string AdminCreateTherapistEndpoint = "/api/v1/users/admin/create-therapist";
     private const string AdminGetTherapistsEndpoint = "/api/v1/users/admin/therapists";
     private const string GetUserProfileEndpointTemplate = "/api/v1/users/{0}";
+    private const string UpdateProfileEndpoint = "/api/v1/users/";
 
     
     // Get users endpoint
@@ -16,6 +18,10 @@ public abstract class GenericUserAcceptanceTest : GenericAcceptanceTest<VibraHek
     
     protected Task<UserDTO> PerformGetUserProfile(Guid userId) => PerformCallAndRetrieveContent<UserDTO>(() => InvokeGetUserProfileEndpoint(userId));
     
+    // Update user profile endpoint
+    protected Task<HttpResponseMessage> InvokeUpdateUserProfileEndpoint(UpdateProfileRequest request) => Client.PatchAsJsonAsync(UpdateProfileEndpoint, request);
+    
+    protected Task PerformUpdateUserProfile(UpdateProfileRequest request) => PerformCallAndExpectStatusCode(() => InvokeUpdateUserProfileEndpoint(request), HttpStatusCode.NoContent);
     
     // Admin endpoints for creating and retrieving therapists
     protected Task<HttpResponseMessage> InvokeCreateTherapistEndpoint(CreateTherapistRequest request) => Client.PutAsJsonAsync(AdminCreateTherapistEndpoint, request);
@@ -36,7 +42,7 @@ public abstract class GenericUserAcceptanceTest : GenericAcceptanceTest<VibraHek
     {
         return new CreateTherapistRequest
         {
-            Email = email ?? $"{Guid.NewGuid():N}@example.com",
+            Email = email ?? TheFaker.Internet.Email(),
             FirstName = firstName ?? "Valid Therapist",
             MiddleName = middleName ?? "Valid Middle",
             LastName = lastName ?? "Valid Last",

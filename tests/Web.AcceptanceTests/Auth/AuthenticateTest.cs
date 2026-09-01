@@ -1,38 +1,23 @@
 ﻿using System.ComponentModel;
-using System.Net;
-using System.Net.Http.Json;
-using Bogus;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
-using VibraHeka.Application.Users.Commands.AuthenticateUsers;
-using VibraHeka.Web.AcceptanceTests.Generic;
 using VibraHeka.Web.Authentication;
-using UserRole = VibraHeka.Domain.Entities.UserRole;
 
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
 [TestFixture]
-public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
+public class AuthenticateTest : GenericAuthAcceptanceTest
 {
-    private const string DefaultPassword = "Password123@";
-
     [Test]
     public async Task ShouldAuthenticateAConfirmedUser()
     {
         // Given: A registered and confirmed user
-
-        string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(email, ThePassword);
-
         // When: The user is authenticated
-        AuthenticateUserCommand command = new(email, ThePassword);
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
+        AuthenticateUserResponse token = await AuthenticateAsNewUser();
 
         // Then: Should return a JWT token
-        AuthenticateUserResponse? token = await response.Content.ReadFromJsonAsync<AuthenticateUserResponse>();
-        
         Assert.That(token, Is.Not.Null);
-        Assert.That(token!.AccessToken, Is.Not.Null.And.Not.Empty);
+        Assert.That(token.AccessToken, Is.Not.Null.And.Not.Empty);
         Assert.That(token.RefreshToken, Is.Not.Null.And.Not.Empty);
         Assert.That(token.Role, Is.EqualTo(UserRole.User));
     }
@@ -41,10 +26,10 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     #region Validation Tests
 
     // === EMAIL VALIDATION TESTS ===
-    [TestCase("", DefaultPassword, UserErrors.InvalidEmail)]
-    [TestCase(null, DefaultPassword, UserErrors.InvalidEmail)]
-    [TestCase("   ", DefaultPassword, UserErrors.InvalidEmail)]
-    [TestCase("invalid-email", DefaultPassword, UserErrors.InvalidEmail)]
+    [TestCase("", ThePassword, UserErrors.InvalidEmail)]
+    [TestCase(null, ThePassword, UserErrors.InvalidEmail)]
+    [TestCase("   ", ThePassword, UserErrors.InvalidEmail)]
+    [TestCase("invalid-email", ThePassword, UserErrors.InvalidEmail)]
 
     // === PASSWORD VALIDATION TESTS ===
     [TestCase("test@example.com", "", UserErrors.InvalidPassword)]
@@ -55,18 +40,11 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         string expectedErrorKeyword)
     {
         // Given: A command with invalid format data
-        AuthenticateUserCommand command = new(email!, password!);
-
-        // When: The client is invoked
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
-
-        // Then: Should return BadRequest due to Validator
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-
-        // And: Check error code
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
+        AuthenticateUserRequest request = new() {Email = email!, Password = password!};
         
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(expectedErrorKeyword));
+        // When: The client is invoked
+        // Then: Should return BadRequest due to Validator
+        await PerformCallAndExpectError(() => InvokeAuthenticateEndpoint(request), expectedErrorKeyword);
     }
 
     #endregion
@@ -78,21 +56,14 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnBadRequestWhenUserIsNotConfirmed()
     {
         // Given: A registered user but NOT confirmed
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        await RegisterUser(email, DefaultPassword);
+        string email = TheFaker.Internet.Email();
+        await RegisterUser(email);
 
         // When: Attempting to authenticate
-        AuthenticateUserCommand authCommand = new(email, DefaultPassword);
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", authCommand);
-
         // Then: Should return BadRequest (según el default del switch en tu AuthController para UserNotConfirmed)
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
-            "Should return BadRequest for unconfirmed users");
-
         // And: The error code should be UserNotConfirmed (E-003)
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.UserNotConfirmed));
+        AuthenticateUserRequest authCommand = new() { Email = email, Password = ThePassword };
+        await PerformCallAndExpectError(() => InvokeAuthenticateEndpoint(authCommand), UserErrors.UserNotConfirmed);
     }
 
 
@@ -101,16 +72,11 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnNotFoundWhenUserDoesNotExist()
     {
         // Given: A non-existent user
-        AuthenticateUserCommand command = new("ghost@nonexistent.com", DefaultPassword);
+        AuthenticateUserRequest command = new() { Email = "ghost@nonexistent.com", Password = ThePassword };
 
         // When: Attempting to authenticate
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
-
-        // Then: Should return NotFound 
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
+        // Then: Should return NotFound
+        await PerformCallAndExpectError(() => InvokeAuthenticateEndpoint(command), UserErrors.UserNotFound);
     }
 
     [Test]
@@ -118,19 +84,12 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
     public async Task ShouldReturnNotFoundWhenPasswordIsIncorrect()
     {
         // Given: A registered user
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        await RegisterAndConfirmUser(email, DefaultPassword);
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmUser(email);
 
         // When: Authenticating with wrong password
-        AuthenticateUserCommand command = new(email, "WrongPassword123!");
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
-
-        // Then: Should return NotFound (según el switch en tu AuthController para InvalidPassword)
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        AuthenticateUserRequest command = new() { Email = email, Password = "WrongPassword123!" };
+        await PerformCallAndExpectError(() => InvokeAuthenticateEndpoint(command), UserErrors.NotAuthorized);
     }
 
     #endregion

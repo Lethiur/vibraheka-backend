@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using VibraHeka.Application.Users.Commands.AuthenticateUsers;
-using VibraHeka.Application.Users.Commands.RegisterUser;
 using VibraHeka.Application.Users.Commands.VerificationCode;
 using VibraHeka.Application.Users.Queries.GetCode;
 using VibraHeka.Domain.Common.Interfaces.User;
@@ -29,14 +28,10 @@ namespace VibraHeka.Web.AcceptanceTests.Generic;
 public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 {
     private const string GetVerificationCodeEndpoint = "/api/v1/codes/verification-code";
-    private const string LoginEndpoint = "/api/v1/auth/authenticate";
+    protected const string LoginEndpoint = "/api/v1/auth/authenticate";
     private const string VerifyEndpoint = "/api/v1/auth/verify";
     private const string RegisterEndpoint = "/api/v1/auth/register";
-    protected const string RefreshTokenEndpoint = "/api/v1/auth/refresh-token";
-    protected const string ChangePasswordEndpoint = "/api/v1/auth/change-password";
-    protected const string ResendVerificationCodeEndpoint = "/api/v1/auth/resend-confirmation-code";
-    protected const string ResetPasswordEndpoint = "/api/v1/auth/reset-password";
-    protected const string ConfirmResetPasswordEndpoint = "/api/v1/auth/reset-password/confirm";
+   
 
     protected const string ThePassword = "Password123@";
     
@@ -126,7 +121,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="email">The email address of the user to be registered.</param>
     /// <param name="password">The password for the user account being registered.</param>
     /// <returns>The unique identifier of the newly registered user.</returns>
-    protected async Task<string> RegisterUser(string email, string password)
+    protected async Task<string> RegisterUser(string email, string password = ThePassword)
     {
         HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync(RegisterEndpoint,
             new RegisterUserRequest
@@ -151,7 +146,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="email">The email address of the user to be registered and confirmed.</param>
     /// <param name="password">The password for the user account being registered and confirmed.</param>
     /// <returns>The unique identifier of the newly registered and confirmed user.</returns>
-    protected async Task<string> RegisterAndConfirmUser(string email, string password)
+    protected async Task<string> RegisterAndConfirmUser(string email, string password = ThePassword)
     {
         string userID = await RegisterUser(email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
@@ -200,7 +195,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the user's authentication information, including tokens and roles.</returns>
     /// <exception cref="HttpRequestException">Thrown when the confirmation or authentication process encounters an HTTP error.</exception>
     protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string email,
-        string password)
+        string password = ThePassword)
     {
         await RegisterUser(email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
@@ -321,6 +316,9 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         return $"v1.{base64Url}";
     }
 
+    /// <summary>
+    /// Removes the "Authorization" header from the default request headers of the HTTP client, effectively clearing any existing authentication context for subsequent requests.
+    /// </summary>
     protected void RemoveAuthHeader()
     {
         Client.DefaultRequestHeaders.Remove("Authorization");
@@ -331,10 +329,10 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// </summary>
     /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the authentication details of the newly created user.</returns>
     /// <exception cref="HttpRequestException">Thrown if there is an issue during the registration, confirmation, or login process.</exception>
-    protected async Task AuthenticateAsNewUser()
+    protected async Task<AuthenticateUserResponse> AuthenticateAsNewUser()
     {
         string email = TheFaker.Internet.Email();
-        await RegisterConfirmAndLogin(email, ThePassword);
+        return await RegisterConfirmAndLogin(email, ThePassword);
     }
 
     /// <summary>
