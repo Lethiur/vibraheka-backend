@@ -22,7 +22,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A registered and confirmed user
 
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
 
         // When: The user is authenticated
         AuthenticateUserCommand command = new(email, ThePassword);
@@ -80,7 +80,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A registered user but NOT confirmed
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, DefaultPassword);
+        await RegisterUser(email, DefaultPassword);
 
         // When: Attempting to authenticate
         AuthenticateUserCommand authCommand = new(email, DefaultPassword);
@@ -120,7 +120,7 @@ public class AuthenticateTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A registered user
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterAndConfirmUser(faker.Person.FullName, email, DefaultPassword);
+        await RegisterAndConfirmUser(email, DefaultPassword);
 
         // When: Authenticating with wrong password
         AuthenticateUserCommand command = new(email, "WrongPassword123!");

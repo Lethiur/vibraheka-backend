@@ -25,7 +25,7 @@ public class GetSubscriptionPortalDetailsTest : GenericSubscriptionAcceptanceTes
     public async Task ShouldReturnBadRequestWhenAuthenticatedUserHasNoCustomerId()
     {
         // Given: an authenticated user that has not started a subscription yet.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
 
         // When: requesting billing portal url without customer id.
         HttpResponseMessage response = await Client.GetAsync("/api/v1/subscriptions/details");
@@ -38,7 +38,7 @@ public class GetSubscriptionPortalDetailsTest : GenericSubscriptionAcceptanceTes
     public async Task ShouldReturnPortalUrlWhenAuthenticatedUserHasCustomer()
     {
         // Given: an authenticated user with a customer in Stripe after starting subscription flow.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         HttpResponseMessage subscribeResponse = await Client.PutAsync("/api/v1/subscriptions", null);
         Assert.That(subscribeResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 

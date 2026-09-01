@@ -27,7 +27,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenUserHasNoSubscription()
     {
         // Given: an authenticated user without subscription rows.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
 
         // When: requesting current subscription details.
         HttpResponseMessage response = await Client.GetAsync("/api/v1/subscriptions");
@@ -42,7 +42,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnSubscriptionDetailsWhenSubscriptionExists()
     {
         // Given: an authenticated user that already started the subscription flow.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         HttpResponseMessage subscribeResponse = await Client.PutAsync("/api/v1/subscriptions", null);
         Assert.That(subscribeResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 

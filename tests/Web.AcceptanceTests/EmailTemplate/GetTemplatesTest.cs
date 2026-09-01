@@ -75,7 +75,7 @@ public class GetTemplatesTest : GenericAcceptanceTest<VibraHekaProgram>
         string email = TheFaker.Internet.Email();
         string username = TheFaker.Internet.UserName();
 
-        await RegisterAndConfirmUser(username, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 

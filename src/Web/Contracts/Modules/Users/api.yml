@@ -84,7 +84,7 @@ paths:
     put:
       tags:
         - AdminUsers
-      operationId: CreateTherapist
+      operationId: adminCreateTherapist
       summary: Create a new therapist user
       description: Creates a new therapist user in the system
       requestBody:
@@ -99,9 +99,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                description: The ID of the therapist user created
-                example: "123e4567-e89b-12d3-a456-426614174000"   
+                $ref: './Components/Responses/CreateTherapistResponse.yml'
         '400':
           description: Bad request
           content:
@@ -116,7 +114,7 @@ paths:
     get:
       tags:
         - AdminUsers
-      operationId: GetAllTherapists
+      operationId: AdminGetAllTherapists
       summary: Get all therapist users
       description: Retrieves a list of all therapist users in the system
       responses:

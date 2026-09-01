@@ -29,7 +29,7 @@ public class CreateOrderTest : GenericOrdersTest
     {
         // Given: an authenticated user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
@@ -47,7 +47,7 @@ public class CreateOrderTest : GenericOrdersTest
     {
         // Given: an authenticated user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
@@ -67,7 +67,7 @@ public class CreateOrderTest : GenericOrdersTest
     {
         // Given: an authenticated user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
@@ -87,7 +87,7 @@ public class CreateOrderTest : GenericOrdersTest
     {
         // Given: an authenticated user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
@@ -107,7 +107,7 @@ public class CreateOrderTest : GenericOrdersTest
     {
         // Given: an authenticated user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
@@ -130,7 +130,7 @@ public class CreateOrderTest : GenericOrdersTest
 
         // And: an authenticated user with JWT
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);

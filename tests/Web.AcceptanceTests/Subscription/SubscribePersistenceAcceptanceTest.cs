@@ -19,16 +19,14 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
     public async Task ShouldPersistSubscriptionInDynamoDbWithExpectedFieldsWhenUserSubscribes()
     {
         // Given: a confirmed and authenticated user.
-        AuthenticateUserResponse authResult = await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         IUserRepository userRepository = GetObjectFromFactory<IUserRepository>();
         StripeConfig stripeConfig = GetObjectFromFactory<StripeConfig>();
         
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(authResult.AccessToken);
-        
+        string userID = GetuserID().ToString();
         
         Result<UserEntity> userBeforeSubscriptionResult =
-            await userRepository.GetByIdAsync(jwtSecurityToken.Subject, CancellationToken.None);
+            await userRepository.GetByIdAsync(userID, CancellationToken.None);
         Assert.That(userBeforeSubscriptionResult.IsSuccess, Is.True);
         UserEntity userBeforeSubscription = userBeforeSubscriptionResult.Value;
 
@@ -41,17 +39,17 @@ public class SubscribePersistenceAcceptanceTest : GenericSubscriptionAcceptanceT
         // And: the subscription persisted in DynamoDB should match expected values.
         ISubscriptionRepository subscriptionRepository = GetObjectFromFactory<ISubscriptionRepository>();
         Result<SubscriptionEntity> subscriptionResult =
-            await subscriptionRepository.GetSubscriptionDetailsForUser(jwtSecurityToken.Subject, CancellationToken.None);
+            await subscriptionRepository.GetSubscriptionDetailsForUser(userID, CancellationToken.None);
 
         Assert.That(subscriptionResult.IsSuccess, Is.True);
         SubscriptionEntity subscription = subscriptionResult.Value;
 
         Result<UserEntity> userAfterSubscriptionResult =
-            await userRepository.GetByIdAsync(jwtSecurityToken.Subject, CancellationToken.None);
+            await userRepository.GetByIdAsync(userID, CancellationToken.None);
         Assert.That(userAfterSubscriptionResult.IsSuccess, Is.True);
         UserEntity userAfterSubscription = userAfterSubscriptionResult.Value;
 
-        Assert.That(subscription.UserID, Is.EqualTo(jwtSecurityToken.Subject));
+        Assert.That(subscription.UserID, Is.EqualTo(userID));
         Assert.That(subscription.ExternalCustomerID, Is.EqualTo(userAfterSubscription.CustomerID));
         Assert.That(subscription.ExternalCustomerID, Is.Not.Empty);
         Assert.That(subscription.ExternalSubscriptionItemID, Is.EqualTo(stripeConfig.SubscriptionID));

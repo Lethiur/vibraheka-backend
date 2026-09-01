@@ -27,7 +27,7 @@ public class CancelSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenUserHasNoSubscription()
     {
         // Given: an authenticated user without a persisted subscription.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
 
         // When: invoking subscription cancellation.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions", null);
@@ -43,7 +43,7 @@ public class CancelSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenStripeCancellationFailsForExistingSubscription()
     {
         // Given: an authenticated user with persisted subscription using a non-real external subscription id.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         await Client.PutAsync("/api/v1/subscriptions", null);
         
 

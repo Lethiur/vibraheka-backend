@@ -33,7 +33,7 @@ public sealed class GetRecordingsTest : GenericRecordingsTest
         // Note: GET /api/v1/recordings uses [Authorize] only (no role restriction),
         // so any authenticated user — admin or not — is allowed to call this endpoint.
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
 
         // And: the client uses the non-admin bearer token

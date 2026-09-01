@@ -18,7 +18,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: a registered and confirmed user with a valid refresh token from login.
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse authenticationResult = await AuthenticateUser(email, ThePassword);
 
         RefreshTokenRequest command = new()
@@ -46,7 +46,7 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: a confirmed user and an invalid refresh token payload.
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
 
         RefreshTokenRequest command = new()
         {

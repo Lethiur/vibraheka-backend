@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Users.Commands.AdminCreateTherapist;
 using VibraHeka.Application.Users.Commands.UpdateUserProfile;
@@ -56,24 +57,23 @@ public class UserController(IMediator mediator, ILogger<UserController> logger, 
      /// <summary>
     /// Handles the creation of a new therapist by processing the provided command data.
     /// </summary>
-    /// <param name="command">An instance of <c>CreateTherapistCommand</c> containing the email and name of the therapist to be created.</param>
+    /// <param name="body">An instance of <c>CreateTherapistCommand</c> containing the email and name of the therapist to be created.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>
     /// An <c>IActionResult</c> representing the HTTP response. If the operation is successful, returns a 200 OK response
     /// with the created therapist's identifier. If the operation fails, returns a 400 Bad Request with the error details
     /// or a 401 Unauthorized if the user lacks appropriate authorization.
     /// </returns>
-    public override async Task<ActionResult<string>> CreateTherapist(CreateTherapistRequest command, CancellationToken cancellationToken = default)   
+    public override async Task<ActionResult<CreateTherapistResponse>> AdminCreateTherapist(CreateTherapistRequest body, CancellationToken cancellationToken = default)   
     {
-        CreateTherapistCommand createTherapistCommand = mapper.ToCreateTherapistCommand(command);
+        CreateTherapistCommand createTherapistCommand = mapper.ToCreateTherapistCommand(body);
         Result<string> result = await mediator.Send(createTherapistCommand, cancellationToken);
 
         if (result.IsFailure)
         {
             return new BadRequestObjectResult(new BadRequestResponse { ErrorCode = result.Error });
-
         }
-        return new OkObjectResult(result.Value);
+        return Ok(new CreateTherapistResponse { Id = Guid.Parse(result.Value) });
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public class UserController(IMediator mediator, ILogger<UserController> logger, 
     /// of therapists if the operation is successful. If the operation fails, returns a 400 Bad Request
     /// response with the error details, or a 401 Unauthorized response if the user lacks sufficient authorization.
     /// </returns>
-    public override async Task<ActionResult<ICollection<UserDTO>>> GetAllTherapists(CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<ICollection<UserDTO>>> AdminGetAllTherapists(CancellationToken cancellationToken = default)
     {
         Result<List<UserEntity>> result = await mediator.Send(new GetAllTherapistsQuery(), cancellationToken);
 

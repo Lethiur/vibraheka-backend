@@ -24,7 +24,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         string email = faker.Internet.Email();
         const string password = "Password123@";
 
-        await RegisterUser(faker.Person.FullName, email, password);
+        await RegisterUser(email, password);
 
         // And: The verification code and its encrypted token
         VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
@@ -57,7 +57,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: A registered user
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, ThePassword);
+        await RegisterUser(email, ThePassword);
         VerificationCodeEntity waitForVerificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
 
         // And: An encrypted token with a wrong code
@@ -83,7 +83,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: A registered user
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        await RegisterUser(email, "Password123@");
         await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
 
         // And: An encrypted token with a wrong code
@@ -106,7 +106,7 @@ public class VerificationAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram
         // Given: A registered user with a valid encrypted token
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        await RegisterUser(email, "Password123@");
         VerificationCodeEntity verificationCode = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         string encryptedToken = verificationCode.Code;
 

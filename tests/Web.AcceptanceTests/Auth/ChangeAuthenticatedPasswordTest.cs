@@ -35,7 +35,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         const string currentPassword = "Password123@";
         const string newPassword = "NewPassword123@";
 
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
+        await RegisterAndConfirmUser(email, currentPassword);
         AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
@@ -67,7 +67,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         // Given: a registered and confirmed authenticated user with mismatching new passwords.
         string email = TheFaker.Internet.Email();
         const string currentPassword = "Password123@";
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
+        await RegisterAndConfirmUser(email, currentPassword);
         AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
@@ -88,7 +88,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAcceptanceTest<VibraHekaPr
         // Given: an authenticated user providing wrong current password.
         string email = TheFaker.Internet.Email();
         const string currentPassword = "Password123@";
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, currentPassword);
+        await RegisterAndConfirmUser(email, currentPassword);
         AuthenticateUserResponse authResult = await AuthenticateUser(email, currentPassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 

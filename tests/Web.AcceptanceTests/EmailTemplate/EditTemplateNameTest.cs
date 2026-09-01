@@ -74,7 +74,7 @@ public class EditTemplateNameTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: A non-admin user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Internet.UserName(), email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 

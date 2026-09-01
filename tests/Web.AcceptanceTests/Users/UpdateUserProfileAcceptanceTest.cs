@@ -18,10 +18,7 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     {
         // Given: a request payload without authenticated context.
         Client.DefaultRequestHeaders.Remove("Authorization");
-        UpdateProfileRequest payload = new()
-        {
-            Email = "test@example.com"
-        };
+        UpdateProfileRequest payload = new() { Email = "test@example.com" };
 
         // When: calling the update profile endpoint.
         HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload);
@@ -34,10 +31,8 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldUpdateUserProfileWhenAuthenticatedAndPayloadIsValid()
     {
         // Given: an authenticated user with a valid self-update payload.
-        AuthenticateUserResponse authenticateAsConfirmedUser = await AuthenticateAsConfirmedUser();
-        
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(authenticateAsConfirmedUser.AccessToken);
+        await AuthenticateAsNewUser();
+
         UpdateProfileRequest payload = new()
         {
             FirstName = "UpdatedName",
@@ -48,16 +43,11 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
         };
 
         // When: calling the update profile endpoint.
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload);
+        await PerformCallAndExpectStatusCode(() => Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload),
+            HttpStatusCode.NoContent);
 
-        // Then: endpoint returns successful update.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-        
-        // And: fetching profile reflects the updated values.
-        HttpResponseMessage getProfileResponse = await Client.GetAsync($"/api/v1/users/{jwtSecurityToken.Subject}");
-        getProfileResponse.EnsureSuccessStatusCode();
-        UserDTO updatedProfile = await getProfileResponse.ParseContentAsync<UserDTO>();
-        
+        // Then: fetching profile reflects the updated values.
+        UserDTO updatedProfile = await PerformGetUserProfile(GetuserID());
         Assert.That(updatedProfile.FirstName, Is.EqualTo(payload.FirstName));
     }
 
@@ -65,44 +55,33 @@ public class UpdateUserProfileAcceptanceTest : GenericUserAcceptanceTest
     public async Task ShouldReturnBadRequestWhenPayloadIsInvalid()
     {
         // Given: an authenticated user with invalid payload format.
-        await AuthenticateAsConfirmedUser();
-        UserDTO payload = new()
-        {
-            Id = Guid.Parse("not-a-guid"),
-            Email = "invalid-email"
-        };
+        await AuthenticateAsNewUser();
+        UserDTO payload = new() { Id = Guid.Parse("not-a-guid"), Email = "invalid-email" };
 
         // When: calling the update profile endpoint.
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload);
-
         // Then: validation fails and returns bad request.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(entity.ErrorCode, Is.EqualTo(UserErrors.InvalidUserID ));
+        await PerformCallAndExpectError(() => Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload),
+            UserErrors.InvalidUserID);
     }
 
     [Test]
     public async Task ShouldReturnBadRequestWhenAuthenticatedUserTriesToUpdateAnotherUserProfile()
     {
         // Given: two users and authentication as the first user only.
-        _ = await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         string secondUserEmail = TheFaker.Internet.Email();
-        string secondUserId = await RegisterAndConfirmUser(TheFaker.Person.FullName, secondUserEmail, ThePassword);
+        string secondUserId = await RegisterAndConfirmUser(secondUserEmail, ThePassword);
 
         UserDTO payload = new()
         {
-            Id = Guid.Parse(secondUserId),
-            Email = secondUserEmail,
-            FirstName = "ShouldNot",
-            LastName = "Update"
+            Id = Guid.Parse(secondUserId), Email = secondUserEmail, FirstName = "ShouldNot", LastName = "Update"
         };
 
-        // When: the first user attempts to update second user's profile.
-        HttpResponseMessage response = await Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload);
+        // When: the first user attempts to update the second user's profile.
+        // Then: endpoint rejects with a not-authorized error.
+        await PerformCallAndExpectError(() => Client.PatchAsJsonAsync("/api/v1/users/update-profile", payload),
+            UserErrors.NotAuthorized);
 
-        // Then: endpoint rejects with not-authorized error.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse entity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(entity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
+    
     }
 }

@@ -27,7 +27,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenUserHasNoSubscription()
     {
         // Given: an authenticated user without any persisted subscription.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
 
         // When: attempting to reactivate a subscription.
         HttpResponseMessage response = await Client.PatchAsync("/api/v1/subscriptions/reactivate", null);
@@ -43,7 +43,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenSubscriptionIsNotMarkedAsToBeCancelled()
     {
         // Given: an authenticated user with a subscription already active (first ensure branch).
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         await Client.PutAsync("/api/v1/subscriptions", null);
 
         // When: requesting reactivation.
@@ -60,7 +60,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenSubscriptionOrderStatusIsPaymentFailed()
     {
         // Given: an authenticated user with ToBeCancelled + PaymentFailed (second ensure branch).
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         await Client.PutAsync("/api/v1/subscriptions", null);
 
         // When: requesting reactivation.
@@ -77,7 +77,7 @@ public class ReactivateSubscriptionTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldReturnBadRequestWhenStripeReactivationFailsAfterEnsureChecks()
     {
         // Given: a subscription that passes ensure checks but has fake external id that Stripe will reject.
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
         await Client.PutAsync("/api/v1/subscriptions", null);
         
         // When: attempting to reactivate subscription.

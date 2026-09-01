@@ -91,7 +91,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
     {
         // Given: an authenticated user and a recording ID that does not exist in the system
         string email = TheFaker.Internet.Email();
-        AuthenticateUserResponse auth = await RegisterConfirmAndLogin(email, email, ThePassword);
+        AuthenticateUserResponse auth = await RegisterConfirmAndLogin(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
@@ -114,7 +114,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
     {
         // Given: an authenticated user and a recording ID that is not a valid GUID
         string email = TheFaker.Internet.Email();
-        AuthenticateUserResponse auth = await RegisterConfirmAndLogin(email, email, ThePassword);
+        AuthenticateUserResponse auth = await RegisterConfirmAndLogin(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 
@@ -155,7 +155,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
 
         // And: a regular user with no subscription authenticates
         string userEmail = TheFaker.Internet.Email();
-        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(userEmail, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userAuth.AccessToken);
 
         // When: the user without subscription requests the download URL for the premium recording
@@ -195,7 +195,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
 
         // Given: a regular user registers, logs in and has a cancelled (inactive) subscription
         string userEmail = TheFaker.Internet.Email();
-        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(userEmail, ThePassword);
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken? jsonToken = handler.ReadJwtToken(userAuth.AccessToken);
@@ -244,7 +244,7 @@ public sealed class GetDownloadUrlTest : GenericRecordingsTest
         
         // And: a regular user registers, logs in and has an active subscription
         string userEmail = TheFaker.Internet.Email();
-        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(TheFaker.Person.FullName, userEmail, ThePassword);
+        AuthenticateUserResponse userAuth = await RegisterConfirmAndLogin(userEmail, ThePassword);
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken? jsonToken = handler.ReadJwtToken(userAuth.AccessToken);

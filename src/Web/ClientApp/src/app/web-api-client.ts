@@ -91,8 +91,8 @@ export class VerificationCodeClient implements IVerificationCodeClient {
 export interface IUserClient {
     user_GetUserDetails(id: string): Observable<UserDTO>;
     user_UpdateUserProfile(body: UpdateProfileRequest): Observable<void>;
-    user_CreateTherapist(command: CreateTherapistRequest): Observable<string>;
-    user_GetAllTherapists(): Observable<UserDTO[]>;
+    user_AdminCreateTherapist(body: CreateTherapistRequest): Observable<CreateTherapistResponse>;
+    user_AdminGetAllTherapists(): Observable<UserDTO[]>;
 }
 
 @Injectable({
@@ -249,11 +249,11 @@ export class UserClient implements IUserClient {
         return _observableOf(null as any);
     }
 
-    user_CreateTherapist(command: CreateTherapistRequest): Observable<string> {
+    user_AdminCreateTherapist(body: CreateTherapistRequest): Observable<CreateTherapistResponse> {
         let url_ = this.baseUrl + "/api/v1/users/admin/create-therapist";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
+        const content_ = JSON.stringify(body);
 
         let options_ : any = {
             body: content_,
@@ -266,20 +266,20 @@ export class UserClient implements IUserClient {
         };
 
         return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUser_CreateTherapist(response_);
+            return this.processUser_AdminCreateTherapist(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUser_CreateTherapist(response_ as any);
+                    return this.processUser_AdminCreateTherapist(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<string>;
+                    return _observableThrow(e) as any as Observable<CreateTherapistResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<string>;
+                return _observableThrow(response_) as any as Observable<CreateTherapistResponse>;
         }));
     }
 
-    protected processUser_CreateTherapist(response: HttpResponseBase): Observable<string> {
+    protected processUser_AdminCreateTherapist(response: HttpResponseBase): Observable<CreateTherapistResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -290,8 +290,7 @@ export class UserClient implements IUserClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : null as any;
-    
+            result200 = CreateTherapistResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -323,7 +322,7 @@ export class UserClient implements IUserClient {
         return _observableOf(null as any);
     }
 
-    user_GetAllTherapists(): Observable<UserDTO[]> {
+    user_AdminGetAllTherapists(): Observable<UserDTO[]> {
         let url_ = this.baseUrl + "/api/v1/users/admin/therapists";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -336,11 +335,11 @@ export class UserClient implements IUserClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUser_GetAllTherapists(response_);
+            return this.processUser_AdminGetAllTherapists(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUser_GetAllTherapists(response_ as any);
+                    return this.processUser_AdminGetAllTherapists(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<UserDTO[]>;
                 }
@@ -349,7 +348,7 @@ export class UserClient implements IUserClient {
         }));
     }
 
-    protected processUser_GetAllTherapists(response: HttpResponseBase): Observable<UserDTO[]> {
+    protected processUser_AdminGetAllTherapists(response: HttpResponseBase): Observable<UserDTO[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -917,7 +916,7 @@ export class SettingsClient implements ISettingsClient {
 }
 
 export interface IEventClient {
-    event_CreateEvent(request: CreateEventRequest): Observable<CreateEventResponse>;
+    event_CreateEvent(body: CreateEventRequest): Observable<CreateEventResponse>;
     event_GetEvents(body: GetEventsRequest): Observable<GetEventsResponse>;
     event_ChangeEventVisibility(body: ModifyEventVisibilityRequest): Observable<void>;
 }
@@ -935,11 +934,11 @@ export class EventClient implements IEventClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    event_CreateEvent(request: CreateEventRequest): Observable<CreateEventResponse> {
+    event_CreateEvent(body: CreateEventRequest): Observable<CreateEventResponse> {
         let url_ = this.baseUrl + "/api/v1/events/admin";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(request);
+        const content_ = JSON.stringify(body);
 
         let options_ : any = {
             body: content_,
@@ -1710,7 +1709,7 @@ export class OrdersClient implements IOrdersClient {
 
 export interface ISubscriptionPlanClient {
     subscriptionPlan_GetSubscriptionPlans(): Observable<GetSubscriptionPlanResponse>;
-    subscriptionPlan_CreateSubscriptionPlan(request: CreateSubscriptionPlanRequest): Observable<CreateSubscriptionPlanResponse>;
+    subscriptionPlan_CreateSubscriptionPlan(body: CreateSubscriptionPlanRequest): Observable<CreateSubscriptionPlanResponse>;
 }
 
 @Injectable({
@@ -1802,11 +1801,11 @@ export class SubscriptionPlanClient implements ISubscriptionPlanClient {
         return _observableOf(null as any);
     }
 
-    subscriptionPlan_CreateSubscriptionPlan(request: CreateSubscriptionPlanRequest): Observable<CreateSubscriptionPlanResponse> {
+    subscriptionPlan_CreateSubscriptionPlan(body: CreateSubscriptionPlanRequest): Observable<CreateSubscriptionPlanResponse> {
         let url_ = this.baseUrl + "/api/v1/catalog/subscriptions/admin";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(request);
+        const content_ = JSON.stringify(body);
 
         let options_ : any = {
             body: content_,
@@ -3358,6 +3357,42 @@ export interface IUpdateProfileRequest {
     phoneNumber?: string;
     profilePictureUrl?: string;
     timezoneID?: string;
+}
+
+export class CreateTherapistResponse implements ICreateTherapistResponse {
+    id?: string;
+
+    constructor(data?: ICreateTherapistResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): CreateTherapistResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTherapistResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ICreateTherapistResponse {
+    id?: string;
 }
 
 export class CreateTherapistRequest implements ICreateTherapistRequest {

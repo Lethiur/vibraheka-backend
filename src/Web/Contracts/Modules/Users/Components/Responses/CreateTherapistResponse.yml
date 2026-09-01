@@ -1,0 +1,8 @@
+﻿type: object
+description: Response for creating a therapist
+
+additionalProperties: false
+properties:
+  id:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: The unique identifier of the created therapist.

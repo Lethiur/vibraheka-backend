@@ -1,4 +1,5 @@
 ﻿using VibraHeka.Application.Common.Exceptions;
+using VibraHeka.Web.Catalog.Recordings.Controllers;
 
 namespace VibraHeka.Web.Middleware;
 
@@ -41,10 +42,11 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     {
         if (exception is UnauthorizedException)
         {
-            context.Response.StatusCode = 401;
+            context.Response.StatusCode = 403;
+            return context.Response.CompleteAsync();
         }
 
         context.Response.StatusCode = 400;
-        return Task.CompletedTask;
+        return context.Response.WriteAsJsonAsync(new BadRequestResponse() { ErrorCode = exception.Message }, CancellationToken.None);
     }
 }

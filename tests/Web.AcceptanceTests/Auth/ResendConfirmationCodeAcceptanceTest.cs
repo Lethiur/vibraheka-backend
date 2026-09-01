@@ -22,7 +22,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         // Given: A registered but not confirmed user
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        await RegisterUser(email, "Password123@");
 
 
         // When: Resending the confirmation code
@@ -39,7 +39,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         // Given: a registered but unconfirmed user that can request the first code.
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        await RegisterUser(email, "Password123@");
 
         
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
@@ -63,7 +63,7 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         // Given: a registered user that already consumed one resend and is now in cooldown.
         Faker faker = new();
         string email = faker.Internet.Email();
-        await RegisterUser(faker.Person.FullName, email, "Password123@");
+        await RegisterUser(email, "Password123@");
 
         HttpResponseMessage firstResponse =
             await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",

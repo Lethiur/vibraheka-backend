@@ -139,7 +139,6 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-  
   /reset-password/confirm:
     post:
       tags:
@@ -162,7 +161,6 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-  
   /refresh-token:
     post:
       tags:
@@ -189,7 +187,6 @@ paths:
             application/json:
               schema:
                 $ref: '../Common/Response/BadRequestResponse.yml'
-  
   /change-password:
     patch:
       tags:

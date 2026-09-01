@@ -25,7 +25,7 @@ public class SubscribeTest : GenericSubscriptionAcceptanceTest
     public async Task ShouldCreateSubscriptionAndReturnCheckoutUrlWhenAuthenticated()
     {
         // Given
-        await AuthenticateAsConfirmedUser();
+        await AuthenticateAsNewUser();
 
         // When
         HttpResponseMessage response = await Client.PutAsync("/api/v1/subscriptions", null);

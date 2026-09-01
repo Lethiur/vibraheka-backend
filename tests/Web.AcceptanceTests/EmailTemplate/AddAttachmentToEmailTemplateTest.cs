@@ -44,7 +44,7 @@ public class AddAttachmentToEmailTemplateTest : GenericAcceptanceTest<VibraHekaP
         string templateId = Guid.NewGuid().ToString("N");
 
         await InsertTemplateInDatabase(templateId);
-        await RegisterAndConfirmUser(username, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
         AuthenticateUserResponse auth = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
 

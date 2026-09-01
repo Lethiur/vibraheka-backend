@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -26,9 +28,20 @@ namespace VibraHeka.Web.AcceptanceTests.Generic;
 
 public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 {
+    private const string GetVerificationCodeEndpoint = "/api/v1/codes/verification-code";
+    private const string LoginEndpoint = "/api/v1/auth/authenticate";
+    private const string VerifyEndpoint = "/api/v1/auth/verify";
+    private const string RegisterEndpoint = "/api/v1/auth/register";
+    protected const string RefreshTokenEndpoint = "/api/v1/auth/refresh-token";
+    protected const string ChangePasswordEndpoint = "/api/v1/auth/change-password";
+    protected const string ResendVerificationCodeEndpoint = "/api/v1/auth/resend-confirmation-code";
+    protected const string ResetPasswordEndpoint = "/api/v1/auth/reset-password";
+    protected const string ConfirmResetPasswordEndpoint = "/api/v1/auth/reset-password/confirm";
+
+    protected const string ThePassword = "Password123@";
+    
     protected HttpClient Client = null!;
     protected Faker TheFaker;
-    protected string ThePassword = "Password123@";
     private readonly WebApplicationFactory<TAppClass> Factory;
 
     public GenericAcceptanceTest()
@@ -82,7 +95,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
             try
             {
                 HttpResponseMessage response =
-                    await Client.PostAsJsonAsync($"api/v1/codes/verification-code", new GetCodeQuery(itemId));
+                    await Client.PostAsJsonAsync(GetVerificationCodeEndpoint, new GetCodeQuery(itemId));
 
                 VerificationCodeEntity asResponseEntityAndContentAs =
                     await response.ParseContentAsync<VerificationCodeEntity>();
@@ -99,8 +112,10 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
                 // Log the exception if needed
                 Console.WriteLine($"Exception while waiting for verification code: {ex.Message}");
             }
+
             await Task.Delay(500); // Wait before retrying
         }
+
         throw new TimeoutException("DynamoDB record was not available within the expected time.");
     }
 
@@ -108,14 +123,13 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <summary>
     /// Registers a new user by submitting their username, email, and password to the registration endpoint.
     /// </summary>
-    /// <param name="username">The username of the user to be registered.</param>
     /// <param name="email">The email address of the user to be registered.</param>
     /// <param name="password">The password for the user account being registered.</param>
     /// <returns>The unique identifier of the newly registered user.</returns>
-    protected async Task<string> RegisterUser(string username, string email, string password)
+    protected async Task<string> RegisterUser(string email, string password)
     {
-        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("api/v1/auth/register",
-            new RegisterUserRequest()
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync(RegisterEndpoint,
+            new RegisterUserRequest
             {
                 Email = email,
                 Password = password,
@@ -134,17 +148,16 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <summary>
     /// Registers a new user, confirms their registration using a verification code, and persists the user in the system.
     /// </summary>
-    /// <param name="username">The username of the user to be registered and confirmed.</param>
     /// <param name="email">The email address of the user to be registered and confirmed.</param>
     /// <param name="password">The password for the user account being registered and confirmed.</param>
     /// <returns>The unique identifier of the newly registered and confirmed user.</returns>
-    protected async Task<string> RegisterAndConfirmUser(string username, string email, string password)
+    protected async Task<string> RegisterAndConfirmUser(string email, string password)
     {
-        string userID = await RegisterUser(username, email, password);
+        string userID = await RegisterUser(email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new(codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
-            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+            await Client.PatchAsJsonAsync(VerifyEndpoint, verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         return userID;
     }
@@ -158,35 +171,42 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <returns>The unique identifier of the newly registered administrator.</returns>
     /// <exception cref="HttpRequestException">Thrown when there is an issue with the HTTP request during user registration or promotion.</exception>
     /// <exception cref="TimeoutException">Thrown when the verification code is not retrieved within the specified timeout period.</exception>
-    protected async Task<string> RegisterAndConfirmAdmin(string username, string email, string password)
+    protected async Task RegisterAndConfirmAdmin(string username, string email, string password)
     {
-        string userID = await RegisterUser(username, email, password);
-        VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserRequest verificationCommand = new() { EncryptedCode = codeResult.Code };
-        HttpResponseMessage patchAsJsonAsync =
-            await Client.PatchAsJsonAsync("api/v1/auth/verify", verificationCommand);
-        patchAsJsonAsync.EnsureSuccessStatusCode();
+        string userID = await RegisterAndConfirmUser(email, password);
         await PromoteToAdmin(username, email, userID);
-        return userID;
+    }
+
+    /// <summary>
+    /// Registers a new admin user, confirms their account, and logs them in.
+    /// </summary>
+    /// <param name="username">The username for the new admin user.</param>
+    /// <param name="email">The email address for the new admin user.</param>
+    /// <param name="password">The password for the new admin user.</param>
+    /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the authentication tokens and user role upon successful login.</returns>
+    protected async Task RegisterAndConfirmAndLoginAdmin(string username = "", string email = "",
+        string password = ThePassword)
+    {
+        await RegisterAndConfirmAdmin(username, email, password);
+        await AuthenticateUser(email, password);
     }
 
     /// <summary>
     /// Registers a user with the specified credentials, confirms their account through verification,
     /// and logs them in to retrieve authentication tokens.
     /// </summary>
-    /// <param name="username">The username of the user to be registered.</param>
     /// <param name="email">The email address of the user, which will also receive the verification code.</param>
     /// <param name="password">The password for the user's account.</param>
     /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the user's authentication information, including tokens and roles.</returns>
     /// <exception cref="HttpRequestException">Thrown when the confirmation or authentication process encounters an HTTP error.</exception>
-    protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string username, string email,
+    protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string email,
         string password)
     {
-        await RegisterUser(username, email, password);
+        await RegisterUser(email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
         VerifyUserCommand verificationCommand = new(codeResult.Code);
         HttpResponseMessage patchAsJsonAsync =
-            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+            await Client.PatchAsJsonAsync(VerifyEndpoint, verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         return await AuthenticateUser(email, password);
     }
@@ -201,9 +221,10 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     protected async Task<AuthenticateUserResponse> AuthenticateUser(string email, string password)
     {
         AuthenticateUserCommand command = new(email, password);
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/authenticate", command);
+        HttpResponseMessage response = await Client.PostAsJsonAsync(LoginEndpoint, command);
         AuthenticateUserResponse token = await response.ParseContentAsync<AuthenticateUserResponse>();
         Assert.That(token, Is.Not.Null);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
         return token ?? throw new InvalidOperationException("Authentication result was null.");
     }
 
@@ -300,18 +321,93 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
         return $"v1.{base64Url}";
     }
 
-    protected async Task<AuthenticateUserResponse> AuthenticateAsConfirmedUser()
+    protected void RemoveAuthHeader()
     {
-        // Given
+        Client.DefaultRequestHeaders.Remove("Authorization");
+    }
+
+    /// <summary>
+    /// Authenticates a new user by generating a unique email, registering the user, confirming their email, and logging them in.
+    /// </summary>
+    /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the authentication details of the newly created user.</returns>
+    /// <exception cref="HttpRequestException">Thrown if there is an issue during the registration, confirmation, or login process.</exception>
+    protected async Task AuthenticateAsNewUser()
+    {
         string email = TheFaker.Internet.Email();
-        string username = TheFaker.Person.FullName;
-        await RegisterAndConfirmUser(username, email, ThePassword);
+        await RegisterConfirmAndLogin(email, ThePassword);
+    }
 
-        // When
-        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
+    /// <summary>
+    /// Authenticates a newly registered administrator by registering, confirming,
+    /// and logging in the administrator with a randomly generated email and predefined password.
+    /// </summary>
+    /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the access token, refresh token, and user role of the authenticated administrator.</returns>
+    protected async Task AuthenticateAsNewAdmin()
+    {
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
+        await AuthenticateUser(email, ThePassword);
+    }
+    
+    /// <summary>
+    /// Executes an HTTP action and verifies that it results in a bad request with the specified error code.
+    /// </summary>
+    /// <param name="action">The asynchronous HTTP action to be performed.</param>
+    /// <param name="expectedErrorCode">The error code expected in the response.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="AssertionException">Thrown if the response does not contain the expected error code or if the status code is not BadRequest.</exception>
+    protected static async Task PerformCallAndExpectError(Func<Task<HttpResponseMessage>> action,
+        string expectedErrorCode)
+    {
+        HttpResponseMessage response = await PerformCallAndExpectStatusCode(action, HttpStatusCode.BadRequest);
+        await response.AssertBadRequestWithError(expectedErrorCode);
+    }
 
-        // Then
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-        return authResult;
+    /// <summary>
+    /// Retrieves the user's unique identifier (user ID) from the authentication token in the request header.
+    /// </summary>
+    /// <returns>A <c>Guid</c> representing the user ID extracted from the token.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no authentication header is found in the request.</exception>
+    protected Guid GetuserID()
+    {
+        AuthenticationHeaderValue? authenticationHeaderValue = Client.DefaultRequestHeaders.Authorization;
+        if (authenticationHeaderValue == null)
+        {
+            throw new InvalidOperationException("No authentication header found.");
+        }
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(authenticationHeaderValue.Parameter);
+        return Guid.Parse(jwtSecurityToken.Subject);
+    }
+
+    /// <summary>
+    /// Executes a specified HTTP call and retrieves the response content after validating the expected status code.
+    /// </summary>
+    /// <typeparam name="T">The type to which the response content will be deserialized.</typeparam>
+    /// <param name="action">A function representing the HTTP call to be performed.</param>
+    /// <returns>The deserialized content of type <c>T</c> extracted from the HTTP response.</returns>
+    /// <exception cref="AssertionException">Thrown when the status code of the response does not match the expected status code.</exception>
+    /// <exception cref="HttpRequestException">Thrown when an error occurs while making the HTTP call.</exception>
+    protected static async Task<T> PerformCallAndRetrieveContent<T>(Func<Task<HttpResponseMessage>> action)
+    {
+        HttpResponseMessage response = await PerformCallAndExpectStatusCode(action, HttpStatusCode.OK);
+        T content = await response.ParseContentAsync<T>();
+        return content;
+    }
+    
+
+    /// <summary>
+    /// Executes an HTTP request and verifies that the response status code matches the expected status code.
+    /// </summary>
+    /// <param name="action">A function that performs the HTTP request and returns an <c>HttpResponseMessage</c> asynchronously.</param>
+    /// <param name="expectedStatusCode">The expected HTTP status code to be validated against the actual response.</param>
+    /// <returns>A <c>Task</c> that represents the asynchronous operation.</returns>
+    /// <exception cref="AssertionException">Thrown if the actual response status code does not match the expected status code.</exception>
+    protected static async Task<HttpResponseMessage> PerformCallAndExpectStatusCode(Func<Task<HttpResponseMessage>> action,
+        HttpStatusCode expectedStatusCode)
+    {
+        HttpResponseMessage response = await action();
+        Assert.That(response.StatusCode, Is.EqualTo(expectedStatusCode));
+        return response;
     }
 }

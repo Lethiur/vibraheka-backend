@@ -70,7 +70,7 @@ public class ChangeTemplateTest : GenericAcceptanceTest<VibraHekaProgram>
     {
         // Given: A registered and confirmed standard user
         string email = TheFaker.Internet.Email();
-        await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
+        await RegisterAndConfirmUser(email, ThePassword);
 
         // And: The user is authenticated
         AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
