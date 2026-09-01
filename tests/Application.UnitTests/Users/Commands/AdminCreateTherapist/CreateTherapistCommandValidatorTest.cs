@@ -27,7 +27,7 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailIsEmptyOrNull(string? email)
     {
         // Given: Command with invalid email
-        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", string.Empty, string.Empty,
+        CreateTherapistCommand command = new(email!, "Dr. Smith", string.Empty, string.Empty,
             string.Empty, string.Empty, string.Empty, string.Empty);
 
 
@@ -47,7 +47,7 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldFailValidationWhenEmailFormatIsInvalid(string email)
     {
         // Given: Command with invalid email format
-        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", string.Empty, string.Empty,
+        CreateTherapistCommand command = new(email, "Dr. Smith", string.Empty, string.Empty,
             string.Empty, string.Empty, string.Empty, string.Empty);
 
 
@@ -125,11 +125,11 @@ public class CreateTherapistCommandValidatorTest
     public void ShouldPassValidationWhenAllFieldsAreValid()
     {
         // Given: Command with all valid fields
-        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "asfdasdf", "Test", "638956444", "Test",
-            "test", "Europe/Madrid");
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "asfdasdf", "Test", "+638956444", "Test",
+            "http://test.com", "Europe/Madrid");
 
         // When: Validating the command
-        TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
+        TestValidationResult<CreateTherapistCommand> result = Validator.TestValidate(command);
 
         // Then: Should not have any validation errors
         result.ShouldNotHaveAnyValidationErrors();
@@ -174,10 +174,11 @@ public class CreateTherapistCommandValidatorTest
             "Dr. Smith",
             "  ASDFASDF",
             "Test",
+            "+6359875",
+            
             "Test",
-            "6359875",
-            "Europe/Madrid",
-            "https://example.com/avatar.png"
+            "https://example.com/avatar.png",
+            "Europe/Madrid"
         );
 
         // When: Validating the command
@@ -222,7 +223,7 @@ public class CreateTherapistCommandValidatorTest
 
     [Test]
     [DisplayName("Should stop validation on first email error when cascade mode is stop")]
-    public void ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
+    public async Task ShouldStopValidationOnFirstEmailErrorWhenCascadeModeIsStop()
     {
         // Given: Command with empty email
         CreateTherapistCommand command = new(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty,
@@ -230,11 +231,11 @@ public class CreateTherapistCommandValidatorTest
 
 
         // When: Validating the command
-        TestValidationResult<CreateTherapistCommand>? result = Validator.TestValidate(command);
+        ValidationResult result = await Validator.ValidateAsync(command);
 
         // Then: Should have only one error for email
         IEnumerable<ValidationFailure> emailErrors =
-            result.Errors.Where(e => e.PropertyName == "TherapistData.Email").ToList();
+            result.Errors.Where(e => e.PropertyName == "Email").ToList();
         IEnumerable<ValidationFailure> validationFailures = emailErrors.ToList();
         using (Assert.EnterMultipleScope())
         {

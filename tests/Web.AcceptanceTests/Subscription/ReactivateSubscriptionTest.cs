@@ -4,8 +4,6 @@ using VibraHeka.Domain.Exceptions;
 using VibraHeka.Infrastructure.Exceptions;
 using VibraHeka.Web.AcceptanceTests.Utils;
 using VibraHeka.Web.Subscriptions;
-using OrderStatus = VibraHeka.Domain.Commerce.Enums.OrderStatus;
-using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
 

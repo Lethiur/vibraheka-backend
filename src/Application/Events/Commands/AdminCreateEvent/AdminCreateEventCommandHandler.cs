@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using NMoneys;
-using VibraHeka.Application.Events.Models;
 using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Catalog.Ports.In;
 using VibraHeka.Domain.Common.Interfaces;
@@ -13,14 +12,14 @@ using VibraHeka.Domain.Events.Ports.Out;
 
 namespace VibraHeka.Application.Events.Commands.AdminCreateEvent;
 
-public class CreateEventCommandHandler(
+public class AdminCreateEventCommandHandler(
     IEventMeetingPort meetingPort,
     IEventRepositoryPort repositoryPort,
     ICurrentUserService currentUser,
     IRegisterSellableItemPort sellableItemPort,
-    ILogger<CreateEventCommandHandler> logger) : IRequestHandler<CreateEventCommand, Result<EventDto>>
+    ILogger<AdminCreateEventCommandHandler> logger) : IRequestHandler<AdminCreateEventCommand, Result<string>>
 {
-    public async Task<Result<EventDto>> Handle(CreateEventCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(AdminCreateEventCommand request, CancellationToken cancellationToken)
     {
         CreateEventModel model = new()
         {
@@ -37,7 +36,7 @@ public class CreateEventCommandHandler(
         if (isFailure)
         {
             logger.LogError("Failed to create event meeting: {Error}", error);
-            return Result.Failure<EventDto>(EventErrors.FailedToCreateEventMeeting);
+            return Result.Failure<string>(EventErrors.FailedToCreateEventMeeting);
         }
 
         EventEntity entity = new()
@@ -62,13 +61,10 @@ public class CreateEventCommandHandler(
 
         if (sellableItemRegistrationFailure)
         {
-            return Result.Failure<EventDto>(EventErrors.FailedToCreateSellableItem);
+            return Result.Failure<string>(EventErrors.FailedToCreateSellableItem);
         }
 
-        return await repositoryPort.SaveEventAsync(entity, cancellationToken).Map(savedEntity => new EventDto()
-        {
-            EventID = savedEntity.EventID
-        });
-
+        return await repositoryPort.SaveEventAsync(entity, cancellationToken).Map(savedEntity => savedEntity.EventID);
+        
     }
 }

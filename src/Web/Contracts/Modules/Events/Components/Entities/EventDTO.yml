@@ -21,6 +21,9 @@ properties:
     type: integer
     description: The duration of the event in minutes.
     minimum: 1
+  startDate:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The start date and time of the event.
   password:
     type: string
     description: The password required to access the event.
@@ -31,9 +34,15 @@ properties:
     minLength: 3
     example: "America/New_York"
   status:
-    $ref: '../Enums/EventStatus.yml'
+    $ref: '../Enums/EventStatus.yml#/component/schema/eventStatus'
     description: The status of the event.
   link:
     type: string
     description: The link to access the event.
     format: uri
+  createdAt:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The date and time when the event was created.
+  lastUpdatedAt:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The date and time when the event was last updated.

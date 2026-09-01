@@ -1,0 +1,56 @@
+﻿openapi: 3.1.0
+
+info:
+  title: VibraHeka API - Order API
+  version: 1.0.0
+  description: API for managing Orders
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: Orders
+    description: Operations related to Orders
+    
+servers:
+  - url: /api/v1/orders
+    description: local Server
+
+paths:
+  /:
+    put:
+      tags:
+        - Orders
+      description: Creates a new order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './Components/Requests/CreateOrderRequest.yml'
+      responses:
+        200:
+          description: Successful response with the created order details.
+          content:
+            application/json:
+              schema:
+                $ref: './Components/Responses/CreateOrderResponse.yml'
+        400:
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '../Common/Response/BadRequestResponse.yml'
+        401:
+          description: Unauthorized. The user is not authenticated.
+        403:
+          description: Forbidden. The user does not have permission to create the order.
+        

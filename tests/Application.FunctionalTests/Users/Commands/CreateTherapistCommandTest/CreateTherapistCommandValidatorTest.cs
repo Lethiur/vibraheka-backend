@@ -21,9 +21,8 @@ public class CreateTherapistCommandValidatorTest
     public async Task ShouldPassValidationWhenCommandIsCorrect()
     {
         // Given
-        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "  ASDFASDF", "Test", "Test", "6359875", string.Empty, "Europe/Madrid");
-
-
+        CreateTherapistCommand command = new("test@therapist.com", "Dr. Smith", "  ASDFASDF", "Test", "+34987654", "6359875", "http://test.com", "Europe/Madrid");
+        
         // When
         ValidationResult result = await _validator.ValidateAsync(command);
 

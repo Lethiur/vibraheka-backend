@@ -15,7 +15,6 @@ public class SellableItemPriceEntity : BaseAuditableEntity
     // OneTime o Recurring
 
     public BillingInterval? BillingInterval { get; set; }
-    // Month, Year. Solo para suscripciones.
 
     public string ExternalProductID { get; set; } = string.Empty;
     public string ExternalPriceID { get; set; } = string.Empty;

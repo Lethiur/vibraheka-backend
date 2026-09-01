@@ -19,12 +19,13 @@ public class SubscriptionController(
     /// <summary>
     /// Creates a new subscription for the current user.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>An <see cref="ActionResult{SubscriptionResponse}"/> containing the subscription creation details if successful, or an error response if the operation fails.</returns>
-    public override async Task<ActionResult<SubscriptionResponse>> Subscribe()
+    public override async Task<ActionResult<SubscriptionResponse>> Subscribe(CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Subscription created successfully");
         AddSubscriptionCommand command = new();
-        Result<SubscriptionCheckoutSessionEntity> result = await mediator.Send(command);
+        Result<SubscriptionCheckoutSessionEntity> result = await mediator.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -38,11 +39,12 @@ public class SubscriptionController(
     /// <summary>
     /// Retrieves the subscription status for the current user.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>An <see cref="ActionResult{SubscriptionDetailsResponse}"/> containing the subscription status if successful, or an error response if the operation fails.</returns>
-    public async override Task<ActionResult<SubscriptionDetailsResponse>> GetSubscriptionStatus()
+    public async override Task<ActionResult<SubscriptionDetailsResponse>> GetSubscriptionStatus(CancellationToken cancellationToken = default)
     {
         GetSubscriptionDetailsQuery query = new();
-        Result<SubscriptionEntity> result = await mediator.Send(query);
+        Result<SubscriptionEntity> result = await mediator.Send(query, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -56,12 +58,13 @@ public class SubscriptionController(
     /// <summary>
     /// Cancels the current user's subscription.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-    public override async Task<IActionResult> CancelSubscription()
+    public override async Task<IActionResult> CancelSubscription(CancellationToken cancellationToken  = default)
     {
         CancelSubscriptionCommand command = new();
 
-        Result<Unit> result = await mediator.Send(command);
+        Result<Unit> result = await mediator.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -75,11 +78,12 @@ public class SubscriptionController(
     /// <summary>
     /// Reactivates a previously canceled subscription for the current user.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
-    public override async Task<IActionResult> ReactivateSubscription()
+    public override async Task<IActionResult> ReactivateSubscription(CancellationToken cancellationToken = default)
     {
         ReactivateSubscriptionCommand command = new();
-        Result<Unit> result = await mediator.Send(command);
+        Result<Unit> result = await mediator.Send(command, cancellationToken);
         if (result.IsFailure)
         {
             logger.LogError("Subscription reactivation failed: {Error}", result.Error);
@@ -92,11 +96,12 @@ public class SubscriptionController(
     /// <summary>
     /// Retrieves the subscription portal URL for the current user, allowing them to manage their subscription settings.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>An <see cref="ActionResult{SubscriptionPortalResponse}"/> containing the subscription portal URL if successful, or an error response if the operation fails.</returns>
-    public override async Task<ActionResult<SubscriptionPortalResponse>> GetSubscriptionPortal()
+    public override async Task<ActionResult<SubscriptionPortalResponse>> GetSubscriptionPortal(CancellationToken cancellationToken = default)
     {
         GetSubscriptionPortalQuery query = new();
-        Result<string> result = await mediator.Send(query);
+        Result<string> result = await mediator.Send(query, cancellationToken);
         if (result.IsFailure)
         {
             logger.LogError("Failed to retrieve subscription details: {Error}", result.Error);

@@ -20,7 +20,7 @@ public class GetUserProfileQueryHandlerTest
     {
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _userServiceMock = new Mock<IUserService>();
-        _handler = new GetUserProfileQueryHandler( _userServiceMock.Object);
+        _handler = new GetUserProfileQueryHandler( _userServiceMock.Object, _currentUserServiceMock.Object);
     }
 
     [Test]
@@ -73,7 +73,6 @@ public class GetUserProfileQueryHandlerTest
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Value.PhoneNumber, Is.EqualTo(string.Empty));
         _userServiceMock.Verify(x => x.GetUserByID(targetUserId, It.IsAny<CancellationToken>()), Times.Once);
-        _currentUserServiceMock.VerifyGet(x => x.UserId, Times.Once);
     }
 }
 

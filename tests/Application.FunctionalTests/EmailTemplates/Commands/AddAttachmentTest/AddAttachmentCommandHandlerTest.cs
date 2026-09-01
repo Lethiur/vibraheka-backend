@@ -125,7 +125,7 @@ public class AddAttachmentCommandHandlerTest
         const string errorMessage = "ST-001";
         MemoryStream fileStream = CreateStream();
         EmailEntity templateEntity = CreateTemplateEntity();
-        AddAttachmentCommand command = CreateCommand(fileStream);
+        AddAttachmentCommand command = CreateCommand(fileStream, DefaultTemplateId);
 
         _templatesServiceMock.Setup(x => x.GetTemplateByID(DefaultTemplateId, CancellationToken.None))
             .ReturnsAsync(Success(templateEntity));
@@ -152,7 +152,7 @@ public class AddAttachmentCommandHandlerTest
         const string errorMessage = "TPL-500";
         MemoryStream fileStream = CreateStream();
         EmailEntity templateEntity = CreateTemplateEntity();
-        AddAttachmentCommand command = CreateCommand(fileStream);
+        AddAttachmentCommand command = CreateCommand(fileStream, DefaultTemplateId);
 
         _currentUserServiceMock.Setup(x => x.UserId).Returns(DefaultUserId);
         _privilegeServiceMock.Setup(x => x.HasRoleAsync(DefaultUserId, UserRole.Admin, CancellationToken.None))

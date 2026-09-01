@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Data;
 using System.Net;
 using System.Net.Http.Json;
 using Bogus;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using VibraHeka.Application.Common.Exceptions;
 using VibraHeka.Application.Users.Commands.RegisterUser;
@@ -31,8 +29,8 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: HTTP and payload should represent a successful registration.
         Assert.That(postAsJsonAsync.StatusCode, Is.EqualTo(HttpStatusCode.OK), "The status code should be OK");
         RegisterUserResponse responseEntity = await postAsJsonAsync.ParseContentAsync<RegisterUserResponse>();
-        
-        
+
+
         Assert.That(responseEntity, Is.Not.Null);
         Assert.That(responseEntity.UserId, Is.Not.Null.And.Not.Empty);
 
@@ -70,15 +68,16 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     [TestCase("test@example.com", "Password123@", "\r\n", UserErrors.InvalidFullName)] // FullName CRLF
     [TestCase("test@example.com", "Password123@", "A", UserErrors.InvalidFullName)] // FullName 1 char
     [TestCase("test@example.com", "Password123@", "AB", UserErrors.InvalidFullName)] // FullName 2 chars (lÃ­mite)
-    [TestCase("test@example.com", "Password123@", "  A  ", UserErrors.InvalidFullName)] // FullName con espacios al inicio/final
+    [TestCase("test@example.com", "Password123@", "  A  ",
+        UserErrors.InvalidFullName)] 
 
     // === EDGE CASES COMBINADOS ===
     [TestCase(null, null, null, "US-006 | US-001 | US-007")]
     [TestCase("", "", "", "US-006 | US-001 | US-007")]
     [TestCase("   ", "   ", "   ", "US-006 | US-001 | US-007")]
-
     [DisplayName("Should not allow registration with wrong data")]
-    public async Task ShouldNotAllowRegistrationWithWrongData(string email, string password, string fullName, string expectedErrorKeyword)
+    public async Task ShouldNotAllowRegistrationWithWrongData(string email, string password, string fullName,
+        string expectedErrorKeyword)
     {
         // Given: A command with invalid data
         RegisterUserCommand command = new(email, password, fullName, "TEST", "TEST", "Europe/Madrid");
@@ -103,7 +102,8 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         Faker faker = new();
         string? email = faker.Internet.Email();
         RegisterUserCommand firstCommand = new(email, "Password123@", "John Doe", "test", "test", "Europe/Madrid");
-        RegisterUserCommand duplicateCommand = new(email, "DifferentPassword456!", "Jane Smith", "test", "test", "Europe/Madrid");
+        RegisterUserCommand duplicateCommand =
+            new(email, "DifferentPassword456!", "Jane Smith", "test", "test", "Europe/Madrid");
 
         // When: We register the user for the first time
         HttpResponseMessage firstResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", firstCommand);
@@ -111,7 +111,7 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Then: First registration should succeed
         Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK), "First registration should succeed");
         RegisterUserResponse firstResponseEntity = await firstResponse.ParseContentAsync<RegisterUserResponse>();
-        
+
         Assert.That(firstResponseEntity, Is.Not.Null);
         Assert.That(firstResponseEntity.UserId, Is.Not.Null.And.Not.Empty);
 
@@ -119,15 +119,12 @@ public class RegisterAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         HttpResponseMessage duplicateResponse = await Client.PostAsJsonAsync("/api/v1/auth/register", duplicateCommand);
 
         // Then: Second registration should fail
-        Assert.That(duplicateResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "Duplicate registration should fail");
+        Assert.That(duplicateResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest),
+            "Duplicate registration should fail");
 
         // And: The response should indicate it's a duplicate email error
-        string responseContent = await duplicateResponse.Content.ReadAsStringAsync();
 
-        ResponseEntity responseObject = JsonConvert.DeserializeObject<ResponseEntity>(responseContent) ?? throw new DataException("The response content could not be deserialized to a ResponseEntity object.");
-
-        Assert.That(responseObject.Content, Is.Null, $"The response should contain the error keyword 'E-000'. Actual response: {responseContent}");
+        BadRequestResponse responseObject = await duplicateResponse.ParseContentAsync<BadRequestResponse>();
         Assert.That(responseObject.ErrorCode, Is.EqualTo(UserErrors.UserAlreadyExist));
     }
-
 }

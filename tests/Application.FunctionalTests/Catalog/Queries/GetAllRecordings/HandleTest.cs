@@ -2,7 +2,6 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
@@ -32,18 +31,18 @@ public sealed class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Success(entities));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: all three recordings are returned correctly mapped
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
 
-        List<RecordingDto> dtos = result.Value.ToList();
+        List<RecordingEntity> dtos = result.Value.ToList();
         Assert.That(dtos, Has.Count.EqualTo(3),
             $"Expected 3 DTOs but got {dtos.Count}");
-        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo(new[] { "f-id-1", "f-id-2", "f-id-3" }),
+        Assert.That(dtos.Select(d => d.ID), Is.EquivalentTo(new[] { "f-id-1", "f-id-2", "f-id-3" }),
             "Expected DTOs to contain the same IDs as the source entities");
-        Assert.That(dtos.Select(d => d.Type).Distinct().Count(), Is.EqualTo(3),
+        Assert.That(dtos.Select(d => d.RecordingType).Distinct().Count(), Is.EqualTo(3),
             "Expected each DTO to have a distinct RecordingType matching its entity");
 
         RegistryPortMock.Verify(
@@ -64,7 +63,7 @@ public sealed class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Success(Enumerable.Empty<RecordingEntity>()));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: result is success with an empty collection
         Assert.That(result.IsSuccess, Is.True,
@@ -91,7 +90,7 @@ public sealed class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Failure<IEnumerable<RecordingEntity>>(error));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: result is failure with the original error message propagated
         Assert.That(result.IsFailure, Is.True,
@@ -118,7 +117,7 @@ public sealed class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Failure<IEnumerable<RecordingEntity>>(error));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: result is failure with the resource-not-found error code
         Assert.That(result.IsFailure, Is.True,

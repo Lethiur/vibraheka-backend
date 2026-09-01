@@ -3,8 +3,10 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Domain.Entities;
-using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using VibraHeka.Web.Users;
 
 namespace VibraHeka.Web.AcceptanceTests.Admin;
 
@@ -19,7 +21,7 @@ public class GetTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
 
         // And: Authenticated as non-admin
-        AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authenticationResult = await AuthenticateUser(email, ThePassword);
 
         // And: Authorization header with user token
         Client.DefaultRequestHeaders.Authorization =
@@ -52,7 +54,7 @@ public class GetTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
 
         // And: Authenticated as admin
-        AuthenticationResult authenticationResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authenticationResult = await AuthenticateUser(email, ThePassword);
 
         // And: Authorization header with admin token
         Client.DefaultRequestHeaders.Authorization =
@@ -60,30 +62,25 @@ public class GetTherapistTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // And: A therapist created with a valid DTO payload
         string therapistEmail = $"{Guid.NewGuid():N}@example.com";
-        await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new UserDTO
+        await Client.PutAsJsonAsync("/api/v1/admin/addTherapist", new CreateTherapistRequest()
         {
             Email = therapistEmail,
             FirstName = "Valid Therapist",
             MiddleName = "Valid Middle",
             LastName = "Valid Last",
-            ProfilePictureUrl = "https://example.com/avatar.png",
             PhoneNumber = "+34911111222",
             TimezoneID = "Europe/Madrid"
         });
 
         // When: Requesting therapists list
-        HttpResponseMessage getAsync = await Client.GetAsync("/api/v1/admin/therapists");
+        HttpResponseMessage getAsync = await Client.GetAsync("/api/v1/users/admin/therapists");
 
         // Then: Response is OK
         getAsync.EnsureSuccessStatusCode();
 
         // And: Response contains the created therapist
-        ResponseEntity entity = await getAsync.GetAsResponseEntityAndContentAs<List<UserEntity>>();
-        Assert.That(entity.Success, Is.True);
-        Assert.That(entity.Content, Is.Not.Null);
-
-        IEnumerable<UserEntity>? therapists = entity.GetContentAs<IEnumerable<UserEntity>>();
-        IEnumerable<UserEntity> enumerable = therapists as UserEntity[] ?? therapists!.ToArray();
+        List<UserEntity> enumerable = await getAsync.ParseContentAsync<List<UserEntity>>();
+        
         Assert.That(enumerable, Is.Not.Null);
         Assert.That(enumerable, Is.Not.Empty);
         Assert.That(enumerable.Any(x => x.Email == therapistEmail));

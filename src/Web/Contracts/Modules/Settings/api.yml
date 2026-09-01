@@ -16,7 +16,7 @@ security:
   - bearerAuth: [ ]
 
 servers:
-  - url: /api/v1/admin/settings
+  - url: /api/v1/settings
     description: local Server
 
 paths:

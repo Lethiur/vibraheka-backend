@@ -1,0 +1,12 @@
+﻿type: object
+description: The response containing the details of the created order.
+
+additionalProperties: false
+properties: 
+  checkoutUrl:
+    type: string
+    format: uri
+    description: The URL to which the user should be redirected to complete the checkout process for the created order.
+  expiresAt:
+    $ref: '../../../Common/Fields/Date.yml'
+    description: The date and time when the checkout URL will expire. After this time, the URL will no longer be valid for completing the checkout process.

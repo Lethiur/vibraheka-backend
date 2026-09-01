@@ -4,6 +4,9 @@ using NUnit.Framework;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Domain.Models.Results;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.AcceptanceTests.Utils;
+using VibraHeka.Web.Authentication;
+using VibraHeka.Web.Settings.Controllers;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;
 
@@ -28,7 +31,7 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
         // Given: An authenticated admin
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // When: Requesting all templates for actions
@@ -37,13 +40,12 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
         // Then: Should return 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        IEnumerable<TemplateForActionEntity>? templates = responseEntity.GetContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(responseEntity.Success, Is.True);
+        GetTemplateResponse responseEntity = await response.ParseContentAsync<GetTemplateResponse>();
+        List<TemplateForActionDTO> templates = responseEntity.TemplateList;
         Assert.That(templates, Is.Not.Null);
-        foreach (TemplateForActionEntity template in templates!)
+        foreach (TemplateForActionDTO template in templates)
         {
-            Assert.That(template.TemplateID, Is.Not.Null.And.Not.Empty);
+            Assert.That(template.Id, Is.Not.EqualTo(Guid.Empty));
         }
     }
 
@@ -55,7 +57,7 @@ public class GetAllTemplatesForActionTest : GenericAcceptanceTest<VibraHekaProgr
         await RegisterAndConfirmUser(TheFaker.Person.FullName, email, ThePassword);
 
         // And: The user is authenticated
-        AuthenticationResult authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // When: A non-admin requests all templates for actions

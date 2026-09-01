@@ -64,7 +64,7 @@ public sealed class HandleTest : GenericCreateOrderFunctionalTest
         CreateOrderCommand command = BuildCommandWithTwoLines();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: the handler succeeds and CreateOrderLine is called once per line
         Assert.That(result.IsSuccess, Is.True,
@@ -91,7 +91,7 @@ public sealed class HandleTest : GenericCreateOrderFunctionalTest
         CreateOrderCommand command = BuildCommandWithTwoLines();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: GetSellableItemByIdAsync is called exactly twice (once per line)
         Assert.That(result.IsSuccess, Is.True,
@@ -124,7 +124,7 @@ public sealed class HandleTest : GenericCreateOrderFunctionalTest
         CreateOrderCommand command = BuildCommandWithTwoLines();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: handler returns CO-007 and does not commit the batch
         Assert.That(result.IsFailure, Is.True,
@@ -165,7 +165,7 @@ public sealed class HandleTest : GenericCreateOrderFunctionalTest
         CreateOrderCommand command = BuildCommandWithTwoLines();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: the handler returns failure with CO-004
         Assert.That(result.IsFailure, Is.True,
@@ -200,7 +200,7 @@ public sealed class HandleTest : GenericCreateOrderFunctionalTest
         CreateOrderCommand command = BuildCommandWithOneLine();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: the response CheckoutURL matches the payment attempt entity URL
         Assert.That(result.IsSuccess, Is.True,

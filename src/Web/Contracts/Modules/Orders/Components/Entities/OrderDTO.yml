@@ -1,0 +1,17 @@
+﻿type: object
+description: DTO for Order
+
+additionalProperties: false
+properties:
+  promotionCode:
+    type: string
+    description: The promotion code applied to the order, if any.
+    minLength: 3
+  idempotencyKey:
+    $ref: '../../../Common/Fields/ID.yml'
+    description: A unique key to ensure idempotency of the order creation request.
+  lines:
+    type: array
+    description: The list of order lines associated with this order.
+    items:
+      $ref: './OrderLineDTO.yml'

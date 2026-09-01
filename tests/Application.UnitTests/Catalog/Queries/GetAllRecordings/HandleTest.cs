@@ -2,7 +2,6 @@ using System.ComponentModel;
 using CSharpFunctionalExtensions;
 using Moq;
 using NUnit.Framework;
-using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.GetAllRecordings;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Enums;
@@ -32,16 +31,16 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Success(entities));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: all three recordings are returned as DTOs
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
 
-        List<RecordingDto> dtos = result.Value.ToList();
+        List<RecordingEntity> dtos = result.Value.ToList();
         Assert.That(dtos, Has.Count.EqualTo(3),
             $"Expected 3 DTOs but got {dtos.Count}");
-        Assert.That(dtos.Select(d => d.Id), Is.EquivalentTo(new[] { "id-1", "id-2", "id-3" }),
+        Assert.That(dtos.Select(d => d.ID), Is.EquivalentTo(["id-1", "id-2", "id-3"]),
             "Expected DTOs to contain the same IDs as the source entities");
 
         RegistryPortMock.Verify(
@@ -62,7 +61,7 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Success(Enumerable.Empty<RecordingEntity>()));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: result is success with an empty collection
         Assert.That(result.IsSuccess, Is.True,
@@ -89,7 +88,7 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Failure<IEnumerable<RecordingEntity>>(error));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: result is failure with the original error message propagated
         Assert.That(result.IsFailure, Is.True,
@@ -126,21 +125,21 @@ public class HandleTest : GenericGetAllRecordingsQueryHandlerTest
             .ReturnsAsync(Result.Success<IEnumerable<RecordingEntity>>([entity]));
 
         // When: the handler processes the query
-        Result<IEnumerable<RecordingDto>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
+        Result<IEnumerable<RecordingEntity>> result = await Handler.Handle(new GetAllRecordingsQuery(), CancellationToken.None);
 
         // Then: the DTO fields match the source entity
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
 
-        RecordingDto dto = result.Value.Single();
-        Assert.That(dto.Id, Is.EqualTo(entity.RecordingID),
-            $"Expected Id '{entity.RecordingID}' but got '{dto.Id}'");
+        RecordingEntity dto = result.Value.Single();
+        Assert.That(dto.ID, Is.EqualTo(entity.RecordingID),
+            $"Expected Id '{entity.RecordingID}' but got '{dto.ID}'");
         Assert.That(dto.Name, Is.EqualTo(entity.Name),
             $"Expected Name '{entity.Name}' but got '{dto.Name}'");
         Assert.That(dto.Description, Is.EqualTo(entity.Description),
             $"Expected Description '{entity.Description}' but got '{dto.Description}'");
-        Assert.That(dto.Type, Is.EqualTo(entity.RecordingType),
-            $"Expected Type '{entity.RecordingType}' but got '{dto.Type}'");
+        Assert.That(dto.RecordingType, Is.EqualTo(entity.RecordingType),
+            $"Expected Type '{entity.RecordingType}' but got '{dto.RecordingType}'");
 
         RegistryPortMock.Verify(
             x => x.GetAllAsync(It.Is<CancellationToken>(ct => ct == CancellationToken.None)),

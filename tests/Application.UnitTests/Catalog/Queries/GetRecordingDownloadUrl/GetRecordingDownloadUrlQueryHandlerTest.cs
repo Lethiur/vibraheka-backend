@@ -35,13 +35,13 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Success(downloadUrl));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: success with the expected URL and subscription service is never consulted
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        Assert.That(result.Value.DownloadUrl, Is.EqualTo(downloadUrl),
-            $"Expected DownloadUrl '{downloadUrl}' but got '{result.Value.DownloadUrl}'");
+        Assert.That(result.Value, Is.EqualTo(downloadUrl),
+            $"Expected DownloadUrl '{downloadUrl}' but got '{result.Value}'");
 
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
@@ -94,13 +94,13 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Success(downloadUrl));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: success, subscription consulted with the current user ID, storage called once
         Assert.That(result.IsSuccess, Is.True,
             $"Expected success but got failure with error: '{(result.IsSuccess ? "N/A" : result.Error)}'");
-        Assert.That(result.Value.DownloadUrl, Is.EqualTo(downloadUrl),
-            $"Expected DownloadUrl '{downloadUrl}' but got '{result.Value.DownloadUrl}'");
+        Assert.That(result.Value, Is.EqualTo(downloadUrl),
+            $"Expected DownloadUrl '{downloadUrl}' but got '{result.Value}'");
 
         RegistryPortMock.Verify(
             r => r.GetByIdAsync(
@@ -157,7 +157,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Failure<Domain.Entities.SubscriptionEntity>(subscriptionError));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with the subscription error propagated and storage never called
         Assert.That(result.IsFailure, Is.True,
@@ -219,7 +219,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Success(BuildInactiveSubscriptionEntity()));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure because inactive subscription is treated as unauthorized access and storage never called
         Assert.That(result.IsFailure, Is.True,
@@ -275,7 +275,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
                 Result.Failure<RecordingEntity>(RecordingErrors.NotFound));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with REC-001, subscription and storage never consulted
         Assert.That(result.IsFailure, Is.True,
@@ -322,7 +322,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
                 Result.Failure<RecordingEntity>(genericError));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with the original error propagated; subscription and storage never called
         Assert.That(result.IsFailure, Is.True,
@@ -372,7 +372,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Failure<string>(storageError));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with the storage error propagated; subscription never consulted
         Assert.That(result.IsFailure, Is.True,
@@ -418,7 +418,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
                 Result.Failure<RecordingEntity>(RecordingErrors.NotFound));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with Warning logged containing the error code
         Assert.That(result.IsFailure, Is.True,
@@ -473,7 +473,7 @@ public sealed class GetRecordingDownloadUrlQueryHandlerTest : GenericGetRecordin
             .ReturnsAsync(Result.Failure<Domain.Entities.SubscriptionEntity>(subscriptionError));
 
         // When: the handler processes the query
-        Result<RecordingDownloadUrlDto> result = await Handler.Handle(query, CancellationToken.None);
+        Result<string> result = await Handler.Handle(query, CancellationToken.None);
 
         // Then: failure with Warning logged containing the REC-003 code
         Assert.That(result.IsFailure, Is.True,

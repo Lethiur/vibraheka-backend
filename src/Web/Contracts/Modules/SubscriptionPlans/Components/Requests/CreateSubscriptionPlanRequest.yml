@@ -19,7 +19,7 @@ properties:
     minLength: 3
   price:
     type: number
-    format: float
+    format: decimal
     description: The price of the recording.
     minimum: 0
   currency:

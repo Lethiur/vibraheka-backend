@@ -24,8 +24,8 @@ paths:
     put:
       tags:
         - AdminEvents
-      description: Updates the event information for a specific event.
-      operationId: updateEvent
+      description: Creates a new event
+      operationId: createEvent
       requestBody:
         required: true
         content:
@@ -54,8 +54,8 @@ paths:
     post:
       tags:
         - AdminEvents
-      description: Creates a new event.
-      operationId: createEvent
+      description: Gets events within a filter inside the request
+      operationId: getEvents
       requestBody:
         required: true
         content:

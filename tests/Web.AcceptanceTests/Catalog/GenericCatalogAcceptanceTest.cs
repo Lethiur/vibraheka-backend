@@ -1,6 +1,5 @@
 using NMoneys;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
 
@@ -11,15 +10,6 @@ namespace VibraHeka.Web.AcceptanceTests.Catalog;
 /// </summary>
 public abstract class GenericCatalogAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 {
-    protected const string CatalogEndpoint = "/api/v1/catalog";
-
-    protected static CreateProductRequest BuildValidRequest() =>
-        new CreateProductRequest
-        {
-            Name = "Meditacion Matutina",
-            Description = "Sesion de meditacion guiada para el inicio del dia",
-            Price = 9.99m,
-            CurrencyCode = CurrencyIsoCode.EUR,
-        };
+  
 }
 

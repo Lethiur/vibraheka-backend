@@ -6,6 +6,7 @@ required:
   - amount
   - currency
   - active
+  
 additionalProperties: false
 properties:
   productId:
@@ -13,7 +14,7 @@ properties:
     description: The ID of the product for which the price is being created
   amount:
     type: number
-    format: float
+    format: decimal
     minimum: 0
     description: The amount of the price
   currency:

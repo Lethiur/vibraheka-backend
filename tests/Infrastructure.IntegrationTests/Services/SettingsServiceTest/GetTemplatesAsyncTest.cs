@@ -15,7 +15,7 @@ public class GetTemplatesAsyncTest : GenericSettingsServiceTest
     {
         // Given: un template de verificacion previamente actualizado en SSM.
         Guid expectedTemplate = _faker.Random.Guid();
-        await _service.ChangeEmailForVerificationAsync(_faker.Random.Guid(), CancellationToken.None);
+        await _service.ChangeEmailForVerificationAsync(expectedTemplate, CancellationToken.None);
 
         // When: se consulta el template de verificacion.
         Result<string> result = await _service.GetVerificationEmailTemplateAsync(CancellationToken.None);

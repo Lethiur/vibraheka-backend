@@ -27,8 +27,7 @@ public class AddAttachmentCommandHandler(
         return templatesService.GetTemplateByID(request.TemplateId, cancellationToken)
             .Bind(templateEntity => emailTemplateStorageService.AddAttachment(templateEntity.ID, request.FileStream, request.AttachmentName, cancellationToken)
                 .Tap(url => templateEntity.Attachments.Add(url))
-                .Map(_ => templateEntity)
-                .Bind(entity => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
-                .Map(entity => templateEntity.Attachments.Last()));
+                .Bind(_ => templatesService.SaveEmailTemplate(templateEntity, cancellationToken))
+                .Map(_ => templateEntity.Attachments[templateEntity.Attachments.Count - 1]));
     }
 }

@@ -67,7 +67,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: result is success with a non-empty CheckoutURL
         Assert.That(result.IsSuccess, Is.True,
@@ -85,7 +85,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand(idempotencyKey: expectedKey);
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: CommitAsync is called once with a batch whose IdempotencyKey matches the command
         Assert.That(result.IsSuccess, Is.True,
@@ -107,7 +107,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: each write-port method is called once
         Assert.That(result.IsSuccess, Is.True,
@@ -146,7 +146,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
             .ReturnsAsync(Result.Success(user));
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: StartPaymentProcessAsync called with the CustomerID from the user
         Assert.That(result.IsSuccess, Is.True,
@@ -176,7 +176,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: result is failure with CO-004
         Assert.That(result.IsFailure, Is.True,
@@ -216,7 +216,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: result is failure with CO-004
         Assert.That(result.IsFailure, Is.True,
@@ -247,7 +247,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: result is failure with CO-007
         Assert.That(result.IsFailure, Is.True,
@@ -284,7 +284,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: result is failure with E-999
         Assert.That(result.IsFailure, Is.True,
@@ -311,7 +311,7 @@ public sealed class CreateOrderCommandHandlerTest : GenericCreateOrderTest
         CreateOrderCommand command = BuildValidCommand();
 
         // When: the handler processes the command
-        Result<CreateOrderResponse> result = await Handler.Handle(command, CancellationToken.None);
+        Result<OrderCheckoutModel> result = await Handler.Handle(command, CancellationToken.None);
 
         // Then: the payment attempt has OrderId set (LinkOrder was called before CommitAsync)
         Assert.That(result.IsSuccess, Is.True,

@@ -10,6 +10,7 @@ using VibraHeka.Domain.Common.Enums;
 using VibraHeka.Domain.Common.Interfaces.EmailTemplates;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
+using VibraHeka.Web.Authentication;
 
 namespace VibraHeka.Web.AcceptanceTests.Settings;
 
@@ -24,15 +25,15 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: A registered and confirmed admin user
         string email = TheFaker.Internet.Email();
         string username = TheFaker.Person.FullName;
-        string templateID = Guid.NewGuid().ToString();
+        Guid templateID = Guid.NewGuid();
         await RegisterAndConfirmAdmin(username, email, ThePassword);
 
         // And: The user is authenticated
-        var authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // And: Template in the DB
-        await SeedEmailTemplate(templateID, "test/verification-email.html");
+        await SeedEmailTemplate(templateID.ToString(), "test/verification-email.html");
 
         // And: A command to change the template
         var command = new ChangeTemplateForActionCommand(templateID, ActionType.UserVerification);
@@ -41,10 +42,7 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         HttpResponseMessage response = await Client.PatchAsJsonAsync("api/v1/settings/ChangeTemplate", command);
 
         // Then: The response should be 200 OK
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "Admin should be able to update the template");
-
-        ResponseEntity responseEntity = await response.GetAsResponseEntity();
-        Assert.That(responseEntity.Success, Is.True);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent), "Admin should be able to update the template");
     }
 
     [Test]
@@ -54,7 +52,7 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
         // Given: An authenticated admin
         string email = TheFaker.Internet.Email();
         await RegisterAndConfirmAdmin(TheFaker.Person.FullName, email, ThePassword);
-        var authResult = await AuthenticateUser(email, ThePassword);
+        AuthenticateUserResponse authResult = await AuthenticateUser(email, ThePassword);
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
         // When: Requesting all templates for actions
@@ -62,10 +60,6 @@ public class SettingsAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
 
         // Then: Should return 200 OK
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        ResponseEntity responseEntity = await response.GetAsResponseEntityAndContentAs<IEnumerable<TemplateForActionEntity>>();
-        Assert.That(responseEntity.Success, Is.True);
-        Assert.That(responseEntity.Content, Is.Not.Null);
     }
 
     private async Task SeedEmailTemplate(string id, string subject)

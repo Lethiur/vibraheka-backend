@@ -1,17 +1,16 @@
 ﻿using CSharpFunctionalExtensions;
 using NMoneys;
 using VibraHeka.Application.Common.Interfaces;
-using VibraHeka.Application.Events.Models;
 
 namespace VibraHeka.Application.Events.Commands.AdminCreateEvent;
 
-public record CreateEventCommand(
+public record AdminCreateEventCommand(
     string EventName,
     string EventDescription,
-    DateTime EventDate,
+    DateTimeOffset EventDate,
     int Duration,
     string EventTimezone,
     decimal Price,
-    CurrencyIsoCode CurrencyCode) : IRequireAdmin, IRequest<Result<EventDto>>
+    CurrencyIsoCode CurrencyCode) : IRequireAdmin, IRequest<Result<string>>
 {
 }

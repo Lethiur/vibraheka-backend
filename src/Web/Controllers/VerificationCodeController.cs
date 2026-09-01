@@ -9,7 +9,7 @@ namespace VibraHeka.Web.Controllers;
 
 
 [ApiController]
-[Route("api/v1/auth")]
+[Route("api/v1/codes")]
 public class VerificationCodeController(IMediator mediator)
 {
 

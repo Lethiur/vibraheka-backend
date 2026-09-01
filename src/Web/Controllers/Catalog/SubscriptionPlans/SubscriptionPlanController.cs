@@ -1,52 +1,68 @@
 ﻿using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Catalog.Commands.AdminAddSubscriptionPlan;
 using VibraHeka.Application.Catalog.Queries.AdminGetAllSubscriptionPlans;
 using VibraHeka.Domain.Catalog.Entities;
+using VibraHeka.Web.Catalog.Subscriptions.Controllers;
 
 namespace VibraHeka.Web.Controllers.Catalog.SubscriptionPlans;
 
-[ApiController]
-[Route("api/v1/catalog/subscriptions")]
-public class SubscriptionPlanController(IMediator mediator)
+/// <summary>
+/// Controller responsible for handling subscription plan-related operations in the system.
+/// This includes retrieving, creating, and manipulating subscription plans within the catalog.
+/// </summary>
+public class SubscriptionPlanController(IMediator mediator, SubscriptionPlanMapper mapper) : ISubscriptionPlanController
 {
-    [HttpGet]
-    [Authorize]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetAllSubscriptionPlan(CancellationToken ct)
+    /// <summary>
+    /// Retrieves a list of subscription plans from the catalog.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that allows processing to be cancelled. The default value is <see cref="CancellationToken.None"/>.
+    /// </param>
+    /// <returns>
+    /// An <see cref="ActionResult{T}"/> containing a <see cref="GetSubscriptionPlanResponse"/> if the operation succeeds,
+    /// or a bad request response with error details if the operation fails.
+    /// </returns>
+    public override async Task<ActionResult<GetSubscriptionPlanResponse>> GetSubscriptionPlans(
+        CancellationToken cancellationToken = default)
     {
         Result<IEnumerable<SubscriptionPlanEntity>>
-            result = await mediator.Send(new GetAllSubscriptionPlansQuery(), ct);
+            result = await mediator.Send(new GetAllSubscriptionPlansQuery(), cancellationToken);
 
         if (result.IsFailure)
         {
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return BadRequest(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return Ok(new GetSubscriptionPlanResponse { Plans = [.. result.Value.Select(mapper.ToResponse)] });
     }
 
-    [HttpPost]
-    [Authorize]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> CreateSubscriptionPlan([FromBody] CreateSubscriptionPlanRequest request,
-        CancellationToken ct)
+
+    /// <summary>
+    /// Creates a new subscription plan based on the request data provided.
+    /// </summary>
+    /// <param name="body">
+    /// The data required to create a subscription plan, encapsulated in the <see cref="CreateSubscriptionPlanRequest"/> object.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A token that allows the operation to be cancelled. The default value is <see cref="CancellationToken.None"/>.
+    /// </param>
+    /// <returns>
+    /// An <see cref="ActionResult{T}"/> containing a <see cref="CreateSubscriptionPlanResponse"/> if the operation succeeds,
+    /// or a bad request response with error details if the operation fails.
+    /// </returns>
+    public override async Task<ActionResult<CreateSubscriptionPlanResponse>> CreateSubscriptionPlan(
+        CreateSubscriptionPlanRequest body,
+        CancellationToken cancellationToken = default)
     {
-        Result<string> result =
-            await mediator.Send(
-                new AdminAddSubscriptionPlanCommand(request.Name, request.Description, request.Price,
-                    request.BillingInterval, request.CurrencyCode), ct);
+        Result<string> result = await mediator.Send(mapper.ToCommand(request), cancellationToken);
 
         if (result.IsFailure)
         {
-            return new BadRequestObjectResult(ResponseEntity.FromError(result.Error));
+            return BadRequest(new BadRequestResponse { ErrorCode = result.Error });
         }
 
-        return new OkObjectResult(ResponseEntity.FromSuccess(result.Value));
+        return Ok(new CreateSubscriptionPlanResponse { Id = Guid.Parse(result.Value) });
     }
+
+
 }

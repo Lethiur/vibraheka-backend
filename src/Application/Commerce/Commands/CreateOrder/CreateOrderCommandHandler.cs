@@ -25,14 +25,14 @@ public class CreateOrderCommandHandler(
     IOrderLineWritePort orderLineWritePort,
     IPaymentAttemptWritePort paymentAttemptWritePort,
     IPaymentsPort paymentsPort,
-    ICurrentUserService currentUserService) : IRequestHandler<CreateOrderCommand, Result<CreateOrderResponse>>
+    ICurrentUserService currentUserService) : IRequestHandler<CreateOrderCommand, Result<OrderCheckoutModel>>
 {
-    public async Task<Result<CreateOrderResponse>> Handle(CreateOrderCommand request,
+    public async Task<Result<OrderCheckoutModel>> Handle(CreateOrderCommand request,
         CancellationToken cancellationToken)
     {
         if (request.dto.OrderLines.Count == 0)
         {
-            return Result.Failure<CreateOrderResponse>(CommerceErrors.InvalidOrderLines);
+            return Result.Failure<OrderCheckoutModel>(CommerceErrors.InvalidOrderLines);
         }
 
         (bool _, bool userRetrievalFailure, UserEntity userEntity) =
@@ -40,7 +40,7 @@ public class CreateOrderCommandHandler(
 
         if (userRetrievalFailure)
         {
-            return Result.Failure<CreateOrderResponse>(CommerceErrors.FailedToOperateWithOrderLines);
+            return Result.Failure<OrderCheckoutModel>(CommerceErrors.FailedToOperateWithOrderLines);
         }
 
         OrderEntity orderEntity = OrderFactory.ForUser(currentUserService.UserId!);
@@ -48,11 +48,11 @@ public class CreateOrderCommandHandler(
         foreach (CreateOrderLineDTO orderLine in request.dto.OrderLines)
         {
             (bool _, bool isFailure, OrderLineEntity orderLineEntity) = await
-                GetOrderLineAsync(orderLine, userEntity.Id, cancellationToken);
+                GetOrderLineAsync(orderLine, cancellationToken);
 
             if (isFailure)
             {
-                return Result.Failure<CreateOrderResponse>(CommerceErrors.FailedToOperateWithOrderLines);
+                return Result.Failure<OrderCheckoutModel>(CommerceErrors.FailedToOperateWithOrderLines);
             }
             orderLineEntity.Quantity = orderLine.Quantity;
             orderEntity.AddLine(orderLineEntity);
@@ -72,7 +72,7 @@ public class CreateOrderCommandHandler(
 
         if (paymentFailed)
         {
-            return Result.Failure<CreateOrderResponse>(CommerceErrors.OrderPlacementFailed);
+            return Result.Failure<OrderCheckoutModel>(CommerceErrors.OrderPlacementFailed);
         }
 
         value.LinkOrder(orderEntity);
@@ -82,7 +82,7 @@ public class CreateOrderCommandHandler(
         batch.AddRange(orderEntity.Lines.Select(orderLineWritePort.CreateOrderLine));
         batch.Add(paymentAttemptWritePort.CreatePaymentAttempt(value));
 
-        return await transactionStore.CommitAsync(batch, cancellationToken).Map(_ => new CreateOrderResponse()
+        return await transactionStore.CommitAsync(batch, cancellationToken).Map(_ => new OrderCheckoutModel()
         {
             CheckoutURL = value.PaymentGatewayCheckoutURL,
             ExpiresAtUTC = value.ExpiresAt
@@ -94,19 +94,16 @@ public class CreateOrderCommandHandler(
     /// user identifier, and cancellation token.
     /// </summary>
     /// <param name="orderLine">
-    /// The data transfer object containing order line details, such as the sellable item ID.
-    /// </param>
-    /// <param name="userID">
-    /// The unique identifier of the user associated with the order line.
+    ///     The data transfer object containing order line details, such as the sellable item ID.
     /// </param>
     /// <param name="cancellationToken">
-    /// A token to monitor for cancellation requests.
+    ///     A token to monitor for cancellation requests.
     /// </param>
     /// <returns>
     /// A <see cref="Result{OrderLineEntity}"/> containing the created <see cref="OrderLineEntity"/> if the operation is successful,
     /// or an error if the process fails.
     /// </returns>
-    private Task<Result<OrderLineEntity>> GetOrderLineAsync(CreateOrderLineDTO orderLine, string userID,
+    private Task<Result<OrderLineEntity>> GetOrderLineAsync(CreateOrderLineDTO orderLine,
         CancellationToken cancellationToken)
     {
         return sellableItemPort.GetSellableItemByIdAsync(orderLine.SellableItemID, cancellationToken)

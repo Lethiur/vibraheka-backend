@@ -7,7 +7,6 @@ namespace VibraHeka.Web.Controllers.EmailTemplates;
 [Mapper]
 public partial class EmailTemplateMapper
 {
-    [MapperIgnoreTarget(nameof(SimpleEmailTemplateDTO.AdditionalProperties))]
     [MapperIgnoreSource(nameof(EmailEntity.CreatedBy))]
     [MapperIgnoreSource(nameof(EmailEntity.LastModifiedBy))]
     [MapperIgnoreSource(nameof(EmailEntity.Path))]

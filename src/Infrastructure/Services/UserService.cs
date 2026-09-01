@@ -107,7 +107,7 @@ public class UserService(
 
             JwtSecurityTokenHandler handler = new();
             JwtSecurityToken? jsonToken = handler.ReadJwtToken(response.AuthenticationResult.IdToken);
-            string? userId = jsonToken.Subject; // El claim 'sub' suele mapearse a .Subject
+            string? userId = jsonToken.Subject;
 
             return Result.Success(new AuthenticationResult(userId, response.AuthenticationResult.AccessToken,
                 response.AuthenticationResult.RefreshToken));
@@ -131,8 +131,7 @@ public class UserService(
 
         try
         {
-            ResendConfirmationCodeResponse resendConfirmationCodeResponse =
-                await _client.ResendConfirmationCodeAsync(request);
+            await _client.ResendConfirmationCodeAsync(request);
             return Result.Success(Unit.Value);
         }
         catch (Exception ex)
@@ -184,10 +183,7 @@ public class UserService(
             logger.LogInformation("Confirming Cognito forgot password flow for user {Email}", email);
             ConfirmForgotPasswordRequest request = new()
             {
-                ClientId = _clientId,
-                Username = email,
-                ConfirmationCode = recoveryCode,
-                Password = newPassword
+                ClientId = _clientId, Username = email, ConfirmationCode = recoveryCode, Password = newPassword
             };
 
             await _client.ConfirmForgotPasswordAsync(request, cancellationToken);
@@ -221,9 +217,7 @@ public class UserService(
             logger.LogInformation("Changing password for authenticated user");
             ChangePasswordRequest request = new()
             {
-                AccessToken = accessToken,
-                PreviousPassword = currentPassword,
-                ProposedPassword = newPassword
+                AccessToken = accessToken, PreviousPassword = currentPassword, ProposedPassword = newPassword
             };
 
             await _client.ChangePasswordAsync(request, cancellationToken);
@@ -305,7 +299,8 @@ public class UserService(
     /// <param name="cancellationToken">A token that may be used to cancel the operation.</param>
     /// <returns>A <see cref="Result{T}"/> wrapping a <see cref="string"/> that indicates the outcome of the token refresh operation.</returns>
     /// <exception cref="NotImplementedException">Thrown when the method is not yet implemented.</exception>
-    public async Task<Result<string>> RefreshToken(string refreshToken, string email, CancellationToken cancellationToken)
+    public async Task<Result<string>> RefreshToken(string refreshToken, string email,
+        CancellationToken cancellationToken)
     {
         InitiateAuthRequest refreshRequest = new()
         {
@@ -349,12 +344,10 @@ public class UserService(
         {
             ConfirmSignUpRequest request = new()
             {
-                Username = email,
-                ConfirmationCode = confirmationCode,
-                ClientId = _clientId
+                Username = email, ConfirmationCode = confirmationCode, ClientId = _clientId
             };
 
-            ConfirmSignUpResponse confirmSignUpResponse = await _client.ConfirmSignUpAsync(request);
+            await _client.ConfirmSignUpAsync(request);
             logger.Log(LogLevel.Information, "User with {Email} confirmed successfully", email);
             return Result.Success(Unit.Value);
         }

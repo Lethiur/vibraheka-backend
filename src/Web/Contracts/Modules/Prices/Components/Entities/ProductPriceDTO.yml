@@ -14,6 +14,7 @@ properties:
   billingInterval:
     $ref: '../../../Common/Enums/BillingInterval.yml#/components/schemas/BillingInterval'
     description: The billing interval for recurring prices
+    optional: true
   isActive:
     type: boolean
     description: Indicates whether the price is active
@@ -21,7 +22,7 @@ properties:
     default: false
   amount:
     type: number
-    format: float
+    format: decimal
     description: The amount of the price
   currencyCode:
     $ref: '../../../Common/Fields/CurrencyCode.yml'

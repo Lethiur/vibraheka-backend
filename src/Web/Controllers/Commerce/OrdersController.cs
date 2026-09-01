@@ -1,45 +1,25 @@
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VibraHeka.Application.Commerce.Commands.CreateOrder;
 using VibraHeka.Application.Commerce.Models;
-using VibraHeka.Domain.Commerce.Errors;
-using VibraHeka.Domain.Common.Errors;
-using VibraHeka.Domain.Entities;
-using VibraHeka.Web.Entities;
-using VibraHeka.Web.Mappers;
+using VibraHeka.Web.Catalog.Orders.Controllers;
 
 namespace VibraHeka.Web.Controllers.Commerce;
 
-[ApiController]
-[Route("api/v1/orders")]
-public sealed class OrdersController(IMediator mediator, OrderRequestMapper mapper, ILogger<OrdersController> logger)
+public sealed class OrdersController(IMediator mediator, OrdersMapper mapper, ILogger<OrdersController> logger) : IOrdersController
 {
-    [HttpPost]
-    [Authorize]
-    [Consumes("application/json")]
-    [Produces("application/json")]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ResponseEntity), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, CancellationToken ct)
+    
+    public override async Task<ActionResult<CreateOrderResponse>> CreateOrder(CreateOrderRequest body, CancellationToken cancellationToken = default)
     {
-        CreateOrderDTO dto = mapper.ToDto(request);
+        CreateOrderDTO dto = mapper.ToDTO(body.Order);
         CreateOrderCommand command = new(dto);
-        Result<CreateOrderResponse> result = await mediator.Send(command, ct);
+        Result<OrderCheckoutModel> result = await mediator.Send(command, cancellationToken);
         if (result.IsSuccess)
         {
             logger.LogInformation("Order created successfully");
-            return new ObjectResult(ResponseEntity.FromSuccess(result.Value)) { StatusCode = StatusCodes.Status201Created };
+            return Ok(mapper.ToResponse(result.Value));
         }
         logger.LogWarning("Order creation failed with error {Error}", result.Error);
-        return result.Error switch
-        {
-            CommerceErrors.OrderPlacementFailed => new ConflictObjectResult(ResponseEntity.FromError(result.Error)),
-            DomainErrors.GenericError => new ObjectResult(ResponseEntity.FromError(result.Error)) { StatusCode = StatusCodes.Status500InternalServerError },
-            _ => new BadRequestObjectResult(ResponseEntity.FromError(result.Error))
-        };
+        return BadRequest(new BadRequestResponse { ErrorCode = result.Error });
     }
 }

@@ -2,6 +2,6 @@
 description: The response for creating an event.
 additionalProperties: false
 properties:
-  event:
-    $ref: '../Entities/EventDTO.yml'
-    description: The created event details.
+  id:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the created event.

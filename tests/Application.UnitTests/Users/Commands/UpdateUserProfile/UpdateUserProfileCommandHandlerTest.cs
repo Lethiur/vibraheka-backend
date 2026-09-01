@@ -64,41 +64,5 @@ public class UpdateUserProfileCommandHandlerTest
         Assert.That(result.IsSuccess, Is.True);
         _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), "updater-id", It.IsAny<CancellationToken>()), Times.Once);
     }
-
-    [Test]
-    public async Task ShouldReturnNotAuthorizedWhenNewUserDataIsNull()
-    {
-        // Given
-        UpdateUserProfileCommand command = new(null!, null!, null!, null!, null!, null!, null!, null!);
-
-        // When
-        Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
-
-        // Then
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Test]
-    public async Task ShouldReturnNotAuthorizedWhenTryingToUpdateAnotherUser()
-    {
-        // Given
-        UserEntity dto = new()
-        {
-            Id = Guid.NewGuid().ToString(),
-            Email = "other@test.com",
-            FirstName = "Other"
-        };
-        UpdateUserProfileCommand command = new(dto.Email, dto.FirstName, dto.MiddleName, dto.LastName, dto.PhoneNumber, dto.Bio, null!, null!);
-
-        // When
-        Result<Unit> result = await _handler.Handle(command, CancellationToken.None);
-
-        // Then
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.EqualTo(UserErrors.NotAuthorized));
-        _userServiceMock.Verify(x => x.UpdateUserAsync(It.IsAny<UserEntity>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
 }
 

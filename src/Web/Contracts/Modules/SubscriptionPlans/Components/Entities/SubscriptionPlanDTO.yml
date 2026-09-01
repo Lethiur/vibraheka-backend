@@ -19,5 +19,9 @@ properties:
   includesFullCatalog:
     type: boolean
     description: Indicates whether the subscription plan includes access to the full catalog of recordings or not.
+  createdAt:
+    $ref: '../../../Common/Fields/Date.yml'
+  lastUpdatedAt:
+    $ref: '../../../Common/Fields/Date.yml'
   
  

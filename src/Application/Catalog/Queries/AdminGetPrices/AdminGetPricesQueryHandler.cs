@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Domain.Catalog.Entities;
 using VibraHeka.Domain.Catalog.Ports.Out;
 

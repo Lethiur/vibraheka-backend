@@ -1,14 +1,8 @@
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VibraHeka.Application.Catalog.Commands.AdminActivatePrice;
-using VibraHeka.Application.Catalog.Commands.AdminCreatePrice;
-using VibraHeka.Application.Catalog.Models;
 using VibraHeka.Application.Catalog.Queries.AdminGetPrices;
 using VibraHeka.Domain.Catalog.Entities;
-using VibraHeka.Domain.Entities;
 using VibraHeka.Web.Catalog.Pricing.Controllers;
-using VibraHeka.Web.Entities;
 
 namespace VibraHeka.Web.Controllers.Catalog.Pricing;
 

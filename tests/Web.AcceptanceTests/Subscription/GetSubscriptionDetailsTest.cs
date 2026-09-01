@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using NUnit.Framework;
 using VibraHeka.Domain.Exceptions;
+using VibraHeka.Web.AcceptanceTests.Utils;
 using VibraHeka.Web.Subscriptions;
 
 namespace VibraHeka.Web.AcceptanceTests.Subscription;
@@ -51,7 +52,7 @@ public class GetSubscriptionDetailsTest : GenericSubscriptionAcceptanceTest
         // Then: the details DTO should be returned successfully.
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
-        SubscriptionDetailsResponse? entity = await response.Content.ReadFromJsonAsync<SubscriptionDetailsResponse>();
+        SubscriptionDetailsResponse entity = await response.ParseContentAsync<SubscriptionDetailsResponse>();
         Assert.That(entity.CheckoutSessionUrl, Is.Not.Null.And.Not.Empty);
         Assert.That(entity.CheckoutSessionExpiresAt, Is.GreaterThan(DateTimeOffset.UtcNow.AddHours(-1)));
     }

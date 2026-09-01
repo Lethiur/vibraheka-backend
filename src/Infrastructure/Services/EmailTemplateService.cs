@@ -72,6 +72,7 @@ public class EmailTemplateService(IEmailTemplatesRepository EmailTemplateReposit
         return
             Maybe.From(templateID)
                 .ToResult(EmailTemplateErrors.InvalidTempalteID)
+                .Ensure(id => id != Guid.Empty, EmailTemplateErrors.InvalidTempalteID)
                 .BindTry(template => EmailTemplateRepository.GetTemplateByID(template, cancellationToken))
                 .Ensure(tpl => tpl != null, EmailTemplateErrors.TemplateNotFound)
                 .TapTry(entity =>

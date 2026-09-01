@@ -1,0 +1,15 @@
+﻿type: object
+description: DTO for OrderLine
+additionalProperties: false
+properties:
+  productId:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the product associated with this order line.
+  priceId:
+    $ref: '../../../Common/Fields/Id.yml'
+    description: The unique identifier of the price associated with this order line.
+  quantity:
+    type: integer
+    format: int32
+    description: The quantity of the product in this order line.
+    minimum: 1

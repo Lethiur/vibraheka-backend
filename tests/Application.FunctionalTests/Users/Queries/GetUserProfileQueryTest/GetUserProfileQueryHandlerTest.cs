@@ -20,7 +20,7 @@ public class GetUserProfileQueryHandlerTest
     {
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _userServiceMock = new Mock<IUserService>();
-        _handler = new GetUserProfileQueryHandler( _userServiceMock.Object);
+        _handler = new GetUserProfileQueryHandler( _userServiceMock.Object, _currentUserServiceMock.Object);
     }
 
     [Test]

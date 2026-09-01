@@ -57,7 +57,6 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     [TearDown]
     public void Teardown()
     {
-
         Client.Dispose();
     }
 
@@ -83,22 +82,25 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
             try
             {
                 HttpResponseMessage response =
-                    await Client.PostAsJsonAsync($"api/v1/auth/verification-code", new GetCodeQuery(itemId));
+                    await Client.PostAsJsonAsync($"api/v1/codes/verification-code", new GetCodeQuery(itemId));
+
                 VerificationCodeEntity asResponseEntityAndContentAs =
                     await response.ParseContentAsync<VerificationCodeEntity>();
-            
-                 return asResponseEntityAndContentAs;    
-                    
-            } catch (Exception ex)
+
+                if (asResponseEntityAndContentAs.Code == string.Empty)
+                {
+                    continue;
+                }
+
+                return asResponseEntityAndContentAs;
+            }
+            catch (Exception ex)
             {
                 // Log the exception if needed
                 Console.WriteLine($"Exception while waiting for verification code: {ex.Message}");
             }
-            
-
             await Task.Delay(500); // Wait before retrying
         }
-
         throw new TimeoutException("DynamoDB record was not available within the expected time.");
     }
 
@@ -112,11 +114,20 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <returns>The unique identifier of the newly registered user.</returns>
     protected async Task<string> RegisterUser(string username, string email, string password)
     {
-        HttpResponseMessage postAsJsonAsync = await Client.PostAsJsonAsync("api/v1/auth/register",
-                new RegisterUserCommand(email, password, username, "TEST", "TEST", "Europe/Madrid"));
+        HttpResponseMessage postAsJsonAsync = await Client.PutAsJsonAsync("api/v1/auth/register",
+            new RegisterUserRequest()
+            {
+                Email = email,
+                Password = password,
+                FirstName = "Test",
+                MiddleName = "TEST",
+                LastName = "Test",
+                TimezoneID = "Europe/Madrid"
+            });
 
-        RegisterUserResponse asResponseEntityAndContentAs = await postAsJsonAsync.ParseContentAsync<RegisterUserResponse>();
-        
+        RegisterUserResponse asResponseEntityAndContentAs =
+            await postAsJsonAsync.ParseContentAsync<RegisterUserResponse>();
+
         return asResponseEntityAndContentAs.UserId;
     }
 
@@ -151,9 +162,9 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     {
         string userID = await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
-        VerifyUserCommand verificationCommand = new(codeResult.Code);
+        VerifyUserRequest verificationCommand = new() { EncryptedCode = codeResult.Code };
         HttpResponseMessage patchAsJsonAsync =
-            await Client.PatchAsJsonAsync("api/v1/auth/confirm", verificationCommand);
+            await Client.PatchAsJsonAsync("api/v1/auth/verify", verificationCommand);
         patchAsJsonAsync.EnsureSuccessStatusCode();
         await PromoteToAdmin(username, email, userID);
         return userID;
@@ -168,7 +179,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
     /// <param name="password">The password for the user's account.</param>
     /// <returns>An instance of <c>AuthenticateUserResponse</c> containing the user's authentication information, including tokens and roles.</returns>
     /// <exception cref="HttpRequestException">Thrown when the confirmation or authentication process encounters an HTTP error.</exception>
-    protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string username, string email, string password)
+    protected async Task<AuthenticateUserResponse> RegisterConfirmAndLogin(string username, string email,
+        string password)
     {
         await RegisterUser(username, email, password);
         VerificationCodeEntity codeResult = await WaitForVerificationCode(email, TimeSpan.FromSeconds(10));
@@ -287,7 +299,7 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 
         return $"v1.{base64Url}";
     }
-    
+
     protected async Task<AuthenticateUserResponse> AuthenticateAsConfirmedUser()
     {
         // Given

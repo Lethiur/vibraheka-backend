@@ -1,12 +1,11 @@
 using CSharpFunctionalExtensions;
 using NMoneys;
-using VibraHeka.Domain.Catalog.Enums;
 using VibraHeka.Domain.Commerce.Enums;
 using VibraHeka.Domain.Common.Interfaces.Subscription;
 using VibraHeka.Domain.Entities;
 using VibraHeka.Infrastructure.Entities;
 using VibraHeka.Web.AcceptanceTests.Generic;
-using VibraHeka.Web.Entities;
+using VibraHeka.Web.Catalog.Recordings.Controllers;
 using SubscriptionStatus = VibraHeka.Domain.Common.Enums.SubscriptionStatus;
 
 namespace VibraHeka.Web.AcceptanceTests.Catalog;
@@ -17,24 +16,24 @@ namespace VibraHeka.Web.AcceptanceTests.Catalog;
 /// </summary>
 public abstract class GenericRecordingsTest : GenericAcceptanceTest<VibraHekaProgram>
 {
-    protected UploadRecordingRequest BuildValidBody() => BuildBody();
+    protected CreateRecordingRequest BuildValidBody() => BuildBody();
 
-    protected UploadRecordingRequest BuildPremiumBody() => BuildBody(tier: RecordingTier.Premium);
+    protected CreateRecordingRequest BuildPremiumBody() => BuildBody(tier: RecordingTier.Premium);
 
-    protected UploadRecordingRequest BuildBody(
+    protected CreateRecordingRequest BuildBody(
         string name = "Sesion de meditacion",
         string description = "Descripcion valida de la sesion de meditacion guiada",
         RecordingType type = RecordingType.Meditacion,
         RecordingTier tier = RecordingTier.Free)
     {
-        UploadRecordingRequest request = new()
+        CreateRecordingRequest request = new()
         {
             Name = name,
             Description = description,
             Type = type,
             Tier = tier,
             Price = 15m,
-            CurrencyCode = CurrencyIsoCode.EUR
+            Currency = nameof(CurrencyIsoCode.EUR)
         };
 
         return request;

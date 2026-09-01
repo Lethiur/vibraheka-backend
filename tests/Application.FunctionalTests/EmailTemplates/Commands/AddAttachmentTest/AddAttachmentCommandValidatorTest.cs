@@ -114,7 +114,7 @@ public class AddAttachmentCommandValidatorTests
     public async Task ShouldRestoreStreamPositionAfterValidation()
     {
         // Given: a valid media stream with a non-zero position to verify the position is restored.
-        MemoryStream stream = new([.. "‰PNG\r\n\u001A\n\0"u8]);
+        MemoryStream stream = new(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00 });
         stream.Position = 4;
         AddAttachmentCommand command = new(stream, Guid.NewGuid(), "file.png");
 

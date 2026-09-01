@@ -20,14 +20,14 @@ public class UpdateUserProfileCommandValidatorTest
     {
         // Given
         UpdateUserProfileCommand command = new(
-            Guid.NewGuid().ToString(),
             "valid@test.com",
             "John",
             "M",
             "Doe",
+            "34911111222",
             "Bio",
             "https://example.com/avatar.jpg",
-            "+34911111222"
+            "Europe/Madrid"
         );
 
         // When

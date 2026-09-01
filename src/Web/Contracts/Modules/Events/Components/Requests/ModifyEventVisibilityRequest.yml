@@ -5,7 +5,7 @@ required:
   - eventId
   - visible
 additionalProperties: false
-fields:
+properties:
   eventId:
     $ref: '../../../Common/Fields/Id.yml'
     description: The unique identifier of the event whose visibility is to be modified.

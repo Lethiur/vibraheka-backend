@@ -40,7 +40,7 @@ public sealed class CreateProductInGatewayAsyncIntegrationTest : GenericCatalogA
             Name = $"Integration Test Product {Guid.NewGuid()}",
             Description = "Created by integration test - will be archived/deleted in TearDown",
         };
-        SellableItemPriceEntity priceEntity = new SellableItemPriceEntity
+        SellableItemPriceEntity priceEntity = new()
         {
             SellableItemPriceID = Guid.NewGuid().ToString(),
             SellableItemID = Guid.NewGuid().ToString(),

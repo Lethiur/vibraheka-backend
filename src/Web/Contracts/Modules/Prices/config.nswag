@@ -10,6 +10,7 @@
       "className": "IPricingController",
       "controllerStyle": "Abstract",
       "useCancellationToken": true,
+      "generateNullableReferenceTypes": true,
       "controllerBaseClass": "Microsoft.AspNetCore.Mvc.ControllerBase",
       "targetFramework": "AspNetCore",
       "namespace": "VibraHeka.Web.Catalog.Pricing.Controllers",
