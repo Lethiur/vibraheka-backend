@@ -12,6 +12,10 @@ public class AuthenticateTest : GenericAuthAcceptanceTest
     public async Task ShouldAuthenticateAConfirmedUser()
     {
         // Given: A registered and confirmed user
+
+        string email = TheFaker.Internet.Email();
+        await RegisterAndConfirmUser(email, ThePassword);
+
         // When: The user is authenticated
         AuthenticateUserResponse token = await AuthenticateAsNewUser();
 

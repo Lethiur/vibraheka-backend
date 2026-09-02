@@ -10,19 +10,17 @@ using VibraHeka.Web.Authentication;
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
 [TestFixture]
-public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
+public class ForgotPasswordAcceptanceTest : GenericAuthAcceptanceTest
 {
     [Test]
     public async Task ShouldReturnOkWhenStartingPasswordRecoveryForNonExistingUser()
     {
         // Given: a valid email that does not exist in Cognito
-        StartPasswordRecoveryCommand command = new($"{Guid.NewGuid():N}@example.com");
+        ResetPasswordRequest request = new ResetPasswordRequest() { Email = TheFaker.Internet.Email() };
 
-        // When: the forgot-password endpoint is called
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password", command);
-
+        // When: the forgot-password endpoint is called.
         // Then: endpoint returns success to avoid user enumeration
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        await PerformResetPassword(request);
     }
 
     [TestCase("")]
@@ -31,60 +29,46 @@ public class ForgotPasswordAcceptanceTest : GenericAcceptanceTest<VibraHekaProgr
     [TestCase("invalid-email")]
     public async Task ShouldReturnBadRequestWhenStartingPasswordRecoveryWithInvalidEmail(string? email)
     {
-        // Given: an invalid forgot-password command
-        StartPasswordRecoveryCommand command = new(email!);
-
+        // Given: a valid email that does not exist in Cognito
+        ResetPasswordRequest request = new ResetPasswordRequest() { Email = email! };
+        
         // When: the forgot-password endpoint is called
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password", command);
-
-        // Then: validation error is returned
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidEmail));
+        await PerformCallAndExpectError(() => InvokeResetPasswordEndpoint(request), UserErrors.InvalidEmail);
     }
 
     [Test]
     public async Task ShouldReturnBadRequestWhenConfirmingPasswordRecoveryWithMalformedToken()
     {
         // Given: a malformed encrypted token with valid password fields
-        ConfirmPasswordRecoveryCommand command = new("invalid-token", "Password123@", "Password123@");
+        ConfirmResetPasswordRequest command = new() { EncryptedToken = "invalid-token", NewPassword = "Password123@", NewPasswordConfirmation = "Password123@" };
 
-        // When: the forgot-password confirm endpoint is called
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password/confirm", command);
-
+        // When: the forgot-password confirmation endpoint is called
         // Then: token validation fails with InvalidPasswordResetToken
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
+        await PerformCallAndExpectError(() => InvokeConfirmResetPasswordEndpoint(command), UserErrors.InvalidPasswordResetToken);
+
     }
 
     [Test]
     public async Task ShouldReturnBadRequestWhenConfirmingPasswordRecoveryWithEmptyToken()
     {
         // Given: an empty token and valid password fields
-        ConfirmPasswordRecoveryCommand command = new(string.Empty, "Password123@", "Password123@");
+        ConfirmResetPasswordRequest command = new() { EncryptedToken = string.Empty, NewPassword = "Password123@", NewPasswordConfirmation = "Password123@" };
 
-        // When: the forgot-password confirm endpoint is called
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password/confirm", command);
+        // When: the forgot-password confirmation endpoint is called
+        // Then: token validation fails with InvalidPasswordResetToken
+        await PerformCallAndExpectError(() => InvokeConfirmResetPasswordEndpoint(command), UserErrors.InvalidPasswordResetToken);
 
-        // Then: validator rejects the request with InvalidPasswordResetToken
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPasswordResetToken));
     }
 
     [Test]
     public async Task ShouldReturnBadRequestWhenConfirmingPasswordRecoveryWithDifferentPasswords()
     {
         // Given: a command where confirmation password does not match
-        ConfirmPasswordRecoveryCommand command = new("v1.invalid", "Password123@", "Password456@");
+        ConfirmResetPasswordRequest command = new() { EncryptedToken = "v1.invalid", NewPassword = "Password123@", NewPasswordConfirmation = "Password456@" };
 
-        // When: the forgot-password confirm endpoint is called
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/forgot-password/confirm", command);
-
+        // When: the forgot-password confirmation endpoint is called
         // Then: validator returns invalid password error
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse? responseObject = await response.Content.ReadFromJsonAsync<BadRequestResponse>();
-        Assert.That(responseObject!.ErrorCode, Is.EqualTo(UserErrors.InvalidPassword));
+        await PerformCallAndExpectError(() => InvokeConfirmResetPasswordEndpoint(command), UserErrors.InvalidPassword);
+        
     }
 }

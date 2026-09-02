@@ -66,8 +66,7 @@ public class ChangeAuthenticatedPasswordTest : GenericAuthAcceptanceTest
         // Given: an authenticated user providing wrong current password.
         string email = TheFaker.Internet.Email();
         await RegisterConfirmAndLogin(email);
-
-
+        
         ChangePasswordRequest command = new()
         {
             CurrentPassword = "WrongCurrent123@",

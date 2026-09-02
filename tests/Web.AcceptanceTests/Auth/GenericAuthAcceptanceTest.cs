@@ -18,8 +18,15 @@ public class GenericAuthAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
     protected Task<HttpResponseMessage> InvokeAuthenticateEndpoint(AuthenticateUserRequest command) => Client.PostAsJsonAsync(LoginEndpoint, command);
     
     protected Task<HttpResponseMessage> InvokeChangePasswordEndpoint(ChangePasswordRequest command) => Client.PatchAsJsonAsync(ChangePasswordEndpoint, command);
+    protected Task<HttpResponseMessage> InvokeConfirmResetPasswordEndpoint(ConfirmResetPasswordRequest command) => Client.PostAsJsonAsync(ConfirmResetPasswordEndpoint, command);
+    
+    protected Task<HttpResponseMessage> InvokeResetPasswordEndpoint(ResetPasswordRequest request) => Client.PostAsJsonAsync(ResetPasswordEndpoint, request);
     
     protected Task PerformChangePassword(ChangePasswordRequest command) => PerformCallAndExpectStatusCode(() => InvokeChangePasswordEndpoint(command), HttpStatusCode.NoContent);
+    
+    protected Task PerformResetPassword(ResetPasswordRequest request) => PerformCallAndExpectStatusCode(() => InvokeResetPasswordEndpoint(request), HttpStatusCode.NoContent);
+    
+    protected Task PerformConfirmResetPassword(ConfirmResetPasswordRequest command) => PerformCallAndExpectStatusCode(() => InvokeConfirmResetPasswordEndpoint(command), HttpStatusCode.NoContent);
 
     protected AuthenticateUserRequest BuildWithRegularPassword(ref string email)
     {
