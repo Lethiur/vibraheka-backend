@@ -14,67 +14,51 @@ using VibraHeka.Web.Authentication;
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
 [TestFixture]
-public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraHekaProgram>
+public class ResendConfirmationCodeAcceptanceTest : GenericAuthAcceptanceTest
 {
     [Test]
     public async Task ShouldResendConfirmationCodeWhenUserIsRegistered()
     {
-        // Given: A registered but not confirmed user
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        await RegisterUser(email, "Password123@");
-
+        // Given: A registered but not confirmed user\
+        string email = TheFaker.Internet.Email();
+        await RegisterUser(email);
 
         // When: Resending the confirmation code
-        HttpResponseMessage response = await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-            new ResendConfirmationCodeRequest { Email = email });
-
         // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        await PerformResendConfirmationCode(new ResendConfirmationCodeRequest { Email = email });
     }
 
     [Test]
     public async Task ShouldReturnBadRequestWhenRequestingVerificationCodeTwiceWithinCooldownWindow()
     {
         // Given: a registered but unconfirmed user that can request the first code.
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        await RegisterUser(email, "Password123@");
 
-        
-        HttpResponseMessage firstResponse = await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-            new ResendConfirmationCodeRequest { Email = email });
-        Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        string email = TheFaker.Internet.Email();
+        await RegisterUser(email);
+
+        await PerformResendConfirmationCode(new ResendConfirmationCodeRequest { Email = email });
+
 
         // When: the same user requests another code immediately (within 1 minute cooldown).
-        HttpResponseMessage secondResponse =
-            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-                new ResendConfirmationCodeRequest { Email = email });
-
         // Then: endpoint should reject by cooldown policy.
-        Assert.That(secondResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse responseEntity = await secondResponse.ParseContentAsync<BadRequestResponse>();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
+        await PerformCallAndExpectError(
+            () => InvokeResendConfirmationCodeEndpoint(new ResendConfirmationCodeRequest { Email = email }),
+            UserErrors.NotAuthorized);
     }
 
     [Test]
     public async Task ShouldAllowResendAfterCooldownWindowHasElapsed()
     {
         // Given: a registered user that already consumed one resend and is now in cooldown.
-        Faker faker = new();
-        string email = faker.Internet.Email();
-        await RegisterUser(email, "Password123@");
+        string email = TheFaker.Internet.Email();
+        await RegisterUser(email);
+        ResendConfirmationCodeRequest request = new ResendConfirmationCodeRequest { Email = email };
+        await PerformResendConfirmationCode(request);
 
-        HttpResponseMessage firstResponse =
-            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-                new ResendConfirmationCodeRequest { Email = email });
-        Assert.That(firstResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-
-        HttpResponseMessage blockedResponse =
-            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-                new ResendConfirmationCodeRequest { Email = email });
-        Assert.That(blockedResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-
+        await PerformCallAndExpectStatusCode(
+            () => InvokeResendConfirmationCodeEndpoint(request),
+            HttpStatusCode.BadRequest);
+        
         IUserService userService = GetObjectFromFactory<IUserService>();
         IActionLogRepository actionLogRepository = GetObjectFromFactory<IActionLogRepository>();
         string userId = (await userService.GetUserID(email, CancellationToken.None)).Value;
@@ -87,13 +71,10 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
             }, CancellationToken.None);
 
         // When: requesting resend again after moving the action timestamp outside cooldown.
-        HttpResponseMessage responseAfterCooldown =
-            await Client.PostAsJsonAsync($"/api/v1/auth/resend-confirmation-code",
-                new ResendConfirmationCodeRequest { Email = email });
+        await PerformCallAndExpectStatusCode(
+            () => InvokeResendConfirmationCodeEndpoint(request),
+            HttpStatusCode.NoContent);
 
-        // Then: endpoint should allow the action again.
-        Assert.That(responseAfterCooldown.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-        
     }
 
     [Test]
@@ -103,12 +84,9 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
         string email = "nonexistent@example.com";
 
         // When: Resending the confirmation code
-        HttpResponseMessage response = await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={email}");
-
-        // Then
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.UserNotFound));
+        await PerformCallAndExpectError(
+            () => InvokeResendConfirmationCodeEndpoint(new ResendConfirmationCodeRequest { Email = email }),
+            UserErrors.UserNotFound);
     }
 
     [TestCase("")]
@@ -117,14 +95,10 @@ public class ResendConfirmationCodeAcceptanceTest : GenericAcceptanceTest<VibraH
     public async Task ShouldReturnBadRequestWhenEmailFormatIsInvalid(string invalidEmail)
     {
         // Given: an invalid email format in query string.
-
         // When: requesting resend confirmation code.
-        HttpResponseMessage response =
-            await Client.GetAsync($"/api/v1/auth/resend-confirmation-code?email={invalidEmail}");
-
-        // Then: validator should map to invalid email error code.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.InvalidEmail));
+        // Then: endpoint should reject with invalid email error.
+        await PerformCallAndExpectError(
+            () => InvokeResendConfirmationCodeEndpoint(new ResendConfirmationCodeRequest { Email = invalidEmail }),
+            UserErrors.InvalidEmail);
     }
 }

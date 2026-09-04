@@ -10,7 +10,7 @@ using VibraHeka.Web.Authentication;
 namespace VibraHeka.Web.AcceptanceTests.Auth;
 
 [TestFixture]
-public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
+public class RefreshTokenTest : GenericAuthAcceptanceTest
 {
     [Test]
     [DisplayName("Should refresh access token for a confirmed authenticated user")]
@@ -28,15 +28,10 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         };
 
         // When: requesting token refresh through the API.
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/refresh-token", command);
-
-        // Then: endpoint should return a new access token.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        RefreshTokenResponse responseEntity = await response.ParseContentAsync<RefreshTokenResponse>();
+        RefreshTokenResponse responseEntity =  await PerformCallAndRetrieveContent<RefreshTokenResponse>(() => InvokeRefreshTokenEndpoint(command));
         
+        // Then: The tokens should be different
         Assert.That(responseEntity.AccessToken, Is.Not.Null.And.Not.Empty);
-
-        // And: The tokens should be different
         Assert.That(responseEntity.AccessToken, Is.Not.EqualTo(authenticationResult.AccessToken));
     }
     
@@ -55,12 +50,9 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         };
 
         // When: requesting token refresh.
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/refresh-token", command);
-
         // Then: API should reject the request.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(UserErrors.NotAuthorized));
+        await PerformCallAndExpectError(() => InvokeRefreshTokenEndpoint(command), UserErrors.NotAuthorized);
+      
     }
 
     [TestCase("", "user@test.com", UserErrors.InvalidForm, TestName = "Empty refresh token")]
@@ -82,11 +74,6 @@ public class RefreshTokenTest : GenericAcceptanceTest<VibraHekaProgram>
         };
 
         // When: calling the refresh-token endpoint.
-        HttpResponseMessage response = await Client.PostAsJsonAsync("/api/v1/auth/refresh-token", command);
-
-        // Then: validator or service should reject it with a domain error.
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        BadRequestResponse responseEntity = await response.ParseContentAsync<BadRequestResponse>();
-        Assert.That(responseEntity.ErrorCode, Is.EqualTo(expectedErrorCode));
+        await PerformCallAndExpectError(() => InvokeRefreshTokenEndpoint(command), expectedErrorCode);
     }
 }

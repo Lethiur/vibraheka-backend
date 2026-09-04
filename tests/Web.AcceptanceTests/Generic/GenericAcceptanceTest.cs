@@ -29,8 +29,8 @@ public class GenericAcceptanceTest<TAppClass> where TAppClass : class
 {
     private const string GetVerificationCodeEndpoint = "/api/v1/codes/verification-code";
     protected const string LoginEndpoint = "/api/v1/auth/authenticate";
-    private const string VerifyEndpoint = "/api/v1/auth/verify";
-    private const string RegisterEndpoint = "/api/v1/auth/register";
+    protected const string VerifyEndpoint = "/api/v1/auth/verify";
+    protected const string RegisterEndpoint = "/api/v1/auth/register";
    
 
     protected const string ThePassword = "Password123@";
